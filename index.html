@@ -60,7 +60,7 @@
             font-weight: 600;
         }
         .ctrl input:focus, .ctrl select:focus { outline: none; border-color: var(--accent); background: #fff; }
-        .ctrl input#avgOrderValue, .ctrl input#protectionPremium, .ctrl input#widgetCashback { width: 90px; }
+        .ctrl input#avgOrderValue, .ctrl input#protectionPremium, .ctrl input#widgetCashback, .ctrl input#widgetContribution { width: 90px; }
         .control-bar .spacer { flex: 1; }
         .copy-link-btn {
             display: inline-flex; align-items: center; gap: 6px;
@@ -397,6 +397,13 @@
     </div>
 
     <div class="control-bar">
+        <div class="ctrl" id="impactLinkCtrl" style="flex:1 1 260px;min-width:220px;">
+            <label for="impactLinkInput">Load From Calc Link</label>
+            <div style="display:flex;gap:6px;">
+                <input type="text" id="impactLinkInput" placeholder="Paste an ROI Calculator link…" style="flex:1;min-width:0;">
+                <button type="button" id="impactLinkLoadBtn" onclick="loadImpactLink()" style="padding:7px 14px;font-size:0.82em;font-weight:700;border-radius:7px;border:1.5px solid #d5d9f0;background:#f8f9fd;color:#4a5fc1;cursor:pointer;flex-shrink:0;">Load</button>
+            </div>
+        </div>
         <div class="ctrl">
             <label for="widgetMode">Mode</label>
             <select id="widgetMode">
@@ -404,6 +411,7 @@
                 <option value="returns">Protection + Free Returns</option>
                 <option value="returns-offset">Returns Offset</option>
                 <option value="cashback">Cashback</option>
+                <option value="contribution">Contributions</option>
                 <option value="guarantee">Satisfaction Guarantee</option>
             </select>
         </div>
@@ -461,6 +469,10 @@
             <label for="widgetCashback">Cashback $</label>
             <input type="text" id="widgetCashback" placeholder="5" value="5">
         </div>
+        <div class="ctrl" id="contributionCtrl" style="display:none;">
+            <label for="widgetContribution">Contribution $</label>
+            <input type="text" id="widgetContribution" placeholder="10" value="10">
+        </div>
         <div class="spacer"></div>
         <button class="copy-link-btn" onclick="copyDesignerLink()">🔗 Copy Link</button>
     </div><!-- /control-bar -->
@@ -492,15 +504,15 @@
                             <input type="text" id="wc-dual-header" placeholder="Loss, Damage, Theft Protection" oninput="updateWidgetPreview()">
                         </div>
                         <div class="wconfig-field">
-                            <label>Body (optional)</label>
+                            <label>Body (optional) <span style="font-weight:400;text-transform:none;color:#aaa;">— **bold** to bold part of it</span></label>
                             <input type="text" id="wc-dualp-body" placeholder="" oninput="updateWidgetPreview()">
                         </div>
                         <div class="wconfig-field">
-                            <label>Button A</label>
+                            <label>Protected Button</label>
                             <input type="text" id="wc-dual-btna" placeholder="Checkout | $0.00" oninput="updateWidgetPreview()">
                         </div>
                         <div class="wconfig-field">
-                            <label>Button B</label>
+                            <label>Unprotected Button</label>
                             <input type="text" id="wc-dual-btnb" placeholder="or checkout without protection" oninput="updateWidgetPreview()">
                         </div>
                         <div class="wconfig-field">
@@ -547,18 +559,16 @@
                             <input type="checkbox" id="wc-dual-hide-sub" onchange="updateWidgetPreview()">
                             <span class="sl-track"></span> Hide Subtotal
                         </label>
+                        <label class="wconfig-sl">
+                            <input type="checkbox" id="wc-dual-swap-primary" onchange="updateWidgetPreview()">
+                            <span class="sl-track"></span> Swap Primary (Unprotected Primary)
+                        </label>
                     </div>
                     <div class="wconfig-divider">Subtotal Placement</div>
                     <div class="wconfig-snap" style="margin-bottom:8px;">
                         <button class="snap-btn active" id="sub-pos-before-btns" onclick="setSubPos('before-btns')">Before Buttons</button>
                         <button class="snap-btn" id="sub-pos-above-header" onclick="setSubPos('above-header')">Above Header</button>
                         <button class="snap-btn" id="sub-pos-between-btns" onclick="setSubPos('between-btns')">Between Buttons</button>
-                    </div>
-                    <div class="wconfig-divider">Snap Mode</div>
-                    <div class="wconfig-snap" style="margin-bottom:8px;">
-                        <button class="snap-btn active" data-snap="split" onclick="setSnap('split')">Split</button>
-                        <button class="snap-btn" data-snap="left" onclick="setSnap('left')">Snap Left</button>
-                        <button class="snap-btn" data-snap="right" onclick="setSnap('right')">Snap Right</button>
                     </div>
                     <div class="wconfig-upload">
                         <label>Custom Logo</label>
@@ -630,6 +640,7 @@
                                 </div>
                                 <div class="wcs"><label>Color</label><input type="color" id="wc-dual-h-color" value="#333333" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-h-color')" title="Pick color from screen">💧</button></div>
                                 <div class="wcs"><label>Info Icon Color</label><input type="color" id="wc-dual-h-info-color" value="#adb5bd" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-h-info-color')" title="Pick color from screen">💧</button></div>
+                                <div class="wcs"><label>Line Spacing</label><input type="number" id="wc-dual-h-linegap" placeholder="6" min="0" max="60" onchange="updateWidgetPreview()" title="Gap between the header row and the body text"></div>
                             </div>
                             <div class="wconfig-style-row" style="margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">
                                 <div class="wcs"><label>Divider</label><select id="wc-dual-h-div-pos" onchange="updateWidgetPreview()"><option value="none">None</option><option value="above">Above</option><option value="below">Below</option></select></div>
@@ -734,6 +745,11 @@
                                 </div>
                                 <div class="wcs"><label>Color</label><input type="color" id="wc-dual-p-color" value="#ffffff" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-p-color')" title="Pick color from screen">💧</button></div>
                                 <div class="wcs"><label>Margin Bottom</label><input type="number" id="wc-dual-p-mb" value="8" min="0" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>Border Color</label><input type="color" id="wc-dual-p-bd-color" value="#6675ff" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-p-bd-color')" title="Pick color from screen">💧</button></div>
+                                <div class="wcs"><label>Border Width</label><input type="number" id="wc-dual-p-bd-width" value="0" min="0" max="5" onchange="updateWidgetPreview()"></div>
+                            </div>
+                            <div style="margin-top:6px;display:flex;align-items:center;gap:10px;">
+                                <button onclick="(function(){var e=document.getElementById('wc-dual-p-bd-width');if(e){e.value=0;updateWidgetPreview();}})()" style="padding:3px 10px;font-size:0.68em;border:1px solid #dc3545;border-radius:4px;background:white;cursor:pointer;color:#dc3545;">✕ Remove Border</button>
                             </div>
                         </div>
                     </details>
@@ -742,6 +758,7 @@
                         <div>
                             <div class="wconfig-style-row">
                                 <div class="wcs"><label>BG Color</label><input type="color" id="wc-dual-s-bg" value="#ffffff" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-s-bg')" title="Pick color from screen">💧</button></div>
+                                <div class="wcs"><label>BG Gradient End</label><input type="color" id="wc-dual-s-bg2" value="#ffffff" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-s-bg2')" title="Pick color from screen">💧</button></div>
                                 <div class="wcs"><label>Border Color</label><input type="color" id="wc-dual-s-bd-color" value="#dee2e6" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-s-bd-color')" title="Pick color from screen">💧</button></div>
                                 <div class="wcs"><label>Border Width</label><input type="number" id="wc-dual-s-bd-width" value="2" min="0" max="5" onchange="updateWidgetPreview()"></div>
                                 <div class="wcs"><label>Border Radius</label><input type="number" id="wc-dual-s-bd-radius" value="9" min="0" onchange="updateWidgetPreview()"></div>
@@ -815,7 +832,7 @@
                             <input type="text" id="wc-tog-header" placeholder="Shipping Protection">
                         </div>
                         <div class="wconfig-field">
-                            <label>Body</label>
+                            <label>Body <span style="font-weight:400;text-transform:none;color:#aaa;">— **bold** to bold part of it</span></label>
                             <input type="text" id="wc-tog-body" placeholder="">
                         </div>
                         <div class="wconfig-field">
@@ -848,12 +865,6 @@
                         </div>
                         <div class="wcs" style="flex:1 1 100%;"><label>Logo URL <span style="color:#aaa;font-size:0.85em;">(for share links)</span></label><input type="text" id="wc-tog-logo-url" placeholder="https://..." style="width:100%;min-width:0;" onchange="updateWidgetPreview()"></div>
                     </div>
-                    <div class="wconfig-divider">Snap Mode</div>
-                    <div class="wconfig-snap" style="margin-bottom:8px;">
-                        <button class="snap-btn active" data-snap="split" id="snap-split" onclick="setSnap('split')">Split</button>
-                        <button class="snap-btn" data-snap="left" id="snap-left" onclick="setSnap('left')">Snap Left</button>
-                        <button class="snap-btn" data-snap="right" id="snap-right" onclick="setSnap('right')">Snap Right</button>
-                    </div>
                     <details class="wconfig-style-grp">
                         <summary>Container Style</summary>
                         <div>
@@ -884,6 +895,7 @@
                                     </select>
                                 </div>
                                 <div class="wcs"><label>Color</label><input type="color" id="wc-tog-h-color" value="#333333" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-tog-h-color')" title="Pick color from screen">💧</button></div>
+                                <div class="wcs"><label>Line Spacing</label><input type="number" id="wc-tog-h-linegap" placeholder="2" min="0" max="60" onchange="updateWidgetPreview()" title="Gap between the header and the body text"></div>
                             </div>
                         </div>
                     </details>
@@ -948,7 +960,7 @@
                             <input type="text" id="wc-ext-header" placeholder="Shipping Protection">
                         </div>
                         <div class="wconfig-field">
-                            <label>Body</label>
+                            <label>Body <span style="font-weight:400;text-transform:none;color:#aaa;">— **bold** to bold part of it</span></label>
                             <input type="text" id="wc-ext-body" placeholder="Effortless Protection | Loss, damage, or theft">
                         </div>
                         <div class="wconfig-field">
@@ -984,12 +996,6 @@
                             </select>
                         </div>
                         <div class="wcs" style="flex:1 1 100%;"><label>Logo URL <span style="color:#aaa;font-size:0.85em;">(for share links)</span></label><input type="text" id="wc-ext-logo-url" placeholder="https://..." style="width:100%;min-width:0;" onchange="updateWidgetPreview()"></div>
-                    </div>
-                    <div class="wconfig-divider">Snap Mode</div>
-                    <div class="wconfig-snap" style="margin-bottom:8px;">
-                        <button class="snap-btn active" data-snap="split" onclick="setSnap('split')">Split</button>
-                        <button class="snap-btn" data-snap="left" onclick="setSnap('left')">Snap Left</button>
-                        <button class="snap-btn" data-snap="right" onclick="setSnap('right')">Snap Right</button>
                     </div>
                 </div>
             </div><!-- /widgetPreviewSection -->
@@ -1078,7 +1084,6 @@
         let _dualLogoSrc     = null;
         let _toggleLogoSrc   = null;
         let _extLogoSrc      = null;
-        let _snapMode        = 'split';  // 'split' | 'left' | 'right'
         let _dualSubPos      = 'before-btns';
         let _scanImageBase64 = null;
 
@@ -1293,14 +1298,6 @@
             updateWidgetPreview();
         }
 
-        function setSnap(mode) {
-            _snapMode = mode;
-            document.querySelectorAll('.snap-btn[data-snap]').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.snap === mode);
-            });
-            updateWidgetPreview();
-        }
-
         function setSubPos(pos) {
             _dualSubPos = pos;
             ['before-btns','above-header','between-btns'].forEach(p => {
@@ -1363,6 +1360,8 @@
             const fmtT  = formatCurrencyWithCents(total);
             const cbAmt = Math.round(parseFloat(removeCommas((document.getElementById('widgetCashback')||{}).value||'0'))) || 5;
             const cbStr = `$${cbAmt}`;
+            const contribAmt = Math.round(parseFloat(removeCommas((document.getElementById('widgetContribution')||{}).value||'0'))) || 10;
+            const contribBodyText = `Plus a $${contribAmt} gift to a cause you chose`;
 
             // ── Mode defaults ─────────────────────────────────────────────────
             const defMap = {
@@ -1370,6 +1369,7 @@
                 'returns':        { dualH:'Shipping Protection + Free Returns', togH:'Shipping Protection + Free Returns', extH:'Shipping Protection + Free Returns', extBody:'Effortless Protection | Loss, damage, or theft', extCb:null, btnB:'or checkout without free returns' },
                 'returns-offset': { dualH:'Unlock Free Returns',             togH:'Unlock Free Returns',           extH:'Checkout+',            extBody:'Unlock Free Returns', extCb:null, btnB:'or checkout without free returns' },
                 'cashback':       { dualH:`Shipping Protection + ${cbStr} Cashback`, togH:`${cbStr} Cashback`,    extH:'Checkout+',            extBody:'Shipping Protection', extCb:`Plus Earn {amount} Off Your Next Order`, btnB:'or checkout without protection' },
+                'contribution':   { dualH:'Package Protection', togH:'Package Protection', extH:'Package Protection', dualBody:contribBodyText, togBody:contribBodyText, extBody:contribBodyText, extCb:null, btnB:'or checkout without protection' },
                 'guarantee':      { dualH:'Protection + Satisfaction Guarantee', togH:'Protection + Satisfaction Guarantee', extH:'Checkout+', extBody:'Protection + Satisfaction Guarantee', extCb:null, btnB:'or checkout without protection' },
             };
             const D = defMap[mode] || defMap['default'];
@@ -1387,12 +1387,16 @@
                 if (fc) s += `color:${fc};`;
                 return s;
             };
+            // Body Style: **text** -> bold, so a rep can bold part of the body copy
+            // without needing to know any markup.
+            const boldify = (text) => (text || '').replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
 
             // Update placeholders
             ph('wc-dual-header',  D.dualH);
             ph('wc-dual-btna',    `Checkout | ${fmtT}`);
             ph('wc-dual-btnb',    D.btnB);
-            ph('wc-dualp-body',   D.dualH);
+            ph('wc-dualp-body',   D.dualBody || D.dualH);
+            ph('wc-tog-body',     D.togBody || '');
             ph('wc-tog-header',   D.togH);
             ph('wc-ext-header',   D.extH);
             ph('wc-ext-body',     D.extBody);
@@ -1413,7 +1417,7 @@
             // ── DUAL CHECKOUT ─────────────────────────────────────────────────
             if (_widgetType === 'dual') {
                 const header   = v('wc-dual-header', D.dualH);
-                const body     = v('wc-dualp-body', '');
+                const body     = boldify(v('wc-dualp-body', D.dualBody || ''));
                 const btnARaw  = v('wc-dual-btna', `Checkout | ${fmtT}`);
                 const btnBRaw  = v('wc-dual-btnb', D.btnB);
                 const disc     = v('wc-dual-disclaimer', '');
@@ -1431,9 +1435,11 @@
                 const pricePos = gv('wc-dual-price-pos', 'right');
 
                 const hStyle = sty(gv('wc-dual-h-font',''), gv('wc-dual-h-size',''), gv('wc-dual-h-weight',''), gv('wc-dual-h-color','#333333'));
+                const hLineGap = gv('wc-dual-h-linegap', '6');
                 const bStyle = sty(gv('wc-dual-b-font',''), gv('wc-dual-b-size',''), gv('wc-dual-b-weight',''), gv('wc-dual-b-color','#666666'));
 
                 const ssBg    = gv('wc-dual-s-bg','#ffffff');
+                const ssBg2   = gv('wc-dual-s-bg2', ssBg);
                 const ssBd    = gv('wc-dual-s-bd-color','#dee2e6');
                 const ssBdW   = gv('wc-dual-s-bd-width','2');
                 const ssBdR   = gv('wc-dual-s-bd-radius','9');
@@ -1443,7 +1449,7 @@
 
                 const cardStyle = `background:${bg};border:${bdWidth}px solid ${bdColor};border-radius:${bdRadius}px;padding:${pad}px;box-shadow:0 2px 10px rgba(0,0,0,0.07);max-width:480px;width:100%;`;
                 const ssUnderline = gch('wc-dual-s-underline', true);
-                const secBtnStyle = `display:block;width:100%;padding:${ssPad}px 16px;border:${ssBdW}px solid ${ssBd};border-radius:${ssBdR}px;background:${ssBg};text-decoration:${ssUnderline ? 'underline' : 'none'};text-align:center;font-family:inherit;cursor:default;margin-top:${ssMt}px;box-sizing:border-box;${ssStyle}`;
+                const secBtnStyle = `display:block;width:100%;padding:${ssPad}px 16px;border:${ssBdW}px solid ${ssBd};border-radius:${ssBdR}px;background:linear-gradient(135deg,${ssBg} 0%,${ssBg2} 100%);text-decoration:${ssUnderline ? 'underline' : 'none'};text-align:center;font-family:inherit;cursor:default;margin-top:${ssMt}px;box-sizing:border-box;${ssStyle}`;
 
                 const priceColor = gv('wc-dual-price-color', '#1a1a1a');
                 const priceFF    = gv('wc-dual-price-ff', '');
@@ -1472,7 +1478,9 @@
                 const pMb     = gv('wc-dual-p-mb', '8');
                 const pColor  = gv('wc-dual-p-color', '#ffffff') || '#ffffff';
                 const pStyle  = sty(gv('wc-dual-p-font',''), gv('wc-dual-p-size',''), gv('wc-dual-p-weight',''), '');
-                const primaryBtnStyle = `display:block;width:100%;padding:${pPad}px 16px;border:none;border-radius:${pBdR}px;background:linear-gradient(135deg,${pBg1} 0%,${pBg2} 100%);color:${pColor};font-family:inherit;cursor:default;text-align:center;margin-bottom:${pMb}px;${pStyle}`;
+                const pBdColor = gv('wc-dual-p-bd-color', '#6675ff');
+                const pBdW     = gv('wc-dual-p-bd-width', '0');
+                const primaryBtnStyle = `display:block;width:100%;padding:${pPad}px 16px;border:${pBdW}px solid ${pBdColor};border-radius:${pBdR}px;background:linear-gradient(135deg,${pBg1} 0%,${pBg2} 100%);color:${pColor};font-family:inherit;cursor:default;text-align:center;margin-bottom:${pMb}px;${pStyle}`;
 
                 const headerGap   = parseInt(gv('wc-dual-header-gap', '0')) || 0;
 
@@ -1493,7 +1501,7 @@
                 const headerBlock = `
                     <div style="margin-bottom:${headerGap}px;">
                         ${hDivPos === 'above' ? hDivHtml : ''}
-                        <div class="wp-spread" style="margin-bottom:${body?'6':'0'}px;align-items:${dualLogoAlign};gap:8px;${pricePos==='left'?'flex-direction:row-reverse;':''}">
+                        <div class="wp-spread" style="margin-bottom:${body?hLineGap:'0'}px;align-items:${dualLogoAlign};gap:8px;${pricePos==='left'?'flex-direction:row-reverse;':''}">
                             <div style="display:flex;align-items:${dualLogoAlign};gap:${dualLogoGap}px;flex:1;min-width:0;">
                                 ${dualLogoHtml}
                                 <span class="wp-header-text" style="${hStyle}">${header} ${infoBtn}</span>
@@ -1513,6 +1521,12 @@
                 const btnALabel = showPriceA ? `${btnABase} | ${fmtT}` : btnABase;
                 // Button B: show subtotal WITHOUT ShipInsure fee (i.e. just AOV)
                 const btnBLabel = showPriceB ? `${btnBRaw} | ${fmtA}` : btnBRaw;
+
+                // Swap Primary: let the Unprotected button take the filled/primary slot
+                // instead of the Protected button (content stays tied to its own field).
+                const swapPrimary  = gch('wc-dual-swap-primary', false);
+                const primarySlotLabel   = swapPrimary ? btnBLabel : btnALabel;
+                const secondarySlotLabel = swapPrimary ? btnALabel : btnBLabel;
 
                 // Button C (optional 3rd button for sites that already have Checkout + View Bag)
                 const showBtnC    = gch('wc-dual-show-btnc', false);
@@ -1535,7 +1549,7 @@
                         </div>
                         <span class="wp-price" style="flex-shrink:0;color:${priceColor};">${fmtP}</span>
                     </div>
-                    ${body ? `<div class="wp-body-text" style="${bStyle}margin-top:4px;">${body}</div>` : ''}
+                    ${body ? `<div class="wp-body-text" style="${bStyle}margin-top:${hLineGap}px;">${body}</div>` : ''}
                 </div>` : '';
 
                 // Subtotal row (with optional label override + note + placement + style)
@@ -1574,15 +1588,15 @@
                     ${subDivPos === 'below' ? subDivHtml : ''}
                     ${subNote && subNotePos === 'below' ? subNoteBlockHtml : ''}`;
 
-                const snapStyle = _snapMode === 'left' ? 'margin-right:auto;' : _snapMode === 'right' ? 'margin-left:auto;' : 'margin:0 auto;';
+                const snapStyle = 'margin:0 auto;';
                 area.innerHTML = `<div style="${cardStyle}${snapStyle}">
                     ${_dualSubPos === 'above-header' ? subRowHtml : ''}
                     ${!between ? headerBlock : ''}
                     ${_dualSubPos === 'before-btns' ? subRowHtml : ''}
-                    <button style="${primaryBtnStyle}">${btnALabel}</button>
+                    <button style="${primaryBtnStyle}">${primarySlotLabel}</button>
                     ${between ? betweenBlock : ''}
                     ${_dualSubPos === 'between-btns' ? subRowHtml : ''}
-                    <div style="${secBtnStyle}">${btnBLabel}</div>
+                    <div style="${secBtnStyle}">${secondarySlotLabel}</div>
                     ${showBtnC ? `<div style="${thirdBtnStyle}">${btnCRaw}</div>` : ''}
                     ${disc ? `<div class="wp-disclaimer" style="margin-top:6px;">${disc}</div>` : ''}
                 </div>`;
@@ -1590,7 +1604,7 @@
             // ── CART TOGGLE / CHECKBOX ────────────────────────────────────────
             } else if (_widgetType === 'toggle') {
                 const header     = v('wc-tog-header', D.togH);
-                const body       = v('wc-tog-body', '');
+                const body       = boldify(v('wc-tog-body', D.togBody || ''));
                 const disclaimer = v('wc-tog-disclaimer', '');
                 const hideLock   = gch('wc-tog-hide-lock', false);
                 const isCheckbox = gch('wc-tog-is-checkbox', false);
@@ -1602,6 +1616,7 @@
                 const bdRadius = gv('wc-tog-bd-radius', '12');
                 const pad      = gv('wc-tog-padding', '16');
                 const hStyle   = sty(gv('wc-tog-h-font',''), gv('wc-tog-h-size',''), gv('wc-tog-h-weight',''), gv('wc-tog-h-color','#333333'));
+                const hLineGap = gv('wc-tog-h-linegap', '2');
                 const bStyle   = sty(gv('wc-tog-b-font',''), gv('wc-tog-b-size',''), gv('wc-tog-b-weight',''), gv('wc-tog-b-color','#666666'));
                 const dStyle   = sty(gv('wc-tog-d-font',''), gv('wc-tog-d-size',''), gv('wc-tog-d-weight',''), gv('wc-tog-d-color','#aaaaaa'));
 
@@ -1623,7 +1638,7 @@
                     controlHtml = `<div style="width:38px;height:22px;border-radius:11px;background:${switchColor};position:relative;flex-shrink:0;"><div style="position:absolute;right:2px;top:2px;width:18px;height:18px;border-radius:50%;background:white;box-shadow:0 1px 4px rgba(0,0,0,0.22);"></div></div>`;
                 }
 
-                const snapStyle = _snapMode === 'left' ? 'margin-right:auto;' : _snapMode === 'right' ? 'margin-left:auto;' : 'margin:0 auto;';
+                const snapStyle = 'margin:0 auto;';
 
                 area.innerHTML = `<div style="${cardStyle}${snapStyle}">
                     <div class="wp-toggle-row">
@@ -1631,7 +1646,7 @@
                             ${lockImgEl}
                             <div class="wp-toggle-text">
                                 <span class="wp-header-text" style="${hStyle}">${header} ${leafImg}</span>
-                                ${body ? `<div class="wp-body-text" style="${bStyle}margin:2px 0 0;">${body}</div>` : ''}
+                                ${body ? `<div class="wp-body-text" style="${bStyle}margin:${hLineGap}px 0 0;">${body}</div>` : ''}
                             </div>
                         </div>
                         <div class="wp-toggle-right">
@@ -1645,7 +1660,7 @@
             // ── CHECKOUT EXTENSION ────────────────────────────────────────────
             } else if (_widgetType === 'extension') {
                 const header     = v('wc-ext-header', D.extH);
-                const body       = v('wc-ext-body', D.extBody);
+                const body       = boldify(v('wc-ext-body', D.extBody));
                 const disclaimer = v('wc-ext-disclaimer', '');
                 const hideLock   = gch('wc-ext-hide-lock', false);
                 const showLearnMore = gch('wc-ext-show-learn-more', true);
@@ -1666,7 +1681,7 @@
                 const extCheckbox   = `<div style="width:18px;height:18px;border-radius:3px;border:1.5px solid #6675ff;background:linear-gradient(135deg,#6675ff,#764ba2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;"><span style="color:white;font-size:10px;font-weight:900;">✓</span></div>`;
                 const extLogoHtml   = (hideLock && !extLogoUrlParam) ? '' : `<img src="${extLogoSrc}" style="width:${extLogoW}px;height:${extLogoSize}px;object-fit:contain;flex-shrink:0;" onerror="this.style.opacity='0';">`;
 
-                const snapStyle = _snapMode === 'left' ? 'margin-right:auto;' : _snapMode === 'right' ? 'margin-left:auto;' : 'margin:0 auto;';
+                const snapStyle = 'margin:0 auto;';
                 area.innerHTML = `<div class="wp-card" style="${snapStyle}">
                     <div class="wp-ext-row" style="align-items:${extLogoAlign};gap:${extLogoGap}px;">
                         ${extCheckbox}
@@ -2057,7 +2072,6 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             return {
                 fields,
                 wtype: _widgetType,
-                snap: _snapMode,
                 subpos: _dualSubPos,
                 dualLogo: _dualLogoSrc,
                 togLogo: _toggleLogoSrc,
@@ -2082,7 +2096,6 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             try { data = JSON.parse(decodeURIComponent(escape(atob(m[1])))); }
             catch (e) { return; }
             if (data.wtype)  _widgetType   = data.wtype;
-            if (data.snap)   _snapMode      = data.snap;
             if (data.subpos) _dualSubPos    = data.subpos;
             if (data.dualLogo !== undefined) _dualLogoSrc   = data.dualLogo;
             if (data.togLogo  !== undefined) _toggleLogoSrc = data.togLogo;
@@ -2109,23 +2122,76 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             if (cc) cc.style.display = (mode === 'cashback') ? 'flex' : 'none';
         }
 
+        function syncContributionVisibility() {
+            const mode = (document.getElementById('widgetMode') || {}).value;
+            const cc = document.getElementById('contributionCtrl');
+            if (cc) cc.style.display = (mode === 'contribution') ? 'flex' : 'none';
+        }
+
+        // ── Impact link ingestion: pull AOV/Premium/Pricing/Cashback/Mode out of a
+        // pasted si-roi-calculator (or si-rep-hub) link's query params ──────────
+        function loadImpactLink() {
+            const input = document.getElementById('impactLinkInput');
+            const raw = (input.value || '').trim();
+            if (!raw) return;
+            let url;
+            try { url = new URL(raw); } catch (e) { url = null; }
+            if (!url || !/drewshafe\.github\.io$/i.test(url.hostname) || !/si-roi-calculator|si-rep-hub/i.test(url.pathname + url.hash)) {
+                input.style.borderColor = '#ff6b6b';
+                setTimeout(() => { input.style.borderColor = ''; }, 1500);
+                return;
+            }
+            const p = url.searchParams;
+            const setVal = (id, val) => { if (val !== null && val !== undefined && val !== '') { const el = document.getElementById(id); if (el) el.value = val; } };
+
+            setVal('avgOrderValue', p.get('aov'));
+            setVal('protectionPremium', p.get('premium'));
+            if (p.get('template')) setVal('pricingTemplate', p.get('template'));
+
+            // Cashback $ is a flat mockup figure here — prefer the min-cashback floor,
+            // else estimate from the cashback rate against AOV.
+            if (p.get('mincb')) {
+                setVal('widgetCashback', Math.round(parseFloat(p.get('mincb'))));
+            } else if (p.get('cb') && p.get('aov')) {
+                const est = Math.round(parseFloat(p.get('aov')) * (parseFloat(p.get('cb')) / 100));
+                if (!isNaN(est)) setVal('widgetCashback', est);
+            }
+
+            // Mode: map the calc's enabled feature toggles to the closest single
+            // Widget Designer mode (Widget Designer only shows one at a time).
+            let mode = 'default';
+            if (p.get('rom') === '1')      mode = 'returns-offset';
+            else if (p.get('cbe') === '1') mode = 'cashback';
+            else if (p.get('guar') === '1') mode = 'guarantee';
+            else if (p.get('re') === '1') mode = 'returns';
+            const modeEl = document.getElementById('widgetMode');
+            if (modeEl) modeEl.value = mode;
+
+            toggleProtectionPremiumVisibility();
+            syncCashbackVisibility();
+            syncContributionVisibility();
+            updateWidgetPreview();
+        }
+
         function onControlChange(e) {
             if (e.target.id === 'pricingTemplate') toggleProtectionPremiumVisibility();
-            if (e.target.id === 'widgetMode')      syncCashbackVisibility();
+            if (e.target.id === 'widgetMode')      { syncCashbackVisibility(); syncContributionVisibility(); }
             updateWidgetPreview();
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             applyDesignerLink();
-            ['widgetMode', 'avgOrderValue', 'protectionPremium', 'widgetCashback', 'pricingTemplate'].forEach(id => {
+            ['widgetMode', 'avgOrderValue', 'protectionPremium', 'widgetCashback', 'widgetContribution', 'pricingTemplate'].forEach(id => {
                 const el = document.getElementById(id);
                 if (!el) return;
                 el.addEventListener('input', onControlChange);
                 el.addEventListener('change', onControlChange);
             });
+            const impactLinkInput = document.getElementById('impactLinkInput');
+            if (impactLinkInput) impactLinkInput.addEventListener('keydown', e => { if (e.key === 'Enter') loadImpactLink(); });
             toggleProtectionPremiumVisibility();
             syncCashbackVisibility();
-            setSnap(_snapMode);
+            syncContributionVisibility();
             setSubPos(_dualSubPos);
             setWidgetType(_widgetType);   // also triggers updateWidgetPreview()
         });
