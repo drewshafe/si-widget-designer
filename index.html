@@ -842,10 +842,11 @@
                     </div>
                     <div class="wconfig-slider-row">
                         <label class="wconfig-sl">
-                            <input type="checkbox" id="wc-tog-is-checkbox" onchange="updateWidgetPreview()">
-                            <span class="sl-track"></span> Switch to Checkbox
+                            <input type="checkbox" id="wc-tog-is-toggle" onchange="updateWidgetPreview()">
+                            <span class="sl-track"></span> Switch to Toggle
                         </label>
-                        <label class="wconfig-check" style="padding-top:0;"><input type="checkbox" id="wc-tog-hide-lock" onchange="updateWidgetPreview()"> Hide lock</label>
+                        <label class="wconfig-check" style="padding-top:0;"><input type="checkbox" id="wc-tog-hide-lock" checked onchange="updateWidgetPreview()"> Hide lock</label>
+                        <label class="wconfig-check" style="padding-top:0;"><input type="checkbox" id="wc-tog-show-leaf" onchange="updateWidgetPreview()"> Show Leaf Icon</label>
                     </div>
                     <div class="wconfig-upload">
                         <label>Custom Logo</label>
@@ -896,6 +897,16 @@
                                 </div>
                                 <div class="wcs"><label>Color</label><input type="color" id="wc-tog-h-color" value="#333333" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-tog-h-color')" title="Pick color from screen">💧</button></div>
                                 <div class="wcs"><label>Line Spacing</label><input type="number" id="wc-tog-h-linegap" placeholder="2" min="0" max="60" onchange="updateWidgetPreview()" title="Gap between the header and the body text"></div>
+                                <div class="wcs">
+                                    <label>Price Position</label>
+                                    <select id="wc-tog-price-pos" onchange="updateWidgetPreview()">
+                                        <option value="right">Right</option>
+                                        <option value="left">Left</option>
+                                    </select>
+                                </div>
+                                <div class="wcs"><label>SI Fee Color</label><input type="color" id="wc-tog-price-color" value="#1a1a1a" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-tog-price-color')" title="Pick color from screen">💧</button></div>
+                                <div class="wcs"><label>SI Fee Font Family</label><input type="text" id="wc-tog-price-ff" placeholder="inherit" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>SI Fee Size</label><input type="number" id="wc-tog-price-fs" placeholder="15" min="8" max="32" onchange="updateWidgetPreview()"></div>
                             </div>
                         </div>
                     </details>
@@ -942,9 +953,16 @@
                         </div>
                     </details>
                     <details class="wconfig-style-grp">
-                        <summary>Switch / Checkbox Color</summary>
+                        <summary>Checkbox / Toggle Settings</summary>
                         <div>
                             <div class="wconfig-style-row">
+                                <div class="wcs">
+                                    <label>Checkbox / Toggle Position</label>
+                                    <select id="wc-tog-checkbox-pos" onchange="updateWidgetPreview()">
+                                        <option value="left">Left</option>
+                                        <option value="right">Right</option>
+                                    </select>
+                                </div>
                                 <div class="wcs"><label>Switch Color</label><input type="color" id="wc-tog-switch-color" value="#6675ff" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-tog-switch-color')" title="Pick color from screen">💧</button></div>
                             </div>
                         </div>
@@ -1606,8 +1624,9 @@
                 const header     = v('wc-tog-header', D.togH);
                 const body       = boldify(v('wc-tog-body', D.togBody || ''));
                 const disclaimer = v('wc-tog-disclaimer', '');
-                const hideLock   = gch('wc-tog-hide-lock', false);
-                const isCheckbox = gch('wc-tog-is-checkbox', false);
+                const hideLock   = gch('wc-tog-hide-lock', true);
+                const showLeaf   = gch('wc-tog-show-leaf', false);
+                const isToggle   = gch('wc-tog-is-toggle', false);
                 const switchColor = gv('wc-tog-switch-color', '#6675ff');
 
                 const bg       = gv('wc-tog-bg', '#ffffff');
@@ -1631,28 +1650,38 @@
                 const leafImg  = `<img src="${leafSrc}" class="wp-leaf-icon" onerror="this.style.display='none';">`;
                 const lockImgEl = (hideLock && !togLogoUrlParam) ? '' : `<img src="${logoActualSrc}" style="width:${togLogoW}px;height:${togLogoSize}px;object-fit:contain;flex-shrink:0;" onerror="this.style.opacity='0';">`;
 
+                // SI Fee (price) styling + position
+                const tPriceColor  = gv('wc-tog-price-color', '#1a1a1a');
+                const tPriceFF     = gv('wc-tog-price-ff', '');
+                const tPriceFS     = gv('wc-tog-price-fs', '');
+                const tPriceFStyle = `${tPriceFF && tPriceFF !== 'inherit' ? `font-family:${tPriceFF};` : ''}${tPriceFS ? `font-size:${tPriceFS}px;` : 'font-size:0.9em;'}`;
+                const pricePos     = gv('wc-tog-price-pos', 'right');
+                const controlPos   = gv('wc-tog-checkbox-pos', 'left');
+                const priceEl      = `<span class="wp-price" style="flex-shrink:0;color:${tPriceColor};${tPriceFStyle}">${fmtP}</span>`;
+
                 let controlHtml;
-                if (isCheckbox) {
-                    controlHtml = `<div style="width:20px;height:20px;border-radius:4px;border:2px solid ${switchColor};background:${switchColor};display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="color:white;font-size:12px;font-weight:900;line-height:1;">✓</span></div>`;
-                } else {
+                if (isToggle) {
                     controlHtml = `<div style="width:38px;height:22px;border-radius:11px;background:${switchColor};position:relative;flex-shrink:0;"><div style="position:absolute;right:2px;top:2px;width:18px;height:18px;border-radius:50%;background:white;box-shadow:0 1px 4px rgba(0,0,0,0.22);"></div></div>`;
+                } else {
+                    controlHtml = `<div style="width:20px;height:20px;border-radius:4px;border:2px solid ${switchColor};background:${switchColor};display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="color:white;font-size:12px;font-weight:900;line-height:1;">✓</span></div>`;
                 }
 
                 const snapStyle = 'margin:0 auto;';
+                const headerHtml = `<span class="wp-header-text" style="${hStyle}">${header}${showLeaf ? ' ' + leafImg : ''}</span>`;
 
                 area.innerHTML = `<div style="${cardStyle}${snapStyle}">
-                    <div class="wp-toggle-row">
-                        <div class="wp-toggle-left" style="gap:${togLogoGap}px;align-items:${togLogoAlign};">
+                    <div class="wp-toggle-row" style="display:flex;align-items:center;gap:10px;">
+                        ${controlPos === 'left' ? controlHtml : ''}
+                        ${pricePos === 'left' ? priceEl : ''}
+                        <div class="wp-toggle-left" style="gap:${togLogoGap}px;align-items:${togLogoAlign};flex:1;min-width:0;">
                             ${lockImgEl}
                             <div class="wp-toggle-text">
-                                <span class="wp-header-text" style="${hStyle}">${header} ${leafImg}</span>
+                                ${headerHtml}
                                 ${body ? `<div class="wp-body-text" style="${bStyle}margin:${hLineGap}px 0 0;">${body}</div>` : ''}
                             </div>
                         </div>
-                        <div class="wp-toggle-right">
-                            ${controlHtml}
-                            <div class="wp-price" style="font-size:0.85em;margin-top:3px;">${fmtP}</div>
-                        </div>
+                        ${pricePos === 'right' ? priceEl : ''}
+                        ${controlPos === 'right' ? controlHtml : ''}
                     </div>
                     ${disclaimer ? `<div class="wp-disclaimer" style="${dStyle}margin-top:6px;">${disclaimer}</div>` : ''}
                 </div>`;
@@ -1955,7 +1984,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             set('wc-tog-b-size',     d.bodyFontSize);
             set('wc-tog-b-weight',   d.bodyFontWeight);
             set('wc-tog-switch-color', d.switchColor);
-            setChk('wc-tog-is-checkbox', d.isCheckbox);
+            setChk('wc-tog-is-toggle', d.isCheckbox === false);
             setChk('wc-tog-hide-lock',   !d.hasLogo);
 
             // --- Extension ---
