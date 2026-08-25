@@ -385,6 +385,26 @@
         .scan-status.error   { color: #dc3545; }
         .scan-status.success { color: #28a745; }
         .scan-status.info    { color: #4a5fc1; }
+        /* ── Merchant preview set (rep-side tray) ── */
+        .mp-set-card { margin-top: 12px; background: #fff; border: 1px solid #e6e9f8; border-radius: 14px; padding: 14px 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        .mp-set-title { font-size: 0.72em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #667; margin-bottom: 8px; }
+        .mp-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+        .mp-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; font-size: 0.78em; font-weight: 600; background: #eef0fb; color: #3a3a5a; border: 1px solid #d5d9f0; border-radius: 20px; }
+        .mp-chip button { border: none; background: none; color: #99a; cursor: pointer; font-weight: 800; font-size: 1em; line-height: 1; padding: 0; }
+        .mp-chip button:hover { color: #dc3545; }
+        .mp-empty { font-size: 0.78em; color: #adb5bd; }
+
+        /* ── Merchant view (grid of deployment examples) ── */
+        #merchantView { min-height: 100vh; background: #eef1f8; padding: 0 0 40px; }
+        .mp-view-header { background: var(--header-grad); padding: 20px 24px; display: flex; align-items: center; gap: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.18); }
+        .mp-view-header img { height: 34px; }
+        .mp-view-header .t1 { font-size: 1.1em; font-weight: 800; color: #fff; }
+        .mp-view-header .t2 { font-size: 0.78em; font-weight: 500; color: rgba(255,255,255,0.82); }
+        .mp-grid { max-width: 1180px; margin: 24px auto 0; padding: 0 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
+        .mp-cell { background: #fff; border: 1px solid #e3e7f5; border-radius: 16px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+        .mp-cell-label { font-size: 0.72em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #8890b5; margin-bottom: 14px; }
+        .mp-widget { display: flex; justify-content: center; }
+        .mp-empty-view { max-width: 600px; margin: 60px auto; text-align: center; color: #8890b5; font-size: 0.95em; }
     </style>
 </head>
 <body>
@@ -474,7 +494,8 @@
             <input type="text" id="widgetContribution" placeholder="10" value="10">
         </div>
         <div class="spacer"></div>
-        <button class="copy-link-btn" onclick="copyDesignerLink()">🔗 Copy Link</button>
+        <button class="copy-link-btn" onclick="addCurrentView()" style="background:#eef0fb;color:var(--accent);margin-right:8px;">➕ Add View</button>
+        <button class="copy-link-btn" onclick="copyMerchantLink()">🔗 Copy Link</button>
     </div><!-- /control-bar -->
 
     <div class="designer-body">
@@ -1032,8 +1053,14 @@
                 <div class="pc-title" id="previewTitle">Live Preview</div>
                 <div id="widgetPreviewArea"></div>
             </div>
+            <div class="mp-set-card" id="mpSetCard">
+                <div class="mp-set-title">Merchant Preview Set (<span id="mpCount">0</span>) — "Add View" to include a deployment example, then Copy Link to share the grid</div>
+                <div class="mp-chips" id="mpChips"><span class="mp-empty">No views added — the merchant link will show the current view.</span></div>
+            </div>
         </div>
     </div><!-- /designer-body -->
+
+    <div id="merchantView" style="display:none;"></div>
 
     <div class="copied-toast" id="toast">Link copied!</div>
 
@@ -2158,11 +2185,79 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             });
         }
 
-        function showToast() {
+        function showToast(msg) {
             const t = document.getElementById('toast');
             if (!t) return;
+            if (typeof msg === 'string') t.textContent = msg;
             t.classList.add('show');
             setTimeout(() => t.classList.remove('show'), 1600);
+        }
+
+        // ── Merchant preview set (hand-picked deployment examples) ──────────
+        let _merchantExamples = [];
+        function currentPreviewTitle() { const el = document.getElementById('previewTitle'); return el ? el.textContent : 'Widget'; }
+        function _escHtml(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+        function addCurrentView() {
+            _merchantExamples.push({ label: currentPreviewTitle(), design: _collectDesign() });
+            renderMerchantChips();
+            showToast('Added to merchant preview');
+        }
+        function removeMerchantExample(i) { _merchantExamples.splice(i, 1); renderMerchantChips(); }
+        function renderMerchantChips() {
+            const wrap = document.getElementById('mpChips');
+            const count = document.getElementById('mpCount');
+            if (count) count.textContent = _merchantExamples.length;
+            if (!wrap) return;
+            if (!_merchantExamples.length) { wrap.innerHTML = '<span class="mp-empty">No views added — the merchant link will show the current view.</span>'; return; }
+            wrap.innerHTML = _merchantExamples.map((ex, i) =>
+                `<span class="mp-chip">${_escHtml(ex.label)}<button title="Remove" onclick="removeMerchantExample(${i})">✕</button></span>`).join('');
+        }
+
+        function copyMerchantLink() {
+            const set = _merchantExamples.length ? _merchantExamples : [{ label: currentPreviewTitle(), design: _collectDesign() }];
+            const enc = btoa(unescape(encodeURIComponent(JSON.stringify(set))));
+            const url = location.origin + location.pathname + '?view=merchant#s=' + enc;
+            navigator.clipboard.writeText(url).then(showToast, () => prompt('Copy this merchant link:', url));
+        }
+
+        // Apply a saved design object to the (hidden) form so updateWidgetPreview can render it.
+        function _applyDesignObj(d) {
+            if (!d) return;
+            if (d.wtype)  _widgetType = d.wtype;
+            if (d.subpos) _dualSubPos = d.subpos;
+            _dualLogoSrc   = d.dualLogo !== undefined ? d.dualLogo : null;
+            _toggleLogoSrc = d.togLogo  !== undefined ? d.togLogo  : null;
+            _extLogoSrc    = d.extLogo  !== undefined ? d.extLogo  : null;
+            Object.entries(d.fields || {}).forEach(([id, val]) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                if (el.type === 'checkbox') el.checked = !!val;
+                else el.value = val;
+            });
+        }
+        function _renderExampleHTML(ex) {
+            _applyDesignObj(ex.design);
+            setWidgetType((ex.design && ex.design.wtype) || 'dual');
+            updateWidgetPreview();
+            return document.getElementById('widgetPreviewArea').innerHTML;
+        }
+        function renderMerchantView(examples) {
+            ['.app-header', '.control-bar', '.designer-body'].forEach(sel => {
+                const el = document.querySelector(sel); if (el) el.style.display = 'none';
+            });
+            const mv = document.getElementById('merchantView');
+            const headerHtml = `<div class="mp-view-header">
+                <img src="https://raw.githubusercontent.com/drewshafe/si-roi-calculator/main/si_lock.png" alt="ShipInsure" onerror="this.style.display='none';">
+                <div><div class="t1">Shipping Protection — Preview</div><div class="t2">How ShipInsure could appear across your store</div></div>
+            </div>`;
+            if (!examples || !examples.length) {
+                mv.innerHTML = headerHtml + '<div class="mp-empty-view">No preview examples in this link.</div>';
+                mv.style.display = 'block'; return;
+            }
+            const cells = examples.map(ex => `<div class="mp-cell"><div class="mp-cell-label">${_escHtml(ex.label || 'Widget')}</div><div class="mp-widget">${_renderExampleHTML(ex)}</div></div>`).join('');
+            mv.innerHTML = headerHtml + `<div class="mp-grid">${cells}</div>`;
+            mv.style.display = 'block';
         }
 
         // ── Control-bar wiring ──────────────────────────────────────────────
@@ -2230,6 +2325,14 @@ For uncertain values make your best visual estimate. Always use valid hex colors
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Merchant grid view: render the hand-picked examples and skip the designer.
+            if (new URLSearchParams(location.search).get('view') === 'merchant') {
+                const m = location.hash.match(/[#&]s=([^&]+)/);
+                let set = [];
+                if (m) { try { set = JSON.parse(decodeURIComponent(escape(atob(m[1])))); } catch (e) { set = []; } }
+                renderMerchantView(set);
+                return;
+            }
             applyDesignerLink();
             ['widgetMode', 'avgOrderValue', 'protectionPremium', 'widgetCashback', 'widgetContribution', 'pricingTemplate'].forEach(id => {
                 const el = document.getElementById(id);
