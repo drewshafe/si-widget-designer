@@ -907,6 +907,15 @@
                                 <div class="wcs"><label>SI Fee Color</label><input type="color" id="wc-tog-price-color" value="#1a1a1a" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-tog-price-color')" title="Pick color from screen">💧</button></div>
                                 <div class="wcs"><label>SI Fee Font Family</label><input type="text" id="wc-tog-price-ff" placeholder="inherit" onchange="updateWidgetPreview()"></div>
                                 <div class="wcs"><label>SI Fee Size</label><input type="number" id="wc-tog-price-fs" placeholder="15" min="8" max="32" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs">
+                                    <label>Align Fee</label>
+                                    <select id="wc-tog-fee-align" onchange="updateWidgetPreview()">
+                                        <option value="">Match Text Align</option>
+                                        <option value="center">Center</option>
+                                        <option value="flex-start">Top</option>
+                                        <option value="flex-end">Bottom</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </details>
@@ -1657,7 +1666,9 @@
                 const tPriceFStyle = `${tPriceFF && tPriceFF !== 'inherit' ? `font-family:${tPriceFF};` : ''}${tPriceFS ? `font-size:${tPriceFS}px;` : 'font-size:0.9em;'}`;
                 const pricePos     = gv('wc-tog-price-pos', 'right');
                 const controlPos   = gv('wc-tog-checkbox-pos', 'left');
-                const priceEl      = `<span class="wp-price" style="flex-shrink:0;color:${tPriceColor};${tPriceFStyle}">${fmtP}</span>`;
+                // SI Fee vertical alignment: follows Text Align by default; 'Align Fee' overrides.
+                const feeAlign     = gv('wc-tog-fee-align', '') || togLogoAlign;
+                const priceEl      = `<span class="wp-price" style="align-self:${feeAlign};flex-shrink:0;color:${tPriceColor};${tPriceFStyle}">${fmtP}</span>`;
 
                 let controlHtml;
                 if (isToggle) {
