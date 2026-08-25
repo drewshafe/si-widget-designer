@@ -1029,7 +1029,7 @@
         </div><!-- /config-col -->
         <div class="preview-col">
             <div class="preview-card">
-                <div class="pc-title">Live Preview</div>
+                <div class="pc-title" id="previewTitle">Live Preview</div>
                 <div id="widgetPreviewArea"></div>
             </div>
         </div>
@@ -1347,6 +1347,16 @@
             const inlineContainer = document.getElementById('inlineWidgetContainer');
             const wrapper         = document.getElementById('widgetMiddleWrapper');
             const siArea          = document.getElementById('widgetPreviewArea');
+
+            // Dynamic preview title, reflecting the selected widget type/style.
+            const _ptEl = document.getElementById('previewTitle');
+            if (_ptEl) {
+                let _pt = 'Live Preview';
+                if (_widgetType === 'dual') _pt = 'Dual Checkout Info & Buttons';
+                else if (_widgetType === 'extension') _pt = 'Checkout Widget';
+                else if (_widgetType === 'toggle') _pt = ((document.getElementById('wc-tog-is-toggle') || {}).checked) ? 'Cart Toggle Widget' : 'Cart Checkbox Widget';
+                _ptEl.textContent = _pt;
+            }
 
             let area;
             if (showInline && inlineContainer) {
