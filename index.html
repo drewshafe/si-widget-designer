@@ -1217,6 +1217,7 @@
                         <button class="snap-btn" data-extli="noremove" onclick="setExtLineItem('noremove')">No Remove Button</button>
                         <button class="snap-btn" data-extli="widget-remove" onclick="setExtLineItem('widget-remove')">Widget + Remove Button</button>
                         <button class="snap-btn" data-extli="widget-noremove" onclick="setExtLineItem('widget-noremove')">Widget (no remove)</button>
+                        <button class="snap-btn" data-extli="widget-only" onclick="setExtLineItem('widget-only')">Widget Only</button>
                     </div>
                     <details class="wconfig-style-grp" open>
                         <summary>SI Line Item Styler</summary>
@@ -1716,7 +1717,7 @@
             updateWidgetPreview();
         }
 
-        // 'remove' | 'noremove' (line item only) | 'widget-remove' | 'widget-noremove' (widget + line item)
+        // 'remove' | 'noremove' (line item only) | 'widget-remove' | 'widget-noremove' (widget + line item) | 'widget-only' (widget, no line item)
         let _extLineItem = 'remove';
         function setExtLineItem(v) {
             _extLineItem = v;
@@ -1724,7 +1725,8 @@
             updateWidgetPreview();
         }
         const _extShowsRemove = () => _extLineItem === 'remove' || _extLineItem === 'widget-remove';
-        const _extShowsWidget = () => _extLineItem === 'widget-remove' || _extLineItem === 'widget-noremove';
+        const _extShowsWidget = () => _extLineItem === 'widget-remove' || _extLineItem === 'widget-noremove' || _extLineItem === 'widget-only';
+        const _extShowsLineItem = () => _extLineItem !== 'widget-only';
 
         // Scan Checkout context: page background color + the merchant's other order-summary
         // items (rendered below our line item to show it in-context). Does NOT touch pricing.
@@ -1766,7 +1768,7 @@
             const _isExt = (_widgetType === 'extension');
             const _liCard = document.getElementById('lineItemCard');
             const _wCard  = document.getElementById('widgetPreviewCard');
-            if (_liCard) _liCard.style.display = _isExt ? '' : 'none';
+            if (_liCard) _liCard.style.display = (_isExt && _extShowsLineItem()) ? '' : 'none';
             if (_wCard)  _wCard.style.display  = (!_isExt || _extShowsWidget()) ? '' : 'none';
 
             // Scan Checkout background tints both preview areas so the boxes look in-context.
@@ -2971,7 +2973,10 @@ For uncertain values make your best visual estimate. Always use valid hex colors
         let _merchantExamples = [];
         function currentPreviewTitle() { const el = document.getElementById('previewTitle'); return el ? el.textContent : 'Widget'; }
         function currentExampleLabel() {
-            if (_widgetType === 'extension') return _extShowsWidget() ? 'Checkout Widget + Line Item' : 'Checkout Line Item';
+            if (_widgetType === 'extension') {
+                if (!_extShowsLineItem()) return 'Checkout Widget';
+                return _extShowsWidget() ? 'Checkout Widget + Line Item' : 'Checkout Line Item';
+            }
             return currentPreviewTitle();
         }
         function _escHtml(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
@@ -3027,6 +3032,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             return {
                 wtype: _widgetType,
                 showsWidget: _extShowsWidget(),
+                showsLineItem: _extShowsLineItem(),
                 widgetHtml: document.getElementById('widgetPreviewArea').innerHTML,
                 lineItemHtml: document.getElementById('lineItemPreviewArea').innerHTML,
                 scanBg: _extScanBg
@@ -3057,7 +3063,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 } else if (p.wtype === 'extension') {
                     // Widget goes to the Checkout Widget column; the line item to its own column.
                     if (p.showsWidget) cols.cwidget.push(wrap(p.widgetHtml, p.scanBg));
-                    cols.litem.push(wrap(p.lineItemHtml, p.scanBg));
+                    if (p.showsLineItem) cols.litem.push(wrap(p.lineItemHtml, p.scanBg));
                 }
             });
             const COLDEFS = [
