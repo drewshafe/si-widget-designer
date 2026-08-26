@@ -701,6 +701,9 @@
                                 <div class="wcs"><label>Border Width</label><input type="number" id="wc-dual-bd-width" value="2" min="1" max="5" onchange="updateWidgetPreview()"></div>
                                 <div class="wcs"><label>Border Radius</label><input type="number" id="wc-dual-bd-radius" value="12" min="0" onchange="updateWidgetPreview()"></div>
                                 <div class="wcs"><label>Padding</label><input type="number" id="wc-dual-padding" value="16" min="0" onchange="updateWidgetPreview()"></div>
+                            </div>
+                            <div class="wconfig-style-row" style="margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">
+                                <div class="wcs" style="flex:1 1 100%;font-size:0.68em;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;color:#8890b5;">SI Fee</div>
                                 <div class="wcs">
                                     <label>Price Position</label>
                                     <select id="wc-dual-price-pos" onchange="updateWidgetPreview()">
@@ -708,11 +711,10 @@
                                         <option value="left">Left</option>
                                     </select>
                                 </div>
-                                <div class="wcs"><label>SI Fee Color</label><input type="color" id="wc-dual-price-color" value="#1a1a1a" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-price-color')" title="Pick color from screen">💧</button></div>
-                                <div class="wcs"><label>SI Fee Font Family</label><input type="text" id="wc-dual-price-ff" placeholder="inherit" onchange="updateWidgetPreview()"></div>
-                                <div class="wcs"><label>SI Fee Size</label><input type="number" id="wc-dual-price-fs" placeholder="15" min="8" max="32" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>Font Family</label><input type="text" id="wc-dual-price-ff" placeholder="inherit" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>Size</label><input type="number" id="wc-dual-price-fs" placeholder="15" min="8" max="32" onchange="updateWidgetPreview()"></div>
                                 <div class="wcs">
-                                    <label>SI Fee Weight</label>
+                                    <label>Weight</label>
                                     <select id="wc-dual-price-fw" onchange="updateWidgetPreview()">
                                         <option value="">Default</option>
                                         <option value="300">Light</option>
@@ -722,6 +724,7 @@
                                         <option value="700" selected>Bold</option>
                                     </select>
                                 </div>
+                                <div class="wcs"><label>Color</label><input type="color" id="wc-dual-price-color" value="#1a1a1a" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-price-color')" title="Pick color from screen">💧</button></div>
                             </div>
                         </div>
                     </details>
@@ -847,18 +850,22 @@
                                 </div>
                                 <div class="wcs"><label>Label Color</label><input type="color" id="wc-dual-sub-lc" value="#1a1a1a" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-sub-lc')" title="Pick color from screen">💧</button></div>
                                 <div class="wcs"><label>Value Color</label><input type="color" id="wc-dual-sub-vc" value="#1a1a1a" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-sub-vc')" title="Pick color from screen">💧</button></div>
-                                <div class="wcs"><label>Divider Pos</label><select id="wc-dual-sub-div-pos" onchange="updateWidgetPreview()"><option value="above" selected>Above</option><option value="below">Below</option><option value="none">None</option></select></div>
-                                <div class="wcs"><label>Divider Color</label><input type="color" id="wc-dual-sub-div-color" value="#e0e0e0" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-sub-div-color')" title="Pick color from screen">💧</button></div>
-                                <div class="wcs"><label>Divider Width</label><input type="number" id="wc-dual-sub-div-width" value="1" min="0" max="5" onchange="updateWidgetPreview()"></div>
                                 <div class="wcs"><label>Spacing (px)</label><input type="number" id="wc-dual-sub-spacing" value="10" min="0" onchange="updateWidgetPreview()"></div>
                             </div>
                             <div class="wconfig-style-row" style="margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">
-                                <div class="wcs"><label>Note Placement</label><select id="wc-dual-sub-note-pos" onchange="updateWidgetPreview()"><option value="inline" selected>Inline</option><option value="above">Above</option><option value="below">Below</option></select></div>
+                                <div class="wcs" style="flex:1 1 100%;font-size:0.68em;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;color:#8890b5;">Divider</div>
+                                <div class="wcs"><label>Position</label><select id="wc-dual-sub-div-pos" onchange="updateWidgetPreview()"><option value="above" selected>Above</option><option value="below">Below</option><option value="none">None</option></select></div>
+                                <div class="wcs"><label>Color</label><input type="color" id="wc-dual-sub-div-color" value="#e0e0e0" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-sub-div-color')" title="Pick color from screen">💧</button></div>
+                                <div class="wcs"><label>Width</label><input type="number" id="wc-dual-sub-div-width" value="1" min="0" max="5" onchange="updateWidgetPreview()"></div>
+                            </div>
+                            <div class="wconfig-style-row" style="margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">
+                                <div class="wcs" style="flex:1 1 100%;font-size:0.68em;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;color:#8890b5;">Note</div>
+                                <div class="wcs"><label>Placement</label><select id="wc-dual-sub-note-pos" onchange="updateWidgetPreview()"><option value="inline" selected>Inline</option><option value="above">Above</option><option value="below">Below</option></select></div>
                                 <div class="wcs"><label>Label → Note Gap</label><input type="number" id="wc-dual-sub-note-lgap" value="8" min="0" max="60" style="width:54px;" onchange="updateWidgetPreview()"></div>
-                                <div class="wcs"><label>Note Font Family</label><input type="text" id="wc-dual-sub-note-ff" placeholder="inherit" onchange="updateWidgetPreview()"></div>
-                                <div class="wcs"><label>Note Size</label><input type="number" id="wc-dual-sub-note-fs" placeholder="11" min="8" max="20" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>Font Family</label><input type="text" id="wc-dual-sub-note-ff" placeholder="inherit" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>Size</label><input type="number" id="wc-dual-sub-note-fs" placeholder="11" min="8" max="20" onchange="updateWidgetPreview()"></div>
                                 <div class="wcs">
-                                    <label>Note Weight</label>
+                                    <label>Weight</label>
                                     <select id="wc-dual-sub-note-fw" onchange="updateWidgetPreview()">
                                         <option value="" selected>Default</option>
                                         <option value="300">Light</option>
@@ -868,7 +875,7 @@
                                         <option value="700">Bold</option>
                                     </select>
                                 </div>
-                                <div class="wcs"><label>Note Color</label><input type="color" id="wc-dual-sub-note-color" value="#999999" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-sub-note-color')" title="Pick color from screen">💧</button></div>
+                                <div class="wcs"><label>Color</label><input type="color" id="wc-dual-sub-note-color" value="#999999" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-sub-note-color')" title="Pick color from screen">💧</button></div>
                                 <div class="wcs"><label>Header Gap (px)</label><input type="number" id="wc-dual-header-gap" value="0" min="0" max="60" style="width:54px;" onchange="updateWidgetPreview()" title="Extra space below header — useful when Subtotal is hidden"></div>
                             </div>
                         </div>
@@ -889,8 +896,11 @@
                             <div class="wconfig-style-row">
                                 <div class="wcs"><label>BG Color</label><input type="color" id="wc-dual-p-bg" value="#6675ff" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-p-bg')" title="Pick color from screen">💧</button></div>
                                 <div class="wcs"><label>BG Gradient End</label><input type="color" id="wc-dual-p-bg2" value="#764ba2" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-p-bg2')" title="Pick color from screen">💧</button></div>
+                                <div class="wcs"><label>Border Color</label><input type="color" id="wc-dual-p-bd-color" value="#6675ff" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-p-bd-color')" title="Pick color from screen">💧</button></div>
+                                <div class="wcs"><label>Border Width</label><input type="number" id="wc-dual-p-bd-width" value="0" min="0" max="5" onchange="updateWidgetPreview()"></div>
                                 <div class="wcs"><label>Border Radius</label><input type="number" id="wc-dual-p-bd-radius" value="9" min="0" onchange="updateWidgetPreview()"></div>
                                 <div class="wcs"><label>Padding</label><input type="number" id="wc-dual-p-padding" value="13" min="0" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>Margin Bottom</label><input type="number" id="wc-dual-p-mb" value="8" min="0" onchange="updateWidgetPreview()"></div>
                                 <div class="wcs"><label>Font Family</label><input type="text" id="wc-dual-p-font" placeholder="inherit" onchange="updateWidgetPreview()"></div>
                                 <div class="wcs"><label>Font Size</label><input type="number" id="wc-dual-p-size" placeholder="15" min="8" max="32" onchange="updateWidgetPreview()"></div>
                                 <div class="wcs">
@@ -905,9 +915,6 @@
                                     </select>
                                 </div>
                                 <div class="wcs"><label>Color</label><input type="color" id="wc-dual-p-color" value="#ffffff" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-p-color')" title="Pick color from screen">💧</button></div>
-                                <div class="wcs"><label>Margin Bottom</label><input type="number" id="wc-dual-p-mb" value="8" min="0" onchange="updateWidgetPreview()"></div>
-                                <div class="wcs"><label>Border Color</label><input type="color" id="wc-dual-p-bd-color" value="#6675ff" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-p-bd-color')" title="Pick color from screen">💧</button></div>
-                                <div class="wcs"><label>Border Width</label><input type="number" id="wc-dual-p-bd-width" value="0" min="0" max="5" onchange="updateWidgetPreview()"></div>
                             </div>
                             <div style="margin-top:6px;display:flex;align-items:center;gap:10px;">
                                 <button onclick="(function(){var e=document.getElementById('wc-dual-p-bd-width');if(e){e.value=0;updateWidgetPreview();}})()" style="padding:3px 10px;font-size:0.68em;border:1px solid #dc3545;border-radius:4px;background:white;cursor:pointer;color:#dc3545;">✕ Remove Border</button>
