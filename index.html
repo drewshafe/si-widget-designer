@@ -2644,23 +2644,41 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             try { _PU_SFX[i](ctx); } catch (e) {}
         }
         // Speak the current quote aloud (Web Speech API), a beat after the SFX.
-        function puSpeakQuote(delayMs) {
-            if (_puMuted) return;
+        // NOTE: we deliberately do NOT call cancel() right before speak() — doing so is a
+        // well-known Chrome bug that silently drops the new utterance. We only cancel when
+        // something is already speaking (rapid clicks), then speak after it settles.
+        let _puVoice = null;
+        function _puLoadVoice() {
             if (!('speechSynthesis' in window)) return;
+            const vs = window.speechSynthesis.getVoices() || [];
+            if (!vs.length) return;
+            _puVoice = vs.find(v => v.lang === 'en-US' && v.localService) ||
+                       vs.find(v => /en[-_]US/i.test(v.lang)) ||
+                       vs.find(v => /^en/i.test(v.lang)) || null;
+        }
+        function puSpeakQuote(delayMs) {
+            if (_puMuted || !('speechSynthesis' in window)) return;
             const Q = _puCurrentQuote;
             if (!Q) return;
-            setTimeout(() => {
+            const synth = window.speechSynthesis;
+            const doSpeak = () => {
                 if (_puMuted) return;
                 try {
-                    window.speechSynthesis.cancel();   // drop any queued/older utterance
+                    if (!_puVoice) _puLoadVoice();
                     const u = new SpeechSynthesisUtterance(`${Q.q} — ${Q.who}, in ${Q.src}.`);
                     u.rate = 1.02; u.pitch = 1.0; u.volume = 1.0; u.lang = 'en-US';
-                    const vs = window.speechSynthesis.getVoices() || [];
-                    const pref = vs.find(v => /en[-_]US/i.test(v.lang)) || vs.find(v => /^en/i.test(v.lang));
-                    if (pref) u.voice = pref;
-                    window.speechSynthesis.speak(u);
+                    if (_puVoice) u.voice = _puVoice;
+                    synth.speak(u);
+                    // Chrome occasionally starts an utterance paused — nudge it.
+                    setTimeout(() => { try { if (synth.paused) synth.resume(); } catch (e) {} }, 120);
                 } catch (e) {}
-            }, delayMs || 500);
+            };
+            if (synth.speaking || synth.pending) {
+                synth.cancel();
+                setTimeout(doSpeak, 200);   // let the cancel settle before speaking again
+            } else {
+                setTimeout(doSpeak, delayMs || 420);
+            }
         }
         function togglePuMute() {
             _puMuted = !_puMuted;
@@ -2674,6 +2692,10 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             try { _puMuted = localStorage.getItem('si_pu_muted') === '1'; } catch (e) { _puMuted = false; }
             const b = document.getElementById('puMute');
             if (b) { b.textContent = _puMuted ? '🔇' : '🔊'; b.title = _puMuted ? 'Sound off — click to enable' : 'Sound on — click to mute'; }
+            if ('speechSynthesis' in window) {
+                _puLoadVoice();
+                window.speechSynthesis.onvoiceschanged = _puLoadVoice;   // voices load async in some browsers
+            }
         }
 
         // ── Merchant preview set (hand-picked deployment examples) ──────────
