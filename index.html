@@ -1474,6 +1474,11 @@
         const _extShowsRemove = () => _extLineItem === 'remove' || _extLineItem === 'widget-remove';
         const _extShowsWidget = () => _extLineItem === 'widget-remove' || _extLineItem === 'widget-noremove';
 
+        // Scan Checkout context: page background color + the merchant's other order-summary
+        // items (rendered below our line item to show it in-context). Does NOT touch pricing.
+        let _extScanBg = '';        // '' = no scanned background
+        let _extScanItems = [];     // [{ name, descLines:[], price, compareAtPrice, quantity }]
+
         let _togInfoPos = 'header';
         function setTogInfoPos(v) {
             _togInfoPos = v;
@@ -1511,6 +1516,16 @@
             const _wCard  = document.getElementById('widgetPreviewCard');
             if (_liCard) _liCard.style.display = _isExt ? '' : 'none';
             if (_wCard)  _wCard.style.display  = (!_isExt || _extShowsWidget()) ? '' : 'none';
+
+            // Scan Checkout background tints both preview areas so the boxes look in-context.
+            const _scanBg = (_isExt && _extScanBg) ? _extScanBg : '';
+            ['widgetPreviewArea','lineItemPreviewArea'].forEach(id => {
+                const a = document.getElementById(id);
+                if (!a) return;
+                a.style.background   = _scanBg;
+                a.style.padding      = _scanBg ? '20px' : '';
+                a.style.borderRadius = _scanBg ? '10px' : '';
+            });
 
             let area;
             if (showInline && inlineContainer) {
@@ -1907,6 +1922,11 @@
                 const extLogoHtml   = (hideLock && !extLogoUrlParam) ? '' : `<img src="${extLogoSrc}" style="width:${extLogoW}px;height:${extLogoSize}px;object-fit:contain;flex-shrink:0;" onerror="this.style.opacity='0';">`;
 
                 const snapStyle = 'margin:0 auto;';
+                // Disclaimer renders as its own rounded box BELOW the widget (true to how
+                // Shopify shows checkout disclaimers), with the info icon on the left.
+                const extDisclaimerBox = disclaimer
+                    ? `<div style="display:flex;align-items:flex-start;gap:10px;background:#f6f6f7;border:1px solid #ececec;border-radius:12px;padding:13px 16px;max-width:480px;width:100%;margin:10px auto 0;box-sizing:border-box;">${infoBtn}<div style="${edStyle}line-height:1.45;flex:1;">${disclaimer}</div></div>`
+                    : '';
                 area.innerHTML = `<div style="${eCardStyle}${snapStyle}">
                     <div class="wp-ext-row" style="align-items:${extLogoAlign};gap:${extLogoGap}px;">
                         ${extCheckbox}
@@ -1920,11 +1940,10 @@
                                 ${body ? `<div class="wp-body-text" style="${ebStyle}margin:0;">${body}</div>` : ''}
                                 ${showLearnMore ? learnMore : ''}
                             </div>` : ''}
-                            ${disclaimer ? `<div class="wp-disclaimer" style="${edStyle}margin-top:5px;display:flex;align-items:flex-start;gap:4px;">${infoBtn}<span>${disclaimer}</span></div>` : ''}
                         </div>
                     </div>
                     ${cbRowText ? `<div class="wp-cashback-row">${cashImg}<span>${cbRowText}</span></div>` : ''}
-                </div>`;
+                </div>${extDisclaimerBox}`;
 
                 // ── SI checkout-page line item (separate preview box) ──
                 // Mimics a Shopify order-summary row: qty badge on the product image,
@@ -1936,11 +1955,16 @@
                     const liRemoveColor = gv('wc-ext-li-remove-color', '#6675ff');
                     const showRemove = _extShowsRemove();
                     const skuLine = (avgPremium || 0).toFixed(2);   // SKU = fee without the '$'
-                    liArea.innerHTML = `<div style="display:flex;align-items:center;gap:14px;background:#fff;border:1px solid #e9ecef;border-radius:10px;padding:14px 16px 14px 22px;max-width:480px;width:100%;margin:0 auto;box-shadow:0 2px 10px rgba(0,0,0,0.05);">
-                        <div style="position:relative;flex-shrink:0;">
-                            <span style="position:absolute;top:-9px;right:-9px;min-width:22px;height:22px;padding:0 5px;box-sizing:border-box;background:#1a1a2e;color:#fff;border-radius:11px;font-size:12px;font-weight:700;line-height:22px;text-align:center;z-index:1;">1</span>
-                            <img src="${extLogoSrc}" style="width:52px;height:52px;object-fit:contain;background:#f4f4f6;border-radius:10px;display:block;" onerror="this.style.opacity='0';">
-                        </div>
+
+                    // A quantity-badged product tile (falls back to a neutral placeholder when no image).
+                    const rowTile = (imgSrc, qty) => `<div style="position:relative;flex-shrink:0;">
+                        <span style="position:absolute;top:-9px;right:-9px;min-width:22px;height:22px;padding:0 5px;box-sizing:border-box;background:#1a1a2e;color:#fff;border-radius:11px;font-size:12px;font-weight:700;line-height:22px;text-align:center;z-index:1;">${qty}</span>
+                        ${imgSrc ? `<img src="${imgSrc}" style="width:52px;height:52px;object-fit:contain;background:#f4f4f6;border-radius:10px;display:block;" onerror="this.style.opacity='0';">` : `<div style="width:52px;height:52px;background:#f0f0f2;border-radius:10px;"></div>`}
+                    </div>`;
+                    const rowStyle = (first) => `display:flex;align-items:center;gap:14px;padding:14px 8px;${first ? '' : 'border-top:1px solid rgba(0,0,0,0.08);'}`;
+
+                    const siRow = `<div style="${rowStyle(true)}">
+                        ${rowTile(extLogoSrc, 1)}
                         <div style="flex:1;min-width:0;">
                             <div style="font-weight:600;${liStyle}">${liName}</div>
                             <div style="font-size:0.82em;color:#8a8f98;margin-top:2px;">${skuLine}</div>
@@ -1948,6 +1972,21 @@
                         </div>
                         <span class="wp-price" style="flex-shrink:0;align-self:flex-start;">${fmtP}</span>
                     </div>`;
+
+                    // Merchant's own order-summary items from a Scan Checkout, rendered below ours.
+                    const ctxRows = (_extScanItems || []).map(it => `<div style="${rowStyle(false)}">
+                        ${rowTile('', it.quantity || 1)}
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-weight:600;color:#1a1a1a;">${_escHtml(it.name)}</div>
+                            ${(it.descLines || []).map(dl => `<div style="font-size:0.82em;color:#8a8f98;margin-top:2px;">${_escHtml(dl)}</div>`).join('')}
+                        </div>
+                        <div style="flex-shrink:0;align-self:flex-start;text-align:right;">
+                            ${it.compareAtPrice ? `<div style="font-size:0.82em;color:#b0b0b8;text-decoration:line-through;">${_escHtml(it.compareAtPrice)}</div>` : ''}
+                            <span class="wp-price">${_escHtml(it.price)}</span>
+                        </div>
+                    </div>`).join('');
+
+                    liArea.innerHTML = `<div style="background:#fff;border:1px solid #e9ecef;border-radius:10px;padding:2px 12px;max-width:480px;width:100%;margin:0 auto;box-shadow:0 2px 10px rgba(0,0,0,0.05);">${siRow}${ctxRows}</div>`;
                 }
             }
         }
@@ -2055,19 +2094,25 @@
             setRunScanBusy(true);
             showScanStatus('Scanning…', 'info');
 
-            const checkoutPrompt = `Analyze this checkout / order-summary screenshot and find the ShipInsure line item (a small "Shipping Protection" or package-protection row with a small fee). Return ONLY a valid JSON object — no markdown, no explanation, no code fences.
+            const checkoutPrompt = `Analyze this checkout / order-summary screenshot. Return ONLY a valid JSON object — no markdown, no explanation, no code fences.
+
+Extract the page background color behind the order-summary rows, and EVERY product line item you can see (do NOT include any ShipInsure / Shipping Protection line — skip it if present).
 
 Required JSON keys:
 {
-  "productName": "the exact ShipInsure line-item product name (e.g. 'ShipInsure Package Protection')",
-  "fee": number (the ShipInsure fee for that line, e.g. 8.89),
-  "hasRemoveButton": true or false (is there a Remove link on that line),
-  "productNameColor": "#hexcolor",
-  "productNameFontWeight": "400 or 500 or 600 or 700",
-  "removeButtonColor": "#hexcolor"
+  "backgroundColor": "#hexcolor for the background behind the order summary rows",
+  "items": [
+    {
+      "name": "exact product title",
+      "descLines": ["each secondary line under the title, e.g. a variant, size, or subscription cadence"],
+      "price": "the price exactly as shown, e.g. $116.98 or FREE",
+      "compareAtPrice": "the struck-through original price if shown, else null",
+      "quantity": number shown in the quantity badge (default 1)
+    }
+  ]
 }
 
-For uncertain values make your best visual estimate. Always use valid hex colors.`;
+Preserve the visible order of the items top to bottom. For uncertain values make your best visual estimate. Always use a valid hex color for backgroundColor.`;
 
             const widgetPrompt = `Analyze this widget screenshot. Return ONLY a valid JSON object — no markdown, no explanation, no code fences. Extract all visible text and your best estimate of all styling.
 
@@ -2239,25 +2284,22 @@ For uncertain values make your best visual estimate. Always use valid hex colors
         }
 
         // Apply a scanned checkout order-summary line item to the SI Line Item Styler.
+        // Scan Checkout: sets the preview background color to match the merchant's checkout
+        // and drops their order-summary items in below our line item. It deliberately does
+        // NOT touch Mode, AOV, Pricing, or SI Premium $ — only the in-context framing.
         function applyScannedCheckout(d) {
             setWidgetType('extension');
-            const set = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined && val !== null && val !== '') el.value = val; };
-
-            set('wc-ext-li-name', d.productName);
-            set('wc-ext-li-color', d.productNameColor);
-            set('wc-ext-li-weight', d.productNameFontWeight);
-            set('wc-ext-li-remove-color', d.removeButtonColor);
-
-            // Fee → drive the shown price via a flat dollar amount so fmtP + SKU line match.
-            if (d.fee !== undefined && d.fee !== null && !isNaN(parseFloat(d.fee))) {
-                const tmpl = document.getElementById('pricingTemplate');
-                if (tmpl) tmpl.value = 'flat_dollar';
-                set('protectionPremium', parseFloat(d.fee).toFixed(2));
-                toggleProtectionPremiumVisibility();
-            }
-
-            // Scanning a checkout row → recommend the line-item-only view.
-            setExtLineItem(d.hasRemoveButton === false ? 'noremove' : 'remove');
+            const bg = (d && typeof d.backgroundColor === 'string' && /^#?[0-9a-fA-F]{3,8}$/.test(d.backgroundColor.trim()))
+                ? (d.backgroundColor.trim().startsWith('#') ? d.backgroundColor.trim() : '#' + d.backgroundColor.trim())
+                : '';
+            _extScanBg = bg;
+            _extScanItems = Array.isArray(d && d.items) ? d.items.map(it => ({
+                name:           (it && it.name) ? String(it.name) : '',
+                descLines:      Array.isArray(it && it.descLines) ? it.descLines.filter(Boolean).map(String) : [],
+                price:          (it && it.price != null) ? String(it.price) : '',
+                compareAtPrice: (it && it.compareAtPrice) ? String(it.compareAtPrice) : '',
+                quantity:       (it && it.quantity) ? parseInt(it.quantity) || 1 : 1
+            })).filter(it => it.name) : [];
             updateWidgetPreview();
         }
 
@@ -2369,6 +2411,8 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 subpos: _dualSubPos,
                 extLineItem: _extLineItem,
                 togInfoPos: _togInfoPos,
+                extScanBg: _extScanBg,
+                extScanItems: _extScanItems,
                 dualLogo: _dualLogoSrc,
                 togLogo: _toggleLogoSrc,
                 extLogo: _extLogoSrc
@@ -2395,6 +2439,8 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             if (data.subpos) _dualSubPos    = data.subpos;
             if (data.extLineItem) setExtLineItem(data.extLineItem);
             if (data.togInfoPos) setTogInfoPos(data.togInfoPos);
+            _extScanBg    = data.extScanBg || '';
+            _extScanItems = Array.isArray(data.extScanItems) ? data.extScanItems : [];
             if (data.dualLogo !== undefined) _dualLogoSrc   = data.dualLogo;
             if (data.togLogo  !== undefined) _toggleLogoSrc = data.togLogo;
             if (data.extLogo  !== undefined) _extLogoSrc    = data.extLogo;
@@ -2453,6 +2499,8 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             if (d.subpos) _dualSubPos = d.subpos;
             if (d.extLineItem) _extLineItem = d.extLineItem;
             if (d.togInfoPos) _togInfoPos = d.togInfoPos;
+            _extScanBg    = d.extScanBg || '';
+            _extScanItems = Array.isArray(d.extScanItems) ? d.extScanItems : [];
             _dualLogoSrc   = d.dualLogo !== undefined ? d.dualLogo : null;
             _toggleLogoSrc = d.togLogo  !== undefined ? d.togLogo  : null;
             _extLogoSrc    = d.extLogo  !== undefined ? d.extLogo  : null;
@@ -2471,8 +2519,11 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             if (_widgetType === 'extension') {
                 const liHtml = document.getElementById('lineItemPreviewArea').innerHTML;
                 // Line-item-only selection → show only the line item; widget+ → show both stacked.
-                if (!_extShowsWidget()) return liHtml;
-                return `<div style="display:flex;flex-direction:column;gap:16px;align-items:center;width:100%;">${widgetHtml}${liHtml}</div>`;
+                const inner = !_extShowsWidget() ? liHtml
+                    : `<div style="display:flex;flex-direction:column;gap:16px;align-items:center;width:100%;">${widgetHtml}${liHtml}</div>`;
+                // A scanned checkout background wraps the example so it looks in-context.
+                if (_extScanBg) return `<div style="background:${_extScanBg};padding:20px;border-radius:10px;width:100%;box-sizing:border-box;">${inner}</div>`;
+                return inner;
             }
             return widgetHtml;
         }
