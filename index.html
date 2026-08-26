@@ -1022,10 +1022,31 @@
                 <!-- Checkout Extension config -->
                 <div id="wc-extension" class="wconfig-section">
                     <div class="wconfig-divider">Checkout Page Line Item Elements</div>
-                    <div class="wconfig-snap" style="margin-bottom:8px;">
-                        <button class="snap-btn active" id="ext-li-remove" onclick="setExtLineItem('remove')">Remove Button</button>
-                        <button class="snap-btn" id="ext-li-noremove" onclick="setExtLineItem('noremove')">No Remove Button</button>
+                    <div class="wconfig-snap" style="margin-bottom:8px;flex-wrap:wrap;">
+                        <button class="snap-btn active" data-extli="remove" onclick="setExtLineItem('remove')">Remove Button</button>
+                        <button class="snap-btn" data-extli="noremove" onclick="setExtLineItem('noremove')">No Remove Button</button>
+                        <button class="snap-btn" data-extli="widget-remove" onclick="setExtLineItem('widget-remove')">Widget + Remove Button</button>
+                        <button class="snap-btn" data-extli="widget-noremove" onclick="setExtLineItem('widget-noremove')">Widget (no remove)</button>
                     </div>
+                    <details class="wconfig-style-grp" open>
+                        <summary>SI Line Item Styler</summary>
+                        <div>
+                            <div class="wconfig-style-row">
+                                <div class="wcs" style="flex:1 1 100%;">
+                                    <label>Product Name <span style="color:#aaa;font-size:0.85em;">(blank = match mode copy)</span></label>
+                                    <div style="display:flex;gap:8px;align-items:center;">
+                                        <input type="text" id="wc-ext-li-name" placeholder="Shipping Protection" style="flex:1;min-width:0;" onchange="updateWidgetPreview()">
+                                        <button type="button" class="scan-widget-btn" style="flex-shrink:0;white-space:nowrap;margin:0;" onclick="openScanModal('checkout')">🔍 Scan Checkout</button>
+                                    </div>
+                                </div>
+                                <div class="wcs"><label>Font Family</label><input type="text" id="wc-ext-li-font" placeholder="inherit" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>Font Size</label><input type="number" id="wc-ext-li-size" placeholder="14" min="8" max="32" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>Font Weight</label><select id="wc-ext-li-weight" onchange="updateWidgetPreview()"><option value="">Default</option><option value="300">Light (300)</option><option value="400">Regular (400)</option><option value="500">Medium (500)</option><option value="600">Semibold (600)</option><option value="700">Bold (700)</option></select></div>
+                                <div class="wcs"><label>Color</label><input type="color" id="wc-ext-li-color" value="#1a1a1a" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-ext-li-color')" title="Pick color from screen">💧</button></div>
+                                <div class="wcs"><label>Remove Button Color</label><input type="color" id="wc-ext-li-remove-color" value="#6675ff" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-ext-li-remove-color')" title="Pick color from screen">💧</button></div>
+                            </div>
+                        </div>
+                    </details>
                     <div class="wconfig-divider">Content</div>
                     <div class="wconfig-row" style="margin-bottom:6px;">
                         <div class="wconfig-field">
@@ -1123,24 +1144,11 @@
                             </div>
                         </div>
                     </details>
-                    <details class="wconfig-style-grp">
-                        <summary>SI Line Item</summary>
-                        <div>
-                            <div class="wconfig-style-row">
-                                <div class="wcs" style="flex:1 1 100%;"><label>Product Name <span style="color:#aaa;font-size:0.85em;">(blank = match mode copy)</span></label><input type="text" id="wc-ext-li-name" placeholder="Shipping Protection" style="width:100%;" onchange="updateWidgetPreview()"></div>
-                                <div class="wcs"><label>Font Family</label><input type="text" id="wc-ext-li-font" placeholder="inherit" onchange="updateWidgetPreview()"></div>
-                                <div class="wcs"><label>Font Size</label><input type="number" id="wc-ext-li-size" placeholder="14" min="8" max="32" onchange="updateWidgetPreview()"></div>
-                                <div class="wcs"><label>Font Weight</label><select id="wc-ext-li-weight" onchange="updateWidgetPreview()"><option value="">Default</option><option value="300">Light (300)</option><option value="400">Regular (400)</option><option value="500">Medium (500)</option><option value="600">Semibold (600)</option><option value="700">Bold (700)</option></select></div>
-                                <div class="wcs"><label>Color</label><input type="color" id="wc-ext-li-color" value="#1a1a1a" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-ext-li-color')" title="Pick color from screen">💧</button></div>
-                                <div class="wcs"><label>Remove Button Color</label><input type="color" id="wc-ext-li-remove-color" value="#6675ff" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-ext-li-remove-color')" title="Pick color from screen">💧</button></div>
-                            </div>
-                        </div>
-                    </details>
                 </div>
             </div><!-- /widgetPreviewSection -->
         </div><!-- /config-col -->
         <div class="preview-col">
-            <div class="preview-card">
+            <div class="preview-card" id="widgetPreviewCard">
                 <div class="pc-title" id="previewTitle">Live Preview</div>
                 <div id="widgetPreviewArea"></div>
             </div>
@@ -1456,15 +1464,15 @@
             updateWidgetPreview();
         }
 
+        // 'remove' | 'noremove' (line item only) | 'widget-remove' | 'widget-noremove' (widget + line item)
         let _extLineItem = 'remove';
         function setExtLineItem(v) {
             _extLineItem = v;
-            const r = document.getElementById('ext-li-remove');
-            const n = document.getElementById('ext-li-noremove');
-            if (r) r.classList.toggle('active', v === 'remove');
-            if (n) n.classList.toggle('active', v === 'noremove');
+            document.querySelectorAll('[data-extli]').forEach(b => b.classList.toggle('active', b.getAttribute('data-extli') === v));
             updateWidgetPreview();
         }
+        const _extShowsRemove = () => _extLineItem === 'remove' || _extLineItem === 'widget-remove';
+        const _extShowsWidget = () => _extLineItem === 'widget-remove' || _extLineItem === 'widget-noremove';
 
         let _togInfoPos = 'header';
         function setTogInfoPos(v) {
@@ -1497,8 +1505,12 @@
                 _ptEl.textContent = _pt;
             }
             // Line-item preview box shows only for the Checkout Extension.
+            // For line-item-only selections we hide the main Checkout Widget card entirely.
+            const _isExt = (_widgetType === 'extension');
             const _liCard = document.getElementById('lineItemCard');
-            if (_liCard) _liCard.style.display = (_widgetType === 'extension') ? '' : 'none';
+            const _wCard  = document.getElementById('widgetPreviewCard');
+            if (_liCard) _liCard.style.display = _isExt ? '' : 'none';
+            if (_wCard)  _wCard.style.display  = (!_isExt || _extShowsWidget()) ? '' : 'none';
 
             let area;
             if (showInline && inlineContainer) {
@@ -1915,27 +1927,39 @@
                 </div>`;
 
                 // ── SI checkout-page line item (separate preview box) ──
+                // Mimics a Shopify order-summary row: qty badge on the product image,
+                // product name, and the SKU line (= the SI fee shown without the '$').
                 const liArea = document.getElementById('lineItemPreviewArea');
                 if (liArea) {
                     const liName  = v('wc-ext-li-name', header);
                     const liStyle = sty(gv('wc-ext-li-font',''), gv('wc-ext-li-size',''), gv('wc-ext-li-weight',''), gv('wc-ext-li-color','#1a1a1a'));
                     const liRemoveColor = gv('wc-ext-li-remove-color', '#6675ff');
-                    const showRemove = _extLineItem !== 'noremove';
-                    liArea.innerHTML = `<div style="display:flex;align-items:center;gap:14px;background:#fff;border:1px solid #e9ecef;border-radius:10px;padding:14px 16px;max-width:480px;width:100%;margin:0 auto;box-shadow:0 2px 10px rgba(0,0,0,0.05);">
-                        <img src="${extLogoSrc}" style="width:46px;height:46px;object-fit:contain;flex-shrink:0;border-radius:6px;" onerror="this.style.opacity='0';">
+                    const showRemove = _extShowsRemove();
+                    const skuLine = (avgPremium || 0).toFixed(2);   // SKU = fee without the '$'
+                    liArea.innerHTML = `<div style="display:flex;align-items:center;gap:14px;background:#fff;border:1px solid #e9ecef;border-radius:10px;padding:14px 16px 14px 22px;max-width:480px;width:100%;margin:0 auto;box-shadow:0 2px 10px rgba(0,0,0,0.05);">
+                        <div style="position:relative;flex-shrink:0;">
+                            <span style="position:absolute;top:-9px;left:-9px;min-width:22px;height:22px;padding:0 5px;box-sizing:border-box;background:#1a1a2e;color:#fff;border-radius:11px;font-size:12px;font-weight:700;line-height:22px;text-align:center;z-index:1;">1</span>
+                            <img src="${extLogoSrc}" style="width:52px;height:52px;object-fit:contain;background:#f4f4f6;border-radius:10px;display:block;" onerror="this.style.opacity='0';">
+                        </div>
                         <div style="flex:1;min-width:0;">
                             <div style="font-weight:600;${liStyle}">${liName}</div>
+                            <div style="font-size:0.82em;color:#8a8f98;margin-top:2px;">${skuLine}</div>
                             ${showRemove ? `<button type="button" style="margin-top:5px;background:none;border:none;padding:0;font-size:0.82em;font-weight:600;color:${liRemoveColor};cursor:pointer;text-decoration:underline;font-family:inherit;">Remove</button>` : ''}
                         </div>
-                        <span class="wp-price" style="flex-shrink:0;">${fmtP}</span>
+                        <span class="wp-price" style="flex-shrink:0;align-self:flex-start;">${fmtP}</span>
                     </div>`;
                 }
             }
         }
 
-        function openScanModal() {
+        let _scanTarget = 'widget';   // 'widget' (full design) | 'checkout' (line item)
+        function openScanModal(target) {
+            _scanTarget = (target === 'checkout') ? 'checkout' : 'widget';
             _scanImageBase64 = null;
             const modal = document.getElementById('scanModal');
+            const isCheckout = _scanTarget === 'checkout';
+            document.querySelector('.scan-modal-title').textContent = isCheckout ? '🔍 Scan Checkout Line Item from Screenshot' : '🔍 Scan Widget from Screenshot';
+            document.getElementById('runScanBtn').textContent = isCheckout ? 'Scan Checkout' : 'Scan Widget';
             document.getElementById('scanPreview').style.display = 'none';
             document.getElementById('scanPreview').src = '';
             document.getElementById('runScanBtn').disabled = true;
@@ -2031,7 +2055,21 @@
             setRunScanBusy(true);
             showScanStatus('Scanning…', 'info');
 
-            const prompt = `Analyze this widget screenshot. Return ONLY a valid JSON object — no markdown, no explanation, no code fences. Extract all visible text and your best estimate of all styling.
+            const checkoutPrompt = `Analyze this checkout / order-summary screenshot and find the ShipInsure line item (a small "Shipping Protection" or package-protection row with a small fee). Return ONLY a valid JSON object — no markdown, no explanation, no code fences.
+
+Required JSON keys:
+{
+  "productName": "the exact ShipInsure line-item product name (e.g. 'ShipInsure Package Protection')",
+  "fee": number (the ShipInsure fee for that line, e.g. 8.89),
+  "hasRemoveButton": true or false (is there a Remove link on that line),
+  "productNameColor": "#hexcolor",
+  "productNameFontWeight": "400 or 500 or 600 or 700",
+  "removeButtonColor": "#hexcolor"
+}
+
+For uncertain values make your best visual estimate. Always use valid hex colors.`;
+
+            const widgetPrompt = `Analyze this widget screenshot. Return ONLY a valid JSON object — no markdown, no explanation, no code fences. Extract all visible text and your best estimate of all styling.
 
 Required JSON keys:
 {
@@ -2078,6 +2116,8 @@ Required JSON keys:
 
 For uncertain values make your best visual estimate. Always use valid hex colors.`;
 
+            const prompt = (_scanTarget === 'checkout') ? checkoutPrompt : widgetPrompt;
+
             try {
                 const resp = await fetch('https://api.anthropic.com/v1/messages', {
                     method: 'POST',
@@ -2107,8 +2147,9 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 const raw = data.content?.[0]?.text || '';
                 const jsonStr = raw.replace(/^```[a-z]*\n?/i,'').replace(/```$/,'').trim();
                 const parsed = JSON.parse(jsonStr);
-                applyScannedData(parsed);
-                showScanStatus('✓ Widget scanned — fields updated!', 'success');
+                if (_scanTarget === 'checkout') applyScannedCheckout(parsed);
+                else applyScannedData(parsed);
+                showScanStatus(_scanTarget === 'checkout' ? '✓ Checkout scanned — line item updated!' : '✓ Widget scanned — fields updated!', 'success');
                 setTimeout(closeScanModal, 1400);
             } catch(e) {
                 showScanStatus('Error: ' + e.message, 'error');
@@ -2194,6 +2235,29 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             set('wc-ext-disclaimer', d.disclaimer);
             setChk('wc-ext-hide-lock',  !d.hasLogo);
 
+            updateWidgetPreview();
+        }
+
+        // Apply a scanned checkout order-summary line item to the SI Line Item Styler.
+        function applyScannedCheckout(d) {
+            setWidgetType('extension');
+            const set = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined && val !== null && val !== '') el.value = val; };
+
+            set('wc-ext-li-name', d.productName);
+            set('wc-ext-li-color', d.productNameColor);
+            set('wc-ext-li-weight', d.productNameFontWeight);
+            set('wc-ext-li-remove-color', d.removeButtonColor);
+
+            // Fee → drive the shown price via a flat dollar amount so fmtP + SKU line match.
+            if (d.fee !== undefined && d.fee !== null && !isNaN(parseFloat(d.fee))) {
+                const tmpl = document.getElementById('pricingTemplate');
+                if (tmpl) tmpl.value = 'flat_dollar';
+                set('protectionPremium', parseFloat(d.fee).toFixed(2));
+                toggleProtectionPremiumVisibility();
+            }
+
+            // Scanning a checkout row → recommend the line-item-only view.
+            setExtLineItem(d.hasRemoveButton === false ? 'noremove' : 'remove');
             updateWidgetPreview();
         }
 
@@ -2353,10 +2417,14 @@ For uncertain values make your best visual estimate. Always use valid hex colors
         // ── Merchant preview set (hand-picked deployment examples) ──────────
         let _merchantExamples = [];
         function currentPreviewTitle() { const el = document.getElementById('previewTitle'); return el ? el.textContent : 'Widget'; }
+        function currentExampleLabel() {
+            if (_widgetType === 'extension') return _extShowsWidget() ? 'Checkout Widget + Line Item' : 'Checkout Line Item';
+            return currentPreviewTitle();
+        }
         function _escHtml(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 
         function addCurrentView() {
-            _merchantExamples.push({ label: currentPreviewTitle(), design: _collectDesign() });
+            _merchantExamples.push({ label: currentExampleLabel(), design: _collectDesign() });
             renderMerchantChips();
             showToast('Added to merchant preview');
         }
@@ -2372,7 +2440,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
         }
 
         function copyMerchantLink() {
-            const set = _merchantExamples.length ? _merchantExamples : [{ label: currentPreviewTitle(), design: _collectDesign() }];
+            const set = _merchantExamples.length ? _merchantExamples : [{ label: currentExampleLabel(), design: _collectDesign() }];
             const enc = btoa(unescape(encodeURIComponent(JSON.stringify(set))));
             const url = location.origin + location.pathname + '?view=merchant#s=' + enc;
             navigator.clipboard.writeText(url).then(showToast, () => prompt('Copy this merchant link:', url));
@@ -2399,7 +2467,14 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             _applyDesignObj(ex.design);
             setWidgetType((ex.design && ex.design.wtype) || 'dual');
             updateWidgetPreview();
-            return document.getElementById('widgetPreviewArea').innerHTML;
+            const widgetHtml = document.getElementById('widgetPreviewArea').innerHTML;
+            if (_widgetType === 'extension') {
+                const liHtml = document.getElementById('lineItemPreviewArea').innerHTML;
+                // Line-item-only selection → show only the line item; widget+ → show both stacked.
+                if (!_extShowsWidget()) return liHtml;
+                return `<div style="display:flex;flex-direction:column;gap:16px;align-items:center;width:100%;">${widgetHtml}${liHtml}</div>`;
+            }
+            return widgetHtml;
         }
         function renderMerchantView(examples) {
             ['.app-header', '.control-bar', '.designer-body'].forEach(sel => {
