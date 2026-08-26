@@ -404,6 +404,10 @@
         .mp-view-header .t1 { font-size: 1.1em; font-weight: 800; color: #fff; }
         .mp-view-header .t2 { font-size: 0.78em; font-weight: 500; color: rgba(255,255,255,0.82); }
         .mp-grid { max-width: 1180px; margin: 24px auto 0; padding: 0 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
+        /* Merchant preview: one column per preview TYPE; empty columns are omitted. */
+        .mp-cols { max-width: 1440px; margin: 24px auto 0; padding: 0 20px 44px; display: flex; gap: 20px; align-items: flex-start; justify-content: center; flex-wrap: wrap; }
+        .mp-col { flex: 1 1 0; min-width: 300px; max-width: 430px; display: flex; flex-direction: column; gap: 16px; }
+        .mp-col-title { font-size: 0.72em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #8890b5; text-align: center; margin-bottom: 2px; }
         .mp-cell { background: #fff; border: 1px solid #e3e7f5; border-radius: 16px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
         .mp-cell-label { font-size: 0.72em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #8890b5; margin-bottom: 14px; }
         .mp-widget { display: flex; justify-content: center; }
@@ -3007,21 +3011,19 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 else el.value = val;
             });
         }
-        function _renderExampleHTML(ex) {
+        // Render one saved example and return its pieces so the merchant view can
+        // sort each into the correct type column.
+        function _exampleParts(ex) {
             _applyDesignObj(ex.design);
             setWidgetType((ex.design && ex.design.wtype) || 'dual');
             updateWidgetPreview();
-            const widgetHtml = document.getElementById('widgetPreviewArea').innerHTML;
-            if (_widgetType === 'extension') {
-                const liHtml = document.getElementById('lineItemPreviewArea').innerHTML;
-                // Line-item-only selection → show only the line item; widget+ → show both stacked.
-                const inner = !_extShowsWidget() ? liHtml
-                    : `<div style="display:flex;flex-direction:column;gap:16px;align-items:center;width:100%;">${widgetHtml}${liHtml}</div>`;
-                // A scanned checkout background wraps the example so it looks in-context.
-                if (_extScanBg) return `<div style="background:${_extScanBg};padding:20px;border-radius:10px;width:100%;box-sizing:border-box;">${inner}</div>`;
-                return inner;
-            }
-            return widgetHtml;
+            return {
+                wtype: _widgetType,
+                showsWidget: _extShowsWidget(),
+                widgetHtml: document.getElementById('widgetPreviewArea').innerHTML,
+                lineItemHtml: document.getElementById('lineItemPreviewArea').innerHTML,
+                scanBg: _extScanBg
+            };
         }
         function renderMerchantView(examples) {
             ['.app-header', '.control-bar', '.designer-body'].forEach(sel => {
@@ -3036,8 +3038,33 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 mv.innerHTML = headerHtml + '<div class="mp-empty-view">No preview examples in this link.</div>';
                 mv.style.display = 'block'; return;
             }
-            const cells = examples.map(ex => `<div class="mp-cell"><div class="mp-cell-label">${_escHtml(ex.label || 'Widget')}</div><div class="mp-widget">${_renderExampleHTML(ex)}</div></div>`).join('');
-            mv.innerHTML = headerHtml + `<div class="mp-grid">${cells}</div>`;
+            // One column per preview TYPE; each example is routed to its column(s).
+            const cols = { dual: [], toggle: [], cwidget: [], litem: [] };
+            const wrap = (html, bg) => bg ? `<div style="background:${bg};padding:16px;border-radius:10px;width:100%;box-sizing:border-box;">${html}</div>` : html;
+            examples.forEach(ex => {
+                const p = _exampleParts(ex);
+                if (p.wtype === 'dual') {
+                    cols.dual.push(wrap(p.widgetHtml, p.scanBg));
+                } else if (p.wtype === 'toggle') {
+                    cols.toggle.push(wrap(p.widgetHtml, p.scanBg));
+                } else if (p.wtype === 'extension') {
+                    // Widget goes to the Checkout Widget column; the line item to its own column.
+                    if (p.showsWidget) cols.cwidget.push(wrap(p.widgetHtml, p.scanBg));
+                    cols.litem.push(wrap(p.lineItemHtml, p.scanBg));
+                }
+            });
+            const COLDEFS = [
+                ['dual',    'Cart Dual Checkout Buttons'],
+                ['toggle',  'Cart Checkbox / Toggle Widgets'],
+                ['cwidget', 'Checkout Widget'],
+                ['litem',   'Checkout Product Line Item'],
+            ];
+            const colsHtml = COLDEFS
+                .filter(([k]) => cols[k].length)   // omit empty columns
+                .map(([k, title]) => `<div class="mp-col"><div class="mp-col-title">${title}</div>${
+                    cols[k].map(h => `<div class="mp-cell"><div class="mp-widget">${h}</div></div>`).join('')
+                }</div>`).join('');
+            mv.innerHTML = headerHtml + `<div class="mp-cols">${colsHtml}</div>`;
             mv.style.display = 'block';
         }
 
