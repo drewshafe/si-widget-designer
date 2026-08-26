@@ -2174,7 +2174,9 @@
                 const extLogoGap    = parseInt(gv('wc-ext-logo-gap', '8')) || 8;
                 const extLogoAlign  = gv('wc-ext-logo-align', 'flex-start');
                 const extCheckbox   = `<div style="width:18px;height:18px;border-radius:3px;border:1.5px solid ${checkboxColor};background:${checkboxColor};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;"><span style="color:white;font-size:10px;font-weight:900;">✓</span></div>`;
-                const extLogoHtml   = (hideLock && !extLogoUrlParam) ? '' : `<img src="${extLogoSrc}" style="width:${extLogoW}px;height:${extLogoSize}px;object-fit:contain;flex-shrink:0;" onerror="this.style.opacity='0';">`;
+                // Text Align aligns ONLY the logo (via align-self); the checkbox stays put,
+                // matching how it renders at checkout.
+                const extLogoHtml   = (hideLock && !extLogoUrlParam) ? '' : `<img src="${extLogoSrc}" style="width:${extLogoW}px;height:${extLogoSize}px;object-fit:contain;flex-shrink:0;align-self:${extLogoAlign};" onerror="this.style.opacity='0';">`;
 
                 const snapStyle = 'margin:0 auto;';
                 // Disclaimer renders as its own rounded box BELOW the widget (true to how
@@ -2183,7 +2185,7 @@
                     ? `<div style="display:flex;align-items:flex-start;gap:10px;background:#f6f6f7;border:1px solid #ececec;border-radius:12px;padding:13px 16px;max-width:600px;width:100%;margin:10px auto 0;box-sizing:border-box;">${infoBtn}<div style="${edStyle}line-height:1.45;flex:1;">${disclaimer}</div></div>`
                     : '';
                 area.innerHTML = `<div style="${eCardStyle}${snapStyle}">
-                    <div class="wp-ext-row" style="align-items:${extLogoAlign};gap:${extLogoGap}px;">
+                    <div class="wp-ext-row" style="align-items:flex-start;gap:${extLogoGap}px;">
                         ${extCheckbox}
                         ${extLogoHtml}
                         <div class="wp-ext-text">
