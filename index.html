@@ -2580,12 +2580,18 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             _puCurrentQuote = Q;
             el.innerHTML = `<span class="pu-q">“${_escHtml(Q.q)}”</span><span class="pu-cite">— ${_escHtml(Q.who)}, <em>${_escHtml(Q.src)}</em></span>`;
         }
+        let _puClickCount = 0;
         function pushUpdate() {
             updateWidgetPreview();
             pickPuQuote();
-            puPlaySound();
-            // Speak the quote aloud right after the arcade SFX finishes.
-            puSpeakQuote(520);
+            _puClickCount++;
+            // Every 5th push: play the Steamboat Willie whistle INSTEAD of the SFX + spoken quote.
+            if (_puClickCount % 5 === 0) {
+                if (!_puMuted) puPlayWhistle();
+            } else {
+                puPlaySound();
+                puSpeakQuote(520);   // speak the quote aloud right after the arcade SFX
+            }
         }
 
         // ── Push Update sound bites — original arcade-style SFX synthesized in-browser
@@ -2680,10 +2686,53 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 setTimeout(doSpeak, delayMs || 420);
             }
         }
+        // ── Every-5th-click "whistle" (Steamboat Willie, 1928 — U.S. public domain) ──
+        // Plays steamboat-whistle.mp3 if it's present in the repo; otherwise falls back to a
+        // synthesized whistle of the (also public-domain, 1910) "Steamboat Bill" melody.
+        const _PU_WHISTLE_URL = 'steamboat-whistle.mp3';
+        let _puWhistleEl = null;
+        let _puWhistleFileOk = null;   // null=unknown, true=file plays, false=missing → synth
+        function puPlayWhistle() {
+            if (_puMuted) return;
+            if (_puWhistleFileOk === false) { _puSynthWhistle(); return; }
+            try {
+                if (!_puWhistleEl) _puWhistleEl = new Audio(_PU_WHISTLE_URL);
+                _puWhistleEl.currentTime = 0;
+                const p = _puWhistleEl.play();
+                if (p && p.then) p.then(() => { _puWhistleFileOk = true; })
+                                  .catch(() => { _puWhistleFileOk = false; _puSynthWhistle(); });
+            } catch (e) { _puWhistleFileOk = false; _puSynthWhistle(); }
+        }
+        function _puSynthWhistle() {
+            const ctx = _puAC();
+            if (!ctx) return;
+            // A jaunty whistled phrase with vibrato (sine = whistle-like timbre).
+            const notes = [784, 784, 880, 988, 880, 784, 659, 784, 988, 1047];
+            let t = 0;
+            notes.forEach((f) => {
+                const start = ctx.currentTime + t;
+                const dur = 0.2;
+                const o = ctx.createOscillator(), g = ctx.createGain();
+                const lfo = ctx.createOscillator(), lfoGain = ctx.createGain();
+                o.type = 'sine'; o.frequency.setValueAtTime(f, start);
+                lfo.type = 'sine'; lfo.frequency.setValueAtTime(6, start);
+                lfoGain.gain.setValueAtTime(f * 0.012, start);
+                lfo.connect(lfoGain); lfoGain.connect(o.frequency);
+                g.gain.setValueAtTime(0.0001, start);
+                g.gain.exponentialRampToValueAtTime(0.16, start + 0.04);
+                g.gain.setValueAtTime(0.16, start + dur - 0.05);
+                g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+                o.connect(g); g.connect(ctx.destination);
+                o.start(start); o.stop(start + dur + 0.02);
+                lfo.start(start); lfo.stop(start + dur + 0.02);
+                t += dur * 0.92;
+            });
+        }
         function togglePuMute() {
             _puMuted = !_puMuted;
             try { localStorage.setItem('si_pu_muted', _puMuted ? '1' : '0'); } catch (e) {}
             if (_puMuted && 'speechSynthesis' in window) { try { window.speechSynthesis.cancel(); } catch (e) {} }
+            if (_puMuted && _puWhistleEl) { try { _puWhistleEl.pause(); _puWhistleEl.currentTime = 0; } catch (e) {} }
             const b = document.getElementById('puMute');
             if (b) { b.textContent = _puMuted ? '🔇' : '🔊'; b.title = _puMuted ? 'Sound off — click to enable' : 'Sound on — click to mute'; }
             if (!_puMuted) puPlaySound();   // quick confirmation blip when re-enabling
