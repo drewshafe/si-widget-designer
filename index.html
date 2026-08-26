@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ShipInsure Widget Designer 🎨</title>
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/drewshafe/si-roi-calculator/main/si_lock.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -405,6 +408,62 @@
         .mp-cell-label { font-size: 0.72em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #8890b5; margin-bottom: 14px; }
         .mp-widget { display: flex; justify-content: center; }
         .mp-empty-view { max-width: 600px; margin: 60px auto; text-align: center; color: #8890b5; font-size: 0.95em; }
+
+        /* ── Push Update button ── */
+        .push-update-wrap { margin-top: 14px; }
+        .push-update-btn {
+            position: relative; overflow: hidden; width: 100%;
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            padding: 16px 20px; border: none; border-radius: 14px; cursor: pointer;
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d2b55 55%, #3a3f8f 100%);
+            box-shadow: 0 6px 22px rgba(40,40,90,0.32);
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+        }
+        .push-update-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 30px rgba(40,40,90,0.42); }
+        .push-update-btn:active { transform: translateY(1px) scale(0.995); }
+        .push-update-btn img.pu-logo { height: 30px; width: auto; flex-shrink: 0; position: relative; z-index: 2; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4)); }
+        .push-update-btn .pu-text {
+            font-family: 'Special Elite', 'Courier New', monospace; font-weight: 700;
+            font-size: 1.35em; letter-spacing: 0.5px; color: #fff; position: relative; z-index: 2;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.45);
+        }
+        /* animated holographic foil sheen sweeping across the button */
+        .push-update-btn .pu-holo {
+            position: absolute; inset: 0; z-index: 1; pointer-events: none; mix-blend-mode: screen;
+            background: linear-gradient(115deg,
+                transparent 0%, rgba(255,0,140,0.32) 18%, rgba(0,225,255,0.32) 34%,
+                rgba(120,255,120,0.30) 50%, rgba(255,225,0,0.32) 66%, rgba(180,0,255,0.32) 82%, transparent 100%);
+            background-size: 260% 100%;
+            animation: puHolo 3.2s linear infinite;
+        }
+        @keyframes puHolo { 0% { background-position: 160% 0; } 100% { background-position: -160% 0; } }
+        /* faint iridescent shimmer layer for depth */
+        .push-update-btn .pu-holo2 {
+            position: absolute; inset: 0; z-index: 1; pointer-events: none; mix-blend-mode: overlay; opacity: 0.5;
+            background: repeating-linear-gradient(115deg, rgba(255,255,255,0.12) 0 2px, transparent 2px 7px);
+            background-size: 200% 100%; animation: puHolo 5s linear infinite reverse;
+        }
+        /* the "confused, looking-around" nod that rides the holo overlay */
+        .push-update-btn .pu-peek {
+            position: relative; z-index: 2; font-size: 1.15em; line-height: 1;
+            display: inline-block; animation: puPeek 2.4s ease-in-out infinite; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
+        }
+        @keyframes puPeek {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            20% { transform: translateX(-4px) rotate(-9deg); }
+            50% { transform: translateX(0) rotate(0deg); }
+            70% { transform: translateX(4px) rotate(9deg); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .push-update-btn .pu-holo, .push-update-btn .pu-holo2, .push-update-btn .pu-peek { animation: none; }
+        }
+        .pu-quote {
+            margin-top: 12px; padding: 12px 16px; background: #fbfaf5; border: 1px dashed #d9d5c4;
+            border-radius: 12px; font-family: 'Special Elite', 'Courier New', monospace;
+            color: #4a4636; font-size: 0.92em; line-height: 1.5; text-align: center;
+        }
+        .pu-quote .pu-q { font-style: italic; }
+        .pu-quote .pu-cite { display: block; margin-top: 6px; font-size: 0.86em; color: #8a8570; }
     </style>
 </head>
 <body>
@@ -1159,6 +1218,16 @@
             <div class="mp-set-card" id="mpSetCard">
                 <div class="mp-set-title">Merchant Preview Set (<span id="mpCount">0</span>) — "Add View" to include a deployment example, then Copy Link to share the grid</div>
                 <div class="mp-chips" id="mpChips"><span class="mp-empty">No views added — the merchant link will show the current view.</span></div>
+            </div>
+            <div class="push-update-wrap">
+                <button type="button" class="push-update-btn" onclick="pushUpdate()" title="Refresh the preview with your latest text edits">
+                    <span class="pu-holo"></span>
+                    <span class="pu-holo2"></span>
+                    <img class="pu-logo" src="https://raw.githubusercontent.com/drewshafe/si-roi-calculator/main/si_lock.png" alt="" onerror="this.style.display='none';">
+                    <span class="pu-text">Push Update</span>
+                    <span class="pu-peek">👀</span>
+                </button>
+                <div class="pu-quote" id="puQuote"></div>
             </div>
         </div>
     </div><!-- /designer-body -->
@@ -2460,6 +2529,52 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             setTimeout(() => t.classList.remove('show'), 1600);
         }
 
+        // ── Push Update button (manual preview refresh + a random SFW screen quote) ──
+        const _PU_QUOTES = [
+            { q: "To infinity and beyond!", who: "Buzz Lightyear", src: "Toy Story" },
+            { q: "You're gonna need a bigger boat.", who: "Chief Brody", src: "Jaws" },
+            { q: "Just keep swimming.", who: "Dory", src: "Finding Nemo" },
+            { q: "Why so serious?", who: "The Joker", src: "The Dark Knight" },
+            { q: "I'll be back.", who: "The Terminator", src: "The Terminator" },
+            { q: "Life is like a box of chocolates.", who: "Forrest Gump", src: "Forrest Gump" },
+            { q: "There's no place like home.", who: "Dorothy", src: "The Wizard of Oz" },
+            { q: "Roads? Where we're going we don't need roads.", who: "Doc Brown", src: "Back to the Future" },
+            { q: "That's what she said.", who: "Michael Scott", src: "The Office" },
+            { q: "Bears. Beets. Battlestar Galactica.", who: "Jim Halpert", src: "The Office" },
+            { q: "Legen — wait for it — dary.", who: "Barney Stinson", src: "How I Met Your Mother" },
+            { q: "Treat yo self.", who: "Tom & Donna", src: "Parks and Recreation" },
+            { q: "How you doin'?", who: "Joey Tribbiani", src: "Friends" },
+            { q: "Winter is coming.", who: "Ned Stark", src: "Game of Thrones" },
+            { q: "I am the one who knocks!", who: "Walter White", src: "Breaking Bad" },
+            { q: "Wax on, wax off.", who: "Mr. Miyagi", src: "The Karate Kid" },
+            { q: "You shall not pass!", who: "Gandalf", src: "The Lord of the Rings" },
+            { q: "Hasta la vista, baby.", who: "The Terminator", src: "Terminator 2" },
+            { q: "Houston, we have a problem.", who: "Jim Lovell", src: "Apollo 13" },
+            { q: "Show me the money!", who: "Rod Tidwell", src: "Jerry Maguire" },
+            { q: "May the Force be with you.", who: "Han Solo", src: "Star Wars" },
+            { q: "Great Scott!", who: "Doc Brown", src: "Back to the Future" },
+            { q: "I feel the need — the need for speed.", who: "Maverick", src: "Top Gun" },
+            { q: "Nobody puts Baby in a corner.", who: "Johnny Castle", src: "Dirty Dancing" },
+            { q: "Elementary, my dear Watson.", who: "Sherlock Holmes", src: "Sherlock Holmes" },
+            { q: "Here's Johnny!", who: "Jack Torrance", src: "The Shining" },
+            { q: "D'oh!", who: "Homer Simpson", src: "The Simpsons" },
+            { q: "Yippee-ki-yay.", who: "John McClane", src: "Die Hard" }
+        ];
+        let _puLast = -1;
+        function pickPuQuote() {
+            const el = document.getElementById('puQuote');
+            if (!el) return;
+            let i = Math.floor(Math.random() * _PU_QUOTES.length);
+            if (_PU_QUOTES.length > 1 && i === _puLast) i = (i + 1) % _PU_QUOTES.length;
+            _puLast = i;
+            const Q = _PU_QUOTES[i];
+            el.innerHTML = `<span class="pu-q">“${_escHtml(Q.q)}”</span><span class="pu-cite">— ${_escHtml(Q.who)}, <em>${_escHtml(Q.src)}</em></span>`;
+        }
+        function pushUpdate() {
+            updateWidgetPreview();
+            pickPuQuote();
+        }
+
         // ── Merchant preview set (hand-picked deployment examples) ──────────
         let _merchantExamples = [];
         function currentPreviewTitle() { const el = document.getElementById('previewTitle'); return el ? el.textContent : 'Widget'; }
@@ -2633,6 +2748,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             setSubPos(_dualSubPos);
             setTogInfoPos(_togInfoPos);
             setWidgetType(_widgetType);   // also triggers updateWidgetPreview()
+            pickPuQuote();
         });
     </script>
 </body>
