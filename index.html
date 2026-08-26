@@ -674,79 +674,6 @@
 
                 <!-- Dual Checkout config -->
                 <div id="wc-dual" class="wconfig-section active">
-                    <div class="wconfig-divider">Content</div>
-                    <div class="wconfig-row" style="margin-bottom:6px;">
-                        <div class="wconfig-field">
-                            <label>Header</label>
-                            <input type="text" id="wc-dual-header" placeholder="Loss, Damage, Theft Protection" oninput="updateWidgetPreview()">
-                        </div>
-                        <div class="wconfig-field">
-                            <label>Body (optional) <span style="font-weight:400;text-transform:none;color:#aaa;">— **bold** to bold part of it</span></label>
-                            <input type="text" id="wc-dualp-body" placeholder="" oninput="updateWidgetPreview()">
-                        </div>
-                        <div class="wconfig-field">
-                            <label>Protected Button</label>
-                            <input type="text" id="wc-dual-btna" placeholder="Checkout | $0.00" oninput="updateWidgetPreview()">
-                        </div>
-                        <div class="wconfig-field">
-                            <label>Unprotected Button</label>
-                            <input type="text" id="wc-dual-btnb" placeholder="or checkout without protection" oninput="updateWidgetPreview()">
-                        </div>
-                        <div class="wconfig-field">
-                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-                                <label style="margin-bottom:0;">Button C <span style="font-size:0.75em;color:#aaa;">(3rd button)</span></label>
-                                <label class="wconfig-sl" style="margin:0;">
-                                    <input type="checkbox" id="wc-dual-show-btnc" onchange="updateWidgetPreview()">
-                                    <span class="sl-track"></span>
-                                </label>
-                            </div>
-                            <input type="text" id="wc-dual-btnc" placeholder="View Bag" oninput="updateWidgetPreview()">
-                        </div>
-                        <div class="wconfig-field">
-                            <label>Disclaimer</label>
-                            <input type="text" id="wc-dual-disclaimer" placeholder="" oninput="updateWidgetPreview()">
-                        </div>
-                        <div class="wconfig-field">
-                            <label>Subtotal Label</label>
-                            <input type="text" id="wc-dual-sub-label" placeholder="Subtotal" oninput="updateWidgetPreview()">
-                        </div>
-                        <div class="wconfig-field">
-                            <label>Subtotal Note</label>
-                            <input type="text" id="wc-dual-sub-note" placeholder="Shipping and taxes calculated at checkout" oninput="updateWidgetPreview()">
-                        </div>
-                    </div>
-                    <div class="wconfig-slider-row">
-                        <label class="wconfig-sl">
-                            <input type="checkbox" id="wc-dual-between" onchange="updateWidgetPreview()">
-                            <span class="sl-track"></span> Header Between Buttons
-                        </label>
-                        <label class="wconfig-sl">
-                            <input type="checkbox" id="wc-dual-show-price-a" checked onchange="updateWidgetPreview()">
-                            <span class="sl-track"></span> Price on Primary Button
-                        </label>
-                        <label class="wconfig-sl">
-                            <input type="checkbox" id="wc-dual-show-price-b" onchange="updateWidgetPreview()">
-                            <span class="sl-track"></span> Price on Secondary Button
-                        </label>
-                        <label class="wconfig-sl">
-                            <input type="checkbox" id="wc-dual-show-lock" onchange="updateWidgetPreview()">
-                            <span class="sl-track"></span> Show Logo
-                        </label>
-                        <label class="wconfig-sl">
-                            <input type="checkbox" id="wc-dual-hide-sub" onchange="updateWidgetPreview()">
-                            <span class="sl-track"></span> Hide Subtotal
-                        </label>
-                        <label class="wconfig-sl">
-                            <input type="checkbox" id="wc-dual-swap-primary" onchange="updateWidgetPreview()">
-                            <span class="sl-track"></span> Swap Primary (Unprotected Primary)
-                        </label>
-                    </div>
-                    <div class="wconfig-divider">Subtotal Placement</div>
-                    <div class="wconfig-snap" style="margin-bottom:8px;">
-                        <button class="snap-btn active" id="sub-pos-before-btns" onclick="setSubPos('before-btns')">Before Buttons</button>
-                        <button class="snap-btn" id="sub-pos-above-header" onclick="setSubPos('above-header')">Above Header</button>
-                        <button class="snap-btn" id="sub-pos-between-btns" onclick="setSubPos('between-btns')">Between Buttons</button>
-                    </div>
                     <div class="wconfig-upload">
                         <label>Custom Logo</label>
                         <input type="file" id="wc-dual-logo" accept=".png,.jpg,.jpeg,.gif" onchange="handleLogoUpload('dual',this)">
@@ -798,6 +725,20 @@
                             </div>
                         </div>
                     </details>
+                    <div class="wconfig-row" style="margin-bottom:6px;align-items:flex-end;">
+                        <div class="wconfig-field">
+                            <label>Header</label>
+                            <input type="text" id="wc-dual-header" placeholder="Loss, Damage, Theft Protection" oninput="updateWidgetPreview()">
+                        </div>
+                        <label class="wconfig-sl" style="flex-shrink:0;padding-bottom:7px;">
+                            <input type="checkbox" id="wc-dual-show-lock" onchange="updateWidgetPreview()">
+                            <span class="sl-track"></span> Show Logo
+                        </label>
+                        <label class="wconfig-sl" style="flex-shrink:0;padding-bottom:7px;">
+                            <input type="checkbox" id="wc-dual-between" onchange="updateWidgetPreview()">
+                            <span class="sl-track"></span> Header Between Buttons
+                        </label>
+                    </div>
                     <details class="wconfig-style-grp">
                         <summary>Header Style</summary>
                         <div>
@@ -833,6 +774,12 @@
                             </div>
                         </div>
                     </details>
+                    <div class="wconfig-row" style="margin-bottom:6px;">
+                        <div class="wconfig-field" style="flex:1 1 100%;">
+                            <label>Body (optional) <span style="font-weight:400;text-transform:none;color:#aaa;">— **bold** to bold part of it</span></label>
+                            <input type="text" id="wc-dualp-body" placeholder="" oninput="updateWidgetPreview()">
+                        </div>
+                    </div>
                     <details class="wconfig-style-grp">
                         <summary>Body Style</summary>
                         <div>
@@ -860,9 +807,30 @@
                             </div>
                         </div>
                     </details>
+                    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:8px;">
+                        <div class="wconfig-snap">
+                            <button class="snap-btn active" id="sub-pos-before-btns" onclick="setSubPos('before-btns')">Before Buttons</button>
+                            <button class="snap-btn" id="sub-pos-above-header" onclick="setSubPos('above-header')">Above Header</button>
+                            <button class="snap-btn" id="sub-pos-between-btns" onclick="setSubPos('between-btns')">Between Buttons</button>
+                        </div>
+                        <label class="wconfig-sl" style="flex-shrink:0;">
+                            <input type="checkbox" id="wc-dual-hide-sub" onchange="updateWidgetPreview()">
+                            <span class="sl-track"></span> Hide Subtotal
+                        </label>
+                    </div>
                     <details class="wconfig-style-grp">
                         <summary>Subtotal Style</summary>
                         <div>
+                            <div class="wconfig-row" style="margin-bottom:8px;">
+                                <div class="wconfig-field">
+                                    <label>Subtotal Label</label>
+                                    <input type="text" id="wc-dual-sub-label" placeholder="Subtotal" oninput="updateWidgetPreview()">
+                                </div>
+                                <div class="wconfig-field">
+                                    <label>Subtotal Note</label>
+                                    <input type="text" id="wc-dual-sub-note" placeholder="Shipping and taxes calculated at checkout" oninput="updateWidgetPreview()">
+                                </div>
+                            </div>
                             <div class="wconfig-style-row">
                                 <div class="wcs"><label>Font Family</label><input type="text" id="wc-dual-sub-ff" placeholder="inherit" onchange="updateWidgetPreview()"></div>
                                 <div class="wcs"><label>Font Size</label><input type="number" id="wc-dual-sub-fs" placeholder="16" min="8" max="32" onchange="updateWidgetPreview()"></div>
@@ -905,6 +873,16 @@
                             </div>
                         </div>
                     </details>
+                    <div class="wconfig-row" style="margin-bottom:6px;align-items:flex-end;">
+                        <div class="wconfig-field">
+                            <label>Protected Button</label>
+                            <input type="text" id="wc-dual-btna" placeholder="Checkout | $0.00" oninput="updateWidgetPreview()">
+                        </div>
+                        <label class="wconfig-sl" style="flex-shrink:0;padding-bottom:7px;">
+                            <input type="checkbox" id="wc-dual-show-price-a" checked onchange="updateWidgetPreview()">
+                            <span class="sl-track"></span> Price on Primary Button
+                        </label>
+                    </div>
                     <details class="wconfig-style-grp">
                         <summary>Primary Button Style</summary>
                         <div>
@@ -936,9 +914,25 @@
                             </div>
                         </div>
                     </details>
+                    <div class="wconfig-row" style="margin-bottom:6px;align-items:flex-end;">
+                        <div class="wconfig-field">
+                            <label>Unprotected Button</label>
+                            <input type="text" id="wc-dual-btnb" placeholder="or checkout without protection" oninput="updateWidgetPreview()">
+                        </div>
+                        <label class="wconfig-sl" style="flex-shrink:0;padding-bottom:7px;">
+                            <input type="checkbox" id="wc-dual-show-price-b" onchange="updateWidgetPreview()">
+                            <span class="sl-track"></span> Price on Secondary Button
+                        </label>
+                    </div>
                     <details class="wconfig-style-grp">
                         <summary>Secondary Button Style</summary>
                         <div>
+                            <div style="margin-bottom:8px;">
+                                <label class="wconfig-sl">
+                                    <input type="checkbox" id="wc-dual-swap-primary" onchange="updateWidgetPreview()">
+                                    <span class="sl-track"></span> Swap Primary (Unprotected Primary)
+                                </label>
+                            </div>
                             <div class="wconfig-style-row">
                                 <div class="wcs"><label>BG Color</label><input type="color" id="wc-dual-s-bg" value="#ffffff" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-s-bg')" title="Pick color from screen">💧</button></div>
                                 <div class="wcs"><label>BG Gradient End</label><input type="color" id="wc-dual-s-bg2" value="#ffffff" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-s-bg2')" title="Pick color from screen">💧</button></div>
@@ -974,6 +968,16 @@
                     <details class="wconfig-style-grp">
                         <summary>3rd Button Style</summary>
                         <div>
+                            <div class="wconfig-row" style="margin-bottom:8px;align-items:flex-end;">
+                                <div class="wconfig-field">
+                                    <label>Button C <span style="font-size:0.75em;color:#aaa;">(3rd button)</span></label>
+                                    <input type="text" id="wc-dual-btnc" placeholder="View Bag" oninput="updateWidgetPreview()">
+                                </div>
+                                <label class="wconfig-sl" style="flex-shrink:0;padding-bottom:7px;">
+                                    <input type="checkbox" id="wc-dual-show-btnc" onchange="updateWidgetPreview()">
+                                    <span class="sl-track"></span> Show 3rd Button
+                                </label>
+                            </div>
                             <div class="wconfig-style-row">
                                 <div class="wcs"><label>BG Color</label><input type="color" id="wc-dual-c-bg" value="#ffffff" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-c-bg')" title="Pick color from screen">💧</button></div>
                                 <div class="wcs"><label>Border Color</label><input type="color" id="wc-dual-c-bd-color" value="#dee2e6" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-c-bd-color')" title="Pick color from screen">💧</button></div>
@@ -1001,6 +1005,23 @@
                                     <input type="checkbox" id="wc-dual-c-underline" onchange="updateWidgetPreview()">
                                     <span class="sl-track"></span> Underline Text
                                 </label>
+                            </div>
+                        </div>
+                    </details>
+                    <details class="wconfig-style-grp">
+                        <summary>Disclaimer Style</summary>
+                        <div>
+                            <div class="wconfig-row" style="margin-bottom:8px;">
+                                <div class="wconfig-field" style="flex:1 1 100%;">
+                                    <label>Disclaimer</label>
+                                    <input type="text" id="wc-dual-disclaimer" placeholder="" oninput="updateWidgetPreview()">
+                                </div>
+                            </div>
+                            <div class="wconfig-style-row">
+                                <div class="wcs"><label>Font Family</label><input type="text" id="wc-dual-d-font" placeholder="inherit" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>Font Size</label><input type="number" id="wc-dual-d-size" placeholder="11" min="8" max="32" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>Font Weight</label><select id="wc-dual-d-weight" onchange="updateWidgetPreview()"><option value="">Default</option><option value="300">Light (300)</option><option value="400">Regular (400)</option><option value="500">Medium (500)</option><option value="600">Semibold (600)</option><option value="700">Bold (700)</option></select></div>
+                                <div class="wcs"><label>Color</label><input type="color" id="wc-dual-d-color" value="#aaaaaa" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-d-color')" title="Pick color from screen">💧</button></div>
                             </div>
                         </div>
                     </details>
@@ -1853,6 +1874,7 @@
                 const btnARaw  = v('wc-dual-btna', `Checkout | ${fmtT}`);
                 const btnBRaw  = v('wc-dual-btnb', D.btnB);
                 const disc     = v('wc-dual-disclaimer', '');
+                const dDiscStyle = sty(gv('wc-dual-d-font',''), gv('wc-dual-d-size',''), gv('wc-dual-d-weight',''), gv('wc-dual-d-color','#aaaaaa'));
                 const between  = gch('wc-dual-between', false);
                 const infoBtn = _infoIcon(gv('wc-dual-h-info-color', '#adb5bd'), gv('wc-dual-info-size', ''), gch('wc-dual-info-leaf', false), gch('wc-dual-info-hide', false));
                 const showPriceA = gch('wc-dual-show-price-a', true);
@@ -2029,7 +2051,7 @@
                     ${_dualSubPos === 'between-btns' ? subRowHtml : ''}
                     <div style="${secBtnStyle}">${secondarySlotLabel}</div>
                     ${showBtnC ? `<div style="${thirdBtnStyle}">${btnCRaw}</div>` : ''}
-                    ${disc ? `<div class="wp-disclaimer" style="margin-top:6px;">${disc}</div>` : ''}
+                    ${disc ? `<div class="wp-disclaimer" style="${dDiscStyle}margin-top:6px;">${disc}</div>` : ''}
                 </div>`;
 
             // ── CART TOGGLE / CHECKBOX ────────────────────────────────────────
