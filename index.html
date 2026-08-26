@@ -1860,7 +1860,8 @@
             // ── CHECKOUT EXTENSION ────────────────────────────────────────────
             } else if (_widgetType === 'extension') {
                 const header     = v('wc-ext-header', D.extH);
-                const body       = boldify(v('wc-ext-body', D.extBody));
+                // Body is optional: blank field → no body line (no fallback to the mode default).
+                const body       = boldify(((document.getElementById('wc-ext-body') || {}).value || '').trim());
                 const disclaimer = v('wc-ext-disclaimer', '');
                 const hideLock   = gch('wc-ext-hide-lock', false);
                 const showLearnMore = gch('wc-ext-show-learn-more', true);
@@ -1903,10 +1904,10 @@
                                 <span class="wp-header-text" style="${ehStyle}flex:1;">${header}</span>
                                 <span class="wp-price" style="flex-shrink:0;">${fmtP}</span>
                             </div>
-                            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                                <div class="wp-body-text" style="${ebStyle}margin:0;">${body}</div>
+                            ${(body || showLearnMore) ? `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                                ${body ? `<div class="wp-body-text" style="${ebStyle}margin:0;">${body}</div>` : ''}
                                 ${showLearnMore ? learnMore : ''}
-                            </div>
+                            </div>` : ''}
                             ${disclaimer ? `<div class="wp-disclaimer" style="${edStyle}margin-top:5px;display:flex;align-items:flex-start;gap:4px;">${infoBtn}<span>${disclaimer}</span></div>` : ''}
                         </div>
                     </div>
