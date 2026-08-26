@@ -1001,6 +1001,11 @@
 
                 <!-- Checkout Extension config -->
                 <div id="wc-extension" class="wconfig-section">
+                    <div class="wconfig-divider">Checkout Page Line Item Elements</div>
+                    <div class="wconfig-snap" style="margin-bottom:8px;">
+                        <button class="snap-btn active" id="ext-li-remove" onclick="setExtLineItem('remove')">Remove Button</button>
+                        <button class="snap-btn" id="ext-li-noremove" onclick="setExtLineItem('noremove')">No Remove Button</button>
+                    </div>
                     <div class="wconfig-divider">Content</div>
                     <div class="wconfig-row" style="margin-bottom:6px;">
                         <div class="wconfig-field">
@@ -1045,6 +1050,72 @@
                         </div>
                         <div class="wcs" style="flex:1 1 100%;"><label>Logo URL <span style="color:#aaa;font-size:0.85em;">(for share links)</span></label><input type="text" id="wc-ext-logo-url" placeholder="https://..." style="width:100%;min-width:0;" onchange="updateWidgetPreview()"></div>
                     </div>
+                    <details class="wconfig-style-grp">
+                        <summary>Container Style</summary>
+                        <div>
+                            <div class="wconfig-style-row">
+                                <div class="wcs"><label>BG Color</label><input type="color" id="wc-ext-bg" value="#ffffff" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-ext-bg')" title="Pick color from screen">💧</button></div>
+                                <div class="wcs"><label>Border Color</label><input type="color" id="wc-ext-bd-color" value="#e9ecef" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-ext-bd-color')" title="Pick color from screen">💧</button></div>
+                                <div class="wcs"><label>Border Width</label><input type="number" id="wc-ext-bd-width" value="2" min="0" max="5" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>Border Radius</label><input type="number" id="wc-ext-bd-radius" value="12" min="0" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>Padding</label><input type="number" id="wc-ext-padding" value="16" min="0" onchange="updateWidgetPreview()"></div>
+                            </div>
+                        </div>
+                    </details>
+                    <details class="wconfig-style-grp">
+                        <summary>Header Style</summary>
+                        <div>
+                            <div class="wconfig-style-row">
+                                <div class="wcs"><label>Font Family</label><input type="text" id="wc-ext-h-font" placeholder="inherit" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>Font Size</label><input type="number" id="wc-ext-h-size" placeholder="14" min="8" max="32" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>Font Weight</label><select id="wc-ext-h-weight" onchange="updateWidgetPreview()"><option value="">Default</option><option value="300">Light (300)</option><option value="400">Regular (400)</option><option value="500">Medium (500)</option><option value="600">Semibold (600)</option><option value="700">Bold (700)</option></select></div>
+                                <div class="wcs"><label>Color</label><input type="color" id="wc-ext-h-color" value="#333333" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-ext-h-color')" title="Pick color from screen">💧</button></div>
+                            </div>
+                        </div>
+                    </details>
+                    <details class="wconfig-style-grp">
+                        <summary>Body Style</summary>
+                        <div>
+                            <div class="wconfig-style-row">
+                                <div class="wcs"><label>Font Family</label><input type="text" id="wc-ext-b-font" placeholder="inherit" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>Font Size</label><input type="number" id="wc-ext-b-size" placeholder="13" min="8" max="32" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>Font Weight</label><select id="wc-ext-b-weight" onchange="updateWidgetPreview()"><option value="">Default</option><option value="300">Light (300)</option><option value="400">Regular (400)</option><option value="500">Medium (500)</option><option value="600">Semibold (600)</option><option value="700">Bold (700)</option></select></div>
+                                <div class="wcs"><label>Color</label><input type="color" id="wc-ext-b-color" value="#666666" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-ext-b-color')" title="Pick color from screen">💧</button></div>
+                            </div>
+                        </div>
+                    </details>
+                    <details class="wconfig-style-grp">
+                        <summary>Disclaimer Style</summary>
+                        <div>
+                            <div class="wconfig-style-row">
+                                <div class="wcs"><label>Font Family</label><input type="text" id="wc-ext-d-font" placeholder="inherit" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>Font Size</label><input type="number" id="wc-ext-d-size" placeholder="11" min="8" max="32" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>Font Weight</label><select id="wc-ext-d-weight" onchange="updateWidgetPreview()"><option value="">Default</option><option value="300">Light (300)</option><option value="400">Regular (400)</option><option value="500">Medium (500)</option><option value="600">Semibold (600)</option><option value="700">Bold (700)</option></select></div>
+                                <div class="wcs"><label>Color</label><input type="color" id="wc-ext-d-color" value="#aaaaaa" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-ext-d-color')" title="Pick color from screen">💧</button></div>
+                            </div>
+                        </div>
+                    </details>
+                    <details class="wconfig-style-grp">
+                        <summary>Checkbox Settings</summary>
+                        <div>
+                            <div class="wconfig-style-row">
+                                <div class="wcs"><label>Checkbox Color</label><input type="color" id="wc-ext-checkbox-color" value="#6675ff" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-ext-checkbox-color')" title="Pick color from screen">💧</button></div>
+                            </div>
+                        </div>
+                    </details>
+                    <details class="wconfig-style-grp">
+                        <summary>SI Line Item</summary>
+                        <div>
+                            <div class="wconfig-style-row">
+                                <div class="wcs" style="flex:1 1 100%;"><label>Product Name <span style="color:#aaa;font-size:0.85em;">(blank = match mode copy)</span></label><input type="text" id="wc-ext-li-name" placeholder="Shipping Protection" style="width:100%;" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>Font Family</label><input type="text" id="wc-ext-li-font" placeholder="inherit" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>Font Size</label><input type="number" id="wc-ext-li-size" placeholder="14" min="8" max="32" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>Font Weight</label><select id="wc-ext-li-weight" onchange="updateWidgetPreview()"><option value="">Default</option><option value="300">Light (300)</option><option value="400">Regular (400)</option><option value="500">Medium (500)</option><option value="600">Semibold (600)</option><option value="700">Bold (700)</option></select></div>
+                                <div class="wcs"><label>Color</label><input type="color" id="wc-ext-li-color" value="#1a1a1a" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-ext-li-color')" title="Pick color from screen">💧</button></div>
+                                <div class="wcs"><label>Remove Button Color</label><input type="color" id="wc-ext-li-remove-color" value="#6675ff" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-ext-li-remove-color')" title="Pick color from screen">💧</button></div>
+                            </div>
+                        </div>
+                    </details>
                 </div>
             </div><!-- /widgetPreviewSection -->
         </div><!-- /config-col -->
@@ -1052,6 +1123,10 @@
             <div class="preview-card">
                 <div class="pc-title" id="previewTitle">Live Preview</div>
                 <div id="widgetPreviewArea"></div>
+            </div>
+            <div class="preview-card" id="lineItemCard" style="display:none;margin-top:12px;">
+                <div class="pc-title">Checkout Page Line Item</div>
+                <div id="lineItemPreviewArea"></div>
             </div>
             <div class="mp-set-card" id="mpSetCard">
                 <div class="mp-set-title">Merchant Preview Set (<span id="mpCount">0</span>) — "Add View" to include a deployment example, then Copy Link to share the grid</div>
@@ -1361,6 +1436,16 @@
             updateWidgetPreview();
         }
 
+        let _extLineItem = 'remove';
+        function setExtLineItem(v) {
+            _extLineItem = v;
+            const r = document.getElementById('ext-li-remove');
+            const n = document.getElementById('ext-li-noremove');
+            if (r) r.classList.toggle('active', v === 'remove');
+            if (n) n.classList.toggle('active', v === 'noremove');
+            updateWidgetPreview();
+        }
+
         const _widgetTypeNames = {
             'dual':      'Dual Checkout',
             'toggle':    'Cart Toggle / Checkbox',
@@ -1384,6 +1469,9 @@
                 else if (_widgetType === 'toggle') _pt = ((document.getElementById('wc-tog-is-toggle') || {}).checked) ? 'Cart Toggle Widget' : 'Cart Checkbox Widget';
                 _ptEl.textContent = _pt;
             }
+            // Line-item preview box shows only for the Checkout Extension.
+            const _liCard = document.getElementById('lineItemCard');
+            if (_liCard) _liCard.style.display = (_widgetType === 'extension') ? '' : 'none';
 
             let area;
             if (showInline && inlineContainer) {
@@ -1741,6 +1829,18 @@
                 const disclaimer = v('wc-ext-disclaimer', '');
                 const hideLock   = gch('wc-ext-hide-lock', false);
                 const showLearnMore = gch('wc-ext-show-learn-more', true);
+                const checkboxColor = gv('wc-ext-checkbox-color', '#6675ff');
+
+                // Styler settings
+                const ebg       = gv('wc-ext-bg', '#ffffff');
+                const ebdColor  = gv('wc-ext-bd-color', '#e9ecef');
+                const ebdWidth  = gv('wc-ext-bd-width', '2');
+                const ebdRadius = gv('wc-ext-bd-radius', '12');
+                const epad      = gv('wc-ext-padding', '16');
+                const ehStyle   = sty(gv('wc-ext-h-font',''), gv('wc-ext-h-size',''), gv('wc-ext-h-weight','700'), gv('wc-ext-h-color','#333333'));
+                const ebStyle   = sty(gv('wc-ext-b-font',''), gv('wc-ext-b-size',''), gv('wc-ext-b-weight',''), gv('wc-ext-b-color','#666666'));
+                const edStyle   = sty(gv('wc-ext-d-font',''), gv('wc-ext-d-size',''), gv('wc-ext-d-weight',''), gv('wc-ext-d-color','#aaaaaa'));
+                const eCardStyle = `background:${ebg};border:${ebdWidth}px solid ${ebdColor};border-radius:${ebdRadius}px;padding:${epad}px;box-shadow:0 2px 10px rgba(0,0,0,0.07);max-width:480px;width:100%;`;
 
                 let cbRowText = null;
                 if (mode === 'cashback') {
@@ -1755,28 +1855,45 @@
                 const extLogoW      = parseInt(gv('wc-ext-logo-width', '')) || extLogoSize;
                 const extLogoGap    = parseInt(gv('wc-ext-logo-gap', '8')) || 8;
                 const extLogoAlign  = gv('wc-ext-logo-align', 'flex-start');
-                const extCheckbox   = `<div style="width:18px;height:18px;border-radius:3px;border:1.5px solid #6675ff;background:linear-gradient(135deg,#6675ff,#764ba2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;"><span style="color:white;font-size:10px;font-weight:900;">✓</span></div>`;
+                const extCheckbox   = `<div style="width:18px;height:18px;border-radius:3px;border:1.5px solid ${checkboxColor};background:${checkboxColor};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;"><span style="color:white;font-size:10px;font-weight:900;">✓</span></div>`;
                 const extLogoHtml   = (hideLock && !extLogoUrlParam) ? '' : `<img src="${extLogoSrc}" style="width:${extLogoW}px;height:${extLogoSize}px;object-fit:contain;flex-shrink:0;" onerror="this.style.opacity='0';">`;
 
                 const snapStyle = 'margin:0 auto;';
-                area.innerHTML = `<div class="wp-card" style="${snapStyle}">
+                area.innerHTML = `<div style="${eCardStyle}${snapStyle}">
                     <div class="wp-ext-row" style="align-items:${extLogoAlign};gap:${extLogoGap}px;">
                         ${extCheckbox}
                         ${extLogoHtml}
                         <div class="wp-ext-text">
                             <div class="wp-spread" style="margin-bottom:4px;align-items:flex-start;gap:8px;">
-                                <span class="wp-header-text" style="font-weight:700;flex:1;">${header}</span>
+                                <span class="wp-header-text" style="${ehStyle}flex:1;">${header}</span>
                                 <span class="wp-price" style="flex-shrink:0;">${fmtP}</span>
                             </div>
                             <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                                <div class="wp-body-text" style="margin:0;">${body}</div>
+                                <div class="wp-body-text" style="${ebStyle}margin:0;">${body}</div>
                                 ${showLearnMore ? learnMore : ''}
                             </div>
-                            ${disclaimer ? `<div class="wp-disclaimer" style="margin-top:5px;display:flex;align-items:flex-start;gap:4px;">${infoBtn}<span>${disclaimer}</span></div>` : ''}
+                            ${disclaimer ? `<div class="wp-disclaimer" style="${edStyle}margin-top:5px;display:flex;align-items:flex-start;gap:4px;">${infoBtn}<span>${disclaimer}</span></div>` : ''}
                         </div>
                     </div>
                     ${cbRowText ? `<div class="wp-cashback-row">${cashImg}<span>${cbRowText}</span></div>` : ''}
                 </div>`;
+
+                // ── SI checkout-page line item (separate preview box) ──
+                const liArea = document.getElementById('lineItemPreviewArea');
+                if (liArea) {
+                    const liName  = v('wc-ext-li-name', header);
+                    const liStyle = sty(gv('wc-ext-li-font',''), gv('wc-ext-li-size',''), gv('wc-ext-li-weight',''), gv('wc-ext-li-color','#1a1a1a'));
+                    const liRemoveColor = gv('wc-ext-li-remove-color', '#6675ff');
+                    const showRemove = _extLineItem !== 'noremove';
+                    liArea.innerHTML = `<div style="display:flex;align-items:center;gap:14px;background:#fff;border:1px solid #e9ecef;border-radius:10px;padding:14px 16px;max-width:480px;width:100%;margin:0 auto;box-shadow:0 2px 10px rgba(0,0,0,0.05);">
+                        <img src="${extLogoSrc}" style="width:46px;height:46px;object-fit:contain;flex-shrink:0;border-radius:6px;" onerror="this.style.opacity='0';">
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-weight:600;${liStyle}">${liName}</div>
+                            ${showRemove ? `<button type="button" style="margin-top:5px;background:none;border:none;padding:0;font-size:0.82em;font-weight:600;color:${liRemoveColor};cursor:pointer;text-decoration:underline;font-family:inherit;">Remove</button>` : ''}
+                        </div>
+                        <span class="wp-price" style="flex-shrink:0;">${fmtP}</span>
+                    </div>`;
+                }
             }
         }
 
@@ -2150,6 +2267,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 fields,
                 wtype: _widgetType,
                 subpos: _dualSubPos,
+                extLineItem: _extLineItem,
                 dualLogo: _dualLogoSrc,
                 togLogo: _toggleLogoSrc,
                 extLogo: _extLogoSrc
@@ -2174,6 +2292,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             catch (e) { return; }
             if (data.wtype)  _widgetType   = data.wtype;
             if (data.subpos) _dualSubPos    = data.subpos;
+            if (data.extLineItem) setExtLineItem(data.extLineItem);
             if (data.dualLogo !== undefined) _dualLogoSrc   = data.dualLogo;
             if (data.togLogo  !== undefined) _toggleLogoSrc = data.togLogo;
             if (data.extLogo  !== undefined) _extLogoSrc    = data.extLogo;
@@ -2226,6 +2345,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             if (!d) return;
             if (d.wtype)  _widgetType = d.wtype;
             if (d.subpos) _dualSubPos = d.subpos;
+            if (d.extLineItem) _extLineItem = d.extLineItem;
             _dualLogoSrc   = d.dualLogo !== undefined ? d.dualLogo : null;
             _toggleLogoSrc = d.togLogo  !== undefined ? d.togLogo  : null;
             _extLogoSrc    = d.extLogo  !== undefined ? d.extLogo  : null;
