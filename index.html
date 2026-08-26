@@ -660,7 +660,6 @@
                                     </select>
                                 </div>
                                 <div class="wcs"><label>Color</label><input type="color" id="wc-dual-h-color" value="#333333" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-h-color')" title="Pick color from screen">💧</button></div>
-                                <div class="wcs"><label>Info Icon Color</label><input type="color" id="wc-dual-h-info-color" value="#adb5bd" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-h-info-color')" title="Pick color from screen">💧</button></div>
                                 <div class="wcs"><label>Line Spacing</label><input type="number" id="wc-dual-h-linegap" placeholder="6" min="0" max="60" onchange="updateWidgetPreview()" title="Gap between the header row and the body text"></div>
                             </div>
                             <div class="wconfig-style-row" style="margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">
@@ -668,6 +667,13 @@
                                 <div class="wcs"><label>Div Color</label><input type="color" id="wc-dual-h-div-color" value="#e0e0e0" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-h-div-color')" title="Pick color from screen">💧</button></div>
                                 <div class="wcs"><label>Div Width</label><input type="number" id="wc-dual-h-div-width" value="1" min="0" max="5" onchange="updateWidgetPreview()"></div>
                                 <div class="wcs"><label>Div Spacing</label><input type="number" id="wc-dual-h-div-spacing" value="8" min="0" onchange="updateWidgetPreview()"></div>
+                            </div>
+                            <div class="wconfig-style-row" style="margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">
+                                <div class="wcs" style="flex:1 1 100%;font-size:0.68em;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;color:#8890b5;">Info Icon Style</div>
+                                <div class="wcs"><label>Icon Size</label><input type="number" id="wc-dual-info-size" placeholder="15" min="8" max="40" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>Icon Color</label><input type="color" id="wc-dual-h-info-color" value="#adb5bd" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-h-info-color')" title="Pick color from screen">💧</button></div>
+                                <label class="wconfig-check"><input type="checkbox" id="wc-dual-info-leaf" onchange="updateWidgetPreview()"> Switch to Leaf Icon</label>
+                                <label class="wconfig-check"><input type="checkbox" id="wc-dual-info-hide" onchange="updateWidgetPreview()"> Hide Info Icon</label>
                             </div>
                         </div>
                     </details>
@@ -867,7 +873,6 @@
                             <span class="sl-track"></span> Switch to Toggle
                         </label>
                         <label class="wconfig-check" style="padding-top:0;"><input type="checkbox" id="wc-tog-hide-lock" checked onchange="updateWidgetPreview()"> Hide lock</label>
-                        <label class="wconfig-check" style="padding-top:0;"><input type="checkbox" id="wc-tog-show-leaf" onchange="updateWidgetPreview()"> Show Leaf Icon</label>
                     </div>
                     <div class="wconfig-upload">
                         <label>Custom Logo</label>
@@ -896,6 +901,21 @@
                                 <div class="wcs"><label>Border Width</label><input type="number" id="wc-tog-bd-width" value="2" min="1" max="5" onchange="updateWidgetPreview()"></div>
                                 <div class="wcs"><label>Border Radius</label><input type="number" id="wc-tog-bd-radius" value="12" min="0" onchange="updateWidgetPreview()"></div>
                                 <div class="wcs"><label>Padding</label><input type="number" id="wc-tog-padding" value="16" min="0" onchange="updateWidgetPreview()"></div>
+                            </div>
+                            <div class="wconfig-style-row" style="margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">
+                                <div class="wcs" style="flex:1 1 100%;font-size:0.68em;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;color:#8890b5;">Info Icon Style</div>
+                                <div class="wcs" style="flex:1 1 100%;">
+                                    <label>Info Icon Display</label>
+                                    <div class="snap-btns" style="margin-top:3px;">
+                                        <button type="button" class="snap-btn active" data-toginfo="header" onclick="setTogInfoPos('header')">on Header</button>
+                                        <button type="button" class="snap-btn" data-toginfo="body" onclick="setTogInfoPos('body')">on Body</button>
+                                        <button type="button" class="snap-btn" data-toginfo="disclaimer" onclick="setTogInfoPos('disclaimer')">on Disclaimer</button>
+                                    </div>
+                                </div>
+                                <div class="wcs"><label>Icon Size</label><input type="number" id="wc-tog-info-size" placeholder="15" min="8" max="40" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>Icon Color</label><input type="color" id="wc-tog-info-color" value="#adb5bd" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-tog-info-color')" title="Pick color from screen">💧</button></div>
+                                <label class="wconfig-check"><input type="checkbox" id="wc-tog-info-leaf" onchange="updateWidgetPreview()"> Switch to Leaf Icon</label>
+                                <label class="wconfig-check"><input type="checkbox" id="wc-tog-info-hide" onchange="updateWidgetPreview()"> Hide Info Icon</label>
                             </div>
                         </div>
                     </details>
@@ -1446,6 +1466,13 @@
             updateWidgetPreview();
         }
 
+        let _togInfoPos = 'header';
+        function setTogInfoPos(v) {
+            _togInfoPos = v;
+            document.querySelectorAll('[data-toginfo]').forEach(b => b.classList.toggle('active', b.getAttribute('data-toginfo') === v));
+            updateWidgetPreview();
+        }
+
         const _widgetTypeNames = {
             'dual':      'Dual Checkout',
             'toggle':    'Cart Toggle / Checkbox',
@@ -1565,6 +1592,14 @@
             const cashImg   = `<img src="${cashSrc}" class="wp-cash-icon" onerror="this.style.display='none';">`;
             const infoBtn   = `<span class="wp-info-btn">i</span>`;
             const learnMore = `<a class="wp-learn-more">Learn More</a>`;
+            // Info-icon builder: ⓘ badge (default), leaf image (Switch to Leaf), or nothing (Hide).
+            const _infoIcon = (color, sizePx, useLeaf, hide) => {
+                if (hide) return '';
+                const sz = parseInt(sizePx) || 0;
+                if (useLeaf) return `<img src="${leafSrc}" class="wp-leaf-icon"${sz ? ` style="width:${sz}px;height:${sz}px;"` : ''} onerror="this.style.display='none';">`;
+                const szStyle = sz ? `width:${sz}px;height:${sz}px;min-width:${sz}px;font-size:${Math.round(sz * 0.68)}px;line-height:${sz - 2}px;` : '';
+                return `<span class="wp-info-btn" style="border-color:${color};color:${color};${szStyle}">i</span>`;
+            };
 
             // ── DUAL CHECKOUT ─────────────────────────────────────────────────
             if (_widgetType === 'dual') {
@@ -1574,8 +1609,7 @@
                 const btnBRaw  = v('wc-dual-btnb', D.btnB);
                 const disc     = v('wc-dual-disclaimer', '');
                 const between  = gch('wc-dual-between', false);
-                const infoIconColor = gv('wc-dual-h-info-color', '#adb5bd');
-                const infoBtn = `<span class="wp-info-btn" style="border-color:${infoIconColor};color:${infoIconColor};">i</span>`;
+                const infoBtn = _infoIcon(gv('wc-dual-h-info-color', '#adb5bd'), gv('wc-dual-info-size', ''), gch('wc-dual-info-leaf', false), gch('wc-dual-info-hide', false));
                 const showPriceA = gch('wc-dual-show-price-a', true);
                 const showPriceB = gch('wc-dual-show-price-b', false);
 
@@ -1759,7 +1793,6 @@
                 const body       = boldify(v('wc-tog-body', D.togBody || ''));
                 const disclaimer = v('wc-tog-disclaimer', '');
                 const hideLock   = gch('wc-tog-hide-lock', true);
-                const showLeaf   = gch('wc-tog-show-leaf', false);
                 const isToggle   = gch('wc-tog-is-toggle', false);
                 const switchColor = gv('wc-tog-switch-color', '#6675ff');
 
@@ -1781,8 +1814,10 @@
                 const togLogoW     = parseInt(gv('wc-tog-logo-width', '')) || togLogoSize;
                 const togLogoGap   = parseInt(gv('wc-tog-logo-gap', '7')) || 7;
                 const togLogoAlign = gv('wc-tog-logo-align', 'center');
-                const leafImg  = `<img src="${leafSrc}" class="wp-leaf-icon" onerror="this.style.display='none';">`;
                 const lockImgEl = (hideLock && !togLogoUrlParam) ? '' : `<img src="${logoActualSrc}" style="width:${togLogoW}px;height:${togLogoSize}px;object-fit:contain;flex-shrink:0;" onerror="this.style.opacity='0';">`;
+                // Info icon: ⓘ badge / leaf / hidden, placed on header, body, or disclaimer.
+                const togInfoIcon = _infoIcon(gv('wc-tog-info-color', '#adb5bd'), gv('wc-tog-info-size', ''), gch('wc-tog-info-leaf', false), gch('wc-tog-info-hide', false));
+                const togInfoAt = (where) => (_togInfoPos === where && togInfoIcon) ? ' ' + togInfoIcon : '';
 
                 // SI Fee (price) styling + position
                 const tPriceColor  = gv('wc-tog-price-color', '#1a1a1a');
@@ -1803,7 +1838,7 @@
                 }
 
                 const snapStyle = 'margin:0 auto;';
-                const headerHtml = `<span class="wp-header-text" style="${hStyle}">${header}${showLeaf ? ' ' + leafImg : ''}</span>`;
+                const headerHtml = `<span class="wp-header-text" style="${hStyle}">${header}${togInfoAt('header')}</span>`;
 
                 area.innerHTML = `<div style="${cardStyle}${snapStyle}">
                     <div class="wp-toggle-row" style="display:flex;align-items:center;gap:10px;">
@@ -1813,13 +1848,13 @@
                             ${lockImgEl}
                             <div class="wp-toggle-text">
                                 ${headerHtml}
-                                ${body ? `<div class="wp-body-text" style="${bStyle}margin:${hLineGap}px 0 0;">${body}</div>` : ''}
+                                ${(body || _togInfoPos === 'body') ? `<div class="wp-body-text" style="${bStyle}margin:${hLineGap}px 0 0;">${body}${togInfoAt('body')}</div>` : ''}
                             </div>
                         </div>
                         ${pricePos === 'right' ? priceEl : ''}
                         ${controlPos === 'right' ? controlHtml : ''}
                     </div>
-                    ${disclaimer ? `<div class="wp-disclaimer" style="${dStyle}margin-top:6px;">${disclaimer}</div>` : ''}
+                    ${(disclaimer || _togInfoPos === 'disclaimer') ? `<div class="wp-disclaimer" style="${dStyle}margin-top:6px;">${disclaimer}${togInfoAt('disclaimer')}</div>` : ''}
                 </div>`;
 
             // ── CHECKOUT EXTENSION ────────────────────────────────────────────
@@ -2268,6 +2303,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 wtype: _widgetType,
                 subpos: _dualSubPos,
                 extLineItem: _extLineItem,
+                togInfoPos: _togInfoPos,
                 dualLogo: _dualLogoSrc,
                 togLogo: _toggleLogoSrc,
                 extLogo: _extLogoSrc
@@ -2293,6 +2329,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             if (data.wtype)  _widgetType   = data.wtype;
             if (data.subpos) _dualSubPos    = data.subpos;
             if (data.extLineItem) setExtLineItem(data.extLineItem);
+            if (data.togInfoPos) setTogInfoPos(data.togInfoPos);
             if (data.dualLogo !== undefined) _dualLogoSrc   = data.dualLogo;
             if (data.togLogo  !== undefined) _toggleLogoSrc = data.togLogo;
             if (data.extLogo  !== undefined) _extLogoSrc    = data.extLogo;
@@ -2346,6 +2383,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             if (d.wtype)  _widgetType = d.wtype;
             if (d.subpos) _dualSubPos = d.subpos;
             if (d.extLineItem) _extLineItem = d.extLineItem;
+            if (d.togInfoPos) _togInfoPos = d.togInfoPos;
             _dualLogoSrc   = d.dualLogo !== undefined ? d.dualLogo : null;
             _toggleLogoSrc = d.togLogo  !== undefined ? d.togLogo  : null;
             _extLogoSrc    = d.extLogo  !== undefined ? d.extLogo  : null;
@@ -2466,6 +2504,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             syncCashbackVisibility();
             syncContributionVisibility();
             setSubPos(_dualSubPos);
+            setTogInfoPos(_togInfoPos);
             setWidgetType(_widgetType);   // also triggers updateWidgetPreview()
         });
     </script>
