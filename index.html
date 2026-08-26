@@ -2692,6 +2692,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
         let _pu1928Timer = null;
         function pu1928Reset() {
             if (_pu1928Timer) { clearTimeout(_pu1928Timer); _pu1928Timer = null; }
+            if (_puWhistleEl) { try { _puWhistleEl.pause(); _puWhistleEl.currentTime = 0; } catch (e) {} }
             const btn = document.querySelector('.push-update-btn');
             if (btn) btn.classList.remove('pu-1928');
             const s = document.getElementById('puSprites');
