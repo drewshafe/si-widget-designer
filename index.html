@@ -816,20 +816,22 @@
                             </div>
                         </div>
                     </details>
-                    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:8px;">
-                        <div class="wconfig-snap">
-                            <button class="snap-btn active" id="sub-pos-before-btns" onclick="setSubPos('before-btns')">Before Buttons</button>
-                            <button class="snap-btn" id="sub-pos-above-header" onclick="setSubPos('above-header')">Above Header</button>
-                            <button class="snap-btn" id="sub-pos-between-btns" onclick="setSubPos('between-btns')">Between Buttons</button>
-                        </div>
-                        <label class="wconfig-sl" style="flex-shrink:0;">
-                            <input type="checkbox" id="wc-dual-hide-sub" onchange="updateWidgetPreview()">
-                            <span class="sl-track"></span> Hide Subtotal
-                        </label>
-                    </div>
                     <details class="wconfig-style-grp">
-                        <summary>Subtotal Style</summary>
+                        <summary>Cart - Subtotal/Tax/Shipping Style</summary>
                         <div>
+                            <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px;">
+                                <div class="wconfig-snap">
+                                    <button class="snap-btn active" id="sub-pos-before-btns" onclick="setSubPos('before-btns')">Before Buttons</button>
+                                    <button class="snap-btn" id="sub-pos-above-header" onclick="setSubPos('above-header')">Above Header</button>
+                                    <button class="snap-btn" id="sub-pos-between-btns" onclick="setSubPos('between-btns')">Between Buttons</button>
+                                </div>
+                                <label class="wconfig-sl" style="flex-shrink:0;">
+                                    <input type="checkbox" id="wc-dual-hide-sub" onchange="updateWidgetPreview()">
+                                    <span class="sl-track"></span> Hide Subtotal
+                                </label>
+                            </div>
+
+                            <div class="wconfig-style-row"><div class="wcs" style="flex:1 1 100%;font-size:0.72em;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:#6675ff;">Subtotal</div></div>
                             <div class="wconfig-row" style="margin-bottom:8px;">
                                 <div class="wconfig-field">
                                     <label>Subtotal Label</label>
@@ -883,6 +885,68 @@
                                 </div>
                                 <div class="wcs"><label>Color</label><input type="color" id="wc-dual-sub-note-color" value="#999999" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-sub-note-color')" title="Pick color from screen">💧</button></div>
                                 <div class="wcs"><label>Header Gap (px)</label><input type="number" id="wc-dual-header-gap" value="0" min="0" max="60" style="width:54px;" onchange="updateWidgetPreview()" title="Extra space below header — useful when Subtotal is hidden"></div>
+                            </div>
+
+                            <div class="wconfig-style-row" style="margin-top:12px;padding-top:10px;border-top:2px solid #eef0f8;"><div class="wcs" style="flex:1 1 100%;font-size:0.72em;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:#6675ff;">Shipping</div></div>
+                            <div class="wconfig-row" style="margin-bottom:8px;align-items:flex-end;">
+                                <div class="wconfig-field"><label>Shipping Label</label><input type="text" id="wc-dual-ship-label" placeholder="Shipping" oninput="updateWidgetPreview()"></div>
+                                <div class="wconfig-field"><label>Shipping Value</label><input type="text" id="wc-dual-ship-value" placeholder="FREE" oninput="updateWidgetPreview()"></div>
+                                <label class="wconfig-sl" style="flex-shrink:0;padding-bottom:7px;"><input type="checkbox" id="wc-dual-ship-hide" checked onchange="updateWidgetPreview()"><span class="sl-track"></span> Hide Shipping</label>
+                            </div>
+                            <div class="wconfig-style-row">
+                                <div class="wcs"><label>Font Family</label><input type="text" id="wc-dual-ship-ff" placeholder="inherit" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>Font Size</label><input type="number" id="wc-dual-ship-fs" placeholder="16" min="8" max="32" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs">
+                                    <label>Font Weight</label>
+                                    <select id="wc-dual-ship-fw" onchange="updateWidgetPreview()">
+                                        <option value="">Default</option>
+                                        <option value="300">Light (300)</option>
+                                        <option value="400">Regular (400)</option>
+                                        <option value="500">Medium (500)</option>
+                                        <option value="600">Semibold (600)</option>
+                                        <option value="700" selected>Bold (700)</option>
+                                    </select>
+                                </div>
+                                <div class="wcs"><label>Label Color</label><input type="color" id="wc-dual-ship-lc" value="#1a1a1a" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-ship-lc')" title="Pick color from screen">💧</button></div>
+                                <div class="wcs"><label>Value Color</label><input type="color" id="wc-dual-ship-vc" value="#1a1a1a" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-ship-vc')" title="Pick color from screen">💧</button></div>
+                                <div class="wcs"><label>Spacing (px)</label><input type="number" id="wc-dual-ship-spacing" value="10" min="0" onchange="updateWidgetPreview()"></div>
+                            </div>
+                            <div class="wconfig-style-row" style="margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">
+                                <div class="wcs" style="flex:1 1 100%;font-size:0.68em;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;color:#8890b5;">Divider</div>
+                                <div class="wcs"><label>Position</label><select id="wc-dual-ship-div-pos" onchange="updateWidgetPreview()"><option value="none" selected>None</option><option value="above">Above</option><option value="below">Below</option></select></div>
+                                <div class="wcs"><label>Color</label><input type="color" id="wc-dual-ship-div-color" value="#e0e0e0" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-ship-div-color')" title="Pick color from screen">💧</button></div>
+                                <div class="wcs"><label>Width</label><input type="number" id="wc-dual-ship-div-width" value="1" min="0" max="5" onchange="updateWidgetPreview()"></div>
+                            </div>
+
+                            <div class="wconfig-style-row" style="margin-top:12px;padding-top:10px;border-top:2px solid #eef0f8;"><div class="wcs" style="flex:1 1 100%;font-size:0.72em;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:#6675ff;">Tax</div></div>
+                            <div class="wconfig-row" style="margin-bottom:8px;align-items:flex-end;">
+                                <div class="wconfig-field"><label>Tax Label</label><input type="text" id="wc-dual-tax-label" placeholder="Estimated Tax" oninput="updateWidgetPreview()"></div>
+                                <div class="wconfig-field"><label>Tax Value</label><input type="text" id="wc-dual-tax-value" placeholder="Calculated at checkout" oninput="updateWidgetPreview()"></div>
+                                <label class="wconfig-sl" style="flex-shrink:0;padding-bottom:7px;"><input type="checkbox" id="wc-dual-tax-hide" checked onchange="updateWidgetPreview()"><span class="sl-track"></span> Hide Tax</label>
+                            </div>
+                            <div class="wconfig-style-row">
+                                <div class="wcs"><label>Font Family</label><input type="text" id="wc-dual-tax-ff" placeholder="inherit" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>Font Size</label><input type="number" id="wc-dual-tax-fs" placeholder="16" min="8" max="32" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs">
+                                    <label>Font Weight</label>
+                                    <select id="wc-dual-tax-fw" onchange="updateWidgetPreview()">
+                                        <option value="">Default</option>
+                                        <option value="300">Light (300)</option>
+                                        <option value="400">Regular (400)</option>
+                                        <option value="500">Medium (500)</option>
+                                        <option value="600">Semibold (600)</option>
+                                        <option value="700" selected>Bold (700)</option>
+                                    </select>
+                                </div>
+                                <div class="wcs"><label>Label Color</label><input type="color" id="wc-dual-tax-lc" value="#1a1a1a" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-tax-lc')" title="Pick color from screen">💧</button></div>
+                                <div class="wcs"><label>Value Color</label><input type="color" id="wc-dual-tax-vc" value="#1a1a1a" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-tax-vc')" title="Pick color from screen">💧</button></div>
+                                <div class="wcs"><label>Spacing (px)</label><input type="number" id="wc-dual-tax-spacing" value="10" min="0" onchange="updateWidgetPreview()"></div>
+                            </div>
+                            <div class="wconfig-style-row" style="margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">
+                                <div class="wcs" style="flex:1 1 100%;font-size:0.68em;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;color:#8890b5;">Divider</div>
+                                <div class="wcs"><label>Position</label><select id="wc-dual-tax-div-pos" onchange="updateWidgetPreview()"><option value="none" selected>None</option><option value="above">Above</option><option value="below">Below</option></select></div>
+                                <div class="wcs"><label>Color</label><input type="color" id="wc-dual-tax-div-color" value="#e0e0e0" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('wc-dual-tax-div-color')" title="Pick color from screen">💧</button></div>
+                                <div class="wcs"><label>Width</label><input type="number" id="wc-dual-tax-div-width" value="1" min="0" max="5" onchange="updateWidgetPreview()"></div>
                             </div>
                         </div>
                     </details>
@@ -2075,14 +2139,34 @@
                     ${subDivPos === 'below' ? subDivHtml : ''}
                     ${subNote && subNotePos === 'below' ? subNoteBlockHtml : ''}`;
 
+                // Shipping / Tax rows — same styling options as Subtotal, hidden by default.
+                const _sumRow = (pfx, label, value, hide) => {
+                    if (hide) return '';
+                    const ff = gv('wc-dual-'+pfx+'-ff',''), fs = gv('wc-dual-'+pfx+'-fs',''), fw = gv('wc-dual-'+pfx+'-fw','');
+                    const lc = gv('wc-dual-'+pfx+'-lc','#1a1a1a'), vc = gv('wc-dual-'+pfx+'-vc','#1a1a1a');
+                    const dp = gv('wc-dual-'+pfx+'-div-pos','none'), dc = gv('wc-dual-'+pfx+'-div-color','#e0e0e0');
+                    const dw = gv('wc-dual-'+pfx+'-div-width','1'), sp = gv('wc-dual-'+pfx+'-spacing','10');
+                    const ts = `${ff && ff !== 'inherit' ? `font-family:${ff};` : ''}${fs ? `font-size:${fs}px;` : ''}${fw ? `font-weight:${fw};` : ''}`;
+                    const dv = (dp === 'none' || dw === '0') ? '' : `<div style="border-top:${dw}px solid ${dc};margin:${sp}px 0;"></div>`;
+                    return `${dp === 'above' ? dv : ''}
+                        <div style="${subRowStyle}">
+                            <span style="${ts}color:${lc};white-space:nowrap;">${label}</span>
+                            <span style="${ts}color:${vc};text-align:right;">${value}</span>
+                        </div>
+                        ${dp === 'below' ? dv : ''}`;
+                };
+                const shipRowHtml = _sumRow('ship', v('wc-dual-ship-label','Shipping'), v('wc-dual-ship-value','FREE'), gch('wc-dual-ship-hide', true));
+                const taxRowHtml  = _sumRow('tax',  v('wc-dual-tax-label','Estimated Tax'), v('wc-dual-tax-value','Calculated at checkout'), gch('wc-dual-tax-hide', true));
+                const summaryHtml = subRowHtml + shipRowHtml + taxRowHtml;
+
                 const snapStyle = 'margin:0 auto;';
                 area.innerHTML = `<div style="${cardStyle}${snapStyle}">
-                    ${_dualSubPos === 'above-header' ? subRowHtml : ''}
+                    ${_dualSubPos === 'above-header' ? summaryHtml : ''}
                     ${!between ? headerBlock : ''}
-                    ${_dualSubPos === 'before-btns' ? subRowHtml : ''}
+                    ${_dualSubPos === 'before-btns' ? summaryHtml : ''}
                     <button style="${primaryBtnStyle}">${primarySlotLabel}</button>
                     ${between ? betweenBlock : ''}
-                    ${_dualSubPos === 'between-btns' ? subRowHtml : ''}
+                    ${_dualSubPos === 'between-btns' ? summaryHtml : ''}
                     <div style="${secBtnStyle}">${secondarySlotLabel}</div>
                     ${showBtnC ? `<div style="${thirdBtnStyle}">${btnCRaw}</div>` : ''}
                     ${disc ? `<div class="wp-disclaimer" style="${dDiscStyle}margin-top:6px;">${disc}</div>` : ''}
