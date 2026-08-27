@@ -2097,7 +2097,8 @@
                 const togLogoW     = parseInt(gv('wc-tog-logo-width', '')) || togLogoSize;
                 const togLogoGap   = parseInt(gv('wc-tog-logo-gap', '7')) || 7;
                 const togLogoAlign = gv('wc-tog-logo-align', 'center');
-                const lockImgEl = (hideLock && !togLogoUrlParam) ? '' : `<img src="${logoActualSrc}" style="width:${togLogoW}px;height:${togLogoSize}px;object-fit:contain;flex-shrink:0;" onerror="this.style.opacity='0';">`;
+                // "Hide lock" only removes the DEFAULT SI lock — a custom logo (upload or URL) always shows.
+                const lockImgEl = (hideLock && !_toggleLogoSrc && !togLogoUrlParam) ? '' : `<img src="${logoActualSrc}" style="width:${togLogoW}px;height:${togLogoSize}px;object-fit:contain;flex-shrink:0;" onerror="this.style.opacity='0';">`;
                 // Info icon: ⓘ badge / leaf / hidden, placed on header, body, or disclaimer.
                 const togInfoIcon = _infoIcon(gv('wc-tog-info-color', '#adb5bd'), gv('wc-tog-info-size', ''), gch('wc-tog-info-leaf', false), gch('wc-tog-info-hide', false));
                 const togInfoAt = (where) => (_togInfoPos === where && togInfoIcon) ? ' ' + togInfoIcon : '';
@@ -2179,7 +2180,7 @@
                 const extCheckbox   = `<div style="width:18px;height:18px;border-radius:3px;border:1.5px solid ${checkboxColor};background:${checkboxColor};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;"><span style="color:white;font-size:10px;font-weight:900;">✓</span></div>`;
                 // Text Align aligns ONLY the logo (via align-self); the checkbox stays put,
                 // matching how it renders at checkout.
-                const extLogoHtml   = (hideLock && !extLogoUrlParam) ? '' : `<img src="${extLogoSrc}" style="width:${extLogoW}px;height:${extLogoSize}px;object-fit:contain;flex-shrink:0;align-self:${extLogoAlign};" onerror="this.style.opacity='0';">`;
+                const extLogoHtml   = (hideLock && !_extLogoSrc && !extLogoUrlParam) ? '' : `<img src="${extLogoSrc}" style="width:${extLogoW}px;height:${extLogoSize}px;object-fit:contain;flex-shrink:0;align-self:${extLogoAlign};" onerror="this.style.opacity='0';">`;
 
                 const snapStyle = 'margin:0 auto;';
                 // Disclaimer renders as its own rounded box BELOW the widget (true to how
