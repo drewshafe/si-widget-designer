@@ -1347,6 +1347,7 @@
             </div>
             <div class="mp-set-card" id="mpSetCard">
                 <div class="mp-set-title">Merchant Preview Set (<span id="mpCount">0</span>) — "Add View" to include a deployment example, then Copy Link to share the grid</div>
+                <input type="text" id="mpName" placeholder="Preview name (e.g. Acme Co. — Checkout Preview)" oninput="_previewName=this.value" style="width:100%;box-sizing:border-box;margin-bottom:8px;padding:7px 9px;font-size:0.82em;border:1px solid #d5d9f0;border-radius:7px;">
                 <div class="mp-chips" id="mpChips"><span class="mp-empty">No views added — the merchant link will show the current view.</span></div>
             </div>
             <div class="push-update-wrap">
@@ -1685,16 +1686,36 @@
             updateWidgetPreview();
         }
 
+        // Downscale an uploaded image to a small PNG (keeps transparency) so the
+        // logo embeds compactly in shareable links — no external hosting needed.
+        function _compressImage(dataUrl, maxDim, cb) {
+            const img = new Image();
+            img.onload = () => {
+                let w = img.naturalWidth || maxDim, h = img.naturalHeight || maxDim;
+                const scale = Math.min(1, maxDim / Math.max(w, h));
+                w = Math.max(1, Math.round(w * scale)); h = Math.max(1, Math.round(h * scale));
+                try {
+                    const c = document.createElement('canvas');
+                    c.width = w; c.height = h;
+                    c.getContext('2d').drawImage(img, 0, 0, w, h);
+                    cb(c.toDataURL('image/png'));
+                } catch (e) { cb(dataUrl); }
+            };
+            img.onerror = () => cb(dataUrl);
+            img.src = dataUrl;
+        }
         function handleLogoUpload(widget, input) {
             const file = input.files[0];
             if (!file) return;
-            if (file.size > 2 * 1024 * 1024) { alert('File must be under 2MB'); input.value = ''; return; }
+            if (file.size > 4 * 1024 * 1024) { alert('File must be under 4MB'); input.value = ''; return; }
             const reader = new FileReader();
             reader.onload = e => {
-                if (widget === 'dual')      _dualLogoSrc   = e.target.result;
-                if (widget === 'toggle')    _toggleLogoSrc = e.target.result;
-                if (widget === 'extension') _extLogoSrc    = e.target.result;
-                updateWidgetPreview();
+                _compressImage(e.target.result, 200, out => {
+                    if (widget === 'dual')      _dualLogoSrc   = out;
+                    if (widget === 'toggle')    _toggleLogoSrc = out;
+                    if (widget === 'extension') _extLogoSrc    = out;
+                    updateWidgetPreview();
+                });
             };
             reader.readAsDataURL(file);
         }
@@ -2970,6 +2991,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
 
         // ── Merchant preview set (hand-picked deployment examples) ──────────
         let _merchantExamples = [];
+        let _previewName = '';
         function currentPreviewTitle() { const el = document.getElementById('previewTitle'); return el ? el.textContent : 'Widget'; }
         function currentExampleLabel() {
             if (_widgetType === 'extension') {
@@ -2998,7 +3020,8 @@ For uncertain values make your best visual estimate. Always use valid hex colors
 
         function copyMerchantLink() {
             const set = _merchantExamples.length ? _merchantExamples : [{ label: currentExampleLabel(), design: _collectDesign() }];
-            const enc = btoa(unescape(encodeURIComponent(JSON.stringify(set))));
+            const payload = { name: (_previewName || '').trim(), examples: set };
+            const enc = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
             const url = location.origin + location.pathname + '?view=merchant#s=' + enc;
             navigator.clipboard.writeText(url).then(showToast, () => prompt('Copy this merchant link:', url));
         }
@@ -3037,14 +3060,15 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 scanBg: _extScanBg
             };
         }
-        function renderMerchantView(examples) {
+        function renderMerchantView(examples, name) {
             ['.app-header', '.control-bar', '.designer-body'].forEach(sel => {
                 const el = document.querySelector(sel); if (el) el.style.display = 'none';
             });
             const mv = document.getElementById('merchantView');
+            const t1 = (name && name.trim()) ? _escHtml(name.trim()) : 'Shipping Protection — Preview';
             const headerHtml = `<div class="mp-view-header">
                 <img src="https://raw.githubusercontent.com/drewshafe/si-roi-calculator/main/si_lock.png" alt="ShipInsure" onerror="this.style.display='none';">
-                <div><div class="t1">Shipping Protection — Preview</div><div class="t2">How ShipInsure could appear across your store</div></div>
+                <div><div class="t1">${t1}</div><div class="t2">How ShipInsure could appear across your store</div></div>
             </div>`;
             if (!examples || !examples.length) {
                 mv.innerHTML = headerHtml + '<div class="mp-empty-view">No preview examples in this link.</div>';
@@ -3148,9 +3172,16 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             // Merchant grid view: render the hand-picked examples and skip the designer.
             if (new URLSearchParams(location.search).get('view') === 'merchant') {
                 const m = location.hash.match(/[#&]s=([^&]+)/);
-                let set = [];
-                if (m) { try { set = JSON.parse(decodeURIComponent(escape(atob(m[1])))); } catch (e) { set = []; } }
-                renderMerchantView(set);
+                let set = [], name = '';
+                if (m) {
+                    try {
+                        const parsed = JSON.parse(decodeURIComponent(escape(atob(m[1]))));
+                        // New payload: { name, examples }. Old links: a bare array.
+                        if (Array.isArray(parsed)) { set = parsed; }
+                        else { set = parsed.examples || []; name = parsed.name || ''; }
+                    } catch (e) { set = []; }
+                }
+                renderMerchantView(set, name);
                 return;
             }
             applyDesignerLink();
