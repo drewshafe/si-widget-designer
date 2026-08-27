@@ -395,6 +395,9 @@
         .mp-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; font-size: 0.78em; font-weight: 600; background: #eef0fb; color: #3a3a5a; border: 1px solid #d5d9f0; border-radius: 20px; }
         .mp-chip button { border: none; background: none; color: #99a; cursor: pointer; font-weight: 800; font-size: 1em; line-height: 1; padding: 0; }
         .mp-chip button:hover { color: #dc3545; }
+        .mp-chip button.mp-move { color: #8890b5; font-size: 1.1em; }
+        .mp-chip button.mp-move:hover { color: #6675ff; }
+        .mp-chip button.mp-move:disabled { color: #ccd; cursor: default; }
         .mp-empty { font-size: 0.78em; color: #adb5bd; }
 
         /* ── Merchant view (grid of deployment examples) ── */
@@ -2018,7 +2021,7 @@
                 const dualLogoGap   = parseInt(gv('wc-dual-logo-gap', '6')) || 6;
                 const dualLogoAlign = gv('wc-dual-logo-align', 'center');
                 const dualLogoHtml  = (showDualLock || _dualLogoSrc || dualLogoUrlParam)
-                    ? `<img src="${dualLogoSrc}" style="width:${dualLogoW}px;height:${dualLogoSize}px;object-fit:contain;flex-shrink:0;" onerror="this.style.display='none';">`
+                    ? `<img src="${dualLogoSrc}" style="width:${dualLogoW}px;height:${dualLogoSize}px;object-fit:contain;flex-shrink:0;align-self:${dualLogoAlign};" onerror="this.style.display='none';">`
                     : '';
 
                 // Primary button style
@@ -2049,22 +2052,26 @@
                 const bDivSp      = gv('wc-dual-b-div-spacing', '8');
                 const bDivHtml    = (bDivPos === 'none' || bDivW === '0') ? '' : `<div style="border-top:${bDivW}px solid ${bDivColor};margin:${bDivSp}px 0;"></div>`;
 
+                // Header + body share a text column beside the logo, so the body stays
+                // under the HEADER text (not under the logo). Logo aligns via align-self.
                 const headerBlock = `
                     <div style="margin-bottom:${headerGap}px;">
                         ${hDivPos === 'above' ? hDivHtml : ''}
-                        <div class="wp-spread" style="margin-bottom:${body?hLineGap:'0'}px;align-items:${dualLogoAlign};gap:8px;${pricePos==='left'?'flex-direction:row-reverse;':''}">
-                            <div style="display:flex;align-items:${dualLogoAlign};gap:${dualLogoGap}px;flex:1;min-width:0;">
+                        <div class="wp-spread" style="align-items:flex-start;gap:8px;${pricePos==='left'?'flex-direction:row-reverse;':''}">
+                            <div style="display:flex;align-items:flex-start;gap:${dualLogoGap}px;flex:1;min-width:0;">
                                 ${dualLogoHtml}
-                                <span class="wp-header-text" style="${hStyle}">${header} ${infoBtn}</span>
+                                <div style="flex:1;min-width:0;">
+                                    <span class="wp-header-text" style="${hStyle}">${header} ${infoBtn}</span>
+                                    ${body ? `
+                                        ${bDivPos === 'above' ? bDivHtml : ''}
+                                        <div class="wp-body-text" style="${bStyle}margin-top:${hLineGap}px;">${body}</div>
+                                        ${bDivPos === 'below' ? bDivHtml : ''}
+                                    ` : ''}
+                                </div>
                             </div>
                             ${pricePos !== 'none' ? priceHtml : ''}
                         </div>
                         ${hDivPos === 'below' ? hDivHtml : ''}
-                        ${body ? `
-                            ${bDivPos === 'above' ? bDivHtml : ''}
-                            <div class="wp-body-text" style="${bStyle}margin-top:4px;margin-bottom:2px;">${body}</div>
-                            ${bDivPos === 'below' ? bDivHtml : ''}
-                        ` : ''}
                     </div>`;
 
                 // Button A: always strip any user-typed | suffix and replace with protected total (AOV + SI fee)
@@ -2093,14 +2100,16 @@
                 const thirdBtnStyle = `display:block;width:100%;padding:${cPad}px 16px;border:${cBdW}px solid ${cBdColor};border-radius:${cBdR}px;background:${cBg};text-decoration:${cUnderline ? 'underline' : 'none'};text-align:center;font-family:inherit;cursor:default;margin-top:${cMt}px;box-sizing:border-box;${cStyle}`;
 
                 const betweenBlock = between ? `<div style="padding:10px 0 ${headerGap > 0 ? headerGap : 8}px;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                        <div style="display:flex;align-items:${dualLogoAlign};gap:${dualLogoGap}px;flex:1;min-width:0;">
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+                        <div style="display:flex;align-items:flex-start;gap:${dualLogoGap}px;flex:1;min-width:0;">
                             ${dualLogoHtml}
-                            <span class="wp-header-text" style="${hStyle}">${header} ${infoBtn}</span>
+                            <div style="flex:1;min-width:0;">
+                                <span class="wp-header-text" style="${hStyle}">${header} ${infoBtn}</span>
+                                ${body ? `<div class="wp-body-text" style="${bStyle}margin-top:${hLineGap}px;">${body}</div>` : ''}
+                            </div>
                         </div>
                         <span class="wp-price" style="flex-shrink:0;color:${priceColor};">${fmtP}</span>
                     </div>
-                    ${body ? `<div class="wp-body-text" style="${bStyle}margin-top:${hLineGap}px;">${body}</div>` : ''}
                 </div>` : '';
 
                 // Subtotal row (with optional label override + note + placement + style)
@@ -3092,14 +3101,27 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             showToast('Added to merchant preview');
         }
         function removeMerchantExample(i) { _merchantExamples.splice(i, 1); renderMerchantChips(); }
+        // Reorder a view within the set (‹ earlier / › later); order carries into the merchant link + columns.
+        function moveMerchantExample(i, dir) {
+            const j = i + dir;
+            if (j < 0 || j >= _merchantExamples.length) return;
+            const t = _merchantExamples[i]; _merchantExamples[i] = _merchantExamples[j]; _merchantExamples[j] = t;
+            renderMerchantChips();
+        }
         function renderMerchantChips() {
             const wrap = document.getElementById('mpChips');
             const count = document.getElementById('mpCount');
             if (count) count.textContent = _merchantExamples.length;
             if (!wrap) return;
             if (!_merchantExamples.length) { wrap.innerHTML = '<span class="mp-empty">No views added — the merchant link will show the current view.</span>'; return; }
+            const last = _merchantExamples.length - 1;
             wrap.innerHTML = _merchantExamples.map((ex, i) =>
-                `<span class="mp-chip">${_escHtml(ex.label)}<button title="Remove" onclick="removeMerchantExample(${i})">✕</button></span>`).join('');
+                `<span class="mp-chip">
+                    <button class="mp-move" title="Move earlier" ${i === 0 ? 'disabled' : ''} onclick="moveMerchantExample(${i},-1)">‹</button>
+                    ${_escHtml(ex.label)}
+                    <button class="mp-move" title="Move later" ${i === last ? 'disabled' : ''} onclick="moveMerchantExample(${i},1)">›</button>
+                    <button title="Remove" onclick="removeMerchantExample(${i})">✕</button>
+                </span>`).join('');
         }
 
         function copyMerchantLink() {
