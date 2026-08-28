@@ -678,7 +678,8 @@
                         <span class="wtype-cb"></span> Checkout Extension
                     </label>
                 </div>
-                <div style="display:flex;justify-content:flex-end;margin-top:6px;">
+                <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:6px;">
+                    <button class="scan-widget-btn" id="scanCartBtn" style="display:none;" onclick="openScanModal('cart')">🔍 Scan Cart</button>
                     <button class="scan-widget-btn" onclick="openScanModal()">🔍 Scan Widget</button>
                 </div>
 
@@ -1819,6 +1820,32 @@
         let _extScanBg = '';        // '' = no scanned background
         let _extScanItems = [];     // [{ name, descLines:[], price, compareAtPrice, quantity }]
 
+        // Scan Cart context: cart page background + the merchant's cart items, rendered ABOVE
+        // the Dual/Toggle widget so it previews inside their real cart.
+        let _cartScanBg = '';
+        let _cartScanItems = [];
+
+        // A cart-items panel (reused by the Scan Cart context above the Dual/Toggle widget).
+        function _buildCartItems(items) {
+            if (!items || !items.length) return '';
+            const tile = (qty) => `<div style="position:relative;flex-shrink:0;">
+                <span style="position:absolute;top:-9px;right:-9px;min-width:22px;height:22px;padding:0 5px;box-sizing:border-box;background:#1a1a2e;color:#fff;border-radius:11px;font-size:12px;font-weight:700;line-height:22px;text-align:center;z-index:1;">${qty}</span>
+                <div style="width:52px;height:52px;background:#f0f0f2;border-radius:10px;"></div>
+            </div>`;
+            const rows = items.map((it, idx) => `<div style="display:flex;align-items:center;gap:14px;padding:14px 8px;${idx ? 'border-top:1px solid rgba(0,0,0,0.08);' : ''}">
+                ${tile(it.quantity || 1)}
+                <div style="flex:1;min-width:0;">
+                    <div style="font-weight:600;color:#1a1a1a;">${_escHtml(it.name)}</div>
+                    ${(it.descLines || []).map(dl => `<div style="font-size:0.82em;color:#8a8f98;margin-top:2px;">${_escHtml(dl)}</div>`).join('')}
+                </div>
+                <div style="flex-shrink:0;align-self:flex-start;text-align:right;">
+                    ${it.compareAtPrice ? `<div style="font-size:0.82em;color:#b0b0b8;text-decoration:line-through;">${_escHtml(it.compareAtPrice)}</div>` : ''}
+                    <span class="wp-price">${_escHtml(it.price)}</span>
+                </div>
+            </div>`).join('');
+            return `<div style="background:#fff;border:1px solid #e9ecef;border-radius:10px;padding:2px 12px;max-width:480px;width:100%;margin:0 auto 14px;box-shadow:0 2px 10px rgba(0,0,0,0.05);">${rows}</div>`;
+        }
+
         let _togInfoPos = 'header';
         function setTogInfoPos(v) {
             _togInfoPos = v;
@@ -1857,8 +1884,14 @@
             if (_liCard) _liCard.style.display = (_isExt && _extShowsLineItem()) ? '' : 'none';
             if (_wCard)  _wCard.style.display  = (!_isExt || _extShowsWidget()) ? '' : 'none';
 
-            // Scan Checkout background tints both preview areas so the boxes look in-context.
-            const _scanBg = (_isExt && _extScanBg) ? _extScanBg : '';
+            // Scan Cart button shows only for the cart widgets (Dual / Toggle).
+            const _isCartType = (_widgetType === 'dual' || _widgetType === 'toggle');
+            const _scb = document.getElementById('scanCartBtn');
+            if (_scb) _scb.style.display = _isCartType ? '' : 'none';
+
+            // Scanned background tints the preview area so the widget looks in-context
+            // (Scan Checkout for the extension, Scan Cart for Dual/Toggle).
+            const _scanBg = (_isExt && _extScanBg) ? _extScanBg : (_isCartType && _cartScanBg) ? _cartScanBg : '';
             ['widgetPreviewArea','lineItemPreviewArea'].forEach(id => {
                 const a = document.getElementById(id);
                 if (!a) return;
@@ -2362,16 +2395,22 @@
                     liArea.innerHTML = `<div style="background:#fff;border:1px solid #e9ecef;border-radius:10px;padding:2px 12px;max-width:420px;width:100%;margin:0 auto;box-shadow:0 2px 10px rgba(0,0,0,0.05);">${siRow}${ctxRows}</div>`;
                 }
             }
+
+            // Scan Cart: frame the Dual/Toggle widget with the merchant's cart items above it.
+            if (_isCartType && _cartScanItems && _cartScanItems.length && area) {
+                area.innerHTML = _buildCartItems(_cartScanItems) + area.innerHTML;
+            }
         }
 
-        let _scanTarget = 'widget';   // 'widget' (full design) | 'checkout' (line item)
+        let _scanTarget = 'widget';   // 'widget' (full design) | 'checkout' (line item) | 'cart' (cart context)
         function openScanModal(target) {
-            _scanTarget = (target === 'checkout') ? 'checkout' : 'widget';
+            _scanTarget = (target === 'checkout' || target === 'cart') ? target : 'widget';
             _scanImageBase64 = null;
             const modal = document.getElementById('scanModal');
-            const isCheckout = _scanTarget === 'checkout';
-            document.querySelector('.scan-modal-title').textContent = isCheckout ? '🔍 Scan Checkout Line Item from Screenshot' : '🔍 Scan Widget from Screenshot';
-            document.getElementById('runScanBtn').textContent = isCheckout ? 'Scan Checkout' : 'Scan Widget';
+            const TITLES = { widget: '🔍 Scan Widget from Screenshot', checkout: '🔍 Scan Checkout Line Item from Screenshot', cart: '🔍 Scan Cart from Screenshot' };
+            const BTNS   = { widget: 'Scan Widget', checkout: 'Scan Checkout', cart: 'Scan Cart' };
+            document.querySelector('.scan-modal-title').textContent = TITLES[_scanTarget];
+            document.getElementById('runScanBtn').textContent = BTNS[_scanTarget];
             document.getElementById('scanPreview').style.display = 'none';
             document.getElementById('scanPreview').src = '';
             document.getElementById('runScanBtn').disabled = true;
@@ -2450,7 +2489,7 @@
         function setRunScanBusy(busy) {
             const btn = document.getElementById('runScanBtn');
             btn.disabled = busy;
-            btn.textContent = busy ? '⏳ Scanning…' : 'Scan Widget';
+            btn.textContent = busy ? '⏳ Scanning…' : (_scanTarget === 'checkout' ? 'Scan Checkout' : _scanTarget === 'cart' ? 'Scan Cart' : 'Scan Widget');
         }
 
         function showScanStatus(msg, type) {
@@ -2481,6 +2520,26 @@ Required JSON keys:
       "price": "the price exactly as shown, e.g. $116.98 or FREE",
       "compareAtPrice": "the struck-through original price if shown, else null",
       "quantity": number shown in the quantity badge (default 1)
+    }
+  ]
+}
+
+Preserve the visible order of the items top to bottom. For uncertain values make your best visual estimate. Always use a valid hex color for backgroundColor.`;
+
+            const cartPrompt = `Analyze this shopping cart screenshot. Return ONLY a valid JSON object — no markdown, no explanation, no code fences.
+
+Extract the cart's background color and EVERY product line item in the cart (do NOT include any ShipInsure / Shipping Protection line — skip it if present).
+
+Required JSON keys:
+{
+  "backgroundColor": "#hexcolor for the cart background",
+  "items": [
+    {
+      "name": "exact product title",
+      "descLines": ["each secondary line under the title, e.g. a variant, size, or quantity note"],
+      "price": "the price exactly as shown, e.g. $29.99 or FREE",
+      "compareAtPrice": "the struck-through original price if shown, else null",
+      "quantity": number shown for that item (default 1)
     }
   ]
 }
@@ -2534,7 +2593,7 @@ Required JSON keys:
 
 For uncertain values make your best visual estimate. Always use valid hex colors.`;
 
-            const prompt = (_scanTarget === 'checkout') ? checkoutPrompt : widgetPrompt;
+            const prompt = (_scanTarget === 'checkout') ? checkoutPrompt : (_scanTarget === 'cart') ? cartPrompt : widgetPrompt;
 
             try {
                 const resp = await fetch('https://api.anthropic.com/v1/messages', {
@@ -2566,8 +2625,11 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 const jsonStr = raw.replace(/^```[a-z]*\n?/i,'').replace(/```$/,'').trim();
                 const parsed = JSON.parse(jsonStr);
                 if (_scanTarget === 'checkout') applyScannedCheckout(parsed);
+                else if (_scanTarget === 'cart') applyScannedCart(parsed);
                 else applyScannedData(parsed);
-                showScanStatus(_scanTarget === 'checkout' ? '✓ Checkout scanned — line item updated!' : '✓ Widget scanned — fields updated!', 'success');
+                showScanStatus(_scanTarget === 'checkout' ? '✓ Checkout scanned — line item updated!'
+                    : _scanTarget === 'cart' ? '✓ Cart scanned — preview framed in-cart!'
+                    : '✓ Widget scanned — fields updated!', 'success');
                 setTimeout(closeScanModal, 1400);
             } catch(e) {
                 showScanStatus('Error: ' + e.message, 'error');
@@ -2667,6 +2729,25 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 : '';
             _extScanBg = bg;
             _extScanItems = Array.isArray(d && d.items) ? d.items.map(it => ({
+                name:           (it && it.name) ? String(it.name) : '',
+                descLines:      Array.isArray(it && it.descLines) ? it.descLines.filter(Boolean).map(String) : [],
+                price:          (it && it.price != null) ? String(it.price) : '',
+                compareAtPrice: (it && it.compareAtPrice) ? String(it.compareAtPrice) : '',
+                quantity:       (it && it.quantity) ? parseInt(it.quantity) || 1 : 1
+            })).filter(it => it.name) : [];
+            updateWidgetPreview();
+        }
+
+        // Scan Cart: sets the cart background + cart items so the Dual/Toggle widget previews
+        // inside the merchant's real cart. Does NOT touch Mode, AOV, Pricing, or SI Premium $.
+        function applyScannedCart(d) {
+            // Keep the current cart widget type (Dual or Toggle); default to Dual if neither.
+            if (_widgetType !== 'dual' && _widgetType !== 'toggle') setWidgetType('dual');
+            const bg = (d && typeof d.backgroundColor === 'string' && /^#?[0-9a-fA-F]{3,8}$/.test(d.backgroundColor.trim()))
+                ? (d.backgroundColor.trim().startsWith('#') ? d.backgroundColor.trim() : '#' + d.backgroundColor.trim())
+                : '';
+            _cartScanBg = bg;
+            _cartScanItems = Array.isArray(d && d.items) ? d.items.map(it => ({
                 name:           (it && it.name) ? String(it.name) : '',
                 descLines:      Array.isArray(it && it.descLines) ? it.descLines.filter(Boolean).map(String) : [],
                 price:          (it && it.price != null) ? String(it.price) : '',
@@ -2786,6 +2867,8 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 togInfoPos: _togInfoPos,
                 extScanBg: _extScanBg,
                 extScanItems: _extScanItems,
+                cartScanBg: _cartScanBg,
+                cartScanItems: _cartScanItems,
                 dualLogo: _dualLogoSrc,
                 togLogo: _toggleLogoSrc,
                 extLogo: _extLogoSrc
@@ -2814,6 +2897,8 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             if (data.togInfoPos) setTogInfoPos(data.togInfoPos);
             _extScanBg    = data.extScanBg || '';
             _extScanItems = Array.isArray(data.extScanItems) ? data.extScanItems : [];
+            _cartScanBg    = data.cartScanBg || '';
+            _cartScanItems = Array.isArray(data.cartScanItems) ? data.cartScanItems : [];
             if (data.dualLogo !== undefined) _dualLogoSrc   = data.dualLogo;
             if (data.togLogo  !== undefined) _toggleLogoSrc = data.togLogo;
             if (data.extLogo  !== undefined) _extLogoSrc    = data.extLogo;
@@ -3141,6 +3226,8 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             if (d.togInfoPos) _togInfoPos = d.togInfoPos;
             _extScanBg    = d.extScanBg || '';
             _extScanItems = Array.isArray(d.extScanItems) ? d.extScanItems : [];
+            _cartScanBg    = d.cartScanBg || '';
+            _cartScanItems = Array.isArray(d.cartScanItems) ? d.cartScanItems : [];
             _dualLogoSrc   = d.dualLogo !== undefined ? d.dualLogo : null;
             _toggleLogoSrc = d.togLogo  !== undefined ? d.togLogo  : null;
             _extLogoSrc    = d.extLogo  !== undefined ? d.extLogo  : null;
@@ -3163,7 +3250,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 showsLineItem: _extShowsLineItem(),
                 widgetHtml: document.getElementById('widgetPreviewArea').innerHTML,
                 lineItemHtml: document.getElementById('lineItemPreviewArea').innerHTML,
-                scanBg: _extScanBg
+                scanBg: (_widgetType === 'dual' || _widgetType === 'toggle') ? _cartScanBg : _extScanBg
             };
         }
         function renderMerchantView(examples, name) {
