@@ -2526,13 +2526,23 @@ Required JSON keys:
 
 Preserve the visible order of the items top to bottom. For uncertain values make your best visual estimate. Always use a valid hex color for backgroundColor.`;
 
-            const cartPrompt = `Analyze this shopping cart screenshot. Return ONLY a valid JSON object — no markdown, no explanation, no code fences.
+            const cartPrompt = `Analyze this shopping cart / store screenshot and extract its DESIGN so a widget can be restyled to match. Return ONLY a valid JSON object — no markdown, no explanation, no code fences.
 
-Extract the cart's background color and EVERY product line item in the cart (do NOT include any ShipInsure / Shipping Protection line — skip it if present).
+Extract the store's theme colors, the primary call-to-action button styling, corner radii, and the cart's product line items (do NOT include any ShipInsure / Shipping Protection line — skip it if present).
 
 Required JSON keys:
 {
-  "backgroundColor": "#hexcolor for the cart background",
+  "backgroundColor": "#hex — the cart/page background behind the content",
+  "containerBg": "#hex — the surface color of cards/panels the content sits on (often white)",
+  "containerBorderColor": "#hex — border color of those cards/panels",
+  "containerBorderRadius": number — corner radius of cards/panels in px,
+  "buttonBg": "#hex — the primary call-to-action button background (e.g. the Checkout button)",
+  "buttonBg2": "#hex — gradient end of that button, or the same as buttonBg if solid",
+  "buttonTextColor": "#hex — the text color on that primary button",
+  "buttonBorderRadius": number — the primary button corner radius in px,
+  "accentColor": "#hex — the store's main accent/brand color (links, toggles, highlights)",
+  "headerTextColor": "#hex — the main dark text color used for titles",
+  "bodyTextColor": "#hex — the secondary/gray text color used for descriptions",
   "items": [
     {
       "name": "exact product title",
@@ -2544,7 +2554,7 @@ Required JSON keys:
   ]
 }
 
-Preserve the visible order of the items top to bottom. For uncertain values make your best visual estimate. Always use a valid hex color for backgroundColor.`;
+Preserve the visible order of the items top to bottom. For uncertain values make your best visual estimate. Always use valid hex colors.`;
 
             const widgetPrompt = `Analyze this widget screenshot. Return ONLY a valid JSON object — no markdown, no explanation, no code fences. Extract all visible text and your best estimate of all styling.
 
@@ -2738,16 +2748,57 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             updateWidgetPreview();
         }
 
-        // Scan Cart: sets the cart background + cart items so the Dual/Toggle widget previews
-        // inside the merchant's real cart. Does NOT touch Mode, AOV, Pricing, or SI Premium $.
+        // Scan Cart: RESTYLES the Dual/Toggle widget to match the merchant's store
+        // (background, card surface, button colors, border radii, text colors) AND frames it
+        // in the cart (bg + items). Does NOT touch Mode, AOV, Pricing, or SI Premium $.
         function applyScannedCart(d) {
+            d = d || {};
             // Keep the current cart widget type (Dual or Toggle); default to Dual if neither.
             if (_widgetType !== 'dual' && _widgetType !== 'toggle') setWidgetType('dual');
-            const bg = (d && typeof d.backgroundColor === 'string' && /^#?[0-9a-fA-F]{3,8}$/.test(d.backgroundColor.trim()))
-                ? (d.backgroundColor.trim().startsWith('#') ? d.backgroundColor.trim() : '#' + d.backgroundColor.trim())
-                : '';
-            _cartScanBg = bg;
-            _cartScanItems = Array.isArray(d && d.items) ? d.items.map(it => ({
+            const hex = (c) => (typeof c === 'string' && /^#?[0-9a-fA-F]{3,8}$/.test(c.trim()))
+                ? (c.trim().startsWith('#') ? c.trim() : '#' + c.trim()) : null;
+            const num = (n) => (n != null && !isNaN(parseFloat(n))) ? String(Math.round(parseFloat(n))) : null;
+            const setV = (id, val) => { const e = document.getElementById(id); if (e && val != null && val !== '') e.value = val; };
+
+            const containerBg = hex(d.containerBg);
+            const bdColor     = hex(d.containerBorderColor);
+            const bdRadius    = num(d.containerBorderRadius);
+            const btnBg       = hex(d.buttonBg);
+            const btnBg2      = hex(d.buttonBg2) || btnBg;
+            const btnText     = hex(d.buttonTextColor);
+            const btnRadius   = num(d.buttonBorderRadius);
+            const accent      = hex(d.accentColor) || btnBg;
+            const headText    = hex(d.headerTextColor);
+            const bodyText    = hex(d.bodyTextColor);
+
+            if (_widgetType === 'dual') {
+                setV('wc-dual-bg', containerBg);
+                setV('wc-dual-bd-color', bdColor);
+                setV('wc-dual-bd-radius', bdRadius);
+                setV('wc-dual-p-bg', btnBg);
+                setV('wc-dual-p-bg2', btnBg2);
+                setV('wc-dual-p-color', btnText);
+                setV('wc-dual-p-bd-radius', btnRadius);
+                setV('wc-dual-p-bd-color', btnBg);
+                setV('wc-dual-s-bd-radius', btnRadius);
+                setV('wc-dual-s-color', accent);
+                setV('wc-dual-s-bd-color', bdColor);
+                setV('wc-dual-h-color', headText);
+                setV('wc-dual-b-color', bodyText);
+                setV('wc-dual-price-color', headText);
+            } else { // toggle
+                setV('wc-tog-bg', containerBg);
+                setV('wc-tog-bd-color', bdColor);
+                setV('wc-tog-bd-radius', bdRadius);
+                setV('wc-tog-switch-color', accent);
+                setV('wc-tog-h-color', headText);
+                setV('wc-tog-b-color', bodyText);
+                setV('wc-tog-price-color', headText);
+            }
+
+            // In-cart framing: page background + the merchant's cart items above the widget.
+            _cartScanBg = hex(d.backgroundColor) || '';
+            _cartScanItems = Array.isArray(d.items) ? d.items.map(it => ({
                 name:           (it && it.name) ? String(it.name) : '',
                 descLines:      Array.isArray(it && it.descLines) ? it.descLines.filter(Boolean).map(String) : [],
                 price:          (it && it.price != null) ? String(it.price) : '',
