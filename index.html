@@ -398,6 +398,9 @@
         .mp-chip button.mp-move { color: #8890b5; font-size: 1.1em; }
         .mp-chip button.mp-move:hover { color: #6675ff; }
         .mp-chip button.mp-move:disabled { color: #ccd; cursor: default; }
+        .mp-chip button.mp-star { color: #c7cbe0; }
+        .mp-chip button.mp-star:hover { color: #f5b301; }
+        .mp-chip button.mp-star.on { color: #f5b301; }
         .mp-empty { font-size: 0.78em; color: #adb5bd; }
 
         /* ── Merchant view (grid of deployment examples) ── */
@@ -418,6 +421,23 @@
         .mp-widget { display: flex; flex-direction: column; align-items: center; gap: 12px; }
         .mp-widget > div { max-width: 100%; }
         .mp-empty-view { max-width: 600px; margin: 60px auto; text-align: center; color: #8890b5; font-size: 0.95em; }
+
+        /* Sectioned merchant view: Cart Designs / Checkout Designs + Recommended column */
+        .mp-layout { display: flex; gap: 22px; align-items: flex-start; max-width: 2040px; margin: 0 auto; padding: 22px; }
+        .mp-content { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 24px; }
+        .mp-section { background: #fff; border: 1px solid #e3e7f5; border-radius: 18px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+        .mp-section-banner { background: linear-gradient(100deg,#141420,#2b2b42); color: #fff; font-size: 1.05em; font-weight: 900; letter-spacing: 0.04em; text-transform: uppercase; padding: 12px 22px; }
+        .mp-section-banner span { color: #aab4ff; }
+        .mp-section-body { padding: 22px; display: flex; gap: 26px; align-items: flex-start; flex-wrap: wrap; }
+        .mp-scol { display: flex; flex-direction: column; gap: 14px; min-width: 520px; flex: 0 1 auto; }
+        .mp-scol.col-cwidget { min-width: 640px; }
+        .mp-scol.col-litem   { min-width: 470px; }
+        .mp-scol-title { font-size: 0.72em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #8890b5; }
+        .mp-recommended { flex: 0 0 470px; display: flex; flex-direction: column; gap: 22px; }
+        .mp-rec-heading { font-size: 0.9em; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; color: #4a5aa8; }
+        .mp-rec-card { background: linear-gradient(155deg,#0e0e1a 0%,#3a3f8f 55%,#7181ff 100%); border-radius: 24px; padding: 24px; box-shadow: 0 8px 30px rgba(40,40,90,0.30); }
+        .mp-rec-card .mp-rec-label { font-size: 0.9em; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; color: #fff; margin-bottom: 16px; }
+        @media (max-width: 1180px) { .mp-scol, .mp-scol.col-cwidget, .mp-scol.col-litem { min-width: 300px; } }
 
         /* ── Push Update button ── */
         .push-update-wrap { margin-top: 14px; position: relative; }
@@ -796,6 +816,7 @@
                     <details class="wconfig-style-grp">
                         <summary>Body Style</summary>
                         <div>
+                            <label class="wconfig-check" style="padding-top:0;margin-bottom:6px;"><input type="checkbox" id="wc-dual-b-disable" onchange="updateWidgetPreview()"> Disable body</label>
                             <div class="wconfig-style-row">
                                 <div class="wcs"><label>Font Family</label><input type="text" id="wc-dual-b-font" placeholder="inherit" onchange="updateWidgetPreview()"></div>
                                 <div class="wcs"><label>Font Size</label><input type="number" id="wc-dual-b-size" placeholder="13" min="8" max="32" onchange="updateWidgetPreview()"></div>
@@ -1220,6 +1241,7 @@
                     <details class="wconfig-style-grp">
                         <summary>Body Style</summary>
                         <div>
+                            <label class="wconfig-check" style="padding-top:0;margin-bottom:6px;"><input type="checkbox" id="wc-tog-b-disable" onchange="updateWidgetPreview()"> Disable body</label>
                             <div class="wconfig-style-row">
                                 <div class="wcs"><label>Font Family</label><input type="text" id="wc-tog-b-font" placeholder="inherit" onchange="updateWidgetPreview()"></div>
                                 <div class="wcs"><label>Font Size</label><input type="number" id="wc-tog-b-size" placeholder="13" min="8" max="32" onchange="updateWidgetPreview()"></div>
@@ -1374,6 +1396,7 @@
                     <details class="wconfig-style-grp">
                         <summary>Body Style</summary>
                         <div>
+                            <label class="wconfig-check" style="padding-top:0;margin-bottom:6px;"><input type="checkbox" id="wc-ext-b-disable" onchange="updateWidgetPreview()"> Disable body</label>
                             <div class="wconfig-style-row">
                                 <div class="wcs"><label>Font Family</label><input type="text" id="wc-ext-b-font" placeholder="inherit" onchange="updateWidgetPreview()"></div>
                                 <div class="wcs"><label>Font Size</label><input type="number" id="wc-ext-b-size" placeholder="13" min="8" max="32" onchange="updateWidgetPreview()"></div>
@@ -2004,7 +2027,7 @@
             // ── DUAL CHECKOUT ─────────────────────────────────────────────────
             if (_widgetType === 'dual') {
                 const header   = v('wc-dual-header', D.dualH);
-                const body     = boldify(v('wc-dualp-body', D.dualBody || ''));
+                const body     = gch('wc-dual-b-disable', false) ? '' : boldify(v('wc-dualp-body', D.dualBody || ''));
                 const btnARaw  = v('wc-dual-btna', `Checkout | ${fmtT}`);
                 const btnBRaw  = v('wc-dual-btnb', D.btnB);
                 const disc     = v('wc-dual-disclaimer', '');
@@ -2217,7 +2240,7 @@
             // ── CART TOGGLE / CHECKBOX ────────────────────────────────────────
             } else if (_widgetType === 'toggle') {
                 const header     = v('wc-tog-header', D.togH);
-                const body       = boldify(v('wc-tog-body', D.togBody || ''));
+                const body       = gch('wc-tog-b-disable', false) ? '' : boldify(v('wc-tog-body', D.togBody || ''));
                 const disclaimer = v('wc-tog-disclaimer', '');
                 const hideLock   = gch('wc-tog-hide-lock', true);
                 const isToggle   = gch('wc-tog-is-toggle', false);
@@ -2289,7 +2312,7 @@
             } else if (_widgetType === 'extension') {
                 const header     = v('wc-ext-header', D.extH);
                 // Body is optional: blank field → no body line (no fallback to the mode default).
-                const body       = boldify(((document.getElementById('wc-ext-body') || {}).value || '').trim());
+                const body       = gch('wc-ext-b-disable', false) ? '' : boldify(((document.getElementById('wc-ext-body') || {}).value || '').trim());
                 const disclaimer = v('wc-ext-disclaimer', '');
                 const hideLock   = gch('wc-ext-hide-lock', false);
                 const showLearnMore = gch('wc-ext-show-learn-more', true);
@@ -3237,6 +3260,17 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             showToast('Added to merchant preview');
         }
         function removeMerchantExample(i) { _merchantExamples.splice(i, 1); renderMerchantChips(); }
+        // Category of an example for the Recommended column: 'cart' (dual/toggle) or 'checkout'.
+        function _exCategory(ex) { return (ex && ex.design && ex.design.wtype === 'extension') ? 'checkout' : 'cart'; }
+        // Designate one Cart and/or one Checkout design as the recommended deployment design.
+        function setRecommendedExample(i) {
+            const ex = _merchantExamples[i]; if (!ex) return;
+            const cat = _exCategory(ex);
+            const wasRec = !!ex.recommended;
+            _merchantExamples.forEach(e => { if (_exCategory(e) === cat) e.recommended = false; });
+            ex.recommended = !wasRec;
+            renderMerchantChips();
+        }
         // Reorder a view within the set (‹ earlier / › later); order carries into the merchant link + columns.
         function moveMerchantExample(i, dir) {
             const j = i + dir;
@@ -3256,6 +3290,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                     <button class="mp-move" title="Move earlier" ${i === 0 ? 'disabled' : ''} onclick="moveMerchantExample(${i},-1)">‹</button>
                     ${_escHtml(ex.label)}
                     <button class="mp-move" title="Move later" ${i === last ? 'disabled' : ''} onclick="moveMerchantExample(${i},1)">›</button>
+                    <button class="mp-star ${ex.recommended ? 'on' : ''}" title="Set as the recommended ${_exCategory(ex)} design" onclick="setRecommendedExample(${i})">${ex.recommended ? '★' : '☆'}</button>
                     <button title="Remove" onclick="removeMerchantExample(${i})">✕</button>
                 </span>`).join('');
         }
@@ -3297,6 +3332,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             updateWidgetPreview();
             return {
                 wtype: _widgetType,
+                isToggleSwitch: !!(document.getElementById('wc-tog-is-toggle') || {}).checked,
                 showsWidget: _extShowsWidget(),
                 showsLineItem: _extShowsLineItem(),
                 widgetHtml: document.getElementById('widgetPreviewArea').innerHTML,
@@ -3318,33 +3354,59 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 mv.innerHTML = headerHtml + '<div class="mp-empty-view">No preview examples in this link.</div>';
                 mv.style.display = 'block'; return;
             }
-            // One column per preview TYPE; each example is routed to its column(s).
-            const cols = { dual: [], toggle: [], cwidget: [], litem: [] };
             const wrap = (html, bg) => bg ? `<div style="background:${bg};padding:16px;border-radius:10px;width:100%;box-sizing:border-box;">${html}</div>` : html;
+            // Cart Designs: Dual Checkout / Checkbox Widget / Toggle Widget.
+            // Checkout Designs: Checkout Widget / Product Line Item.
+            const cart = { dual: [], checkbox: [], toggleSwitch: [] };
+            const chk  = { cwidget: [], litem: [] };
+            let recCart = null, recChk = null;   // { label, html } for the Recommended column
             examples.forEach(ex => {
                 const p = _exampleParts(ex);
+                let recLabel = '', recHtml = '';
                 if (p.wtype === 'dual') {
-                    cols.dual.push(wrap(p.widgetHtml, p.scanBg));
+                    cart.dual.push(wrap(p.widgetHtml, p.scanBg));
+                    recLabel = 'Dual Checkout'; recHtml = wrap(p.widgetHtml, p.scanBg);
                 } else if (p.wtype === 'toggle') {
-                    cols.toggle.push(wrap(p.widgetHtml, p.scanBg));
+                    const key = p.isToggleSwitch ? 'toggleSwitch' : 'checkbox';
+                    cart[key].push(wrap(p.widgetHtml, p.scanBg));
+                    recLabel = p.isToggleSwitch ? 'Toggle Widget' : 'Checkbox Widget'; recHtml = wrap(p.widgetHtml, p.scanBg);
                 } else if (p.wtype === 'extension') {
-                    // Widget goes to the Checkout Widget column; the line item to its own column.
-                    if (p.showsWidget) cols.cwidget.push(wrap(p.widgetHtml, p.scanBg));
-                    if (p.showsLineItem) cols.litem.push(wrap(p.lineItemHtml, p.scanBg));
+                    if (p.showsWidget)   chk.cwidget.push(wrap(p.widgetHtml, p.scanBg));
+                    if (p.showsLineItem) chk.litem.push(wrap(p.lineItemHtml, p.scanBg));
+                    const parts = [];
+                    if (p.showsWidget)   parts.push(wrap(p.widgetHtml, p.scanBg));
+                    if (p.showsLineItem) parts.push(wrap(p.lineItemHtml, p.scanBg));
+                    recLabel = (p.showsWidget && p.showsLineItem) ? 'Checkout Widget + Line Item' : p.showsWidget ? 'Checkout Widget' : 'Product Line Item';
+                    recHtml = parts.join('<div style="height:16px;"></div>');
+                }
+                if (ex.recommended) {
+                    if (_exCategory(ex) === 'cart') recCart = { label: recLabel, html: recHtml };
+                    else recChk = { label: recLabel, html: recHtml };
                 }
             });
-            const COLDEFS = [
-                ['dual',    'Cart Dual Checkout Buttons'],
-                ['toggle',  'Cart Checkbox / Toggle Widgets'],
-                ['cwidget', 'Checkout Widget'],
-                ['litem',   'Checkout Product Line Item'],
-            ];
-            const colsHtml = COLDEFS
-                .filter(([k]) => cols[k].length)   // omit empty columns
-                .map(([k, title]) => `<div class="mp-col col-${k}"><div class="mp-col-title">${title}</div>${
-                    cols[k].map(h => `<div class="mp-cell"><div class="mp-widget">${h}</div></div>`).join('')
-                }</div>`).join('');
-            mv.innerHTML = headerHtml + `<div class="mp-cols">${colsHtml}</div>`;
+
+            const scol  = (k, title, cells) => `<div class="mp-scol col-${k}"><div class="mp-scol-title">${title}</div>${cells.map(h => `<div class="mp-cell"><div class="mp-widget">${h}</div></div>`).join('')}</div>`;
+            const section = (title, colsHtml) => `<div class="mp-section"><div class="mp-section-banner">${title}</div><div class="mp-section-body">${colsHtml}</div></div>`;
+
+            const cartCols = [['dual', 'Dual Checkout'], ['checkbox', 'Checkbox Widget'], ['toggleSwitch', 'Toggle Widget']]
+                .filter(([k]) => cart[k].length).map(([k, t]) => scol(k, t, cart[k])).join('');
+            const chkCols  = [['cwidget', 'Checkout Widget'], ['litem', 'Product Line Item']]
+                .filter(([k]) => chk[k].length).map(([k, t]) => scol(k, t, chk[k])).join('');
+
+            let sectionsHtml = '';
+            if (cartCols) sectionsHtml += section('Cart <span>Designs</span>', cartCols);
+            if (chkCols)  sectionsHtml += section('Checkout <span>Designs</span>', chkCols);
+
+            let recHtml = '';
+            if (recCart || recChk) {
+                recHtml = '<div class="mp-recommended"><div class="mp-rec-heading">Recommended Deployment Design</div>';
+                [recCart, recChk].forEach(r => {
+                    if (r) recHtml += `<div class="mp-rec-card"><div class="mp-rec-label">${_escHtml(r.label)}</div><div class="mp-widget">${r.html}</div></div>`;
+                });
+                recHtml += '</div>';
+            }
+
+            mv.innerHTML = headerHtml + `<div class="mp-layout"><div class="mp-content">${sectionsHtml}</div>${recHtml}</div>`;
             mv.style.display = 'block';
         }
 
