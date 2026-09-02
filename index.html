@@ -3362,24 +3362,25 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             let recCart = null, recChk = null;   // { label, html } for the Recommended column
             examples.forEach(ex => {
                 const p = _exampleParts(ex);
+                const rec = !!ex.recommended;   // recommended views live ONLY in the Recommended column
                 let recLabel = '', recHtml = '';
                 if (p.wtype === 'dual') {
-                    cart.dual.push(wrap(p.widgetHtml, p.scanBg));
+                    if (!rec) cart.dual.push(wrap(p.widgetHtml, p.scanBg));
                     recLabel = 'Dual Checkout'; recHtml = wrap(p.widgetHtml, p.scanBg);
                 } else if (p.wtype === 'toggle') {
                     const key = p.isToggleSwitch ? 'toggleSwitch' : 'checkbox';
-                    cart[key].push(wrap(p.widgetHtml, p.scanBg));
+                    if (!rec) cart[key].push(wrap(p.widgetHtml, p.scanBg));
                     recLabel = p.isToggleSwitch ? 'Toggle Widget' : 'Checkbox Widget'; recHtml = wrap(p.widgetHtml, p.scanBg);
                 } else if (p.wtype === 'extension') {
-                    if (p.showsWidget)   chk.cwidget.push(wrap(p.widgetHtml, p.scanBg));
-                    if (p.showsLineItem) chk.litem.push(wrap(p.lineItemHtml, p.scanBg));
+                    if (!rec && p.showsWidget)   chk.cwidget.push(wrap(p.widgetHtml, p.scanBg));
+                    if (!rec && p.showsLineItem) chk.litem.push(wrap(p.lineItemHtml, p.scanBg));
                     const parts = [];
                     if (p.showsWidget)   parts.push(wrap(p.widgetHtml, p.scanBg));
                     if (p.showsLineItem) parts.push(wrap(p.lineItemHtml, p.scanBg));
                     recLabel = (p.showsWidget && p.showsLineItem) ? 'Checkout Widget + Line Item' : p.showsWidget ? 'Checkout Widget' : 'Product Line Item';
                     recHtml = parts.join('<div style="height:16px;"></div>');
                 }
-                if (ex.recommended) {
+                if (rec) {
                     if (_exCategory(ex) === 'cart') recCart = { label: recLabel, html: recHtml };
                     else recChk = { label: recLabel, html: recHtml };
                 }
