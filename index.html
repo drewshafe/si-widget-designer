@@ -2640,6 +2640,39 @@ For uncertain values make your best visual estimate. Always use valid hex colors
         let _lbLockImg = null;
         let _lbBrandImg = null;
         let _lbLockColor = '#141414';   // black default; recolored via swatches / custom / eyedropper
+        // Precomputed layers so recoloring never touches the drop shadow:
+        //  - _lbLockSil: the lock silhouette only (soft black shadow pixels stripped out)
+        //  - _lbShadow:  the drop shadow only (lock pixels stripped out), kept at its default color
+        let _lbLockSil = null;
+        let _lbShadow  = null;
+        // Split the template into lock vs shadow once (they don't depend on color/size).
+        // Lock body is opaque navy; the shadow is low-alpha near-black — so classify by hue/alpha.
+        function lbBuildLayers() {
+            if (!_lbLockImg || !_lbLockImg.width) return;
+            const w = _lbLockImg.width, h = _lbLockImg.height;
+            const src = document.createElement('canvas'); src.width = w; src.height = h;
+            const sctx = src.getContext('2d');
+            sctx.drawImage(_lbLockImg, 0, 0);
+            let img;
+            try { img = sctx.getImageData(0, 0, w, h); }
+            catch (e) { _lbLockSil = null; _lbShadow = null; return; }  // CORS-tainted: fall back to plain tint
+            const lockC = document.createElement('canvas'); lockC.width = w; lockC.height = h;
+            const shadC = document.createElement('canvas'); shadC.width = w; shadC.height = h;
+            const lockImg = lockC.getContext('2d').createImageData(w, h);
+            const shadImg = shadC.getContext('2d').createImageData(w, h);
+            const d = img.data, ld = lockImg.data, sd = shadImg.data;
+            for (let i = 0; i < d.length; i += 4) {
+                const r = d[i], g = d[i + 1], b = d[i + 2], a = d[i + 3];
+                // Lock = navy hue (blue clearly above red) or a solidly opaque pixel; everything else is shadow.
+                const isLock = a > 0 && ((b - r) > 8 || a >= 200);
+                const dst = isLock ? ld : sd;
+                dst[i] = r; dst[i + 1] = g; dst[i + 2] = b; dst[i + 3] = a;
+            }
+            lockC.getContext('2d').putImageData(lockImg, 0, 0);
+            shadC.getContext('2d').putImageData(shadImg, 0, 0);
+            _lbLockSil = lockC;
+            _lbShadow  = shadC;
+        }
         function lbSetLockColor(color) {
             _lbLockColor = color || '#141414';
             const ci = document.getElementById('lb-lock-color');
@@ -2653,7 +2686,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             if (!_lbLockImg) {
                 _lbLockImg = new Image();
                 _lbLockImg.crossOrigin = 'anonymous';
-                _lbLockImg.onload = lbRender;
+                _lbLockImg.onload = () => { lbBuildLayers(); lbRender(); };
                 _lbLockImg.src = _LB_LOCK_SRC;
             } else { lbRender(); }
         }
@@ -2689,15 +2722,28 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 const r = _lbLockImg.width / _lbLockImg.height;
                 if (r < 1) { lockW = sz * r; lockX = (sz - lockW) / 2; }
                 else        { lockH = sz / r; lockY = (sz - lockH) / 2; }
-                // Tint the lock silhouette to the selected color (source-in on an offscreen canvas)
                 const _lw = Math.max(1, Math.round(lockW)), _lh = Math.max(1, Math.round(lockH));
-                const off = document.createElement('canvas'); off.width = _lw; off.height = _lh;
-                const octx = off.getContext('2d');
-                octx.drawImage(_lbLockImg, 0, 0, _lw, _lh);
-                octx.globalCompositeOperation = 'source-in';
-                octx.fillStyle = _lbLockColor || '#141414';
-                octx.fillRect(0, 0, _lw, _lh);
-                ctx.drawImage(off, lockX, lockY, lockW, lockH);
+                if (_lbLockSil && _lbShadow) {
+                    // 1) draw the drop shadow at its original (default) color — never recolored
+                    ctx.drawImage(_lbShadow, lockX, lockY, lockW, lockH);
+                    // 2) tint the lock silhouette to the selected color, then draw it over the shadow
+                    const off = document.createElement('canvas'); off.width = _lw; off.height = _lh;
+                    const octx = off.getContext('2d');
+                    octx.drawImage(_lbLockSil, 0, 0, _lw, _lh);
+                    octx.globalCompositeOperation = 'source-in';
+                    octx.fillStyle = _lbLockColor || '#141414';
+                    octx.fillRect(0, 0, _lw, _lh);
+                    ctx.drawImage(off, lockX, lockY, lockW, lockH);
+                } else {
+                    // Fallback (e.g. CORS-tainted image): tint the whole template
+                    const off = document.createElement('canvas'); off.width = _lw; off.height = _lh;
+                    const octx = off.getContext('2d');
+                    octx.drawImage(_lbLockImg, 0, 0, _lw, _lh);
+                    octx.globalCompositeOperation = 'source-in';
+                    octx.fillStyle = _lbLockColor || '#141414';
+                    octx.fillRect(0, 0, _lw, _lh);
+                    ctx.drawImage(off, lockX, lockY, lockW, lockH);
+                }
             }
 
             // Brand logo on top, centered in the lock body (~71% down the lock height)
