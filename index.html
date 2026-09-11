@@ -1361,6 +1361,13 @@
                         <button type="button" onclick="eyeDrop('lb-lock-color')" title="Pick a color (eyedropper)" style="font-size:0.9em;background:#f4f5ff;border:1px solid #c8ccff;border-radius:6px;padding:3px 8px;cursor:pointer;">🎯</button>
                     </div>
                 </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;">
+                    <label style="display:inline-flex;align-items:center;gap:6px;font-size:0.76em;color:#555;cursor:pointer;">
+                        <input type="checkbox" id="lb-guides" checked onchange="lbRender()" style="accent-color:#6675ff;"> Center guides
+                    </label>
+                    <button type="button" onclick="lbResetPlacement()" title="Snap the logo back to the lock's center" style="font-size:0.73em;background:#f4f5ff;border:1px solid #c8ccff;border-radius:6px;padding:3px 9px;cursor:pointer;color:#6675ff;font-weight:700;">↺ Recenter</button>
+                </div>
+                <div style="font-size:0.68em;color:#9aa1b2;margin-bottom:9px;">Logo auto-centers in the lock — the sliders below are optional fine-tuning.</div>
                 <div style="margin-bottom:9px;">
                     <label style="display:flex;justify-content:space-between;font-size:0.72em;font-weight:700;color:#666;margin-bottom:4px;"><span>Logo Size</span><span id="lb-size-val" style="color:#6675ff;">28%</span></label>
                     <input type="range" id="lb-size" min="8" max="60" value="28" style="width:100%;accent-color:#6675ff;" oninput="document.getElementById('lb-size-val').textContent=this.value+'%';lbRender()">
@@ -2645,6 +2652,11 @@ For uncertain values make your best visual estimate. Always use valid hex colors
         //  - _lbShadow:  the drop shadow only (lock pixels stripped out), kept at its default color
         let _lbLockSil = null;
         let _lbShadow  = null;
+        // Geometry of the lock ITSELF (shadow excluded), as fractions of the template.
+        //  - _lbLockBBox:   tight bounds of the whole lock silhouette (for the guide frame)
+        //  - _lbLogoCenter: center of the lock BODY (the flat face where a logo sits)
+        let _lbLockBBox   = { fx0: 0, fy0: 0, fx1: 1, fy1: 1 };
+        let _lbLogoCenter = { fx: 0.5, fy: 0.71 };
         // Split the template into lock vs shadow once (they don't depend on color/size).
         // Lock body is opaque navy; the shadow is low-alpha near-black — so classify by hue/alpha.
         function lbBuildLayers() {
@@ -2661,17 +2673,49 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             const lockImg = lockC.getContext('2d').createImageData(w, h);
             const shadImg = shadC.getContext('2d').createImageData(w, h);
             const d = img.data, ld = lockImg.data, sd = shadImg.data;
+            // Track the lock silhouette bounds + per-row width so we can find the body center.
+            let minX = w, minY = h, maxX = -1, maxY = -1;
+            const rowMin = new Int32Array(h).fill(w);
+            const rowMax = new Int32Array(h).fill(-1);
+            const rowCnt = new Int32Array(h);
             for (let i = 0; i < d.length; i += 4) {
                 const r = d[i], g = d[i + 1], b = d[i + 2], a = d[i + 3];
                 // Lock = navy hue (blue clearly above red) or a solidly opaque pixel; everything else is shadow.
                 const isLock = a > 0 && ((b - r) > 8 || a >= 200);
                 const dst = isLock ? ld : sd;
                 dst[i] = r; dst[i + 1] = g; dst[i + 2] = b; dst[i + 3] = a;
+                if (isLock) {
+                    const p = i >> 2, x = p % w, y = (p / w) | 0;
+                    if (x < minX) minX = x; if (x > maxX) maxX = x;
+                    if (y < minY) minY = y; if (y > maxY) maxY = y;
+                    if (x < rowMin[y]) rowMin[y] = x;
+                    if (x > rowMax[y]) rowMax[y] = x;
+                    rowCnt[y]++;
+                }
             }
             lockC.getContext('2d').putImageData(lockImg, 0, 0);
             shadC.getContext('2d').putImageData(shadImg, 0, 0);
             _lbLockSil = lockC;
             _lbShadow  = shadC;
+            if (maxX >= minX && maxY >= minY) {
+                _lbLockBBox = { fx0: minX / w, fy0: minY / h, fx1: (maxX + 1) / w, fy1: (maxY + 1) / h };
+                // Body = the wide rows (>60% of the widest row); its center is where the logo belongs.
+                let maxW = 0;
+                for (let y = 0; y < h; y++) if (rowCnt[y] > maxW) maxW = rowCnt[y];
+                const thr = maxW * 0.6;
+                let by0 = -1, by1 = -1, bx0 = w, bx1 = -1;
+                for (let y = 0; y < h; y++) {
+                    if (rowCnt[y] > thr) {
+                        if (by0 < 0) by0 = y;
+                        by1 = y;
+                        if (rowMin[y] < bx0) bx0 = rowMin[y];
+                        if (rowMax[y] > bx1) bx1 = rowMax[y];
+                    }
+                }
+                if (by1 >= by0 && bx1 >= bx0) {
+                    _lbLogoCenter = { fx: ((bx0 + bx1) / 2) / w, fy: ((by0 + by1) / 2) / h };
+                }
+            }
         }
         function lbSetLockColor(color) {
             _lbLockColor = color || '#141414';
@@ -2706,7 +2750,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             reader.readAsDataURL(input.files[0]);
         }
 
-        function lbRender() {
+        function lbRender(forceNoGuides) {
             const canvas = document.getElementById('lb-canvas');
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
@@ -2746,19 +2790,65 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 }
             }
 
-            // Brand logo on top, centered in the lock body (~71% down the lock height)
+            // Logo centers on the lock BODY (measured from the lock only, shadow excluded).
+            // The size / up-down / left-right sliders are secondary nudges off that center.
+            const cx = lockX + lockW * _lbLogoCenter.fx + offX;
+            const cy = lockY + lockH * _lbLogoCenter.fy + offY;
+
             if (_lbBrandImg) {
                 const maxW = lockW * scalePct * 1.6;
                 const maxH = lockH * scalePct;
                 const ratio = _lbBrandImg.width / _lbBrandImg.height;
                 const bh = Math.min(maxH, maxW / ratio);
                 const bw = bh * ratio;
-                const bodyCY = lockY + lockH * 0.71;
-                ctx.drawImage(_lbBrandImg, lockX + (lockW - bw) / 2 + offX, bodyCY - bh / 2 + offY, bw, bh);
+                ctx.drawImage(_lbBrandImg, cx - bw / 2, cy - bh / 2, bw, bh);
+            }
+
+            // Centering guides — drawn from the lock silhouette (not the shadow), on-screen only.
+            const guidesOn = !forceNoGuides && document.getElementById('lb-guides') && document.getElementById('lb-guides').checked;
+            if (guidesOn) {
+                const bx0 = lockX + lockW * _lbLockBBox.fx0, bx1 = lockX + lockW * _lbLockBBox.fx1;
+                const by0 = lockY + lockH * _lbLockBBox.fy0, by1 = lockY + lockH * _lbLockBBox.fy1;
+                ctx.save();
+                // lock bounds frame
+                ctx.strokeStyle = 'rgba(102,117,255,0.45)';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([4, 3]);
+                ctx.strokeRect(bx0 + 0.5, by0 + 0.5, (bx1 - bx0), (by1 - by0));
+                // crosshair through the body center (where the logo lands)
+                ctx.strokeStyle = 'rgba(102,117,255,0.9)';
+                ctx.setLineDash([5, 4]);
+                ctx.beginPath();
+                ctx.moveTo(cx + 0.5, by0); ctx.lineTo(cx + 0.5, by1);
+                ctx.moveTo(bx0, cy + 0.5); ctx.lineTo(bx1, cy + 0.5);
+                ctx.stroke();
+                // center dot
+                ctx.setLineDash([]);
+                ctx.fillStyle = 'rgba(102,117,255,0.95)';
+                ctx.beginPath(); ctx.arc(cx, cy, 2.5, 0, Math.PI * 2); ctx.fill();
+                ctx.restore();
             }
         }
 
-        function lbGetDataUrl() { lbRender(); return document.getElementById('lb-canvas').toDataURL('image/png'); }
+        // Return the logo WITHOUT the on-screen guides baked in.
+        function lbGetDataUrl() {
+            lbRender(true);
+            const u = document.getElementById('lb-canvas').toDataURL('image/png');
+            lbRender();
+            return u;
+        }
+
+        // Snap the logo back to the computed lock-body center.
+        function lbResetPlacement() {
+            const setSlider = (id, val, valId, suffix) => {
+                const el = document.getElementById(id); if (!el) return;
+                el.value = val;
+                const v = document.getElementById(valId); if (v) v.textContent = val + (suffix || '');
+            };
+            setSlider('lb-x', 0, 'lb-x-val');
+            setSlider('lb-y', 0, 'lb-y-val');
+            lbRender();
+        }
 
         function lbDownload() {
             const a = document.createElement('a');
