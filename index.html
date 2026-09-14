@@ -1886,6 +1886,10 @@
                 const dualLogoW     = parseInt(gv('wc-dual-logo-width', '')) || dualLogoSize;
                 const dualLogoGap   = parseInt(gv('wc-dual-logo-gap', '6')) || 6;
                 const dualLogoAlign = gv('wc-dual-logo-align', 'center');
+                // With no body copy, the header is a single line shorter than the logo, so the
+                // logo's align-self can't move it. Give the text column the SAME alignment so the
+                // logo and header line up to each other (Text Align now references the header only).
+                const dualTextAlign = body ? 'auto' : dualLogoAlign;
                 const dualLogoHtml  = (showDualLock || _dualLogoSrc || dualLogoUrlParam)
                     ? `<img src="${dualLogoSrc}" style="width:${dualLogoW}px;height:${dualLogoSize}px;object-fit:contain;flex-shrink:0;align-self:${dualLogoAlign};" onerror="this.style.display='none';">`
                     : '';
@@ -1926,7 +1930,7 @@
                         <div class="wp-spread" style="align-items:flex-start;gap:8px;${pricePos==='left'?'flex-direction:row-reverse;':''}">
                             <div style="display:flex;align-items:flex-start;gap:${dualLogoGap}px;flex:1;min-width:0;">
                                 ${dualLogoHtml}
-                                <div style="flex:1;min-width:0;">
+                                <div style="flex:1;min-width:0;align-self:${dualTextAlign};">
                                     <span class="wp-header-text" style="${hStyle}">${header} ${infoBtn}</span>
                                     ${body ? `
                                         ${bDivPos === 'above' ? bDivHtml : ''}
@@ -1969,7 +1973,7 @@
                     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
                         <div style="display:flex;align-items:flex-start;gap:${dualLogoGap}px;flex:1;min-width:0;">
                             ${dualLogoHtml}
-                            <div style="flex:1;min-width:0;">
+                            <div style="flex:1;min-width:0;align-self:${dualTextAlign};">
                                 <span class="wp-header-text" style="${hStyle}">${header} ${infoBtn}</span>
                                 ${body ? `<div class="wp-body-text" style="${bStyle}margin-top:${hLineGap}px;">${body}</div>` : ''}
                             </div>
@@ -2158,6 +2162,11 @@
                 // Text Align aligns ONLY the logo (via align-self); the checkbox stays put,
                 // matching how it renders at checkout.
                 const extLogoHtml   = (hideLock && !_extLogoSrc && !extLogoUrlParam) ? '' : `<img src="${extLogoSrc}" style="width:${extLogoW}px;height:${extLogoSize}px;object-fit:contain;flex-shrink:0;align-self:${extLogoAlign};" onerror="this.style.opacity='0';">`;
+                // With no body copy, drop the logo onto the HEADER line so Text Align references
+                // only the header (a Learn More line below no longer pulls the logo down).
+                const extBodyOff    = !body;
+                const extLogoBeside = extBodyOff ? '' : extLogoHtml;   // body on: logo beside the text block
+                const extLogoInline = extBodyOff ? extLogoHtml : '';   // body off: logo tracks the header line
 
                 const snapStyle = 'margin:0 auto;';
                 // Disclaimer renders as its own rounded box BELOW the widget (true to how
@@ -2168,9 +2177,10 @@
                 area.innerHTML = `<div style="${eCardStyle}${snapStyle}">
                     <div class="wp-ext-row" style="align-items:flex-start;gap:${extLogoGap}px;">
                         ${extCheckbox}
-                        ${extLogoHtml}
+                        ${extLogoBeside}
                         <div class="wp-ext-text">
-                            <div class="wp-spread" style="margin-bottom:4px;align-items:flex-start;gap:8px;">
+                            <div class="wp-spread" style="margin-bottom:4px;align-items:${extBodyOff ? extLogoAlign : 'flex-start'};gap:${extBodyOff ? extLogoGap : 8}px;">
+                                ${extLogoInline}
                                 <span class="wp-header-text" style="${ehStyle}flex:1;">${header}</span>
                                 <span class="wp-price" style="flex-shrink:0;">${fmtP}</span>
                             </div>
