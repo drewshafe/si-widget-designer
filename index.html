@@ -443,6 +443,8 @@
         .lb-swatch { border: 2px solid #d8dae5; box-shadow: 0 1px 2px rgba(0,0,0,0.15); }
         .lb-swatch.active { border-color: #6675ff; box-shadow: 0 0 0 2px rgba(102,117,255,0.3); }
     </style>
+<script src="https://drewshafe.github.io/si-roi-calculator/sb.js"></script>
+<script src="https://drewshafe.github.io/si-rep-hub/folder-bar.js"></script>
 </head>
 <body>
     <div class="app-header">
@@ -3194,6 +3196,16 @@ For uncertain values make your best visual estimate. Always use valid hex colors
         document.addEventListener('DOMContentLoaded', () => {
             // Merchant grid view: render the hand-picked examples and skip the designer.
             if (new URLSearchParams(location.search).get('view') === 'merchant') {
+                // Short merchant link from a Merchant Folders save: ?view=merchant&asset=<id>
+                const assetId = new URLSearchParams(location.search).get('asset');
+                if (assetId && window.SIsb) {
+                    SIsb.getAsset(assetId).then(r => {
+                        const d = r.data || {};
+                        const set = Array.isArray(d.examples) && d.examples.length ? d.examples : [{ label: d.label || 'Checkout', design: d.design || d }];
+                        renderMerchantView(set, d.name || r.merchant || '');
+                    }).catch(() => renderMerchantView([], ''));
+                    return;
+                }
                 const m = location.hash.match(/[#&]s=([^&]+)/);
                 let set = [], name = '';
                 if (m) {
@@ -3222,6 +3234,25 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             setSubPos(_dualSubPos);
             setTogInfoPos(_togInfoPos);
             setWidgetType(_widgetType);   // also triggers updateWidgetPreview()
+
+            // ── Merchant folder save/load (Rep Hub → Merchant Folders) ──
+            if (window.SIFolderBar) SIFolderBar.mount({
+                kind: 'checkout', tool: 'Checkout Experience', before: document.querySelector('.control-bar'),
+                getData: () => ({ design: _collectDesign(), examples: _merchantExamples, name: _previewName, label: currentExampleLabel() }),
+                applyData: d => {
+                    _applyDesignObj(d.design || d);
+                    _merchantExamples = Array.isArray(d.examples) ? d.examples : [];
+                    _previewName = d.name || '';
+                    const mp = document.getElementById('mpName'); if (mp) mp.value = _previewName;
+                    renderMerchantChips();
+                    if (typeof setExtLineItem === 'function' && _extLineItem) setExtLineItem(_extLineItem);
+                    toggleProtectionPremiumVisibility(); syncCashbackVisibility(); syncContributionVisibility();
+                    setSubPos(_dualSubPos); setTogInfoPos(_togInfoPos); setWidgetType(_widgetType);
+                },
+                defaultTitle: () => 'Checkout – ' + ((_previewName || '').trim() || currentExampleLabel()),
+                // The short link is the merchant-facing preview (same page as 🔗 Copy Link).
+                shortLink: id => location.origin + location.pathname + '?view=merchant&asset=' + encodeURIComponent(id)
+            });
         });
     </script>
 </body>
