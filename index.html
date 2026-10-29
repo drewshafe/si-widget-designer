@@ -7,7 +7,7 @@
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/drewshafe/si-roi-calculator/main/si_lock.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Poppins:ital,wght@0,400;0,500;0,600;1,400&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -440,114 +440,69 @@
         @media (max-width: 1180px) { .mp-scol, .mp-scol.col-cwidget, .mp-scol.col-litem { min-width: 300px; } }
 
 
-        /* ── Cart + Checkout Mockup — Dual Checkout Figma ("A Shop of Things pp") at 1440×900, scaled to fit.
-              Metrics below are the Figma frame's (cart drawer 5698:2453, checkout 5698:2531). ── */
+        /* ── Cart + Checkout Mockup — the MERCHANT'S OWN mockup pages (Figma export / image / Figma
+              link), each shown pixel-for-pixel and scaled to fit; text + boxes are layers on top. ── */
         body.mk-mode .config-col { flex: 0 0 380px; }
         body.mk-mode .preview-col { flex: 1 1 0; min-width: 0; }
         @media (max-width: 1120px) { body.mk-mode .config-col, body.mk-mode .preview-col { flex: 1 1 auto; width: 100%; } }
-        .mk-flabel { display: flex; align-items: center; justify-content: space-between; font-size: 0.68em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #99a; margin: 0 0 6px; }
+        .mk-flabel { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 0.68em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #99a; margin: 0 0 6px; }
         .mk-flabel button { font-size: 1em; font-weight: 800; letter-spacing: 0.04em; background: #f4f5ff; color: #4a5fc1; border: 1px solid #d5d9f0; border-radius: 6px; padding: 3px 9px; cursor: pointer; }
+        .mk2-pbtns { display: flex; gap: 6px; }
         .mk-fit { width: 100%; overflow: hidden; border-radius: 8px; box-shadow: 0 2px 14px rgba(0,0,0,0.12); margin-bottom: 18px; background: #fff; }
         .mk-fit:fullscreen { background: #15151c; display: flex; align-items: center; justify-content: center; border-radius: 0; margin: 0; }
-        .mk-frame { width: 1440px; height: 900px; position: relative; overflow: hidden; flex-shrink: 0; font-family: var(--mk-font); color: var(--mk-text); font-size: 14px; line-height: 1.35; text-align: left; }
-        .mk-frame * { box-sizing: border-box; }
-        .mk-frame [data-mk] { outline: none; border-radius: 3px; min-width: 6px; }
-        .mk-edit [data-mk]:hover { box-shadow: 0 0 0 2px rgba(102,117,255,0.55); cursor: text; }
-        .mk-edit [data-mk]:focus { box-shadow: 0 0 0 2px #6675ff; background: rgba(102,117,255,0.08); }
-        .mk-edit [data-mk]:empty::before { content: '\2026'; opacity: 0.35; }
-        .mk-edit [data-mk-img] { cursor: pointer; }
-        .mk-edit [data-mk-img]:hover { box-shadow: 0 0 0 2px rgba(102,117,255,0.55); }
-        .mk-del { display: none; position: absolute; top: 8px; left: 4px; width: 22px; height: 22px; border-radius: 50%; border: none; background: #ff5a5f; color: #fff; font-size: 12px; font-weight: 800; cursor: pointer; z-index: 3; line-height: 22px; padding: 0; }
-        .mk-edit .mk-prow:hover .mk-del { display: block; }
-        .mk-ico { width: 1em; height: 1em; display: inline-block; vertical-align: -0.15em; flex-shrink: 0; }
-        /* Figma's own icons (mockup/*.svg), drawn as masks so they take the theme color */
-        .mk-i { display: inline-block; flex-shrink: 0; background-color: currentColor; -webkit-mask-position: center; mask-position: center; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: contain; mask-size: contain; }
-        /* store page behind the drawer (generated unless a screenshot is uploaded) */
-        .mk-store { position: absolute; inset: 0; background: #fff; }
-        .mk-store > div[data-mk-img] img { object-position: top left; }
-        .mk-ann { height: 40px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; letter-spacing: 0.02em; }
-        .mk-nav { height: 118px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 48px; border-bottom: 1px solid rgba(0,0,0,0.08); font-size: 24px; }
-        .mk-nav .r { justify-self: end; display: flex; gap: 22px; }
-        .mk-nav .l { display: flex; gap: 22px; }
-        .mk-hero { height: 400px; display: flex; align-items: center; gap: 60px; padding: 0 90px; }
-        .mk-hero .copy { flex: 1; }
-        .mk-hero .kick { font-size: 15px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.7; }
-        .mk-hero .head { font-size: 64px; font-weight: 600; line-height: 1.05; margin: 14px 0 26px; letter-spacing: -0.01em; }
-        .mk-hero .cta { display: inline-block; padding: 16px 34px; font-weight: 600; font-size: 16px; letter-spacing: 0.06em; text-transform: uppercase; }
-        .mk-hero .shot { width: 320px; height: 320px; border-radius: 18px; overflow: hidden; background: rgba(255,255,255,0.5); flex-shrink: 0; }
-        .mk-grid { display: grid; grid-template-columns: repeat(4, 185px); gap: 32px; padding: 34px 186px; }
-        .mk-grid .card .im { height: 240px; overflow: hidden; background: #f1f1f4; }
-        .mk-grid .card .nm { margin-top: 12px; font-size: 15px; }
-        .mk-grid .card .pr { margin-top: 4px; opacity: 0.75; }
-        .mk-dim { position: absolute; inset: 0; background: #000; }
-        /* cart drawer */
-        .mk-drawer { position: absolute; top: 0; right: 0; bottom: 0; width: 380px; background: var(--mk-drawer); border-left: 0.8px solid var(--mk-text); display: flex; flex-direction: column; }
-        .mk-dr-head { height: 43.8px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 9px 0 15px; border-bottom: 0.8px solid var(--mk-text); font-size: 16px; font-weight: 500; line-height: 16px; text-transform: uppercase; white-space: pre; }
-        .mk-ship { height: 59.4px; flex-shrink: 0; padding: 13px 15px 0; border-bottom: 0.8px solid var(--mk-text); font-size: 12px; line-height: 15.6px; }
-        .mk-ship .bar { height: 8px; border-radius: 4px; background: #fff; margin-top: 6.6px; overflow: hidden; }
-        .mk-ship .bar > div { height: 100%; border-radius: 4px; background: var(--mk-grad); }
-        .mk-sec { padding: 13.4px 15px 0; font-size: 12px; font-weight: 500; line-height: 13.92px; }
-        .mk-prow { position: relative; display: flex; align-items: center; gap: 30px; padding: 14px 15px 16px; }
-        .mk-prow .im { width: 90px; height: 90px; flex-shrink: 0; overflow: hidden; }
-        .mk-prow .nm { font-size: 16px; line-height: 21.6px; }
-        .mk-prow .ds { font-size: 12px; color: var(--mk-muted); margin-top: 2px; }
-        .mk-prow .pr { font-size: 14px; font-weight: 500; line-height: 18.62px; margin-top: 6px; }
-        .mk-prow .pr s { font-weight: 400; color: var(--mk-muted); margin-left: 8px; font-size: 12px; }
-        .mk-qty { display: flex; align-items: center; justify-content: space-between; width: 95px; height: 40.64px; border: 1px solid var(--mk-text); border-radius: 22px; padding: 0 13px 0 11.8px; margin-top: 8px; font-size: 14px; }
-        .mk-rm { font-size: 12px; letter-spacing: 0.6px; text-transform: uppercase; margin-top: 8.8px; }
-        .mk-gift { height: 41.5px; flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; border-top: 0.8px solid var(--mk-text); border-bottom: 0.8px solid var(--mk-text); font-size: 12px; font-weight: 500; }
-        .mk-foot { height: 348.8px; flex-shrink: 0; margin-top: auto; border-top: 0.8px solid var(--mk-text); padding: 0 15px; }
-        .mk-subrow { height: 52.6px; display: flex; justify-content: space-between; align-items: center; padding-top: 1px; }
-        .mk-subrow .l { font-size: 12px; font-weight: 500; letter-spacing: 1.68px; text-transform: uppercase; }
-        .mk-subrow .r { font-size: 20px; font-weight: 500; line-height: 26.6px; }
-        .mk-protect { display: flex; justify-content: space-between; align-items: center; height: 25px; margin-top: 13px; padding-bottom: 5px; font-size: 12px; font-weight: 600; line-height: 20px; color: var(--mk-strong); }
-        .mk-protect .l { display: inline-flex; align-items: center; gap: 6px; }
-        .mk-protect .fee { letter-spacing: 0.48px; }
-        .mk-btn { display: flex; align-items: center; justify-content: center; text-align: center; width: 100%; }
-        .mk-btn.p { height: 46.4px; margin-top: -0.4px; background: var(--mk-brand); border: 1px solid var(--mk-brand); border-radius: var(--mk-radius); color: var(--mk-btn-text); font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; }
-        .mk-btn.o { height: 46.4px; margin-top: 8px; border: 1px solid var(--mk-brand); border-radius: var(--mk-radius); color: var(--mk-brand); font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
-        .mk-btn.v { height: 39.48px; margin-top: 10px; border: 1px solid var(--mk-text); border-radius: 300px; font-size: 13px; letter-spacing: 1.3px; text-transform: uppercase; }
-        .mk-note { margin-top: 21.7px; font-size: 12px; line-height: 16.32px; font-style: italic; padding-right: 25px; }
-        /* checkout (Shopify) */
-        .mk-co { background: var(--mk-page); font-family: var(--mk-co-font); color: #000; }
-        .mk-co-head { height: 100.8px; border-bottom: 0.8px solid var(--mk-co-line); display: flex; align-items: center; justify-content: space-between; padding: 0 230px; }
-        .mk-co-body { display: grid; grid-template-columns: 770px 1fr; height: 799.2px; }
-        .mk-co-main { padding: 40px 40px 0 230px; border-right: 0.8px solid var(--mk-co-line); overflow: hidden; }
-        .mk-co-side { background: var(--mk-summary); padding: 40px 0 0 40px; overflow: hidden; }
-        .mk-co-side > div { width: 400px; }
-        .mk-h2 { display: flex; justify-content: space-between; align-items: baseline; font-size: 20px; font-weight: 600; line-height: 24px; margin: 0 0 14.5px; }
-        .mk-h2 .lk { font-size: 14px; font-weight: 400; color: var(--mk-accent); text-decoration: underline; }
-        .mk-in { position: relative; display: flex; align-items: center; justify-content: space-between; height: 48.6px; padding: 0 9.8px 0 10px; border: 1px solid #dedede; border-radius: 12px; background: #fff; color: #707070; font-size: 14px; margin-bottom: 10px; }
-        .mk-in.sel { height: 49px; align-items: flex-start; padding-top: 6.9px; }
-        .mk-in .fl { font-size: 12px; line-height: 16.2px; color: #707070; }
-        .mk-in .vl { color: #000; font-size: 14px; line-height: 18.9px; }
-        .mk-in .chev { align-self: center; margin-right: 6px; }
-        .mk-in2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; }
-        .mk-in3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 10px; }
-        .mk-chk { display: flex; align-items: center; gap: 10px; font-size: 14px; line-height: 18.9px; color: #000; }
-        .mk-chk .bx { width: 18px; height: 18px; border-radius: 8px; background: #fff; box-shadow: inset 0 0 0 1px #dedede; flex-shrink: 0; }
-        .mk-shiph { font-size: 16px; font-weight: 600; line-height: 19.2px; margin: 25px 0 14px; }
-        .mk-shipbox { height: 50.9px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: var(--mk-shipbox); color: rgba(0,0,0,0.56); font-size: 14px; }
-        .mk-express { text-align: center; color: #707070; font-size: 14px; margin-bottom: 26px; }
-        .mk-express .sp { display: inline-flex; align-items: center; justify-content: center; width: 100%; height: 50px; margin-top: 10px; border-radius: 6px; background: #5a31f4; color: #fff; font-weight: 800; font-size: 22px; letter-spacing: -0.02em; }
-        .mk-or { display: flex; align-items: center; gap: 14px; color: #707070; font-size: 14px; margin-top: 18px; }
-        .mk-or::before, .mk-or::after { content: ''; flex: 1; height: 1px; background: rgba(0,0,0,0.12); }
-        .mk-li { position: relative; display: flex; gap: 16px; height: 64px; margin-bottom: 16px; font-size: 14px; line-height: 18.9px; }
-        .mk-li .tile { position: relative; width: 64px; height: 64px; flex-shrink: 0; border-radius: 16px; border: 1px solid #fff; background: var(--mk-tile); box-shadow: 0 0 0 0.5px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.06); }
-        .mk-li .tile .im { width: 100%; height: 100%; border-radius: 15px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        .mk-li .badge { position: absolute; top: -5px; right: -5px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 8px; border: 1px solid #fff; background: #000; color: #fff; font-size: 12px; font-weight: 600; line-height: 18px; text-align: center; z-index: 2; }
-        .mk-li .tx { flex: 1; min-width: 0; padding-top: 7.35px; }
-        .mk-li.prod .tx, .mk-li.prod .amt { align-self: center; padding-top: 0; }
-        .mk-li .sm { font-size: 12px; line-height: 16.2px; color: rgba(0,0,0,0.56); }
-        .mk-li .rm { font-size: 12px; line-height: 16.2px; color: rgba(0,0,0,0.56); text-decoration: underline; }
-        .mk-li .amt { padding-top: 7.35px; text-align: right; }
-        .mk-disc { display: flex; gap: 10px; margin: 6px 0 34px; }
-        .mk-disc .mk-in { flex: 1; margin: 0; }
-        .mk-disc .ap { width: 66.11px; height: 48.6px; border-radius: 12px; background: var(--mk-tile); box-shadow: inset 0 0 0 1px var(--mk-apply-line); opacity: 0.5; color: #000; font-weight: 600; display: flex; align-items: center; justify-content: center; font-size: 14px; }
-        .mk-tot { display: flex; justify-content: space-between; align-items: center; font-size: 14px; line-height: 18.9px; margin-bottom: 6px; }
-        .mk-tot .mu { color: rgba(0,0,0,0.56); }
-        .mk-tot.big { font-size: 18px; font-weight: 600; line-height: 24.3px; margin-top: 16.9px; }
-        .mk-tot.big .cur { font-size: 12px; font-weight: 400; color: rgba(0,0,0,0.56); margin-right: 6px; }
+        .mk2-page { --z: 1; position: relative; overflow: hidden; flex-shrink: 0; background: #fff; user-select: none; -webkit-user-select: none; }
+        .mk2-base { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
+        .mk2-b { position: absolute; box-sizing: border-box; z-index: 1; }
+        .mk2-b img { width: 100%; height: 100%; display: block; pointer-events: none; }
+        /* Text layer: invisible over the mockup's own pixels until it differs from the original;
+           then it paints with a cover patch (--bg) matched to the background behind it. */
+        .mk2-t { position: absolute; box-sizing: border-box; z-index: 2; margin: 0; color: transparent; background: transparent; outline: none; caret-color: #111; user-select: text; -webkit-user-select: text; }
+        .mk2-t.shown, .mk-edit .mk2-t:focus { color: var(--c); background: var(--bg); }
+        .mk-edit .mk2-t { cursor: text; }
+        .mk-edit .mk2-t:hover { outline: calc(1.5px / var(--z)) dashed rgba(70,86,199,0.75); }
+        .mk-edit .mk2-t:focus, .mk-edit .mk2-t.sel { outline: calc(2px / var(--z)) solid #4656c7; }
+        .mk2-page.tags .mk2-t.r-fee { outline: calc(1.5px / var(--z)) solid rgba(70,86,199,0.6); }
+        .mk2-page.tags .mk2-t[data-tag]:is(:hover, :focus, .sel)::before { content: attr(data-tag); position: absolute; left: 0; bottom: 100%; margin-bottom: calc(2px / var(--z)); padding: 0 calc(4px / var(--z)); border-radius: calc(3px / var(--z)); font: 700 calc(10px / var(--z)) / calc(13px / var(--z)) Arial, sans-serif; letter-spacing: 0.03em; text-transform: uppercase; font-style: normal; color: #fff; background: #6c7389; white-space: nowrap; pointer-events: none; }
+        .mk2-page.tags .mk2-t.r-total { outline: calc(1px / var(--z)) dashed rgba(31,138,91,0.55); }
+        .mk2-page.tags .mk2-t.r-fee::before { background: #4656c7; }
+        .mk2-page.tags .mk2-t.r-total::before { background: #1f8a5b; }
+        .mk2-page.tags .mk2-t.r-sub::before { background: #b7791f; }
+        .mk-edit .mk2-b { cursor: move; }
+        .mk-edit .mk2-b:hover { outline: calc(1.5px / var(--z)) dashed rgba(70,86,199,0.75); }
+        .mk-edit .mk2-b.sel { outline: calc(2px / var(--z)) solid #4656c7; }
+        .mk2-rz { position: absolute; right: calc(-7px / var(--z)); bottom: calc(-7px / var(--z)); width: calc(14px / var(--z)); height: calc(14px / var(--z)); box-sizing: border-box; background: #4656c7; border: calc(2px / var(--z)) solid #fff; border-radius: 50%; cursor: nwse-resize; }
+        .mk2-page.tool-box, .mk2-page.tool-image, .mk2-page.tool-text { cursor: crosshair; }
+        .mk2-page.tool-box .mk2-t, .mk2-page.tool-box .mk2-b, .mk2-page.tool-image .mk2-t, .mk2-page.tool-image .mk2-b, .mk2-page.tool-text .mk2-t, .mk2-page.tool-text .mk2-b { pointer-events: none; }
+        .mk2-draw { position: absolute; z-index: 5; box-sizing: border-box; border: calc(2px / var(--z)) dashed #4656c7; background: rgba(70,86,199,0.12); pointer-events: none; }
+        .mk2-empty { border: 2px dashed #ccd1e6; border-radius: 12px; padding: 44px 28px; text-align: center; color: #5d6480; font-size: 0.9em; line-height: 1.6; background: #fafbff; }
+        .mk2-empty b { color: #2d3561; }
+        .mk2-help { font-size: 0.76em; color: #6c757d; margin: 2px 0 10px; line-height: 1.45; }
+        .mk2-import { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+        .mk2-import .scan-widget-btn, .mk2-row button, .mk2-tools button, .mk2-pick button { margin: 0; }
+        .mk2-status { font-size: 0.76em; line-height: 1.45; margin: 0 0 8px; color: #4a5fc1; }
+        .mk2-status:empty { display: none; }
+        .mk2-status.error { color: #c0392b; }
+        .mk2-status.ok { color: #1f8a5b; }
+        .mk2-figma { display: none; background: #f7f8fc; border: 1px solid #e0e3f0; border-radius: 8px; padding: 8px; margin-bottom: 8px; }
+        .mk2-figma input { width: 100%; box-sizing: border-box; padding: 6px 8px; border: 1px solid #d0d4e8; border-radius: 5px; font-size: 0.8em; margin-bottom: 6px; }
+        .mk2-figma .mk2-row { align-items: center; }
+        .mk2-figma a, .mk2-link { font-size: 0.74em; color: #4a5fc1; background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
+        .mk2-pick { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+        .mk2-pick button { text-align: left; font-size: 0.8em; padding: 6px 9px; border: 1px solid #d5d9f0; border-radius: 6px; background: #fff; cursor: pointer; }
+        .mk2-pick button:hover { background: #f4f5ff; }
+        .mk2-fee { font-size: 0.78em; background: #f4f5ff; border: 1px solid #d5d9f0; border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; color: #3a467f; line-height: 1.45; }
+        .mk2-chk { display: flex; align-items: center; gap: 6px; font-size: 0.78em; color: #444; margin: 4px 0; cursor: pointer; }
+        .mk2-tools { display: flex; gap: 4px; flex-wrap: wrap; margin: 10px 0 8px; }
+        .mk2-tools button { font-size: 0.78em; padding: 5px 9px; border: 1px solid #d0d4e8; border-radius: 6px; background: #fff; color: #333; cursor: pointer; }
+        .mk2-tools button.on { background: #4a5fc1; border-color: #4a5fc1; color: #fff; }
+        .mk2-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+        .mk2-row button { font-size: 0.78em; padding: 5px 10px; border: 1px solid #d0d4e8; border-radius: 6px; background: #fff; color: #333; cursor: pointer; }
+        .mk2-insp { border: 1px solid #d5d9f0; border-radius: 8px; padding: 8px 10px; background: #fff; margin: 8px 0; }
+        .mk2-insp .wconfig-style-row { margin-bottom: 6px; }
+        .mk2-insp-h { font-size: 0.72em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #4a5fc1; margin-bottom: 6px; }
+        .mk2-insp-h span { text-transform: none; letter-spacing: 0; font-weight: 600; color: #777; }
+        .mk2-insp .wcs input[type="text"] { width: 110px; }
+        .mk2-hint { font-size: 0.74em; color: #8a8fa6; margin: 8px 0; }
         .mp-mock { width: 100%; }
         .mp-mock .mk-flabel { font-size: 0.78em; margin-top: 4px; }
 
@@ -1394,74 +1349,45 @@
                         </div>
                     </details>
                 </div>
-                <!-- Cart + Checkout Mockup config (Dual Checkout Figma: Cart drawer + Checkout frames) -->
+                <!-- Cart + Checkout Mockup: built from THIS merchant's own mockup (Figma export PDF,
+                     image / screenshot, Figma link, or a file in their Checkout Experience folder) -->
                 <div id="wc-mockup" class="wconfig-section">
-                    <div style="font-size:0.76em;color:#6c757d;margin:2px 0 10px;line-height:1.45;">Click any text in the preview to edit it · click the logo, product images, lock or store page to upload · hover a cart product for ✕. Scan Cart / Scan Checkout fill colors + products.</div>
-                    <div id="mkFeeInfo" style="font-size:0.78em;background:#f4f5ff;border:1px solid #d5d9f0;border-radius:8px;padding:8px 10px;margin-bottom:10px;color:#3a467f;"></div>
-                    <div class="wconfig-row" style="align-items:flex-end;">
-                        <div class="wcs"><label>Show</label>
-                            <select id="mk-show" onchange="updateWidgetPreview()" style="padding:4px 6px;border:1px solid #d0d4e8;border-radius:5px;font-size:0.8em;">
-                                <option value="both">Cart + Checkout</option>
-                                <option value="cart">Cart only</option>
-                                <option value="checkout">Checkout only</option>
-                            </select>
+                    <div class="mk2-help">Import this merchant's mockup and it shows here exactly as designed, every page. Then click any text in the preview to change it. ShipInsure prices and totals re-price from the Pricing template above.</div>
+                    <div class="mk2-import">
+                        <button type="button" class="scan-widget-btn" onclick="document.getElementById('mkFileInput').click()" title="A Figma export (PDF, every page), a PNG / JPG, or a screenshot of the store">⬆ Upload PDF / image</button>
+                        <button type="button" class="scan-widget-btn" onclick="mkFolderList()" title="A mockup uploaded or linked in this merchant's Checkout Experience folder">📁 From folder</button>
+                        <button type="button" class="scan-widget-btn" onclick="mkFigmaToggle()" title="Read the frames straight from Figma">Figma link</button>
+                    </div>
+                    <div id="mkFigmaRow" class="mk2-figma">
+                        <input type="text" id="mkFigmaUrl" placeholder="Figma link to the frames (right-click → Copy link to selection)">
+                        <div id="mkFigmaTokRow"><input type="password" id="mkFigmaToken" placeholder="Your Figma personal access token (figd_…)" autocomplete="off"></div>
+                        <div class="mk2-row" style="margin-top:0;">
+                            <button type="button" onclick="mkImportFigma()">Import from Figma</button>
+                            <a href="https://help.figma.com/hc/en-us/articles/8085703771159-Manage-personal-access-tokens" target="_blank" rel="noopener" id="mkFigmaHow">Getting a token</a>
+                            <button type="button" class="mk2-link" id="mkFigmaTokChange" onclick="mkFigmaToken()">🔑 Change Figma token</button>
                         </div>
-                        <button type="button" class="scan-widget-btn" style="margin:0;" onclick="openScanModal('checkout')">🔍 Scan Checkout</button>
-                        <button type="button" class="scan-widget-btn" style="margin:0;" onclick="mkMatchScan()" title="Re-apply colors from the last Scan Cart / Scan Checkout (or the Dual design)">🎨 Match Scan Colors</button>
                     </div>
-                    <div class="wconfig-upload">
-                        <label>Merchant Logo</label>
-                        <button type="button" onclick="mkPickImage('logo')">⬆ Upload</button>
-                        <button type="button" onclick="mkClearImage('logo')">✕ Clear</button>
-                        <div class="wcs" style="flex-shrink:0;"><label>Height (px)</label><input type="number" id="mk-logo-h" value="60" min="16" max="120" style="width:54px;" onchange="updateWidgetPreview()"></div>
+                    <div id="mkFolderPick"></div>
+                    <div id="mkStatus" class="mk2-status"></div>
+                    <div id="mkFeeInfo" class="mk2-fee" style="display:none;"></div>
+                    <label class="mk2-chk"><input type="checkbox" id="mk-reprice" checked onchange="mkRender()"> Re-price ShipInsure from the Pricing template</label>
+                    <label class="mk2-chk"><input type="checkbox" id="mk-tags" checked onchange="mkRender()"> Outline tagged prices in the preview (hover for the tag)</label>
+                    <div class="mk2-tools" id="mkTools">
+                        <button type="button" data-tool="select" class="on" onclick="mkSetTool('select')" title="Click text to edit · click / drag boxes">↖ Select</button>
+                        <button type="button" data-tool="box" onclick="mkSetTool('box')" title="Drag a box to cover or recolor an area (e.g. a button)">▭ Box</button>
+                        <button type="button" data-tool="image" onclick="mkSetTool('image')" title="Drag where an image goes (logo, product photo), then pick the file">🖼 Image</button>
+                        <button type="button" data-tool="text" onclick="mkSetTool('text')" title="Click where new text goes">T Text</button>
                     </div>
-                    <div class="wconfig-upload">
-                        <label>Store Page</label>
-                        <button type="button" onclick="mkPickImage('backdrop')" title="Screenshot of the merchant's store page — sits behind the cart drawer">⬆ Screenshot</button>
-                        <button type="button" onclick="mkClearImage('backdrop')">✕ Use generated</button>
-                        <div class="wcs" style="flex-shrink:0;"><label>Dim %</label><input type="number" id="mk-dim" value="40" min="0" max="90" style="width:50px;" onchange="updateWidgetPreview()"></div>
+                    <div class="wconfig-style-row">
+                        <div class="wcs"><label>Mockup font (edited text)</label><input type="text" id="mk-font" placeholder="e.g. Poppins" onchange="mkSetFont(this.value)"></div>
                     </div>
-                    <details class="wconfig-style-grp" open>
-                        <summary>Colors &amp; Type</summary>
-                        <div>
-                            <div class="wconfig-style-row">
-                                <div class="wcs"><label>Brand / CTA</label><input type="color" id="mk-brand" value="#1a1a1a" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('mk-brand')" title="Pick color from screen">💧</button></div>
-                                <div class="wcs"><label>CTA Text</label><input type="color" id="mk-btn-text" value="#ffffff" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('mk-btn-text')" title="Pick color from screen">💧</button></div>
-                                <div class="wcs"><label>Accent / Links</label><input type="color" id="mk-accent" value="#1a1a1a" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('mk-accent')" title="Pick color from screen">💧</button></div>
-                                <div class="wcs"><label>Button Radius</label><input type="number" id="mk-radius" value="30" min="0" max="40" onchange="updateWidgetPreview()"></div>
-                            </div>
-                            <div class="wconfig-style-row" style="margin-top:6px;">
-                                <div class="wcs"><label>Cart Drawer</label><input type="color" id="mk-drawer" value="#ffffff" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('mk-drawer')" title="Pick color from screen">💧</button></div>
-                                <div class="wcs"><label>Checkout Page</label><input type="color" id="mk-page" value="#ffffff" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('mk-page')" title="Pick color from screen">💧</button></div>
-                                <div class="wcs"><label>Order Summary</label><input type="color" id="mk-summary" value="#f5f5f5" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('mk-summary')" title="Pick color from screen">💧</button></div>
-                            </div>
-                            <div class="wconfig-style-row" style="margin-top:6px;">
-                                <div class="wcs"><label>Text</label><input type="color" id="mk-text" value="#212121" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('mk-text')" title="Pick color from screen">💧</button></div>
-                                <div class="wcs"><label>Muted Text</label><input type="color" id="mk-muted" value="#6b6b6b" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('mk-muted')" title="Pick color from screen">💧</button></div>
-                                <div class="wcs"><label>Store Font</label><input type="text" id="mk-font" placeholder="Poppins" onchange="updateWidgetPreview()"></div>
-                                <div class="wcs"><label>Checkout Font</label><input type="text" id="mk-co-font" placeholder="Open Sans" onchange="updateWidgetPreview()"></div>
-                            </div>
-                        </div>
-                    </details>
-                    <details class="wconfig-style-grp">
-                        <summary>Elements</summary>
-                        <div>
-                            <div class="wconfig-style-row" style="gap:10px 16px;font-size:0.8em;">
-                                <label class="wconfig-sl"><input type="checkbox" id="mk-show-ship" checked onchange="updateWidgetPreview()"><span class="sl-track"></span>Free-shipping bar</label>
-                                <div class="wcs"><label>Free ship at $</label><input type="number" id="mk-ship-at" value="50" min="0" onchange="updateWidgetPreview()"></div>
-                                <label class="wconfig-sl"><input type="checkbox" id="mk-show-gift" checked onchange="updateWidgetPreview()"><span class="sl-track"></span>"Is this a gift?" row</label>
-                                <label class="wconfig-sl"><input type="checkbox" id="mk-show-viewcart" checked onchange="updateWidgetPreview()"><span class="sl-track"></span>View Cart button</label>
-                                <label class="wconfig-sl"><input type="checkbox" id="mk-show-note" checked onchange="updateWidgetPreview()"><span class="sl-track"></span>Cart footer note</label>
-                                <label class="wconfig-sl"><input type="checkbox" id="mk-show-express" onchange="updateWidgetPreview()"><span class="sl-track"></span>Express checkout (Shop Pay)</label>
-                                <label class="wconfig-sl"><input type="checkbox" id="mk-show-shipmethod" checked onchange="updateWidgetPreview()"><span class="sl-track"></span>Shipping method box</label>
-                            </div>
-                        </div>
-                    </details>
-                    <div class="wconfig-row" style="margin-top:4px;">
-                        <button type="button" class="scan-widget-btn" style="margin:0;" onclick="mkAddProduct()">＋ Add Product</button>
-                        <button type="button" class="scan-widget-btn" style="margin:0;" onclick="mkResetProducts()" title="Drop hand-edited products and use the scanned cart items again">↻ Products from Scan</button>
-                        <button type="button" class="scan-widget-btn" style="margin:0;" onclick="mkResetText()" title="Undo every text edit made in the preview (incl. a typed fee)">↺ Reset Text Edits</button>
+                    <div id="mkSelPanel"></div>
+                    <div class="mk2-row">
+                        <button type="button" onclick="mkRevertAll()" title="Undo every text change, box and added text">↺ Revert all edits</button>
+                        <button type="button" onclick="mkClear()" title="Remove the imported mockup">✕ Remove mockup</button>
                     </div>
+                    <input type="file" id="mkFileInput" accept=".pdf,application/pdf,image/*" style="display:none;" onchange="if(this.files[0]) mkImportBlob(this.files[0], this.files[0].name); this.value='';">
+                    <input type="file" id="mkImgInput" accept="image/*" style="display:none;" onchange="if(this.files[0]) mkBoxImage(this.files[0]); this.value='';">
                 </div>
             </div><!-- /widgetPreviewSection -->
         </div><!-- /config-col -->
@@ -1484,7 +1410,6 @@
     </div><!-- /designer-body -->
 
     <div id="merchantView" style="display:none;"></div>
-    <input type="file" id="mkImgInput" accept="image/*" style="display:none;" onchange="mkLoadImage(this)">
 
     <div class="copied-toast" id="toast">Link copied!</div>
 
@@ -2653,7 +2578,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                         'anthropic-dangerous-direct-browser-access': 'true'
                     },
                     body: JSON.stringify({
-                        model: 'claude-sonnet-5',
+                        model: 'claude-sonnet-5-5',
                         max_tokens: 1024,
                         messages: [{
                             role: 'user',
@@ -2771,8 +2696,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
         // and drops their order-summary items in below our line item. It deliberately does
         // NOT touch Mode, AOV, Pricing, or SI Premium $ — only the in-context framing.
         function applyScannedCheckout(d) {
-            const _wasMockup = _widgetType === 'mockup';
-            if (!_wasMockup) setWidgetType('extension');
+            setWidgetType('extension');
             const bg = (d && typeof d.backgroundColor === 'string' && /^#?[0-9a-fA-F]{3,8}$/.test(d.backgroundColor.trim()))
                 ? (d.backgroundColor.trim().startsWith('#') ? d.backgroundColor.trim() : '#' + d.backgroundColor.trim())
                 : '';
@@ -2784,7 +2708,6 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 compareAtPrice: (it && it.compareAtPrice) ? String(it.compareAtPrice) : '',
                 quantity:       (it && it.quantity) ? parseInt(it.quantity) || 1 : 1
             })).filter(it => it.name) : [];
-            if (_wasMockup && bg) { const sm = document.getElementById('mk-summary'); if (sm) sm.value = bg; }
             updateWidgetPreview();
         }
 
@@ -2794,10 +2717,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
         function applyScannedCart(d) {
             d = d || {};
             // Keep the current cart widget type (Dual or Toggle); default to Dual if neither.
-            // In the Cart + Checkout Mockup, restyle the Dual fields AND the mockup, stay on the mockup.
-            const _wasMockup = _widgetType === 'mockup';
-            if (_wasMockup) _widgetType = 'dual';
-            else if (_widgetType !== 'dual' && _widgetType !== 'toggle') setWidgetType('dual');
+            if (_widgetType !== 'dual' && _widgetType !== 'toggle') setWidgetType('dual');
             const hex = (c) => (typeof c === 'string' && /^#?[0-9a-fA-F]{3,8}$/.test(c.trim()))
                 ? (c.trim().startsWith('#') ? c.trim() : '#' + c.trim()) : null;
             const num = (n) => (n != null && !isNaN(parseFloat(n))) ? String(Math.round(parseFloat(n))) : null;
@@ -2848,7 +2768,6 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 compareAtPrice: (it && it.compareAtPrice) ? String(it.compareAtPrice) : '',
                 quantity:       (it && it.quantity) ? parseInt(it.quantity) || 1 : 1
             })).filter(it => it.name) : [];
-            if (_wasMockup) { _widgetType = 'mockup'; _mk.products = null; mkMatchScan(d); return; }
             updateWidgetPreview();
         }
 
@@ -3089,32 +3008,37 @@ For uncertain values make your best visual estimate. Always use valid hex colors
         }
 
         // ── Cart + Checkout Mockup ───────────────────────────────────────────────
-        // The Dual Checkout Figma template ("A Shop of Things pp": Cart drawer + Checkout)
-        // rebuilt as two 1440×900 frames, scaled to fit. Every text node is editable in
-        // the preview; logo / product images / lock / store page are click-to-upload.
-        // The SI fee is the selected Pricing template (incl. Merchant Portal pt_<id>)
-        // applied to the cart subtotal. Edits live in _mk and ride along in
-        // _collectDesign → Copy Link, merchant links and Merchant Folder saves.
-        const MK_W = 1440, MK_H = 900;
-        const _mkFresh = () => ({ logo: null, lock: null, backdrop: null, products: null, text: {} });
+        // Built from the MERCHANT'S OWN mockup. Every merchant's Figma file differs (drawer vs
+        // cart page, button stack, checkout layout), so nothing here is a fixed template.
+        // Sources: a Figma export (PDF, every page; real text + positions via pdf.js), an
+        // image / screenshot / flat PDF (text found by the scan model), a Figma link (REST API,
+        // rep's own token), or a file in the merchant's Checkout Experience folder.
+        // Each page shows the mockup's own pixels. Every text sits over it as an invisible,
+        // editable layer that only paints (with a cover patch matched to the background) once
+        // it differs from the original. Prices tagged fee / item / sub / total re-price from
+        // the Pricing template. Boxes cover, recolor or swap images (logo, products).
+        // Edits live in _mk and ride along in _collectDesign → links + Merchant Folder saves.
+        const _mkFresh = () => ({ src: '', font: '', pages: [] });
         let _mk = _mkFresh();
-        let _mkReadOnly = false;      // merchant view: same frames, no edit affordances
-        let _mkImgTarget = null;
-
-        const _MK_ICO = {
-            search: '<svg class="mk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4" stroke-linecap="round"/></svg>',
-            menu:   '<svg class="mk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/></svg>',
-            user:   '<svg class="mk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4-5.4 7.5-5.4s6.3 1.8 7.5 5.4" stroke-linecap="round"/></svg>',
-            bag:    '<svg class="mk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8h14l-1 12H6L5 8Z" stroke-linejoin="round"/><path d="M9 10V7a3 3 0 0 1 6 0v3" stroke-linecap="round"/></svg>'
-        };
-
-        const _mkv = (id, fb) => { const el = document.getElementById(id); return el ? (el.value || fb) : fb; };
+        let _mkReadOnly = false;      // merchant view: same pages, no edit affordances
+        let _mkSel = null;            // { p, k: 't' | 'b', id }
+        let _mkTool = 'select';       // select | box | image | text
+        let _mkSeq = 0;
+        let _mkFolderRows = [];
+        const _mkCanvas = {};         // page image src → { ctx, k } for color sampling
+        const _mkUrlMap = {};         // inline data: image → its uploaded public URL
+        const MK_PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.4.149/';
+        const MK_PAD = 3;             // the cover patch reaches this far past the original letters
+        const MK_ROLES = { '': 'No price tag', fee: 'ShipInsure price', item: 'Product price', sub: 'Subtotal (before protection)', total: 'Total (includes protection)' };
+        const MK_ROLE_TAG = { fee: 'ShipInsure', item: 'item', sub: 'subtotal', total: 'total' };
+        const _mkId = c => c + (++_mkSeq).toString(36) + Math.random().toString(36).slice(2, 6);
+        const _mkR = n => Math.round(n * 10) / 10;
+        const _mkHex = (r, g, b) => '#' + [r, g, b].map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('');
         const _mkOn = id => { const el = document.getElementById(id); return !!(el && el.checked); };
-        function _mkMoney(s) { const n = parseFloat(String(s == null ? '' : s).replace(/[^0-9.\-]/g, '')); return isNaN(n) ? 0 : n; }
-        function _mkHexMix(hex, toward, amt) {   // blend hex toward another hex by amt (0..1)
-            const p = h => { h = String(h || '').replace('#', ''); if (h.length === 3) h = h.split('').map(c => c + c).join(''); const n = parseInt(h.slice(0, 6), 16); return isNaN(n) ? [0, 0, 0] : [n >> 16 & 255, n >> 8 & 255, n & 255]; };
-            const a = p(hex), b = p(toward);
-            return '#' + a.map((v, i) => Math.round(v + (b[i] - v) * amt).toString(16).padStart(2, '0')).join('');
+
+        function _mkStatus(msg, type) {
+            const el = document.getElementById('mkStatus');
+            if (el) { el.textContent = msg || ''; el.className = 'mk2-status' + (type ? ' ' + type : ''); }
         }
 
         // SI premium for any order value on the selected Pricing template.
@@ -3126,194 +3050,659 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             return getTieredPremium(orderValue, t);
         }
 
-        // Products: hand-edited list once touched, else the last Scan Cart (or Scan Checkout)
-        // items, else one sample product priced at the AOV.
-        function _mkProducts() {
-            if (Array.isArray(_mk.products)) return _mk.products;
-            const src = (_cartScanItems && _cartScanItems.length) ? _cartScanItems : (_extScanItems || []);
-            if (src.length) return src.map(it => ({ name: it.name || '', desc: (it.descLines || []).join(' · '), price: it.price || '', compareAt: it.compareAtPrice || '', qty: it.quantity || 1, img: null }));
-            const aov = parseFloat(removeCommas(document.getElementById('avgOrderValue').value)) || 75;
-            return [{ name: 'Best-Selling Product', desc: '', price: formatCurrencyWithCents(aov), compareAt: '', qty: 1, img: null }];
+        // ── Money in text: "$ 34.00", "CHECK OUT | $34.51", "1,204.50 USD" ──
+        const MK_MONEY_RE = /([$€£]\s?)(\d{1,3}(?:,\d{3})+|\d+)(\.\d{1,2})?|(\d{1,3}(?:,\d{3})+|\d+)(\.\d{2})(?!\d)/g;
+        function _mkMoneyIn(s) {   // the LAST amount in s → { i, len, val, dec, comma }
+            s = String(s || '');
+            let m, last = null;
+            MK_MONEY_RE.lastIndex = 0;
+            while ((m = MK_MONEY_RE.exec(s))) last = m;
+            if (!last) return null;
+            const int = last[2] || last[4], dec = last[3] || last[5] || '', num = int + dec;
+            return { i: last.index + last[0].length - num.length, len: num.length, val: parseFloat(num.replace(/,/g, '')), dec: dec ? dec.length - 1 : 0, comma: int.indexOf(',') >= 0 };
         }
-        function _mkEnsureProducts() { if (!Array.isArray(_mk.products)) _mk.products = _mkProducts().map(p => Object.assign({}, p)); return _mk.products; }
+        function _mkVal(s) { const m = _mkMoneyIn(s); return m ? m.val : null; }
+        function _mkFmt(orig, v) {   // orig with its amount swapped for v, same symbol / spacing / style
+            const m = _mkMoneyIn(orig); if (!m) return orig;
+            const dec = m.dec || (Math.round(Math.abs(v) * 100) % 100 ? 2 : 0);
+            let [i, d] = Math.abs(v).toFixed(dec).split('.');
+            if (m.comma || i.length > 4) i = i.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return orig.slice(0, m.i) + i + (d ? '.' + d : '') + orig.slice(m.i + m.len);
+        }
+        const _mkMoneyStr = v => v == null ? '—' : '$' + v.toFixed(2);
 
-        // Totals shared by both frames. A fee typed into the preview overrides the template.
-        function _mkTotals() {
-            const items = _mkProducts();
-            const subtotal = items.reduce((s, p) => s + _mkMoney(p.price) * (parseInt(p.qty) || 1), 0);
-            const aov = parseFloat(removeCommas(document.getElementById('avgOrderValue').value)) || 0;
-            const base = subtotal > 0 ? subtotal : aov;
-            const calcFee = siPremiumFor(base);
-            const typed = _mk.text.fee != null && _mk.text.fee !== '';
-            const fee = typed ? _mkMoney(_mk.text.fee) : calcFee;
-            const count = items.reduce((s, p) => s + (parseInt(p.qty) || 1), 0);
-            return { items, subtotal, base, fee, calcFee, typed, total: subtotal + fee, count };
+        // ── Pricing: one ShipInsure price across every page; totals move with it ──
+        // fee   = template(products), or what the rep typed into a fee
+        // item  = product price (typed changes flow into that page's subtotal / totals)
+        // sub   = products before protection;  total = anything that includes protection
+        function _mkPrice() {
+            const pages = _mk.pages;
+            let F0 = null, man = null;
+            pages.forEach(pg => pg.texts.forEach(t => {
+                if (t.role !== 'fee') return;
+                const v0 = _mkVal(t.o);
+                if (F0 == null && v0 != null) F0 = v0;
+                if (t.man && _mkVal(t.t) != null) man = _mkVal(t.t);
+            }));
+            const dItem = pg => pg.texts.reduce((s, t) => {
+                if (t.role !== 'item') return s;
+                const v = _mkVal(t.t), v0 = _mkVal(t.o);
+                return (v == null || v0 == null) ? s : s + v - v0;
+            }, 0);
+            // Products = the first subtotal (or total less protection), plus product-price edits:
+            // that page's, else whichever page the rep changed a product price on.
+            const edited = pages.map(dItem), dAny = edited.find(v => Math.abs(v) >= 0.005) || 0;
+            let M = null;
+            pages.some((pg, i) => {
+                const sub = pg.texts.find(t => t.role === 'sub' && _mkVal(t.o) != null);
+                if (sub) M = _mkVal(sub.o) + (Math.abs(edited[i]) >= 0.005 ? edited[i] : dAny);
+                return M != null;
+            });
+            if (M == null) pages.some((pg, i) => {
+                const tot = pg.texts.find(t => t.role === 'total' && _mkVal(t.o) != null);
+                if (tot) M = _mkVal(tot.o) - (F0 || 0) + (Math.abs(edited[i]) >= 0.005 ? edited[i] : dAny);
+                return M != null;
+            });
+            if (M == null && pages.length) {
+                const items = pages[0].texts.filter(t => t.role === 'item' && _mkVal(t.t) != null);
+                if (items.length) M = items.reduce((s, t) => s + _mkVal(t.t), 0);
+            }
+            const F = man != null ? man : (_mkOn('mk-reprice') && M != null) ? Math.round(siPremiumFor(M) * 100 + 1e-6) / 100 : F0;
+            pages.forEach(pg => {
+                const di = dItem(pg);
+                const pfee = pg.texts.find(t => t.role === 'fee' && _mkVal(t.o) != null);
+                const pF0 = pfee ? _mkVal(pfee.o) : F0;
+                pg.texts.forEach(t => {
+                    if (t.man || !t.role || t.role === 'item') return;
+                    const v0 = _mkVal(t.o); if (v0 == null) return;
+                    const v = t.role === 'fee' ? F : t.role === 'sub' ? v0 + di : v0 + di + ((F != null && pF0 != null) ? F - pF0 : 0);
+                    if (v == null) return;
+                    t.t = Math.abs(v - v0) < 0.005 ? t.o : _mkFmt(t.o, v);
+                });
+            });
+            return { F, F0, M, man: man != null };
         }
 
-        function mkRender() {
-            const area = document.getElementById('widgetPreviewArea');
-            const _ptEl = document.getElementById('previewTitle');
-            if (_ptEl) _ptEl.textContent = 'Cart + Checkout Mockup';
-            const _liCard = document.getElementById('lineItemCard'); if (_liCard) _liCard.style.display = 'none';
-            const _wCard = document.getElementById('widgetPreviewCard'); if (_wCard) _wCard.style.display = '';
-            const _scb = document.getElementById('scanCartBtn'); if (_scb) _scb.style.display = '';
-            if (area) { area.style.background = ''; area.style.padding = ''; area.style.borderRadius = ''; }
-            if (!area) return;
+        // Tag the prices on a freshly imported page (the rep can retag any of them).
+        function _mkAutoRoles(pg) {
+            const T = pg.texts;
+            const money = T.filter(t => _mkVal(t.o) != null && !/%/.test(t.o));
+            const maxV = Math.max(0, ...money.map(t => _mkVal(t.o)));
+            // Same row = vertically aligned AND in the same column (not the far side of a checkout page).
+            const reach = pg.w * 0.42;
+            const rowOf = t => T.filter(u => u !== t && Math.abs((u.y + u.h / 2) - (t.y + t.h / 2)) < Math.max(t.h, u.h) * 0.6 && u.x + u.w > t.x - reach && u.x < t.x + t.w + reach).map(u => u.o).join(' ');
+            const aboveOf = t => {   // the nearest text just above and overlapping (e.g. a line item's title)
+                const c = T.filter(u => u !== t && u.y + u.h <= t.y + 1 && t.y - (u.y + u.h) < Math.max(t.h, u.h) * 2.2 && u.x < t.x + t.w && u.x + u.w > t.x);
+                c.sort((a, b) => (b.y + b.h) - (a.y + a.h));
+                return c[0] ? c[0].o : '';
+            };
+            money.forEach(t => {
+                if (t.role != null && t.role !== '' && MK_ROLES[t.role]) return;   // the scan already tagged it
+                const own = t.o.toLowerCase(), all = own + ' ' + rowOf(t).toLowerCase(), v = _mkVal(t.o);
+                if (/protect|shipinsure|insure|guarantee/.test(all + ' ' + aboveOf(t).toLowerCase()) && v <= maxV * 0.2) t.role = 'fee';
+                else if (/check ?out|pay now|place order|complete (my )?order|buy now/.test(own)) { t.role = 'total'; if (!t._al) { t.al = 'c'; t._al = true; } }
+                else if (/sav(e|ing)|discount|\boff\b|reward|points|gift card/.test(own)) t.role = '';
+                else if (/sub-?total/.test(all)) t.role = 'sub';
+                else if (/\btotal\b/.test(all)) t.role = 'total';
+                else if (/ship|tax|discount|sav(e|ing)|\boff\b|free|deliver|estimat|duties|\btip\b|away|reward|points|earn|spend|credit|gift card|\bover\b|pay in|installment|interest|afterpay|klarna|affirm|sezzle/.test(all)) t.role = '';
+                else t.role = 'item';
+                if (!t._al) t.al = 'r';   // prices sit in right-hand columns; button amounts are centered above
+            });
+            T.forEach(t => { delete t._al; if (t.role == null) t.role = ''; });
+            _mkSubRoles(pg);
+        }
+        // Across all pages: the ShipInsure price is the value most fee tags agree on; a second
+        // amount on a protection row (a struck-through compare price) keeps its own text.
+        function _mkFeeConsensus(pages) {
+            const n = {};
+            pages.forEach(pg => pg.texts.forEach(t => { if (t.role === 'fee') { const v = _mkVal(t.o); n[v] = (n[v] || 0) + 1; } }));
+            const best = Object.keys(n).sort((a, b) => n[b] - n[a] || a - b)[0];
+            if (best == null) return;
+            pages.forEach(pg => { pg.texts.forEach(t => { if (t.role === 'fee' && Math.abs(_mkVal(t.o) - best) >= 0.005) t.role = ''; }); _mkSubRoles(pg); });
+        }
+        // A subtotal that already counts the protection line (Shopify checkout) is a total:
+        // it equals a product (or all products) plus protection, or the page's checkout total.
+        function _mkSubRoles(pg) {
+            const T = pg.texts, fee = T.find(t => t.role === 'fee');
+            if (!fee) return;
+            const f = _mkVal(fee.o), items = T.filter(t => t.role === 'item').map(t => _mkVal(t.o));
+            const totals = T.filter(t => t.role === 'total').map(t => _mkVal(t.o));
+            const sums = items.concat([items.reduce((s, v) => s + v, 0)]);
+            T.filter(t => t.role === 'sub').forEach(t => {
+                const v = _mkVal(t.o);
+                if (totals.some(x => Math.abs(x - v) < 0.02) || sums.some(x => Math.abs(x + f - v) < 0.02)) t.role = 'total';
+            });
+        }
+        function _mkT(o) {
+            return Object.assign({ id: _mkId('t'), t: '', x: 0, y: 0, w: 0, h: 0, b: 0, sz: 14, fw: 400, ff: '', it: false, c: '#111111', bg: '#ffffff', al: 'l', role: '', man: false, sty: false, add: false, wrap: false, lh: 0, tt: '', ls: 0, fg: '' }, o, { o: o.o != null ? o.o : o.t });
+        }
+        function _mkGuessName(pg, n) {
+            const own = pg.texts.map(t => t.o.trim().toLowerCase());
+            if (own.some(t => /^(contact|delivery|payment|shipping address|express checkout|pay now|shipping method|complete order)$/.test(t))) return 'Checkout';
+            if (own.some(t => /\bcart\b|\bbag\b|basket|check ?out/.test(t))) return 'Cart';
+            return 'Page ' + n;
+        }
 
-            const ed = !_mkReadOnly;
-            const T = (key, def) => (_mk.text[key] != null ? _mk.text[key] : def);
-            const edAttr = (val) => ed ? ` contenteditable="plaintext-only" spellcheck="false" data-o="${_escHtml(val)}"` : '';
-            const E = (key, def, cls) => { const val = T(key, def); return `<span data-mk="${key}"${cls ? ` class="${cls}"` : ''}${edAttr(val)}>${_escHtml(val)}</span>`; };
-            const EP = (i, field, val, cls) => `<span data-mk="p.${i}.${field}"${cls ? ` class="${cls}"` : ''}${edAttr(val)}>${_escHtml(val)}</span>`;
-            const IMG = (target, src, fit, ph) => `<div data-mk-img="${target}" ${ed ? 'title="Click to upload an image"' : ''} style="width:100%;height:100%;">${src ? `<img src="${src}" style="width:100%;height:100%;object-fit:${fit || 'cover'};display:block;" alt="">` : (ph || '')}</div>`;
-            const money = n => formatCurrencyWithCents(n || 0);
+        // ── Pixels: background behind a box (dominant color of a ring just outside it) and the
+        // ink inside (pixels far from that background → text color, tight box, ink share) ──
+        function _mkLoadImg(src) {
+            return new Promise((res, rej) => {
+                const i = new Image();
+                if (!/^data:/.test(src)) i.crossOrigin = 'anonymous';
+                i.onload = () => res(i); i.onerror = () => rej(new Error('Could not load the image'));
+                i.src = src;
+            });
+        }
+        async function _mkPageCanvas(pg) {
+            if (_mkCanvas[pg.img]) return _mkCanvas[pg.img];
+            const img = await _mkLoadImg(pg.img);
+            const c = document.createElement('canvas');
+            c.width = img.naturalWidth; c.height = img.naturalHeight;
+            const ctx = c.getContext('2d', { willReadFrequently: true });
+            ctx.drawImage(img, 0, 0);
+            return (_mkCanvas[pg.img] = { ctx, k: c.width / pg.w });
+        }
+        function _mkSample(cv, x, y, w, h) {
+            const out = { bg: '#ffffff', c: '#111111', ink: 0, box: null };
+            if (!cv) return out;
+            const k = cv.k, W = cv.ctx.canvas.width, H = cv.ctx.canvas.height, R = 4;
+            const X0 = Math.max(0, Math.floor((x - R) * k)), Y0 = Math.max(0, Math.floor((y - R) * k));
+            const X1 = Math.min(W, Math.ceil((x + w + R) * k)), Y1 = Math.min(H, Math.ceil((y + h + R) * k));
+            if (X1 - X0 < 2 || Y1 - Y0 < 2) return out;
+            const RW = X1 - X0, RH = Y1 - Y0, d = cv.ctx.getImageData(X0, Y0, RW, RH).data;
+            const ix0 = x * k - X0, ix1 = (x + w) * k - X0, iy0 = y * k - Y0, iy1 = (y + h) * k - Y0;
+            const bins = {}, inner = [];
+            for (let yy = 0; yy < RH; yy++) for (let xx = 0; xx < RW; xx++) {
+                const o = (yy * RW + xx) * 4, r = d[o], g = d[o + 1], b = d[o + 2];
+                if (xx >= ix0 && xx < ix1 && yy >= iy0 && yy < iy1) { inner.push(xx, yy, r, g, b); continue; }
+                const key = (r >> 4) << 8 | (g >> 4) << 4 | (b >> 4);
+                const e = bins[key] || (bins[key] = [0, 0, 0, 0]);
+                e[0]++; e[1] += r; e[2] += g; e[3] += b;
+            }
+            let best = null;
+            for (const kk in bins) if (!best || bins[kk][0] > best[0]) best = bins[kk];
+            const bg = best ? [best[1] / best[0], best[2] / best[0], best[3] / best[0]] : [255, 255, 255];
+            out.bg = _mkHex(bg[0], bg[1], bg[2]);
+            const n = inner.length / 5; if (!n) return out;
+            const dist = new Float32Array(n);
+            let mx = 0;
+            for (let i = 0; i < n; i++) {
+                const j = i * 5, dd = Math.hypot(inner[j + 2] - bg[0], inner[j + 3] - bg[1], inner[j + 4] - bg[2]);
+                dist[i] = dd; if (dd > mx) mx = dd;
+            }
+            if (mx < 28) return out;
+            let sr = 0, sg = 0, sb = 0, sn = 0, inkN = 0, bx0 = 1e9, by0 = 1e9, bx1 = -1, by1 = -1;
+            for (let i = 0; i < n; i++) {
+                const j = i * 5;
+                if (dist[i] > mx * 0.45) {
+                    inkN++;
+                    const px = inner[j], py = inner[j + 1];
+                    if (px < bx0) bx0 = px; if (px > bx1) bx1 = px; if (py < by0) by0 = py; if (py > by1) by1 = py;
+                }
+                if (dist[i] > mx * 0.8) { sr += inner[j + 2]; sg += inner[j + 3]; sb += inner[j + 4]; sn++; }
+            }
+            if (sn) out.c = _mkHex(sr / sn, sg / sn, sb / sn);
+            out.ink = inkN / n;
+            if (bx1 >= 0) out.box = { x: (X0 + bx0) / k, y: (Y0 + by0) / k, w: (bx1 - bx0 + 1) / k, h: (by1 - by0 + 1) / k };
+            return out;
+        }
 
-            const t = _mkTotals();
-            const fmtFee = t.typed ? T('fee', '') : money(t.fee);
-            const FEE = `<span data-mk="fee"${edAttr(fmtFee)}>${_escHtml(fmtFee)}</span>`;
-            const brand = _mkv('mk-brand', '#1a1a1a');
-            const page = _mkv('mk-page', '#ffffff'), summary = _mkv('mk-summary', '#f5f5f5'), text = _mkv('mk-text', '#212121');
-            const font = (id, fb) => (_mkv(id, '') || fb).replace(/[;"<>]/g, '');
-            // The checkout's tinted layers (tiles, shipping box, dividers) are derived from the page / summary colors,
-            // the way the Figma's pinks step off #fff1fe / #ffcef4.
-            const vars = `--mk-brand:${brand};--mk-btn-text:${_mkv('mk-btn-text', '#ffffff')};--mk-accent:${_mkv('mk-accent', brand)};`
-                + `--mk-radius:${_mkv('mk-radius', '30')}px;--mk-drawer:${_mkv('mk-drawer', '#ffffff')};--mk-page:${page};`
-                + `--mk-summary:${summary};--mk-text:${text};--mk-strong:${_mkHexMix(text, '#000000', 0.4)};--mk-muted:${_mkv('mk-muted', '#6b6b6b')};`
-                + `--mk-tile:${_mkHexMix(summary, brand, 0.07)};--mk-apply-line:${_mkHexMix(_mkHexMix(summary, brand, 0.07), '#000000', 0.12)};`
-                + `--mk-shipbox:${_mkHexMix(page, brand, 0.06)};--mk-co-line:${_mkHexMix(page, brand, 0.15)};`
-                + `--mk-grad:linear-gradient(66deg, ${_mkHexMix(brand, '#ffffff', 0.8)} 0%, ${_mkHexMix(_mkv('mk-accent', brand), '#ffffff', 0.45)} 100%);`
-                + `--mk-font:'${font('mk-font', 'Poppins')}',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;`
-                + `--mk-co-font:'${font('mk-co-font', 'Open Sans')}',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;`;
-            // Figma icon assets (mockup/*.svg) as theme-colored masks.
-            const ICON = (name, w, h, color) => `<span class="mk-i" style="width:${w}px;height:${h}px;${color ? `color:${color};` : ''}-webkit-mask-image:url(mockup/${name}.svg);mask-image:url(mockup/${name}.svg);"></span>`;
-            const sp$ = /\$\s/.test((_mkProducts()[0] || {}).price || '') ? '$ ' : '$';   // match the store's "$ 34.00" style
-            const smoney = n => money(n).replace('$', sp$);
-            const storeName = T('store.name', (_previewName || '').replace(/\s*[—–-].*$/, '').trim() || 'Your Store');
-            const logoH = parseInt(_mkv('mk-logo-h', '60')) || 60;
-            const logo = _mk.logo
-                ? `<div data-mk-img="logo" ${ed ? 'title="Click to replace the logo"' : ''} style="height:${logoH}px;display:inline-block;"><img src="${_mk.logo}" style="height:100%;width:auto;display:block;" alt=""></div>`
-                : `<span style="font-size:${Math.round(logoH * 0.62)}px;font-weight:800;letter-spacing:-0.01em;">${E('store.name', storeName)}</span>`;
-            const ph = (name) => `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:${_mkHexMix(brand, '#ffffff', 0.86)};color:${brand};font-weight:800;font-size:28px;">${_escHtml((name || '?').trim().charAt(0).toUpperCase())}</div>`;
-            const lockSrc = _mk.lock || _extLogoSrc || 'mockup/lock.png';   // Figma's ShipInsure lock unless a custom lock is set
+        // ── Import: PDF (Figma export, every page) ──
+        let _mkPdfLib = null;
+        async function _mkPdf() {
+            if (!_mkPdfLib) {
+                _mkPdfLib = await import(MK_PDFJS + 'pdf.min.mjs');
+                _mkPdfLib.GlobalWorkerOptions.workerSrc = MK_PDFJS + 'pdf.worker.min.mjs';
+            }
+            return _mkPdfLib;
+        }
+        async function _mkFromPdf(buf) {
+            const lib = await _mkPdf();
+            const doc = await lib.getDocument({ data: new Uint8Array(buf) }).promise;
+            const pages = [];
+            for (let n = 1; n <= Math.min(doc.numPages, 8); n++) {
+                _mkStatus(`Reading page ${n} of ${doc.numPages}…`, 'info');
+                const page = await doc.getPage(n);
+                const vp1 = page.getViewport({ scale: 1 });
+                const S = Math.min(2, 2400 / Math.max(vp1.width, vp1.height));
+                const vp = page.getViewport({ scale: S });
+                const c = document.createElement('canvas');
+                c.width = Math.round(vp.width); c.height = Math.round(vp.height);
+                const ctx = c.getContext('2d', { willReadFrequently: true });
+                ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+                // 'print' renders without animation frames, so it finishes even in a background tab.
+                await page.render({ canvas: c, canvasContext: ctx, viewport: vp, intent: 'print' }).promise;
+                const pg = { name: '', w: Math.round(vp1.width), h: Math.round(vp1.height), img: c.toDataURL('image/jpeg', 0.86), texts: [], boxes: [] };
+                const cv = { ctx, k: c.width / vp1.width };
+                _mkCanvas[pg.img] = cv;
+                pg.texts = _mkLinesFromPdf(lib, await page.getTextContent(), vp1, cv);
+                pg.name = _mkGuessName(pg, n);
+                pages.push(pg);
+            }
+            return pages;
+        }
+        // pdf.js hands Figma text back in glyph fragments spread over several fonts ("C" "h"
+        // "eck" "O" "ut"), with font sizes that don't match the drawn letters. Rebuild lines by
+        // position + color, and size each line from its letters (cap / x-height above baseline).
+        function _mkLinesFromPdf(lib, tc, vp, cv) {
+            const frags = [];
+            tc.items.forEach(it => {
+                if (!it.str || !it.str.trim() || !(it.width > 0)) return;
+                const m = lib.Util.transform(vp.transform, it.transform), sz = Math.hypot(m[2], m[3]);
+                if (sz < 3) return;
+                const s = _mkSample(cv, m[4], m[5] - sz * 0.92, it.width, sz * 1.22);
+                frags.push({ s: it.str, x: m[4], b: m[5], w: it.width, sz, c: s.ink ? s.c : null });
+            });
+            const rgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+            const near = (a, b) => !a || !b || Math.hypot(...rgb(a).map((v, i) => v - rgb(b)[i])) < 70;
+            // Join in drawing order: a text's fragments come one after another, so two texts that
+            // overlap on the same row (e.g. a price drawn over a label) never interleave.
+            const lines = [];
+            let cur = null;
+            frags.forEach(f => {
+                const em = cur ? Math.max(cur.szs[0], f.sz) : f.sz, gap = cur ? f.x - (cur.x + cur.w) : 0;
+                if (cur && Math.abs(f.b - cur.b) < em * 0.3 && gap > -em * 0.3 && gap < em * 0.45 && near(cur.lc, f.c)) {
+                    cur.s += (gap > em * 0.12 && !/\s$/.test(cur.s) && !/^\s/.test(f.s) ? ' ' : '') + f.s;
+                    cur.w = Math.max(cur.w, f.x + f.w - cur.x);
+                    if (f.c) cur.lc = f.c;
+                    cur.szs.push(f.sz);
+                } else { cur = { s: f.s, x: f.x, b: f.b, w: f.w, lc: f.c, szs: [f.sz] }; lines.push(cur); }
+            });
+            const texts = lines.map(L => {
+                const t = L.s.replace(/\s+/g, ' ').trim();
+                L.em = L.szs.sort((a, b) => a - b)[Math.floor(L.szs.length / 2)];   // this line's own size, not the row's
+                const s = _mkSample(cv, L.x, L.b - L.em * 0.92, L.w, L.em * 1.22);
+                let sz = L.em, by = s.box ? s.box.y : L.b - sz * 0.75, bh = s.box ? s.box.h : sz * 0.95;
+                const span = s.box && _mkInkSpan(cv, L.x, L.w, L.b, L.em, s.bg);
+                if (span) {
+                    by = span.top; bh = span.bot - span.top;
+                    const est = (L.b - span.top) / (/[A-Z0-9bdfhijklt$!?&%#@]/.test(t) ? 0.74 : 0.53);
+                    if (est > L.em * 0.5 && est < L.em * 1.4) sz = est;
+                }
+                const bx = s.box ? Math.min(L.x, s.box.x) : L.x, bw = s.box ? Math.max(L.x + L.w, s.box.x + s.box.w) - bx : L.w;
+                // Text the design covers (e.g. product-page copy under the cart drawer) draws no
+                // letters of its own; keep only lines whose letters actually show.
+                if (!s.box || (t.length >= 4 && s.box.w < L.w * 0.6)) return null;
+                return _mkT({ t, x: _mkR(bx), y: _mkR(by), w: _mkR(bw), h: _mkR(bh), b: _mkR(L.b), sz: _mkR(sz), c: s.c, bg: s.bg, ink: s.ink * L.em / sz });
+            }).filter(t => t && t.t);
+            _mkGuessWeights(texts);
+            return texts;
+        }
+        // Rows of ink connected to a line's baseline: up to the cap tops, down to the descenders,
+        // stopping at the first blank gap (so a label just above isn't counted as part of it).
+        function _mkInkSpan(cv, x, w, b, em, bgHex) {
+            const k = cv.k, W = cv.ctx.canvas.width, H = cv.ctx.canvas.height;
+            const X0 = Math.max(0, Math.floor(x * k)), X1 = Math.min(W, Math.ceil((x + w) * k));
+            const Y0 = Math.max(0, Math.floor((b - em * 1.15) * k)), Y1 = Math.min(H, Math.ceil((b + em * 0.4) * k));
+            if (X1 - X0 < 1 || Y1 - Y0 < 2) return null;
+            const RW = X1 - X0, RH = Y1 - Y0, d = cv.ctx.getImageData(X0, Y0, RW, RH).data;
+            const bg = [1, 3, 5].map(i => parseInt(bgHex.slice(i, i + 2), 16));
+            const ink = yy => { for (let xx = 0; xx < RW; xx++) { const o = (yy * RW + xx) * 4; if (Math.hypot(d[o] - bg[0], d[o + 1] - bg[1], d[o + 2] - bg[2]) > 60) return true; } return false; };
+            const base = Math.min(RH - 1, Math.max(0, Math.round(b * k) - Y0)), stop = Math.max(2, Math.round(k * 1.5));
+            let top = -1, gap = 0;
+            for (let yy = base; yy >= 0; yy--) { if (ink(yy)) { top = yy; gap = 0; } else if (top >= 0 && ++gap >= stop) break; }
+            if (top < 0) return null;
+            let bot = base; gap = 0;
+            for (let yy = base + 1; yy < RH; yy++) { if (ink(yy)) { bot = yy; gap = 0; } else if (++gap >= stop) break; }
+            return { top: (Y0 + top) / k, bot: (Y0 + bot + 1) / k };
+        }
+        // The PDF's fonts carry no names or weights, so weight comes from how much of the line
+        // the letters cover (bold strokes cover more); the rep can fix any of it in the panel.
+        function _mkGuessWeights(texts) {
+            const ok = texts.filter(t => t.ink > 0 && t.t.replace(/\s/g, '').length >= 3);
+            if (ok.length) {
+                const all = ok.map(t => t.ink).sort((a, b) => a - b), med = all[Math.floor(all.length / 2)];
+                texts.forEach(t => { const r = t.ink / med; t.fw = !t.ink ? 400 : r < 1.3 ? 400 : r < 1.6 ? 600 : 700; });
+            }
+            texts.forEach(t => { delete t.ink; });
+        }
 
-            // ── Frame 1: store page + cart drawer ──
-            const shipAt = parseFloat(_mkv('mk-ship-at', '50')) || 0;
-            const left = Math.max(0, shipAt - t.subtotal);
-            const shipMsg = left > 0 ? `You are ${smoney(left).replace(/\.00$/, '')} away from free shipping!!!` : 'You unlocked free shipping!';
-            const shipPct = shipAt > 0 ? Math.min(100, Math.round(t.subtotal / shipAt * 100)) : 100;
-            const store = _mk.backdrop
-                ? `<div class="mk-store">${IMG('backdrop', _mk.backdrop, 'cover')}</div>`
-                : `<div class="mk-store" ${ed ? 'data-mk-img="backdrop" title="Click to upload a store-page screenshot"' : ''}>
-                    <div class="mk-ann" style="background:${brand};color:var(--mk-btn-text);">${E('store.ann', `Only ${smoney(left || shipAt).replace(/\.00$/, '')} away from free shipping`)}</div>
-                    <div class="mk-nav"><div class="l">${_MK_ICO.menu}${_MK_ICO.search}</div><div>${logo}</div><div class="r">${_MK_ICO.user}${_MK_ICO.bag}</div></div>
-                    <div class="mk-hero" style="background:linear-gradient(120deg, ${_mkHexMix(brand, '#ffffff', 0.82)}, ${_mkHexMix(brand, '#ffffff', 0.94)});">
-                        <div class="copy"><div class="kick">${E('store.kick', 'New Arrivals')}</div><div class="head">${E('store.head', 'Shop the latest drop')}</div>
-                            <div class="cta" style="background:${brand};color:var(--mk-btn-text);border-radius:var(--mk-radius);">${E('store.cta', 'Shop Now')}</div></div>
-                        <div class="shot">${t.items[0] && t.items[0].img ? `<img src="${t.items[0].img}" style="width:100%;height:100%;object-fit:cover;" alt="">` : ph(t.items[0] && t.items[0].name)}</div>
-                    </div>
-                    <div class="mk-grid">${[0, 1, 2, 3].map(k => { const p = t.items[k % Math.max(1, t.items.length)] || {}; return `<div class="card"><div class="im">${p.img ? `<img src="${p.img}" style="width:100%;height:100%;object-fit:cover;" alt="">` : ph(p.name)}</div><div class="nm">${_escHtml(p.name || '')}</div><div class="pr">${_escHtml(p.price || '')}</div></div>`; }).join('')}</div>
-                </div>`;
-            const dim = Math.max(0, Math.min(90, parseFloat(_mkv('mk-dim', '40')) || 0)) / 100;
+        // ── Import: image / screenshot (page units = image px, long side ≤ 2400) ──
+        function _mkBlobUrl(blob) {
+            return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(new Error('Could not read the file')); r.readAsDataURL(blob); });
+        }
+        async function _mkFromImage(dataUrl, name, pw, ph) {
+            const img = await _mkLoadImg(dataUrl);
+            const sc = Math.min(1, 2400 / Math.max(img.naturalWidth, img.naturalHeight));
+            const c = document.createElement('canvas');
+            c.width = Math.round(img.naturalWidth * sc); c.height = Math.round(img.naturalHeight * sc);
+            const ctx = c.getContext('2d', { willReadFrequently: true });
+            ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+            ctx.drawImage(img, 0, 0, c.width, c.height);
+            const pg = { name: name || 'Page 1', w: Math.round(pw || c.width), h: Math.round(ph || c.height), img: c.toDataURL('image/jpeg', 0.88), texts: [], boxes: [] };
+            _mkCanvas[pg.img] = { ctx, k: c.width / pg.w };
+            return pg;
+        }
 
-            const cartRows = t.items.map((p, i) => `<div class="mk-prow">
-                    ${ed ? `<button type="button" class="mk-del" data-mk-del="${i}" title="Remove this product">✕</button>` : ''}
-                    <div class="im">${IMG('p.' + i, p.img, 'cover', ph(p.name))}</div>
-                    <div style="flex:1;min-width:0;">
-                        <div class="nm">${EP(i, 'name', p.name || '')}</div>
-                        ${(p.desc || ed) ? `<div class="ds">${EP(i, 'desc', p.desc || '')}</div>` : ''}
-                        <div class="pr">${EP(i, 'price', p.price || '')}${(p.compareAt || ed) ? ` <s>${EP(i, 'compareAt', p.compareAt || '')}</s>` : ''}</div>
-                        <div class="mk-qty">${EP(i, 'qty', String(p.qty || 1))}${ICON('chev-cart', 10.5, 6)}</div>
-                        <div class="mk-rm">${E('cart.remove', 'Remove')}</div>
-                    </div>
-                </div>`).join('');
-
-            const cartFrame = `<div class="mk-frame mk-cart" style="${vars}">
-                ${store}
-                <div class="mk-dim" style="opacity:${dim};pointer-events:none;"></div>
-                <aside class="mk-drawer">
-                    <div class="mk-dr-head"><span>${E('cart.title', 'Cart')}  (${t.count})</span>${ICON('close', 24, 24)}</div>
-                    ${_mkOn('mk-show-ship') ? `<div class="mk-ship">${E('cart.ship', shipMsg)}<div class="bar"><div style="width:${shipPct}%;"></div></div></div>` : ''}
-                    <div class="mk-sec">${E('cart.products', 'Products')}</div>
-                    <div>${cartRows}</div>
-                    ${_mkOn('mk-show-gift') ? `<div class="mk-gift">${E('cart.gift', 'Is this a gift?')}${ICON('plus', 16, 16)}</div>` : ''}
-                    <div class="mk-foot">
-                        <div class="mk-subrow"><span class="l">${E('cart.subtotal', 'Subtotal')}</span><span class="r">${smoney(t.subtotal)} ${E('cart.cur', 'USD')}</span></div>
-                        <div class="mk-protect"><span class="l">${E('cart.protect', 'Loss, Damage, Theft Protection')}${ICON('info', 14, 14)}</span><span class="fee">${FEE}</span></div>
-                        <div class="mk-btn p">${E('cart.cta', 'Checkout')}&nbsp;|&nbsp;${money(t.total)}</div>
-                        <div class="mk-btn o">${E('cart.decline', 'or checkout without protection')}</div>
-                        ${_mkOn('mk-show-viewcart') ? `<div class="mk-btn v">${E('cart.view', 'View Cart')}</div>` : ''}
-                        ${_mkOn('mk-show-note') ? `<div class="mk-note">${E('cart.note', 'Shipping, taxes, and discount codes are calculated at checkout')}</div>` : ''}
-                    </div>
-                </aside>
-            </div>`;
-
-            // ── Frame 2: Shopify checkout with the ShipInsure line item ──
-            const IN = (key, def, icon) => `<div class="mk-in">${E(key, def)}${icon || ''}</div>`;
-            const Q = ICON('question', 15.74, 15.74, '#707070');
-            const coRows = t.items.map((p, i) => `<div class="mk-li prod">
-                    <div class="tile"><span class="badge">${parseInt(p.qty) || 1}</span><div class="im">${IMG('p.' + i, p.img, 'cover', ph(p.name))}</div></div>
-                    <div class="tx"><div>${EP(i, 'name', p.name || '')}</div>${p.desc ? `<div class="sm">${EP(i, 'desc', p.desc)}</div>` : ''}</div>
-                    <div class="amt">${money(_mkMoney(p.price) * (parseInt(p.qty) || 1))}</div>
-                </div>`).join('');
-            const checkoutFrame = `<div class="mk-frame mk-co" style="${vars}">
-                <div class="mk-co-head"><div>${logo}</div>${ICON('bag', 24, 24, 'var(--mk-accent)')}</div>
-                <div class="mk-co-body">
-                    <div class="mk-co-main">
-                        ${_mkOn('mk-show-express') ? `<div class="mk-express">${E('co.express', 'Express checkout')}<div class="sp">shop</div><div class="mk-or">${E('co.or', 'OR')}</div></div>` : ''}
-                        <div class="mk-h2">${E('co.contact', 'Contact')}<span class="lk">${E('co.signin', 'Sign in')}</span></div>
-                        ${IN('co.email', 'Email', Q)}
-                        <div class="mk-chk" style="margin:-0.4px 0 32.5px;"><span class="bx"></span>${E('co.news', 'Email me with news and offers')}</div>
-                        <div class="mk-h2">${E('co.delivery', 'Delivery')}</div>
-                        <div class="mk-in sel"><div><div class="fl">${E('co.country', 'Country/Region')}</div><div class="vl">${E('co.countryVal', 'United States')}</div></div><span class="chev">${ICON('chev-select', 10, 10)}</span></div>
-                        <div class="mk-in2">${IN('co.first', 'First name')}${IN('co.last', 'Last name')}</div>
-                        ${IN('co.company', 'Company (optional)')}
-                        ${IN('co.address', 'Address', ICON('search', 18, 18, '#707070'))}
-                        ${IN('co.apt', 'Apartment, suite, etc. (optional)')}
-                        <div class="mk-in3">${IN('co.city', 'City')}<div class="mk-in">${E('co.state', 'State')}<span class="chev">${ICON('chev-select', 10, 10, '#707070')}</span></div>${IN('co.zip', 'ZIP code')}</div>
-                        ${IN('co.phone', 'Phone (optional)', Q)}
-                        <div class="mk-chk"><span class="bx"></span>${E('co.save', 'Save this information for next time')}</div>
-                        ${_mkOn('mk-show-shipmethod') ? `<div class="mk-shiph">${E('co.shipMethod', 'Shipping method')}</div><div class="mk-shipbox">${E('co.shipMsg', 'Enter your shipping address to view available shipping methods.')}</div>` : ''}
-                    </div>
-                    <div class="mk-co-side"><div>
-                        <div class="mk-li">
-                            <div class="tile"><span class="badge">1</span><div class="im">${lockSrc === 'mockup/lock.png'
-                                ? `<div data-mk-img="lock" ${ed ? 'title="Click to upload a custom lock"' : ''} style="width:23.83px;height:34px;"><img src="${lockSrc}" style="width:100%;height:100%;display:block;" alt=""></div>`
-                                : `<div style="width:100%;height:100%;padding:9px;">${IMG('lock', lockSrc, 'contain')}</div>`}</div></div>
-                            <div class="tx"><div>${E('co.siName', 'ShipInsure Package Protection')}</div><div class="sm">${FEE}</div><div class="rm">${E('co.remove', 'Remove')}</div></div>
-                            <div class="amt">${FEE}</div>
-                        </div>
-                        ${coRows}
-                        <div class="mk-disc"><div class="mk-in">${E('co.discount', 'Discount code or gift card')}</div><div class="ap">${E('co.apply', 'Apply')}</div></div>
-                        <div class="mk-tot"><span>${E('co.subtotal', 'Subtotal')} · ${t.count + 1} items</span><span>${money(t.total)}</span></div>
-                        <div class="mk-tot"><span style="display:inline-flex;align-items:center;gap:3.6px;">${E('co.shipping', 'Shipping')}${ICON('question-sm', 12.4, 12.4, 'rgba(0,0,0,0.56)')}</span><span class="mu">${E('co.shipVal', 'Enter shipping address')}</span></div>
-                        <div class="mk-tot big"><span>${E('co.total', 'Total')}</span><span><span class="cur">${E('co.cur', 'USD')}</span>${money(t.total)}</span></div>
-                    </div></div>
-                </div>
-            </div>`;
-
-            const show = _mkv('mk-show', 'both');
-            const block = (label, frame) => `<div class="mk-flabel"><span>${label}</span>${ed ? `<button type="button" onclick="mkFullscreen(this)" title="Edit full-size">⤢ Full screen</button>` : ''}</div><div class="mk-fit${ed ? ' mk-edit' : ''}">${frame}</div>`;
-            area.innerHTML = (show !== 'checkout' ? block('Cart Drawer', cartFrame) : '') + (show !== 'cart' ? block('Checkout', checkoutFrame) : '');
-            mkFit(area);
-
-            // Pricing readout in the config panel.
-            const info = document.getElementById('mkFeeInfo');
-            if (info) {
-                const sel = document.getElementById('pricingTemplate');
-                const tpl = sel && sel.selectedOptions[0] ? sel.selectedOptions[0].textContent.replace(/\s+—\s+\d+ merchants?$/, '') : '';
-                info.innerHTML = t.typed
-                    ? `<b>SI fee ${_escHtml(money(t.fee))}</b> — typed in the preview (template would be ${money(t.calcFee)}). ↺ Reset Text Edits to go back to the template.`
-                    : `<b>SI fee ${money(t.fee)}</b> on a ${money(t.base)} ${t.subtotal > 0 ? 'cart subtotal' : 'AOV'} · <span style="color:#6c757d;">${_escHtml(tpl)}</span>`;
+        // Flat pages (screenshots, image-only PDFs): the scan model finds the text.
+        async function mkFindText(pi) {
+            const pg = _mk.pages[pi]; if (!pg) return;
+            const key = (localStorage.getItem('si_anthropic_key') || '').trim();
+            if (!key) { _mkStatus('Finding text on an image uses the scan model: add your Anthropic API key first (any 🔍 Scan button → 🔑 Change API Key), then click 🔎 Find text on the page.', 'error'); return; }
+            try {
+                _mkStatus(`Finding the text on “${pg.name}”… (about 20–40 seconds)`, 'info');
+                const cv = await _mkPageCanvas(pg);
+                const f = Math.min(1, 1568 / Math.max(pg.w, pg.h));
+                const sw = Math.round(pg.w * f), sh = Math.round(pg.h * f);
+                const c = document.createElement('canvas'); c.width = sw; c.height = sh;
+                c.getContext('2d').drawImage(cv.ctx.canvas, 0, 0, sw, sh);
+                const prompt = `This image is one page of an e-commerce store mockup (cart and/or checkout), ${sw}×${sh} px.
+List EVERY piece of visible text, one entry per line. Keep separate things separate: a label on the left and its price on the right are two entries; each button label, menu item, price, badge and line of small print is its own entry.
+Return ONLY JSON — no markdown, no code fences:
+{"texts":[{"text":"exact text","x":0,"y":0,"w":0,"h":0,"size":14,"weight":400,"align":"left","font":"","role":""}]}
+- x, y, w, h: a TIGHT pixel box around that line's letters, in this image's coordinates.
+- size: font size in px. weight: 300, 400, 500, 600, 700 or 800.
+- align: how it anchors in its container: "left", "center" (e.g. a centered button label) or "right" (e.g. prices in a right-hand column).
+- font: the closest Google Fonts family, e.g. "Poppins", "Inter", "Montserrat".
+- role: "fee" for the shipping protection / ShipInsure price, "item" for a product's price, "sub" for a subtotal that does NOT include protection, "total" for any amount that includes protection (order total, the checkout button's amount), otherwise "".`;
+                const resp = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-5-5', max_tokens: 16000,
+                        messages: [{ role: 'user', content: [
+                            { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: c.toDataURL('image/jpeg', 0.9).split(',')[1] } },
+                            { type: 'text', text: prompt }
+                        ] }]
+                    })
+                });
+                if (!resp.ok) { const err = await resp.json().catch(() => ({})); throw new Error((err.error && err.error.message) || 'HTTP ' + resp.status); }
+                const data = await resp.json();
+                const raw = ((data.content || []).find(b => b.type === 'text') || {}).text || '';
+                const parsed = JSON.parse(raw.replace(/^[\s\S]*?(\{)/, '$1').replace(/\}[^}]*$/, '}'));
+                const k = 1 / f, AL = { left: 'l', center: 'c', right: 'r' };
+                pg.texts = (parsed.texts || []).filter(t => t && t.text && String(t.text).trim()).map(t => {
+                    const x = (+t.x || 0) * k, y = (+t.y || 0) * k, w = Math.max(2, (+t.w || 0) * k), h = Math.max(2, (+t.h || 0) * k);
+                    const s = _mkSample(cv, x - 2, y - 2, w + 4, h + 4);
+                    const bx = s.box || { x, y, w, h }, sz = Math.max(4, (+t.size || h * 0.8) * k);
+                    const text = String(t.text).replace(/\s+/g, ' ').trim();
+                    const b = bx.y + bx.h - (/[gjpqy,;()]/.test(text) ? sz * 0.21 : 0);
+                    return _mkT({ t: text, x: _mkR(bx.x), y: _mkR(bx.y), w: _mkR(bx.w), h: _mkR(bx.h), b: _mkR(b), sz: _mkR(sz), fw: +t.weight || 400, ff: '', c: s.ink ? s.c : '#111111', bg: s.bg, al: AL[t.align] || 'l', _al: !!AL[t.align], role: MK_ROLES[t.role] && t.role ? t.role : null, fg: String(t.font || '') });
+                });
+                const fonts = {}; pg.texts.forEach(t => { if (t.fg) fonts[t.fg] = (fonts[t.fg] || 0) + 1; });
+                const top = Object.keys(fonts).sort((a, b) => fonts[b] - fonts[a])[0];
+                if (top && !_mk.font) { _mk.font = top; const fi = document.getElementById('mk-font'); if (fi) fi.value = top; }
+                _mkAutoRoles(pg);
+                _mkFeeConsensus(_mk.pages);
+                if (/^Page \d+$/.test(pg.name)) pg.name = _mkGuessName(pg, pi + 1);
+                _mkSel = null;
+                mkRender();
+                _mkStatus(`Found ${pg.texts.length} pieces of text on “${pg.name}”. Click any of them to edit.`, 'ok');
+            } catch (e) {
+                _mkStatus('Find text failed: ' + e.message, 'error');
             }
         }
 
-        // Scale each 1440×900 frame to its container (or the screen when full-screened).
+        // ── Import: Figma link (REST API with the rep's own token, saved in this browser) ──
+        function mkFigmaToggle() {
+            const row = document.getElementById('mkFigmaRow'); if (!row) return;
+            row.style.display = row.style.display === 'block' ? 'none' : 'block';
+            const has = !!(localStorage.getItem('si_figma_token') || '').trim();
+            document.getElementById('mkFigmaTokRow').style.display = has ? 'none' : '';
+            document.getElementById('mkFigmaTokChange').style.display = has ? '' : 'none';
+            document.getElementById('mkFigmaHow').style.display = has ? 'none' : '';
+        }
+        function mkFigmaToken() {
+            document.getElementById('mkFigmaTokRow').style.display = '';
+            document.getElementById('mkFigmaHow').style.display = '';
+            document.getElementById('mkFigmaTokChange').style.display = 'none';
+        }
+        async function mkImportFigma(link) {
+            const tokIn = document.getElementById('mkFigmaToken');
+            if (tokIn && tokIn.value.trim()) { localStorage.setItem('si_figma_token', tokIn.value.trim()); tokIn.value = ''; }
+            const token = (localStorage.getItem('si_figma_token') || '').trim();
+            link = (link || (document.getElementById('mkFigmaUrl') || {}).value || '').trim();
+            if (!token) { const row = document.getElementById('mkFigmaRow'); if (row && row.style.display !== 'block') mkFigmaToggle(); mkFigmaToken(); if (link) document.getElementById('mkFigmaUrl').value = link; _mkStatus('Paste your Figma personal access token (read access to file content), then Import.', 'error'); return; }
+            try { _mkAdopt(await _mkFromFigma(link, token), 'Figma'); }
+            catch (e) { _mkStatus('Figma import failed: ' + e.message, 'error'); }
+        }
+        async function _mkFromFigma(link, token) {
+            const km = link.match(/figma\.com\/(?:design|file|proto)\/([A-Za-z0-9]+)/);
+            if (!km) throw new Error('that isn’t a Figma file link');
+            const nm = link.match(/[?&]node-id=([^&#]+)/);
+            if (!nm) throw new Error('link to the frames themselves: in Figma, select the Cart / Checkout frames (or their section), right-click → Copy/Paste as → Copy link to selection');
+            const key = km[1], id = decodeURIComponent(nm[1]).replace(/-/g, ':');
+            const api = async p => {
+                const r = await fetch('https://api.figma.com/v1/' + p, { headers: { 'X-Figma-Token': token } });
+                const j = await r.json().catch(() => ({}));
+                if (!r.ok) throw new Error(r.status === 403 ? 'Figma refused the token, or it can’t open this file (check it has file content read access)' : (j.err || j.message || 'Figma error ' + r.status));
+                return j;
+            };
+            _mkStatus('Reading the Figma file…', 'info');
+            const j = await api(`files/${key}/nodes?ids=${encodeURIComponent(id)}`);
+            const root = j.nodes && j.nodes[id] && j.nodes[id].document;
+            if (!root) throw new Error('no frame found at that link');
+            const frames = _mkFigmaFrames(root)
+                .sort((a, b) => (a.absoluteBoundingBox.x - b.absoluteBoundingBox.x) || (a.absoluteBoundingBox.y - b.absoluteBoundingBox.y)).slice(0, 8);
+            if (!frames.length) throw new Error('no page-sized frames at that link');
+            _mkStatus(`Rendering ${frames.length} frame${frames.length > 1 ? 's' : ''} in Figma…`, 'info');
+            const im = await api(`images/${key}?ids=${encodeURIComponent(frames.map(f => f.id).join(','))}&format=png&scale=1.5`);
+            const pages = [];
+            for (let i = 0; i < frames.length; i++) {
+                const fr = frames[i], src = im.images && im.images[fr.id];
+                if (!src) continue;
+                _mkStatus(`Downloading frame ${i + 1} of ${frames.length}…`, 'info');
+                let blob;
+                try { blob = await (await fetch(src)).blob(); }
+                catch (e) { throw new Error('Figma’s image server blocked the download. Export the frames as PDF in Figma and upload that instead'); }
+                const bb = fr.absoluteBoundingBox;
+                const pg = await _mkFromImage(await _mkBlobUrl(blob), fr.name, bb.width, bb.height);
+                pg.texts = _mkFigmaTexts(fr, bb, _mkCanvas[pg.img]);
+                const guess = _mkGuessName(pg, i + 1);
+                pg.name = /^Page \d+$/.test(guess) ? (fr.name || guess) : guess;
+                pages.push(pg);
+            }
+            return pages;
+        }
+        function _mkFigmaFrames(n) {
+            const big = f => f.absoluteBoundingBox && f.absoluteBoundingBox.width >= 300 && f.absoluteBoundingBox.height >= 300;
+            const isF = f => /^(FRAME|COMPONENT|INSTANCE)$/.test(f.type) && f.visible !== false;
+            if (isF(n)) {
+                // A bare wrapper frame holding the Cart / Checkout frames side by side → those frames.
+                const kids = (n.children || []).filter(k => isF(k) && big(k));
+                const bare = !(n.fills || []).some(f => f.visible !== false && (f.opacity == null || f.opacity > 0));
+                return big(n) && !(bare && kids.length >= 2) ? [n] : kids;
+            }
+            if (/^(CANVAS|SECTION|GROUP)$/.test(n.type)) return (n.children || []).filter(k => k.visible !== false).flatMap(_mkFigmaFrames);
+            return [];
+        }
+        function _mkFigmaTexts(fr, bb, cv) {
+            const out = [];
+            (function walk(n) {
+                if (n.visible === false) return;
+                if (n.type === 'TEXT' && n.characters && n.characters.trim() && n.absoluteBoundingBox) {
+                    const a = n.absoluteBoundingBox, st = n.style || {};
+                    const x = a.x - bb.x, y = a.y - bb.y, w = a.width, h = a.height;
+                    if (x + w < 0 || y + h < 0 || x > bb.width || y > bb.height) return;
+                    const sz = st.fontSize || 14, lh = st.lineHeightPx || sz * 1.2, wrap = h > lh * 1.5;
+                    const fill = (n.fills || []).find(f => f.type === 'SOLID' && f.visible !== false);
+                    const c = fill ? _mkHex(fill.color.r * 255, fill.color.g * 255, fill.color.b * 255) : '#111111';
+                    const s = _mkSample(cv, x, y, w, h);
+                    out.push(_mkT({
+                        t: wrap ? n.characters : n.characters.replace(/\s*\n\s*/g, ' '), x: _mkR(x), y: _mkR(y), w: _mkR(w), h: _mkR(h),
+                        b: _mkR(y + (lh - sz) / 2 + sz * 0.845), sz, lh: wrap ? lh : 0, wrap, fw: st.fontWeight || 400, ff: st.fontFamily || '', it: !!st.italic,
+                        c, bg: s.bg, al: { CENTER: 'c', RIGHT: 'r' }[st.textAlignHorizontal] || 'l', _al: true,
+                        tt: { UPPER: 'u', LOWER: 'l', TITLE: 't' }[st.textCase] || '', ls: st.letterSpacing || 0
+                    }));
+                    return;
+                }
+                (n.children || []).forEach(walk);
+            })(fr);
+            return out;
+        }
+
+        // ── Import: a mockup filed in the merchant's Checkout Experience folder ──
+        async function mkFolderList() {
+            const box = document.getElementById('mkFolderPick'); if (!box) return;
+            const a = window.SIsb && SIsb.getActiveFolder();
+            if (!a) { box.innerHTML = ''; _mkStatus('Pick the merchant in the folder bar at the top first.', 'error'); return; }
+            _mkStatus(`Looking in ${a.name}’s Checkout Experience folder…`, 'info');
+            let rows;
+            try { rows = (await SIsb.listAssets(a.id, 'checkout')).filter(r => r.source === 'upload' || r.source === 'link'); }
+            catch (e) { box.innerHTML = ''; _mkStatus('Couldn’t open the folder. Sign in from the folder bar first. (' + e.message + ')', 'error'); return; }
+            if (!rows.length) { box.innerHTML = ''; _mkStatus(`No uploaded or linked mockups in ${a.name}’s Checkout Experience folder yet. Add one in Merchant Folders, or use Upload here.`, 'error'); return; }
+            _mkFolderRows = rows;
+            _mkStatus('Pick the mockup to import:', 'info');
+            box.innerHTML = `<div class="mk2-pick">${rows.map((r, i) => `<button type="button" onclick="mkFromFolder(${i})">${r.source === 'link' ? '🔗' : '📎'} ${_escHtml(r.title || 'Untitled')}</button>`).join('')}</div>`;
+        }
+        async function mkFromFolder(i) {
+            const r = _mkFolderRows[i]; if (!r) return;
+            document.getElementById('mkFolderPick').innerHTML = '';
+            try {
+                if (r.source === 'link') {
+                    if (/figma\.com\//i.test(r.doc_url || '')) return mkImportFigma(r.doc_url);
+                    let blob;
+                    try { blob = await (await fetch(r.doc_url)).blob(); }
+                    catch (e) { throw new Error('that link can’t be read from here. Download the file and use Upload'); }
+                    return mkImportBlob(blob, r.title || 'Mockup');
+                }
+                _mkStatus(`Downloading ${r.title || 'the file'}…`, 'info');
+                const blob = await (await fetch(await SIsb.docLink(r.file_path, 600))).blob();
+                return mkImportBlob(blob, (r.file_path || '').split('/').pop() || r.title || 'Mockup');
+            } catch (e) { _mkStatus('Import failed: ' + e.message, 'error'); }
+        }
+
+        async function mkImportBlob(blob, name) {
+            try {
+                _mkStatus(`Importing ${name}…`, 'info');
+                let pages;
+                if (/pdf/i.test(blob.type) || /\.pdf$/i.test(name)) pages = await _mkFromPdf(await blob.arrayBuffer());
+                else if (/^image\//i.test(blob.type) || /\.(png|jpe?g|gif|webp)$/i.test(name)) pages = [await _mkFromImage(await _mkBlobUrl(blob), 'Page 1')];
+                else throw new Error('use a PDF or an image (PNG / JPG)');
+                _mkAdopt(pages, String(name).replace(/\.[^.]+$/, ''));
+            } catch (e) { _mkStatus('Import failed: ' + e.message, 'error'); }
+        }
+        function _mkAdopt(pages, src) {
+            if (!pages.length) throw new Error('nothing to import');
+            pages.forEach(_mkAutoRoles);
+            _mkFeeConsensus(pages);
+            _mk = { src: src || '', font: _mk.font || '', pages };
+            _mkSel = null;
+            const fi = document.getElementById('mk-font'); if (fi) fi.value = _mk.font;
+            if (_widgetType !== 'mockup') setWidgetType('mockup'); else mkRender();
+            const nT = pages.reduce((s, p) => s + p.texts.length, 0);
+            const flat = pages.map((p, i) => p.texts.length ? -1 : i).filter(i => i >= 0);
+            const fee = pages.some(p => p.texts.some(t => t.role === 'fee'));
+            _mkStatus(`Imported ${pages.length} page${pages.length > 1 ? 's' : ''} from ${src || 'the mockup'}` +
+                (nT ? ` with ${nT} editable texts. ` : '. ') +
+                (flat.length ? `${flat.length === pages.length ? 'It' : flat.length + ' page(s)'} is a flat image, so finding its text… ` : '') +
+                (nT && !fee ? 'No ShipInsure price found: click it in the preview and tag it “ShipInsure price”.' : ''), nT || !flat.length ? 'ok' : 'info');
+            _mkPersistImages();
+            if (flat.length && (localStorage.getItem('si_anthropic_key') || '').trim()) {
+                (async () => { for (const i of flat) await mkFindText(i); })();
+            } else if (flat.length) {
+                _mkStatus(`Imported ${pages.length} page(s). They're flat images, so the text has to be found first: add your Anthropic API key (any 🔍 Scan button → 🔑 Change API Key), then click 🔎 Find text on each page.`, 'info');
+            }
+        }
+
+        // Page images go to public storage once signed in, so links + folder saves stay small.
+        async function _mkPersistImages() {
+            const objs = [_mk].concat((_merchantExamples || []).map(e => e && e.design && e.design.mk).filter(Boolean));
+            const srcs = new Set();
+            objs.forEach(m => (m.pages || []).forEach(pg => { if (/^data:/.test(pg.img || '')) srcs.add(pg.img); (pg.boxes || []).forEach(b => { if (/^data:/.test(b.img || '')) srcs.add(b.img); }); }));
+            const todo = [...srcs].filter(s => !_mkUrlMap[s]);
+            if (todo.length) {
+                if (!window.SIsb) return false;
+                let u = null; try { u = await SIsb.currentUser(); } catch (e) {}
+                if (!u) return false;
+                await Promise.all(todo.map(s => SIsb.uploadLogo(s).then(url => { if (url && !/^data:/.test(url)) { _mkUrlMap[s] = url; if (_mkCanvas[s]) _mkCanvas[url] = _mkCanvas[s]; } }, () => {})));
+            }
+            objs.forEach(m => (m.pages || []).forEach(pg => {
+                if (_mkUrlMap[pg.img]) pg.img = _mkUrlMap[pg.img];
+                (pg.boxes || []).forEach(b => { if (_mkUrlMap[b.img]) b.img = _mkUrlMap[b.img]; });
+            }));
+            return !objs.some(m => JSON.stringify(m.pages || []).indexOf('"data:') >= 0);
+        }
+        function _mkHasInline(mk) { return !!mk && JSON.stringify(mk.pages || []).indexOf('"data:') >= 0; }
+
+        // ── Render ──
+        const _mkFontsLoaded = {};
+        function _mkLoadFonts() {
+            const fams = new Set();
+            if (_mk.font) fams.add(_mk.font);
+            _mk.pages.forEach(p => p.texts.forEach(t => { if (t.ff) fams.add(t.ff); }));
+            fams.forEach(f => {
+                if (_mkFontsLoaded[f] || /^(arial|helvetica|helvetica neue|times|times new roman|georgia|verdana|system-ui|sans-serif|serif)$/i.test(f)) return;
+                _mkFontsLoaded[f] = 1;
+                const l = document.createElement('link');
+                l.rel = 'stylesheet';
+                l.href = 'https://fonts.googleapis.com/css?family=' + encodeURIComponent(f).replace(/%20/g, '+') + ':300,400,500,600,700,800,400i,700i&display=swap';
+                document.head.appendChild(l);
+            });
+        }
+        const _mkShown = t => t.add || t.sty || t.t !== t.o;
+        const _mkIsSel = (k, pi, id) => !!_mkSel && _mkSel.k === k && _mkSel.p === pi && _mkSel.id === id;
+        function _mkTextStyle(t, pg) {
+            const P = MK_PAD, ff = (t.ff || _mk.font || '').replace(/['";]/g, '');
+            let s = `font-size:${t.sz}px;font-weight:${t.fw};--c:${t.c};--bg:${t.add ? 'transparent' : t.bg};font-family:${ff ? `'${ff}',` : ''}'Helvetica Neue',Arial,sans-serif;`;
+            if (t.it) s += 'font-style:italic;';
+            if (t.ls) s += `letter-spacing:${t.ls}px;`;
+            if (t.tt) s += 'text-transform:' + { u: 'uppercase', l: 'lowercase', t: 'capitalize' }[t.tt] + ';';
+            if (t.wrap) return s + `left:${t.x - P}px;top:${t.y - P}px;width:${t.w + 2 * P}px;min-height:${t.h + 2 * P}px;padding:${P}px;line-height:${t.lh}px;white-space:pre-wrap;text-align:${{ l: 'left', c: 'center', r: 'right' }[t.al]};`;
+            // One line: baseline sits where the original's did (≈0.845em down a 1em line box).
+            const top = Math.min(t.y - P, t.b - 0.845 * t.sz), bot = Math.max(t.y + t.h + P, t.b + 0.26 * t.sz);
+            s += `top:${_mkR(top)}px;height:${_mkR(bot - top)}px;padding-top:${_mkR(t.b - 0.845 * t.sz - top)}px;padding-left:${P}px;padding-right:${P}px;line-height:${t.sz}px;white-space:pre;min-width:${_mkR(t.w + 2 * P)}px;`;
+            if (t.al === 'r') s += `right:${_mkR(pg.w - (t.x + t.w) - P)}px;text-align:right;`;
+            else if (t.al === 'c') s += `left:${_mkR(t.x + t.w / 2)}px;transform:translateX(-50%);text-align:center;`;
+            else s += `left:${_mkR(t.x - P)}px;`;
+            return s;
+        }
+        function _mkTextHtml(t, pg, pi, ed) {
+            const shown = _mkShown(t);
+            if (!ed && !shown) return '';
+            const cls = 'mk2-t' + (shown ? ' shown' : '') + (t.role ? ' r-' + t.role : '') + (ed && _mkIsSel('t', pi, t.id) ? ' sel' : '');
+            const attrs = ed ? ` data-t="${t.id}" contenteditable="plaintext-only" spellcheck="false"${t.role ? ` data-tag="${MK_ROLE_TAG[t.role]}"` : ''}` : '';
+            return `<div class="${cls}"${attrs} style="${_mkTextStyle(t, pg)}">${_escHtml(t.t)}</div>`;
+        }
+        function _mkBoxHtml(b, pi, ed) {
+            const sel = ed && _mkIsSel('b', pi, b.id);
+            return `<div class="mk2-b${sel ? ' sel' : ''}"${ed ? ` data-b="${b.id}"` : ''} style="left:${b.x}px;top:${b.y}px;width:${b.w}px;height:${b.h}px;background:${b.fill || 'transparent'};border-radius:${b.r || 0}px;">` +
+                (b.img ? `<img src="${b.img}" alt="" draggable="false" style="object-fit:${b.fit || 'contain'};border-radius:${b.r || 0}px;">` : '') + (sel ? '<i class="mk2-rz"></i>' : '') + '</div>';
+        }
+        function _mkPageHtml(pg, pi, ed) {
+            const btns = ed ? `<span class="mk2-pbtns">${!pg.texts.length ? `<button type="button" onclick="mkFindText(${pi})" title="Find the text on this image so it can be edited (uses the scan model)">🔎 Find text</button>` : ''}<button type="button" onclick="mkFullscreen(this)" title="Edit full-size">⤢ Full screen</button><button type="button" onclick="mkRemovePage(${pi})" title="Remove this page">✕</button></span>` : '';
+            const cls = 'mk2-page' + (ed && _mkTool !== 'select' ? ' tool-' + _mkTool : '') + (ed && _mkOn('mk-tags') ? ' tags' : '');
+            return `<div class="mk-flabel"><span>${_escHtml(pg.name || 'Page ' + (pi + 1))}</span>${btns}</div>` +
+                `<div class="mk-fit${ed ? ' mk-edit' : ''}"><div class="${cls}" data-p="${pi}" style="width:${pg.w}px;height:${pg.h}px;">` +
+                `<img class="mk2-base" src="${pg.img}" alt="" draggable="false">${pg.boxes.map(b => _mkBoxHtml(b, pi, ed)).join('')}${pg.texts.map(t => _mkTextHtml(t, pg, pi, ed)).join('')}</div></div>`;
+        }
+        function mkRender() {
+            const area = document.getElementById('widgetPreviewArea');
+            const _ptEl = document.getElementById('previewTitle');
+            if (_ptEl) _ptEl.textContent = 'Cart + Checkout Mockup' + (_mk.src ? ' · ' + _mk.src : '');
+            const _liCard = document.getElementById('lineItemCard'); if (_liCard) _liCard.style.display = 'none';
+            const _wCard = document.getElementById('widgetPreviewCard'); if (_wCard) _wCard.style.display = '';
+            const _scb = document.getElementById('scanCartBtn'); if (_scb) _scb.style.display = 'none';
+            if (!area) return;
+            area.style.background = ''; area.style.padding = ''; area.style.borderRadius = '';
+            const ed = !_mkReadOnly;
+            _mkLoadFonts();
+            const pr = _mkPrice();
+            area.innerHTML = _mk.pages.length ? _mk.pages.map((pg, pi) => _mkPageHtml(pg, pi, ed)).join('')
+                : (ed ? `<div class="mk2-empty"><b>Import this merchant's mockup to start.</b><br>Upload the Figma export (PDF, every page), an image or a store screenshot, pick it from the merchant's folder, or paste a Figma link.<br>Every text then becomes editable right here, and the ShipInsure price and totals follow the Pricing template.</div>` : '');
+            mkFit(area);
+            _mkFeeInfo(pr);
+            _mkInspector();
+            const fi = document.getElementById('mk-font'); if (fi && document.activeElement !== fi) fi.value = _mk.font || '';
+        }
+        function _mkFeeInfo(pr) {
+            const el = document.getElementById('mkFeeInfo'); if (!el) return;
+            if (!_mk.pages.length) { el.style.display = 'none'; return; }
+            el.style.display = '';
+            const sel = document.getElementById('pricingTemplate');
+            const tname = sel && sel.selectedOptions[0] ? sel.selectedOptions[0].textContent.trim() : '';
+            if (pr.F == null) { el.innerHTML = '<b>No ShipInsure price tagged yet.</b> Click the protection price in the preview and set its Price tag to “ShipInsure price”.'; return; }
+            el.innerHTML = `ShipInsure price: <b>${_mkMoneyStr(pr.F)}</b>` +
+                (pr.man ? ' (typed in the preview)' : _mkOn('mk-reprice') && pr.M != null ? ` · ${_escHtml(tname)} on ${_mkMoneyStr(pr.M)} of products` : '') +
+                (pr.F0 != null && Math.abs(pr.F0 - pr.F) >= 0.005 ? ` · the mockup showed ${_mkMoneyStr(pr.F0)}` : '');
+        }
         function mkFit(root) {
             (root || document).querySelectorAll('.mk-fit').forEach(w => {
-                const f = w.querySelector('.mk-frame'); if (!f) return;
+                const pg = w.querySelector('.mk2-page'); if (!pg) return;
+                const pw = parseFloat(pg.style.width) || 1440, ph = parseFloat(pg.style.height) || 900;
                 const fs = document.fullscreenElement === w;
-                const z = fs ? Math.min(window.innerWidth / MK_W, window.innerHeight / MK_H) : (w.clientWidth || 0) / MK_W;
-                if (z > 0) f.style.zoom = z;
+                const z = fs ? Math.min(window.innerWidth / pw, window.innerHeight / ph) : (w.clientWidth || 0) / pw;
+                if (z > 0) { pg.style.zoom = z; pg.style.setProperty('--z', z); }
             });
         }
         function mkFullscreen(btn) {
@@ -3323,95 +3712,263 @@ For uncertain values make your best visual estimate. Always use valid hex colors
         document.addEventListener('fullscreenchange', () => mkFit(document));
         window.addEventListener('resize', () => mkFit(document));
 
-        // In-preview editing: commit on blur (Enter = done), then re-render so totals follow.
-        function mkCommitEdit(el) {
-            const key = el.getAttribute('data-mk');
-            const txt = (el.textContent || '').replace(/\s+/g, ' ').trim();
-            if (txt === (el.getAttribute('data-o') || '').replace(/\s+/g, ' ').trim()) return false;
-            const m = key.match(/^p\.(\d+)\.(\w+)$/);
-            if (m) {
-                const p = _mkEnsureProducts()[+m[1]]; if (!p) return false;
-                p[m[2]] = m[2] === 'qty' ? Math.max(1, parseInt(txt) || 1) : txt;
-            } else if (key === 'fee') {
-                if (txt) _mk.text.fee = txt; else delete _mk.text.fee;
-            } else {
-                _mk.text[key] = txt;
-            }
-            return true;
+        // ── Selection panel (style the selected text or box) ──
+        function _mkCur() {
+            if (!_mkSel) return null;
+            const pg = _mk.pages[_mkSel.p]; if (!pg) return null;
+            const o = (_mkSel.k === 't' ? pg.texts : pg.boxes).find(x => x.id === _mkSel.id);
+            return o ? { pg, o } : null;
         }
-        // Tabbing/clicking straight into another text keeps editing; totals re-render once focus leaves.
-        let _mkPending = false;
+        function _mkInspector() {
+            const el = document.getElementById('mkSelPanel'); if (!el) return;
+            const c = _mkCur();
+            if (!c || _mkReadOnly) { el.innerHTML = _mk.pages.length ? '<div class="mk2-hint">Click a text or box in the preview to restyle, retag or remove it here.</div>' : ''; return; }
+            const o = c.o, opt = (v, cur, label) => `<option value="${v}"${String(v) === String(cur) ? ' selected' : ''}>${label}</option>`;
+            if (_mkSel.k === 't') {
+                el.innerHTML = `<div class="mk2-insp">
+                    <div class="mk2-insp-h">${o.add ? 'Added text' : 'Text'} <span>“${_escHtml(String(o.add ? o.t : o.o).slice(0, 42))}”</span></div>
+                    <div class="wconfig-style-row">
+                        <div class="wcs"><label>Price tag</label><select onchange="mkSetT('role', this.value)">${Object.keys(MK_ROLES).map(k => opt(k, o.role, MK_ROLES[k])).join('')}</select></div>
+                        <div class="wcs"><label>Anchor</label><select onchange="mkSetT('al', this.value)">${opt('l', o.al, 'Left')}${opt('c', o.al, 'Center')}${opt('r', o.al, 'Right')}</select></div>
+                    </div>
+                    <div class="wconfig-style-row">
+                        <div class="wcs"><label>Font</label><input type="text" value="${_escHtml(o.ff)}" placeholder="${_escHtml(_mk.font || 'Mockup font')}" onchange="mkSetT('ff', this.value.trim())"></div>
+                        <div class="wcs"><label>Size</label><input type="number" step="0.5" min="4" value="${o.sz}" onchange="mkSetT('sz', parseFloat(this.value) || ${o.sz})"></div>
+                        <div class="wcs"><label>Weight</label><select onchange="mkSetT('fw', +this.value)">${[300, 400, 500, 600, 700, 800].map(w => opt(w, o.fw, w)).join('')}</select></div>
+                    </div>
+                    <div class="wconfig-style-row">
+                        <div class="wcs"><label>Text color</label><input type="color" value="${o.c}" onchange="mkSetT('c', this.value)"></div>
+                        ${o.add ? '' : `<div class="wcs"><label>Cover color</label><input type="color" value="${o.bg}" onchange="mkSetT('bg', this.value)" title="Paints over the original text once it changes"></div>`}
+                    </div>
+                    ${o.fg && !o.add ? '<label class="mk2-chk"><input type="checkbox" id="mkGrp" checked> Font &amp; weight changes apply to all text in this same font</label>' : ''}
+                    <div class="mk2-row"><button type="button" onclick="mkRevertT()">↺ Revert</button><button type="button" onclick="mkDeleteT()">${o.add ? '✕ Delete' : '⌫ Erase'}</button></div>
+                </div>`;
+            } else {
+                el.innerHTML = `<div class="mk2-insp">
+                    <div class="mk2-insp-h">Box <span>drag to move · corner to resize</span></div>
+                    <div class="wconfig-style-row">
+                        <div class="wcs"><label>Fill</label><input type="color" value="${o.fill && o.fill !== 'transparent' ? o.fill : '#ffffff'}" onchange="mkSetB('fill', this.value)"></div>
+                        <div class="wcs"><label>Corner radius</label><input type="number" min="0" value="${o.r || 0}" onchange="mkSetB('r', +this.value || 0)"></div>
+                        ${o.img ? `<div class="wcs"><label>Image fit</label><select onchange="mkSetB('fit', this.value)">${opt('contain', o.fit || 'contain', 'Fit')}${opt('cover', o.fit, 'Fill')}</select></div>` : ''}
+                    </div>
+                    <label class="mk2-chk"><input type="checkbox" ${!o.fill || o.fill === 'transparent' ? 'checked' : ''} onchange="mkSetB('fill', this.checked ? 'transparent' : '#ffffff')"> No fill</label>
+                    <div class="mk2-row">
+                        <button type="button" onclick="document.getElementById('mkImgInput').click()">🖼 ${o.img ? 'Replace' : 'Add'} image</button>
+                        ${o.img ? '<button type="button" onclick="mkSetB(\'img\', null)">Remove image</button>' : ''}
+                        <button type="button" onclick="mkDeleteB()">✕ Delete box</button>
+                    </div>
+                </div>`;
+            }
+        }
+        function mkSetT(prop, val) {
+            const c = _mkCur(); if (!c || _mkSel.k !== 't') return;
+            const t = c.o;
+            if (prop === 'role') { t.role = val; t.man = false; mkRender(); return; }
+            const grp = (prop === 'ff' || prop === 'fw') && t.fg && (document.getElementById('mkGrp') || {}).checked;
+            const list = grp ? _mk.pages.flatMap(p => p.texts.filter(x => x.fg === t.fg && !x.add)) : [t];
+            list.forEach(x => {
+                if (!x.os) x.os = { sz: x.sz, fw: x.fw, ff: x.ff, c: x.c, bg: x.bg, al: x.al };
+                x[prop] = val;
+                x.sty = !x.add && ['sz', 'fw', 'ff', 'c', 'bg', 'al'].some(k => x[k] !== x.os[k]);
+            });
+            mkRender();
+        }
+        function mkRevertT() {
+            const c = _mkCur(); if (!c || _mkSel.k !== 't') return;
+            const t = c.o;
+            if (t.os) { Object.assign(t, t.os); delete t.os; }
+            t.t = t.o; t.man = false; t.sty = false;
+            mkRender();
+        }
+        function mkDeleteT() {
+            const c = _mkCur(); if (!c || _mkSel.k !== 't') return;
+            if (c.o.add) { c.pg.texts = c.pg.texts.filter(x => x !== c.o); _mkSel = null; }
+            else { c.o.t = ''; c.o.man = true; }
+            mkRender();
+        }
+        function mkSetB(prop, val) {
+            const c = _mkCur(); if (!c || _mkSel.k !== 'b') return;
+            c.o[prop] = val;
+            mkRender();
+        }
+        function mkDeleteB() {
+            const c = _mkCur(); if (!c || _mkSel.k !== 'b') return;
+            c.pg.boxes = c.pg.boxes.filter(x => x !== c.o); _mkSel = null;
+            mkRender();
+        }
+        function mkBoxImage(file) {
+            const c = _mkCur(); if (!c || _mkSel.k !== 'b') return;
+            _mkBlobUrl(file).then(url => _compressImage(url, 1000, small => {
+                c.o.img = small; if (!c.o.fit) c.o.fit = 'contain';
+                mkRender(); _mkPersistImages();
+            }));
+        }
+        function mkSetTool(t) {
+            _mkTool = t;
+            document.querySelectorAll('#mkTools button').forEach(b => b.classList.toggle('on', b.dataset.tool === t));
+            document.querySelectorAll('#widgetPreviewArea .mk2-page').forEach(p => {
+                p.classList.remove('tool-box', 'tool-image', 'tool-text');
+                if (t !== 'select') p.classList.add('tool-' + t);
+            });
+        }
+        function mkSetFont(v) { _mk.font = String(v || '').trim(); mkRender(); }
+        function mkRemovePage(pi) {
+            if (!confirm(`Remove “${(_mk.pages[pi] || {}).name || 'this page'}” from the mockup?`)) return;
+            _mk.pages.splice(pi, 1); _mkSel = null; mkRender();
+        }
+        function mkRevertAll() {
+            if (!_mk.pages.length || !confirm('Undo every text change, box and added text on this mockup?')) return;
+            _mk.pages.forEach(pg => {
+                pg.boxes = [];
+                pg.texts = pg.texts.filter(t => !t.add);
+                pg.texts.forEach(t => { if (t.os) { Object.assign(t, t.os); delete t.os; } t.t = t.o; t.man = false; t.sty = false; });
+            });
+            _mkSel = null; mkRender();
+        }
+        function mkClear() {
+            if (!_mk.pages.length || !confirm('Remove the imported mockup from this design?')) return;
+            _mk = _mkFresh(); _mkSel = null; _mkStatus(''); mkRender();
+        }
+
+        // ── In-preview editing ──
+        function _mkFromEl(el) {
+            const pe = el && el.closest && el.closest('#widgetPreviewArea .mk2-page'); if (!pe) return null;
+            const pi = +pe.dataset.p, pg = _mk.pages[pi]; if (!pg) return null;
+            const te = el.closest('.mk2-t'), be = el.closest('.mk2-b');
+            return { pe, pi, pg, te, be, t: te ? pg.texts.find(x => x.id === te.dataset.t) : null, b: be ? pg.boxes.find(x => x.id === be.dataset.b) : null };
+        }
+        // Repaint every text (prices follow the edit) without rebuilding the page under the caret.
+        function _mkRefresh(skipEl) {
+            const pr = _mkPrice();
+            document.querySelectorAll('#widgetPreviewArea .mk2-t').forEach(el => {
+                const f = _mkFromEl(el); if (!f || !f.t) return;
+                el.classList.toggle('shown', _mkShown(f.t));
+                if (el !== skipEl && el.textContent !== f.t.t) el.textContent = f.t.t;
+            });
+            _mkFeeInfo(pr);
+        }
+        function _mkSelect(sel) {
+            _mkSel = sel;
+            document.querySelectorAll('#widgetPreviewArea .mk2-t.sel, #widgetPreviewArea .mk2-b.sel').forEach(e => e.classList.remove('sel'));
+            _mkInspector();
+        }
+        document.addEventListener('input', e => {
+            if (_mkReadOnly || _widgetType !== 'mockup') return;
+            const f = _mkFromEl(e.target); if (!f || !f.t) return;
+            const t = f.t;
+            t.t = t.wrap ? f.te.innerText.replace(/\n$/, '') : f.te.textContent.replace(/\n/g, ' ');
+            if (t.role === 'fee' || t.role === 'sub' || t.role === 'total') t.man = t.t !== t.o;
+            _mkRefresh(f.te);
+        });
+        document.addEventListener('focusin', e => {
+            if (_mkReadOnly) return;
+            const f = _mkFromEl(e.target); if (!f || !f.t) return;
+            _mkSelect({ p: f.pi, k: 't', id: f.t.id });
+            f.te.classList.add('sel');
+        });
         document.addEventListener('focusout', e => {
-            const el = e.target && e.target.closest ? e.target.closest('#widgetPreviewArea [data-mk]') : null;
-            if (!el || _mkReadOnly) return;
-            if (mkCommitEdit(el) === true) { el.setAttribute('data-o', el.textContent); _mkPending = true; }
-            const next = e.relatedTarget && e.relatedTarget.closest ? e.relatedTarget.closest('#widgetPreviewArea [data-mk]') : null;
-            if (_mkPending && !next) { _mkPending = false; updateWidgetPreview(); }
+            const f = _mkFromEl(e.target); if (!f || !f.t) return;
+            f.te.classList.toggle('shown', _mkShown(f.t));
         });
         document.addEventListener('keydown', e => {
-            if (e.key === 'Enter' && e.target && e.target.closest && e.target.closest('#widgetPreviewArea [data-mk]')) { e.preventDefault(); e.target.blur(); }
+            if (_mkReadOnly || _widgetType !== 'mockup') return;
+            const f = _mkFromEl(e.target);
+            if (f && f.t) {
+                if ((e.key === 'Enter' && !f.t.wrap) || e.key === 'Escape') { e.preventDefault(); f.te.blur(); }
+                return;
+            }
+            if (/^(INPUT|SELECT|TEXTAREA)$/.test((e.target || {}).tagName) || (e.target && e.target.isContentEditable)) return;
+            const c = _mkCur(); if (!c) return;
+            if ((e.key === 'Delete' || e.key === 'Backspace') && _mkSel.k === 'b') { e.preventDefault(); mkDeleteB(); return; }
+            const mv = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
+            if (mv && (_mkSel.k === 'b' || c.o.add)) {
+                e.preventDefault();
+                const n = e.shiftKey ? 10 : 1;
+                c.o.x += mv[0] * n; c.o.y += mv[1] * n; if (c.o.b != null && _mkSel.k === 't') c.o.b += mv[1] * n;
+                mkRender();
+            }
         });
-        document.addEventListener('click', e => {
-            if (_mkReadOnly || !e.target.closest || !e.target.closest('#widgetPreviewArea .mk-edit')) return;
-            if (e.target.closest('[data-mk]')) return;   // clicking text edits it
-            const del = e.target.closest('[data-mk-del]');
-            if (del) { mkRemoveProduct(+del.getAttribute('data-mk-del')); return; }
-            const im = e.target.closest('[data-mk-img]');
-            if (im) mkPickImage(im.getAttribute('data-mk-img'));
-        });
-
-        function mkPickImage(target) {
-            _mkImgTarget = target;
-            const inp = document.getElementById('mkImgInput');
-            if (inp) { inp.value = ''; inp.click(); }
-        }
-        function mkLoadImage(input) {
-            const file = input.files && input.files[0];
-            const target = _mkImgTarget;
-            if (!file || !target) return;
-            if (file.size > 8 * 1024 * 1024) { alert('Image must be under 8MB'); return; }
-            const reader = new FileReader();
-            reader.onload = e => {
-                // Backdrop is a full page → JPEG; the rest keep transparency as small PNGs.
-                const isBackdrop = target === 'backdrop';
-                _compressImage(e.target.result, isBackdrop ? 1440 : (target === 'logo' ? 360 : 240), out => {
-                    if (target === 'logo' || target === 'lock' || target === 'backdrop') _mk[target] = out;
-                    else { const m = target.match(/^p\.(\d+)$/); if (m) { const p = _mkEnsureProducts()[+m[1]]; if (p) p.img = out; } }
-                    updateWidgetPreview();
-                }, isBackdrop ? 'image/jpeg' : null);
+        // Draw boxes / place text / drag + resize boxes and added text.
+        document.addEventListener('mousedown', e => {
+            if (_mkReadOnly || _widgetType !== 'mockup' || e.button !== 0) return;
+            const f = _mkFromEl(e.target); if (!f) return;
+            const { pe, pi, pg } = f;
+            const pt = ev => { const r = pe.getBoundingClientRect(); return { x: (ev.clientX - r.left) / r.width * pg.w, y: (ev.clientY - r.top) / r.height * pg.h }; };
+            const drag = (onMove, onUp) => {
+                const mm = ev => onMove(ev), mu = ev => { document.removeEventListener('mousemove', mm); document.removeEventListener('mouseup', mu); onUp(ev); };
+                document.addEventListener('mousemove', mm); document.addEventListener('mouseup', mu);
             };
-            reader.readAsDataURL(file);
-        }
-        function mkClearImage(target) { _mk[target] = null; updateWidgetPreview(); }
-        function mkAddProduct() {
-            const aov = parseFloat(removeCommas(document.getElementById('avgOrderValue').value)) || 0;
-            _mkEnsureProducts().push({ name: 'New Product', desc: '', price: formatCurrencyWithCents(aov || 25), compareAt: '', qty: 1, img: null });
-            updateWidgetPreview();
-        }
-        function mkRemoveProduct(i) { _mkEnsureProducts().splice(i, 1); updateWidgetPreview(); }
-        function mkResetProducts() { _mk.products = null; updateWidgetPreview(); }
-        function mkResetText() { _mk.text = {}; updateWidgetPreview(); }
-
-        // Colors from the scans: Scan Cart fills the Dual fields + cart bg, Scan Checkout the summary bg.
-        function mkMatchScan(d) {
-            const hex = c => (typeof c === 'string' && /^#?[0-9a-fA-F]{3,8}$/.test(c.trim())) ? (c.trim().startsWith('#') ? c.trim() : '#' + c.trim()) : null;
-            const setV = (id, val) => { const e = document.getElementById(id); if (e && val != null && val !== '') e.value = val; };
-            const g = id => (document.getElementById(id) || {}).value;
-            d = d || {};
-            const brand = hex(d.buttonBg) || g('wc-dual-p-bg');
-            setV('mk-brand', brand);
-            setV('mk-btn-text', hex(d.buttonTextColor) || g('wc-dual-p-color'));
-            setV('mk-accent', hex(d.accentColor) || g('wc-dual-s-color') || brand);
-            if (d.buttonBorderRadius != null && !isNaN(parseFloat(d.buttonBorderRadius))) setV('mk-radius', String(Math.round(parseFloat(d.buttonBorderRadius))));
-            else setV('mk-radius', g('wc-dual-p-bd-radius'));
-            setV('mk-text', hex(d.headerTextColor) || g('wc-dual-h-color'));
-            setV('mk-muted', hex(d.bodyTextColor) || g('wc-dual-b-color'));
-            setV('mk-drawer', hex(d.backgroundColor) || _cartScanBg || hex(d.containerBg));
-            const b = g('mk-brand') || '#1a1a1a';
-            setV('mk-page', _mkHexMix(b, '#ffffff', 0.94));
-            setV('mk-summary', _extScanBg || _mkHexMix(b, '#ffffff', 0.8));
-            updateWidgetPreview();
-        }
+            const p0 = pt(e);
+            if (_mkTool === 'box' || _mkTool === 'image') {
+                e.preventDefault();
+                const tool = _mkTool, d = document.createElement('div');
+                d.className = 'mk2-draw'; pe.appendChild(d);
+                let r = { x: p0.x, y: p0.y, w: 0, h: 0 };
+                drag(ev => {
+                    const p = pt(ev);
+                    r = { x: Math.min(p0.x, p.x), y: Math.min(p0.y, p.y), w: Math.abs(p.x - p0.x), h: Math.abs(p.y - p0.y) };
+                    Object.assign(d.style, { left: r.x + 'px', top: r.y + 'px', width: r.w + 'px', height: r.h + 'px' });
+                }, async () => {
+                    d.remove();
+                    mkSetTool('select');
+                    if (r.w < 4 || r.h < 4) return;
+                    let fill = 'transparent';
+                    if (tool === 'box') { try { fill = _mkSample(await _mkPageCanvas(pg), r.x + r.w / 2 - 1, r.y + r.h / 2 - 1, 2, 2).bg; } catch (er) { fill = '#ffffff'; } }
+                    const b = { id: _mkId('b'), x: _mkR(r.x), y: _mkR(r.y), w: _mkR(r.w), h: _mkR(r.h), fill, r: 0, img: null, fit: 'contain' };
+                    pg.boxes.push(b);
+                    _mkSel = { p: pi, k: 'b', id: b.id };
+                    mkRender();
+                    if (tool === 'image') document.getElementById('mkImgInput').click();
+                });
+                return;
+            }
+            if (_mkTool === 'text') {
+                e.preventDefault();
+                mkSetTool('select');
+                const sizes = pg.texts.filter(t => !t.add).map(t => t.sz).sort((a, b) => a - b);
+                const sz = sizes.length ? sizes[Math.floor(sizes.length / 2)] : 16;
+                const t = _mkT({ t: 'New text', x: _mkR(p0.x), y: _mkR(p0.y - sz * 0.7), w: 0, h: _mkR(sz * 0.95), b: _mkR(p0.y + sz * 0.2), sz, add: true, c: '#111111', bg: 'transparent' });
+                pg.texts.push(t);
+                _mkSel = { p: pi, k: 't', id: t.id };
+                mkRender();
+                const el = document.querySelector(`#widgetPreviewArea .mk2-page[data-p="${pi}"] .mk2-t[data-t="${t.id}"]`);
+                if (el) { el.focus(); const rg = document.createRange(); rg.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(rg); }
+                return;
+            }
+            // Select tool: a box (move / resize), an added text (drag, or click to type), else deselect.
+            if (f.b) {
+                e.preventDefault();
+                if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+                const b = f.b, start = { x: b.x, y: b.y, w: b.w, h: b.h }, rz = !!e.target.closest('.mk2-rz');
+                _mkSelect({ p: pi, k: 'b', id: b.id });
+                drag(ev => {
+                    const p = pt(ev), dx = p.x - p0.x, dy = p.y - p0.y;
+                    if (rz) { b.w = _mkR(Math.max(4, start.w + dx)); b.h = _mkR(Math.max(4, start.h + dy)); }
+                    else { b.x = _mkR(start.x + dx); b.y = _mkR(start.y + dy); }
+                    Object.assign(f.be.style, { left: b.x + 'px', top: b.y + 'px', width: b.w + 'px', height: b.h + 'px' });
+                }, () => mkRender());
+                return;
+            }
+            if (f.t && f.t.add && document.activeElement !== f.te) {
+                e.preventDefault();
+                const t = f.t, start = { x: t.x, y: t.y, b: t.b };
+                let moved = false;
+                drag(ev => {
+                    const p = pt(ev), dx = p.x - p0.x, dy = p.y - p0.y;
+                    if (!moved && Math.hypot(dx, dy) < 3) return;
+                    moved = true;
+                    t.x = _mkR(start.x + dx); t.y = _mkR(start.y + dy); t.b = _mkR(start.b + dy);
+                    f.te.setAttribute('style', _mkTextStyle(t, pg));
+                }, () => {
+                    if (moved) { _mkSel = { p: pi, k: 't', id: t.id }; mkRender(); return; }
+                    f.te.focus();
+                    const rg = document.createRange(); rg.selectNodeContents(f.te); rg.collapse(false);
+                    const s = getSelection(); s.removeAllRanges(); s.addRange(rg);
+                });
+                return;
+            }
+            if (!f.t && _mkSel) { _mkSelect(null); }
+        });
 
         // ── Copy Link: serialize the whole design into a shareable URL ──────
         function _collectDesign() {
@@ -3420,7 +3977,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 '#widgetPreviewSection input, #widgetPreviewSection select, #widgetPreviewSection textarea, .control-bar input, .control-bar select'
             ).forEach(el => {
                 if (!el.id) return;
-                if (el.type === 'file') return;
+                if (el.type === 'file' || el.type === 'password') return;
                 if (el.type === 'checkbox') fields[el.id] = el.checked;
                 else fields[el.id] = el.value;
             });
@@ -3437,12 +3994,25 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 dualLogo: _dualLogoSrc,
                 togLogo: _toggleLogoSrc,
                 extLogo: _extLogoSrc,
-                mk: _mk
+                mk: JSON.parse(JSON.stringify(_mk))
             };
         }
 
-        function copyDesignerLink() {
-            const enc = btoa(unescape(encodeURIComponent(JSON.stringify(_collectDesign()))));
+        // A mockup's page images are too big for a link until they're in storage (needs sign-in).
+        async function _mkLinkReady(designs) {
+            if (!designs.some(d => d && _mkHasInline(d.mk))) return true;
+            showToast('Uploading mockup images…');
+            await _mkPersistImages();
+            designs.forEach(d => { if (d && d.mk) (d.mk.pages || []).forEach(pg => { if (_mkUrlMap[pg.img]) pg.img = _mkUrlMap[pg.img]; (pg.boxes || []).forEach(b => { if (_mkUrlMap[b.img]) b.img = _mkUrlMap[b.img]; }); }); });
+            if (!designs.some(d => d && _mkHasInline(d.mk))) return true;
+            alert('To share a mockup link, sign in from the folder bar first (its page images upload to storage), or use 💾 Save to folder and share that link.');
+            return false;
+        }
+
+        async function copyDesignerLink() {
+            const d = _collectDesign();
+            if (!(await _mkLinkReady([d]))) return;
+            const enc = btoa(unescape(encodeURIComponent(JSON.stringify(d))));
             const url = location.origin + location.pathname + '#d=' + enc;
             navigator.clipboard.writeText(url).then(showToast, () => {
                 // Fallback: still update the address bar so the link can be copied manually
@@ -3539,8 +4109,9 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 </span>`).join('');
         }
 
-        function copyMerchantLink() {
+        async function copyMerchantLink() {
             const set = _merchantExamples.length ? _merchantExamples : [{ label: currentExampleLabel(), design: _collectDesign() }];
+            if (!(await _mkLinkReady(set.map(ex => ex.design)))) return;
             const payload = { name: (_previewName || '').trim(), examples: set };
             const enc = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
             const url = location.origin + location.pathname + '?view=merchant#s=' + enc;
@@ -3772,7 +4343,12 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             // ── Merchant folder save/load (Rep Hub → Merchant Folders) ──
             if (window.SIFolderBar) SIFolderBar.mount({
                 kind: 'checkout', tool: 'Checkout Experience', before: document.querySelector('.control-bar'),
-                getData: () => ({ design: _collectDesign(), examples: _merchantExamples, name: _previewName, label: currentExampleLabel() }),
+                // Mockup page images go to storage first (signed in here), so the save holds links, not
+                // megabytes — when this folder bar can wait for it (an older cached copy can't).
+                getData: () => {
+                    const data = () => ({ design: _collectDesign(), examples: _merchantExamples, name: _previewName, label: currentExampleLabel() });
+                    return SIFolderBar.asyncData ? _mkPersistImages().catch(() => {}).then(data) : data();
+                },
                 applyData: d => {
                     _applyDesignObj(d.design || d);
                     _merchantExamples = Array.isArray(d.examples) ? d.examples : [];
