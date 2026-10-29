@@ -439,12 +439,121 @@
         .mp-rec-card .mp-rec-label { font-size: 0.9em; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; color: #fff; margin-bottom: 16px; }
         @media (max-width: 1180px) { .mp-scol, .mp-scol.col-cwidget, .mp-scol.col-litem { min-width: 300px; } }
 
+
+        /* ── Cart + Checkout Mockup (Dual Checkout Figma frames, 1440×900, scaled to fit) ── */
+        body.mk-mode .config-col { flex: 0 0 380px; }
+        body.mk-mode .preview-col { flex: 1 1 0; min-width: 0; }
+        @media (max-width: 1120px) { body.mk-mode .config-col, body.mk-mode .preview-col { flex: 1 1 auto; width: 100%; } }
+        .mk-flabel { display: flex; align-items: center; justify-content: space-between; font-size: 0.68em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #99a; margin: 0 0 6px; }
+        .mk-flabel button { font-size: 1em; font-weight: 800; letter-spacing: 0.04em; background: #f4f5ff; color: #4a5fc1; border: 1px solid #d5d9f0; border-radius: 6px; padding: 3px 9px; cursor: pointer; }
+        .mk-fit { width: 100%; overflow: hidden; border-radius: 8px; box-shadow: 0 2px 14px rgba(0,0,0,0.12); margin-bottom: 18px; background: #fff; }
+        .mk-fit:fullscreen { background: #15151c; display: flex; align-items: center; justify-content: center; border-radius: 0; margin: 0; }
+        .mk-frame { width: 1440px; height: 900px; position: relative; overflow: hidden; flex-shrink: 0; font-family: var(--mk-font); color: var(--mk-text); font-size: 15px; line-height: 1.35; text-align: left; }
+        .mk-frame * { box-sizing: border-box; }
+        .mk-frame [data-mk] { outline: none; border-radius: 3px; min-width: 6px; }
+        .mk-edit [data-mk]:hover { box-shadow: 0 0 0 2px rgba(102,117,255,0.55); cursor: text; }
+        .mk-edit [data-mk]:focus { box-shadow: 0 0 0 2px #6675ff; background: rgba(102,117,255,0.08); }
+        .mk-edit [data-mk]:empty::before { content: '\2026'; opacity: 0.35; }
+        .mk-edit [data-mk-img] { cursor: pointer; }
+        .mk-edit [data-mk-img]:hover { box-shadow: 0 0 0 2px rgba(102,117,255,0.55); }
+        .mk-del { display: none; position: absolute; top: 6px; left: -4px; width: 22px; height: 22px; border-radius: 50%; border: none; background: #ff5a5f; color: #fff; font-size: 12px; font-weight: 800; cursor: pointer; z-index: 3; line-height: 22px; padding: 0; }
+        .mk-edit .mk-prow:hover .mk-del { display: block; }
+        .mk-ico { width: 1em; height: 1em; display: inline-block; vertical-align: -0.15em; flex-shrink: 0; }
+        /* store page behind the drawer */
+        .mk-store { position: absolute; inset: 0; background: #fff; }
+        .mk-store > img { width: 100%; height: 100%; object-fit: cover; object-position: top left; display: block; }
+        .mk-ann { height: 40px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; letter-spacing: 0.02em; }
+        .mk-nav { height: 86px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 48px; border-bottom: 1px solid rgba(0,0,0,0.08); font-size: 26px; }
+        .mk-nav .r { justify-self: end; display: flex; gap: 22px; }
+        .mk-nav .l { display: flex; gap: 22px; }
+        .mk-hero { height: 420px; display: flex; align-items: center; gap: 60px; padding: 0 90px; }
+        .mk-hero .copy { flex: 1; }
+        .mk-hero .kick { font-size: 15px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.7; }
+        .mk-hero .head { font-size: 64px; font-weight: 800; line-height: 1.05; margin: 14px 0 26px; letter-spacing: -0.01em; }
+        .mk-hero .cta { display: inline-block; padding: 16px 34px; font-weight: 700; font-size: 16px; letter-spacing: 0.06em; text-transform: uppercase; }
+        .mk-hero .shot { width: 330px; height: 330px; border-radius: 18px; overflow: hidden; background: rgba(255,255,255,0.5); flex-shrink: 0; }
+        .mk-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px; padding: 34px 90px; }
+        .mk-grid .card .im { height: 190px; border-radius: 12px; overflow: hidden; background: #f1f1f4; }
+        .mk-grid .card .nm { font-weight: 600; margin-top: 12px; font-size: 16px; }
+        .mk-grid .card .pr { margin-top: 4px; opacity: 0.75; }
+        .mk-dim { position: absolute; inset: 0; background: #000; }
+        /* cart drawer */
+        .mk-drawer { position: absolute; top: 0; right: 0; bottom: 0; width: 400px; background: var(--mk-drawer); display: flex; flex-direction: column; box-shadow: -8px 0 30px rgba(0,0,0,0.25); }
+        .mk-dr-head { display: flex; align-items: center; justify-content: space-between; padding: 22px 24px 18px; border-bottom: 1px solid var(--mk-line); font-size: 18px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+        .mk-dr-head .x { font-size: 22px; font-weight: 400; }
+        .mk-ship { padding: 14px 24px 16px; border-bottom: 1px solid var(--mk-line); font-size: 14px; }
+        .mk-ship .bar { height: 7px; border-radius: 4px; background: rgba(255,255,255,0.9); margin-top: 10px; overflow: hidden; }
+        .mk-ship .bar > div { height: 100%; border-radius: 4px; background: var(--mk-accent); opacity: 0.75; }
+        .mk-sec { padding: 14px 24px 6px; font-size: 13px; font-weight: 600; }
+        .mk-items { flex: 1 1 auto; overflow: hidden; }
+        .mk-prow { position: relative; display: flex; gap: 18px; padding: 10px 24px 16px; }
+        .mk-prow .im { width: 84px; height: 84px; flex-shrink: 0; overflow: hidden; border-radius: 6px; background: rgba(0,0,0,0.06); }
+        .mk-prow .nm { font-size: 16px; font-weight: 500; }
+        .mk-prow .ds { font-size: 13px; color: var(--mk-muted); margin-top: 2px; }
+        .mk-prow .pr { font-size: 15px; font-weight: 600; margin-top: 6px; }
+        .mk-prow .pr s { font-weight: 400; color: var(--mk-muted); margin-left: 8px; font-size: 13px; }
+        .mk-qty { display: inline-flex; align-items: center; gap: 22px; border: 1.5px solid var(--mk-text); border-radius: 20px; padding: 5px 14px; margin-top: 10px; font-size: 14px; }
+        .mk-rm { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 8px; color: var(--mk-muted); }
+        .mk-gift { display: flex; justify-content: space-between; padding: 14px 24px; border-top: 1px solid var(--mk-line); border-bottom: 1px solid var(--mk-line); font-size: 13px; font-weight: 600; }
+        .mk-foot { padding: 16px 24px 22px; border-top: 1px solid var(--mk-line); }
+        .mk-subrow { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 14px; margin-bottom: 12px; border-bottom: 1px solid var(--mk-line); }
+        .mk-subrow .l { font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+        .mk-subrow .r { font-size: 20px; }
+        .mk-protect { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+        .mk-protect .l { display: inline-flex; align-items: center; gap: 6px; }
+        .mk-btn { display: flex; align-items: center; justify-content: center; gap: 0; text-align: center; border-radius: var(--mk-radius); width: 100%; }
+        .mk-btn.p { height: 56px; background: var(--mk-brand); color: var(--mk-btn-text); font-size: 17px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+        .mk-btn.o { height: 50px; margin-top: 10px; border: 1.5px solid var(--mk-brand); color: var(--mk-brand); font-size: 13px; }
+        .mk-btn.v { height: 46px; margin-top: 10px; border: 1.5px solid var(--mk-text); font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; }
+        .mk-note { margin-top: 14px; font-size: 13px; font-style: italic; color: var(--mk-muted); }
+        /* checkout */
+        .mk-co { background: var(--mk-page); }
+        .mk-co-head { height: 108px; border-bottom: 1px solid rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between; padding: 0 233px 0 231px; }
+        .mk-co-head .bag { font-size: 26px; color: var(--mk-accent); }
+        .mk-co-body { display: grid; grid-template-columns: 768px 1fr; height: calc(900px - 108px); }
+        .mk-co-main { padding: 38px 41px 0 231px; overflow: hidden; }
+        .mk-co-side { background: var(--mk-summary); border-left: 1px solid rgba(0,0,0,0.06); padding: 38px 0 0 41px; overflow: hidden; }
+        .mk-co-side > div { width: 400px; }
+        .mk-h2 { display: flex; justify-content: space-between; align-items: baseline; font-size: 21px; font-weight: 600; margin: 0 0 12px; }
+        .mk-h2 .lk { font-size: 14px; font-weight: 400; color: var(--mk-accent); text-decoration: underline; }
+        .mk-in { position: relative; display: flex; align-items: center; justify-content: space-between; height: 48px; padding: 0 13px; border: 1px solid rgba(0,0,0,0.14); border-radius: 8px; background: #fff; color: #707070; font-size: 14px; margin-bottom: 10px; }
+        .mk-in.sel { flex-direction: row; }
+        .mk-in .fl { font-size: 12px; color: #707070; }
+        .mk-in .vl { color: #1a1a1a; font-size: 14px; }
+        .mk-in2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .mk-in3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .mk-chk { display: flex; align-items: center; gap: 10px; font-size: 14px; margin: 2px 0 26px; }
+        .mk-chk .bx { width: 18px; height: 18px; border: 1px solid rgba(0,0,0,0.25); border-radius: 4px; background: #fff; flex-shrink: 0; }
+        .mk-shipbox { padding: 18px; border-radius: 8px; background: rgba(0,0,0,0.04); color: #707070; font-size: 14px; text-align: center; }
+        .mk-express { text-align: center; color: #707070; font-size: 14px; margin-bottom: 26px; }
+        .mk-express .sp { display: inline-flex; align-items: center; justify-content: center; width: 100%; height: 50px; margin-top: 10px; border-radius: 6px; background: #5a31f4; color: #fff; font-weight: 800; font-size: 22px; letter-spacing: -0.02em; }
+        .mk-or { display: flex; align-items: center; gap: 14px; color: #707070; font-size: 14px; margin-top: 18px; }
+        .mk-or::before, .mk-or::after { content: ''; flex: 1; height: 1px; background: rgba(0,0,0,0.12); }
+        .mk-li { position: relative; display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+        .mk-li .tile { position: relative; width: 64px; height: 64px; flex-shrink: 0; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.6); }
+        .mk-li .tile .im { width: 100%; height: 100%; border-radius: 7px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .mk-li .badge { position: absolute; top: -9px; right: -9px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: #000; color: #fff; font-size: 12px; font-weight: 600; line-height: 22px; text-align: center; z-index: 2; }
+        .mk-li .tx { flex: 1; min-width: 0; font-size: 14px; }
+        .mk-li .sm { font-size: 12px; color: #707070; margin-top: 1px; }
+        .mk-li .rm { font-size: 12px; color: #707070; text-decoration: underline; }
+        .mk-li .amt { font-size: 14px; align-self: flex-start; padding-top: 2px; }
+        .mk-disc { display: flex; gap: 10px; margin: 6px 0 22px; }
+        .mk-disc .mk-in { flex: 1; margin: 0; }
+        .mk-disc .ap { width: 70px; height: 48px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: rgba(0,0,0,0.04); color: #707070; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+        .mk-tot { display: flex; justify-content: space-between; align-items: baseline; font-size: 14px; margin-bottom: 8px; }
+        .mk-tot .mu { color: #707070; }
+        .mk-tot.big { font-size: 19px; font-weight: 600; margin-top: 14px; }
+        .mk-tot.big .cur { font-size: 12px; font-weight: 400; color: #707070; margin-right: 6px; }
+        .mp-mock { width: 100%; }
+        .mp-mock .mk-flabel { font-size: 0.78em; margin-top: 4px; }
+
         /* Lock Logo Builder — colour swatches */
         .lb-swatch { border: 2px solid #d8dae5; box-shadow: 0 1px 2px rgba(0,0,0,0.15); }
         .lb-swatch.active { border-color: #6675ff; box-shadow: 0 0 0 2px rgba(102,117,255,0.3); }
     </style>
 <script src="https://drewshafe.github.io/si-roi-calculator/sb.js"></script>
 <script src="https://drewshafe.github.io/si-rep-hub/folder-bar.js"></script>
+<script src="https://drewshafe.github.io/si-roi-calculator/portal-templates.js"></script>
 </head>
 <body>
     <div class="app-header">
@@ -549,6 +658,9 @@
                     </label>
                     <label class="wtype-opt" id="wtype-extension" onclick="setWidgetType('extension')">
                         <span class="wtype-cb"></span> Checkout Extension
+                    </label>
+                    <label class="wtype-opt" id="wtype-mockup" onclick="setWidgetType('mockup')">
+                        <span class="wtype-cb"></span> Cart + Checkout Mockup
                     </label>
                 </div>
                 <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:6px;">
@@ -1278,6 +1390,74 @@
                         </div>
                     </details>
                 </div>
+                <!-- Cart + Checkout Mockup config (Dual Checkout Figma: Cart drawer + Checkout frames) -->
+                <div id="wc-mockup" class="wconfig-section">
+                    <div style="font-size:0.76em;color:#6c757d;margin:2px 0 10px;line-height:1.45;">Click any text in the preview to edit it · click the logo, product images, lock or store page to upload · hover a cart product for ✕. Scan Cart / Scan Checkout fill colors + products.</div>
+                    <div id="mkFeeInfo" style="font-size:0.78em;background:#f4f5ff;border:1px solid #d5d9f0;border-radius:8px;padding:8px 10px;margin-bottom:10px;color:#3a467f;"></div>
+                    <div class="wconfig-row" style="align-items:flex-end;">
+                        <div class="wcs"><label>Show</label>
+                            <select id="mk-show" onchange="updateWidgetPreview()" style="padding:4px 6px;border:1px solid #d0d4e8;border-radius:5px;font-size:0.8em;">
+                                <option value="both">Cart + Checkout</option>
+                                <option value="cart">Cart only</option>
+                                <option value="checkout">Checkout only</option>
+                            </select>
+                        </div>
+                        <button type="button" class="scan-widget-btn" style="margin:0;" onclick="openScanModal('checkout')">🔍 Scan Checkout</button>
+                        <button type="button" class="scan-widget-btn" style="margin:0;" onclick="mkMatchScan()" title="Re-apply colors from the last Scan Cart / Scan Checkout (or the Dual design)">🎨 Match Scan Colors</button>
+                    </div>
+                    <div class="wconfig-upload">
+                        <label>Merchant Logo</label>
+                        <button type="button" onclick="mkPickImage('logo')">⬆ Upload</button>
+                        <button type="button" onclick="mkClearImage('logo')">✕ Clear</button>
+                        <div class="wcs" style="flex-shrink:0;"><label>Height (px)</label><input type="number" id="mk-logo-h" value="44" min="16" max="120" style="width:54px;" onchange="updateWidgetPreview()"></div>
+                    </div>
+                    <div class="wconfig-upload">
+                        <label>Store Page</label>
+                        <button type="button" onclick="mkPickImage('backdrop')" title="Screenshot of the merchant's store page — sits behind the cart drawer">⬆ Screenshot</button>
+                        <button type="button" onclick="mkClearImage('backdrop')">✕ Use generated</button>
+                        <div class="wcs" style="flex-shrink:0;"><label>Dim %</label><input type="number" id="mk-dim" value="45" min="0" max="90" style="width:50px;" onchange="updateWidgetPreview()"></div>
+                    </div>
+                    <details class="wconfig-style-grp" open>
+                        <summary>Colors &amp; Type</summary>
+                        <div>
+                            <div class="wconfig-style-row">
+                                <div class="wcs"><label>Brand / CTA</label><input type="color" id="mk-brand" value="#1a1a1a" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('mk-brand')" title="Pick color from screen">💧</button></div>
+                                <div class="wcs"><label>CTA Text</label><input type="color" id="mk-btn-text" value="#ffffff" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('mk-btn-text')" title="Pick color from screen">💧</button></div>
+                                <div class="wcs"><label>Accent / Links</label><input type="color" id="mk-accent" value="#1a1a1a" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('mk-accent')" title="Pick color from screen">💧</button></div>
+                                <div class="wcs"><label>Button Radius</label><input type="number" id="mk-radius" value="30" min="0" max="40" onchange="updateWidgetPreview()"></div>
+                            </div>
+                            <div class="wconfig-style-row" style="margin-top:6px;">
+                                <div class="wcs"><label>Cart Drawer</label><input type="color" id="mk-drawer" value="#ffffff" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('mk-drawer')" title="Pick color from screen">💧</button></div>
+                                <div class="wcs"><label>Checkout Page</label><input type="color" id="mk-page" value="#ffffff" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('mk-page')" title="Pick color from screen">💧</button></div>
+                                <div class="wcs"><label>Order Summary</label><input type="color" id="mk-summary" value="#f5f5f5" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('mk-summary')" title="Pick color from screen">💧</button></div>
+                            </div>
+                            <div class="wconfig-style-row" style="margin-top:6px;">
+                                <div class="wcs"><label>Text</label><input type="color" id="mk-text" value="#1a1a1a" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('mk-text')" title="Pick color from screen">💧</button></div>
+                                <div class="wcs"><label>Muted Text</label><input type="color" id="mk-muted" value="#6b6b6b" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('mk-muted')" title="Pick color from screen">💧</button></div>
+                                <div class="wcs"><label>Font Family</label><input type="text" id="mk-font" placeholder="inherit" onchange="updateWidgetPreview()"></div>
+                            </div>
+                        </div>
+                    </details>
+                    <details class="wconfig-style-grp">
+                        <summary>Elements</summary>
+                        <div>
+                            <div class="wconfig-style-row" style="gap:10px 16px;font-size:0.8em;">
+                                <label class="wconfig-sl"><input type="checkbox" id="mk-show-ship" checked onchange="updateWidgetPreview()"><span class="sl-track"></span>Free-shipping bar</label>
+                                <div class="wcs"><label>Free ship at $</label><input type="number" id="mk-ship-at" value="50" min="0" onchange="updateWidgetPreview()"></div>
+                                <label class="wconfig-sl"><input type="checkbox" id="mk-show-gift" checked onchange="updateWidgetPreview()"><span class="sl-track"></span>"Is this a gift?" row</label>
+                                <label class="wconfig-sl"><input type="checkbox" id="mk-show-viewcart" checked onchange="updateWidgetPreview()"><span class="sl-track"></span>View Cart button</label>
+                                <label class="wconfig-sl"><input type="checkbox" id="mk-show-note" checked onchange="updateWidgetPreview()"><span class="sl-track"></span>Cart footer note</label>
+                                <label class="wconfig-sl"><input type="checkbox" id="mk-show-express" onchange="updateWidgetPreview()"><span class="sl-track"></span>Express checkout (Shop Pay)</label>
+                                <label class="wconfig-sl"><input type="checkbox" id="mk-show-shipmethod" checked onchange="updateWidgetPreview()"><span class="sl-track"></span>Shipping method box</label>
+                            </div>
+                        </div>
+                    </details>
+                    <div class="wconfig-row" style="margin-top:4px;">
+                        <button type="button" class="scan-widget-btn" style="margin:0;" onclick="mkAddProduct()">＋ Add Product</button>
+                        <button type="button" class="scan-widget-btn" style="margin:0;" onclick="mkResetProducts()" title="Drop hand-edited products and use the scanned cart items again">↻ Products from Scan</button>
+                        <button type="button" class="scan-widget-btn" style="margin:0;" onclick="mkResetText()" title="Undo every text edit made in the preview (incl. a typed fee)">↺ Reset Text Edits</button>
+                    </div>
+                </div>
             </div><!-- /widgetPreviewSection -->
         </div><!-- /config-col -->
         <div class="preview-col">
@@ -1299,6 +1479,7 @@
     </div><!-- /designer-body -->
 
     <div id="merchantView" style="display:none;"></div>
+    <input type="file" id="mkImgInput" accept="image/*" style="display:none;" onchange="mkLoadImage(this)">
 
     <div class="copied-toast" id="toast">Link copied!</div>
 
@@ -1518,6 +1699,10 @@
             ]
         };
 
+        // Merchant Portal templates (ROI Builder's portal-templates.js) — adds the
+        // "Merchant Portal" options (pt_<id>) and their rules, same keys as the ROI Builder.
+        if (window.SI_PORTAL) SI_PORTAL.install(document.getElementById('pricingTemplate'), pricingTemplates);
+
         function getTieredPremium(orderValue, template) {
             const tiers = pricingTemplates[template];
             if (!tiers) return 0;
@@ -1580,7 +1765,8 @@
 
         function setWidgetType(type) {
             _widgetType = type;
-            ['dual', 'toggle', 'extension'].forEach(t => {
+            document.body.classList.toggle('mk-mode', type === 'mockup');
+            ['dual', 'toggle', 'extension', 'mockup'].forEach(t => {
                 const wt = document.getElementById('wtype-' + t);
                 if (wt) wt.classList.toggle('active', t === type);
                 const wc = document.getElementById('wc-' + t);
@@ -1591,7 +1777,7 @@
 
         // Downscale an uploaded image to a small PNG (keeps transparency) so the
         // logo embeds compactly in shareable links — no external hosting needed.
-        function _compressImage(dataUrl, maxDim, cb) {
+        function _compressImage(dataUrl, maxDim, cb, type) {
             const img = new Image();
             img.onload = () => {
                 let w = img.naturalWidth || maxDim, h = img.naturalHeight || maxDim;
@@ -1601,7 +1787,7 @@
                     const c = document.createElement('canvas');
                     c.width = w; c.height = h;
                     c.getContext('2d').drawImage(img, 0, 0, w, h);
-                    cb(c.toDataURL('image/png'));
+                    cb(type === 'image/jpeg' ? c.toDataURL('image/jpeg', 0.8) : c.toDataURL('image/png'));
                 } catch (e) { cb(dataUrl); }
             };
             img.onerror = () => cb(dataUrl);
@@ -1691,10 +1877,12 @@
         const _widgetTypeNames = {
             'dual':      'Dual Checkout',
             'toggle':    'Cart Toggle / Checkbox',
-            'extension': 'Checkout Extension'
+            'extension': 'Checkout Extension',
+            'mockup':    'Cart + Checkout Mockup'
         };
 
         function updateWidgetPreview() {
+            if (_widgetType === 'mockup') { mkRender(); return; }
             // ── Target ─────────────────────────────────────────────────────
             const showInlineEl    = document.getElementById('showWidgetInline');
             const showInline      = showInlineEl && showInlineEl.checked;
@@ -2578,7 +2766,8 @@ For uncertain values make your best visual estimate. Always use valid hex colors
         // and drops their order-summary items in below our line item. It deliberately does
         // NOT touch Mode, AOV, Pricing, or SI Premium $ — only the in-context framing.
         function applyScannedCheckout(d) {
-            setWidgetType('extension');
+            const _wasMockup = _widgetType === 'mockup';
+            if (!_wasMockup) setWidgetType('extension');
             const bg = (d && typeof d.backgroundColor === 'string' && /^#?[0-9a-fA-F]{3,8}$/.test(d.backgroundColor.trim()))
                 ? (d.backgroundColor.trim().startsWith('#') ? d.backgroundColor.trim() : '#' + d.backgroundColor.trim())
                 : '';
@@ -2590,6 +2779,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 compareAtPrice: (it && it.compareAtPrice) ? String(it.compareAtPrice) : '',
                 quantity:       (it && it.quantity) ? parseInt(it.quantity) || 1 : 1
             })).filter(it => it.name) : [];
+            if (_wasMockup && bg) { const sm = document.getElementById('mk-summary'); if (sm) sm.value = bg; }
             updateWidgetPreview();
         }
 
@@ -2599,7 +2789,10 @@ For uncertain values make your best visual estimate. Always use valid hex colors
         function applyScannedCart(d) {
             d = d || {};
             // Keep the current cart widget type (Dual or Toggle); default to Dual if neither.
-            if (_widgetType !== 'dual' && _widgetType !== 'toggle') setWidgetType('dual');
+            // In the Cart + Checkout Mockup, restyle the Dual fields AND the mockup, stay on the mockup.
+            const _wasMockup = _widgetType === 'mockup';
+            if (_wasMockup) _widgetType = 'dual';
+            else if (_widgetType !== 'dual' && _widgetType !== 'toggle') setWidgetType('dual');
             const hex = (c) => (typeof c === 'string' && /^#?[0-9a-fA-F]{3,8}$/.test(c.trim()))
                 ? (c.trim().startsWith('#') ? c.trim() : '#' + c.trim()) : null;
             const num = (n) => (n != null && !isNaN(parseFloat(n))) ? String(Math.round(parseFloat(n))) : null;
@@ -2650,6 +2843,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 compareAtPrice: (it && it.compareAtPrice) ? String(it.compareAtPrice) : '',
                 quantity:       (it && it.quantity) ? parseInt(it.quantity) || 1 : 1
             })).filter(it => it.name) : [];
+            if (_wasMockup) { _widgetType = 'mockup'; _mk.products = null; mkMatchScan(d); return; }
             updateWidgetPreview();
         }
 
@@ -2889,6 +3083,319 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             } catch(e) { /* user cancelled — no-op */ }
         }
 
+        // ── Cart + Checkout Mockup ───────────────────────────────────────────────
+        // The Dual Checkout Figma template ("A Shop of Things pp": Cart drawer + Checkout)
+        // rebuilt as two 1440×900 frames, scaled to fit. Every text node is editable in
+        // the preview; logo / product images / lock / store page are click-to-upload.
+        // The SI fee is the selected Pricing template (incl. Merchant Portal pt_<id>)
+        // applied to the cart subtotal. Edits live in _mk and ride along in
+        // _collectDesign → Copy Link, merchant links and Merchant Folder saves.
+        const MK_W = 1440, MK_H = 900;
+        const _mkFresh = () => ({ logo: null, lock: null, backdrop: null, products: null, text: {} });
+        let _mk = _mkFresh();
+        let _mkReadOnly = false;      // merchant view: same frames, no edit affordances
+        let _mkImgTarget = null;
+
+        const _MK_ICO = {
+            info:   '<svg class="mk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.5v.5" stroke-linecap="round"/></svg>',
+            help:   '<svg class="mk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9.5"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.4M12 17v.3" stroke-linecap="round"/></svg>',
+            chev:   '<svg class="mk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7 10 5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+            search: '<svg class="mk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4" stroke-linecap="round"/></svg>',
+            menu:   '<svg class="mk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/></svg>',
+            user:   '<svg class="mk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4-5.4 7.5-5.4s6.3 1.8 7.5 5.4" stroke-linecap="round"/></svg>',
+            bag:    '<svg class="mk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8h14l-1 12H6L5 8Z" stroke-linejoin="round"/><path d="M9 10V7a3 3 0 0 1 6 0v3" stroke-linecap="round"/></svg>'
+        };
+
+        const _mkv = (id, fb) => { const el = document.getElementById(id); return el ? (el.value || fb) : fb; };
+        const _mkOn = id => { const el = document.getElementById(id); return !!(el && el.checked); };
+        function _mkMoney(s) { const n = parseFloat(String(s == null ? '' : s).replace(/[^0-9.\-]/g, '')); return isNaN(n) ? 0 : n; }
+        function _mkHexMix(hex, toward, amt) {   // blend hex toward another hex by amt (0..1)
+            const p = h => { h = String(h || '').replace('#', ''); if (h.length === 3) h = h.split('').map(c => c + c).join(''); const n = parseInt(h.slice(0, 6), 16); return isNaN(n) ? [0, 0, 0] : [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+            const a = p(hex), b = p(toward);
+            return '#' + a.map((v, i) => Math.round(v + (b[i] - v) * amt).toString(16).padStart(2, '0')).join('');
+        }
+
+        // SI premium for any order value on the selected Pricing template.
+        function siPremiumFor(orderValue) {
+            const t = document.getElementById('pricingTemplate').value;
+            const raw = parseFloat(removeCommas(document.getElementById('protectionPremium').value)) || 0;
+            if (t === 'percentage') return orderValue * (raw / 100);
+            if (t === 'flat_dollar') return raw;
+            return getTieredPremium(orderValue, t);
+        }
+
+        // Products: hand-edited list once touched, else the last Scan Cart (or Scan Checkout)
+        // items, else one sample product priced at the AOV.
+        function _mkProducts() {
+            if (Array.isArray(_mk.products)) return _mk.products;
+            const src = (_cartScanItems && _cartScanItems.length) ? _cartScanItems : (_extScanItems || []);
+            if (src.length) return src.map(it => ({ name: it.name || '', desc: (it.descLines || []).join(' · '), price: it.price || '', compareAt: it.compareAtPrice || '', qty: it.quantity || 1, img: null }));
+            const aov = parseFloat(removeCommas(document.getElementById('avgOrderValue').value)) || 75;
+            return [{ name: 'Best-Selling Product', desc: '', price: formatCurrencyWithCents(aov), compareAt: '', qty: 1, img: null }];
+        }
+        function _mkEnsureProducts() { if (!Array.isArray(_mk.products)) _mk.products = _mkProducts().map(p => Object.assign({}, p)); return _mk.products; }
+
+        // Totals shared by both frames. A fee typed into the preview overrides the template.
+        function _mkTotals() {
+            const items = _mkProducts();
+            const subtotal = items.reduce((s, p) => s + _mkMoney(p.price) * (parseInt(p.qty) || 1), 0);
+            const aov = parseFloat(removeCommas(document.getElementById('avgOrderValue').value)) || 0;
+            const base = subtotal > 0 ? subtotal : aov;
+            const calcFee = siPremiumFor(base);
+            const typed = _mk.text.fee != null && _mk.text.fee !== '';
+            const fee = typed ? _mkMoney(_mk.text.fee) : calcFee;
+            const count = items.reduce((s, p) => s + (parseInt(p.qty) || 1), 0);
+            return { items, subtotal, base, fee, calcFee, typed, total: subtotal + fee, count };
+        }
+
+        function mkRender() {
+            const area = document.getElementById('widgetPreviewArea');
+            const _ptEl = document.getElementById('previewTitle');
+            if (_ptEl) _ptEl.textContent = 'Cart + Checkout Mockup';
+            const _liCard = document.getElementById('lineItemCard'); if (_liCard) _liCard.style.display = 'none';
+            const _wCard = document.getElementById('widgetPreviewCard'); if (_wCard) _wCard.style.display = '';
+            const _scb = document.getElementById('scanCartBtn'); if (_scb) _scb.style.display = '';
+            if (area) { area.style.background = ''; area.style.padding = ''; area.style.borderRadius = ''; }
+            if (!area) return;
+
+            const ed = !_mkReadOnly;
+            const T = (key, def) => (_mk.text[key] != null ? _mk.text[key] : def);
+            const edAttr = (val) => ed ? ` contenteditable="plaintext-only" spellcheck="false" data-o="${_escHtml(val)}"` : '';
+            const E = (key, def, cls) => { const val = T(key, def); return `<span data-mk="${key}"${cls ? ` class="${cls}"` : ''}${edAttr(val)}>${_escHtml(val)}</span>`; };
+            const EP = (i, field, val, cls) => `<span data-mk="p.${i}.${field}"${cls ? ` class="${cls}"` : ''}${edAttr(val)}>${_escHtml(val)}</span>`;
+            const IMG = (target, src, fit, ph) => `<div data-mk-img="${target}" ${ed ? 'title="Click to upload an image"' : ''} style="width:100%;height:100%;">${src ? `<img src="${src}" style="width:100%;height:100%;object-fit:${fit || 'cover'};display:block;" alt="">` : (ph || '')}</div>`;
+            const money = n => formatCurrencyWithCents(n || 0);
+
+            const t = _mkTotals();
+            const fmtFee = t.typed ? T('fee', '') : money(t.fee);
+            const FEE = `<span data-mk="fee"${edAttr(fmtFee)}>${_escHtml(fmtFee)}</span>`;
+            const brand = _mkv('mk-brand', '#1a1a1a');
+            const vars = `--mk-brand:${brand};--mk-btn-text:${_mkv('mk-btn-text', '#ffffff')};--mk-accent:${_mkv('mk-accent', brand)};`
+                + `--mk-radius:${_mkv('mk-radius', '30')}px;--mk-drawer:${_mkv('mk-drawer', '#ffffff')};--mk-page:${_mkv('mk-page', '#ffffff')};`
+                + `--mk-summary:${_mkv('mk-summary', '#f5f5f5')};--mk-text:${_mkv('mk-text', '#1a1a1a')};--mk-muted:${_mkv('mk-muted', '#6b6b6b')};`
+                + `--mk-line:rgba(0,0,0,0.14);--mk-font:${_mkv('mk-font', '') ? _mkv('mk-font', '').replace(/[;"<>]/g, '') + ',' : ''}-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;`;
+            const storeName = T('store.name', (_previewName || '').replace(/\s*[—–-].*$/, '').trim() || 'Your Store');
+            const logoH = parseInt(_mkv('mk-logo-h', '44')) || 44;
+            const logo = _mk.logo
+                ? `<div data-mk-img="logo" ${ed ? 'title="Click to replace the logo"' : ''} style="height:${logoH}px;display:inline-block;"><img src="${_mk.logo}" style="height:100%;width:auto;display:block;" alt=""></div>`
+                : `<span style="font-size:${Math.round(logoH * 0.62)}px;font-weight:800;letter-spacing:-0.01em;">${E('store.name', storeName)}</span>`;
+            const ph = (name) => `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:${_mkHexMix(brand, '#ffffff', 0.86)};color:${brand};font-weight:800;font-size:28px;">${_escHtml((name || '?').trim().charAt(0).toUpperCase())}</div>`;
+            const lockSrc = _mk.lock || _extLogoSrc || 'https://raw.githubusercontent.com/drewshafe/si-roi-calculator/main/si_lock.png';
+
+            // ── Frame 1: store page + cart drawer ──
+            const shipAt = parseFloat(_mkv('mk-ship-at', '50')) || 0;
+            const left = Math.max(0, shipAt - t.subtotal);
+            const shipMsg = left > 0 ? `You are ${money(left).replace(/\.00$/, '')} away from free shipping!!!` : 'You unlocked free shipping!';
+            const shipPct = shipAt > 0 ? Math.min(100, Math.round(t.subtotal / shipAt * 100)) : 100;
+            const store = _mk.backdrop
+                ? `<div class="mk-store">${IMG('backdrop', _mk.backdrop, 'cover')}</div>`
+                : `<div class="mk-store" ${ed ? 'data-mk-img="backdrop" title="Click to upload a store-page screenshot"' : ''}>
+                    <div class="mk-ann" style="background:${brand};color:var(--mk-btn-text);">${E('store.ann', `Free shipping on orders over $${shipAt || 50}`)}</div>
+                    <div class="mk-nav"><div class="l">${_MK_ICO.menu}${_MK_ICO.search}</div><div>${logo}</div><div class="r">${_MK_ICO.user}${_MK_ICO.bag}</div></div>
+                    <div class="mk-hero" style="background:linear-gradient(120deg, ${_mkHexMix(brand, '#ffffff', 0.82)}, ${_mkHexMix(brand, '#ffffff', 0.94)});">
+                        <div class="copy"><div class="kick">${E('store.kick', 'New Arrivals')}</div><div class="head">${E('store.head', 'Shop the latest drop')}</div>
+                            <div class="cta" style="background:${brand};color:var(--mk-btn-text);border-radius:var(--mk-radius);">${E('store.cta', 'Shop Now')}</div></div>
+                        <div class="shot">${t.items[0] && t.items[0].img ? `<img src="${t.items[0].img}" style="width:100%;height:100%;object-fit:cover;" alt="">` : ph(t.items[0] && t.items[0].name)}</div>
+                    </div>
+                    <div class="mk-grid">${[0, 1, 2, 3].map(k => { const p = t.items[k % Math.max(1, t.items.length)] || {}; return `<div class="card"><div class="im">${p.img ? `<img src="${p.img}" style="width:100%;height:100%;object-fit:cover;" alt="">` : ph(p.name)}</div><div class="nm">${_escHtml(p.name || '')}</div><div class="pr">${_escHtml(p.price || '')}</div></div>`; }).join('')}</div>
+                </div>`;
+            const dim = Math.max(0, Math.min(90, parseFloat(_mkv('mk-dim', '45')) || 0)) / 100;
+
+            const cartRows = t.items.map((p, i) => `<div class="mk-prow">
+                    ${ed ? `<button type="button" class="mk-del" data-mk-del="${i}" title="Remove this product">✕</button>` : ''}
+                    <div class="im">${IMG('p.' + i, p.img, 'cover', ph(p.name))}</div>
+                    <div style="flex:1;min-width:0;">
+                        <div class="nm">${EP(i, 'name', p.name || '')}</div>
+                        ${(p.desc || ed) ? `<div class="ds">${EP(i, 'desc', p.desc || '')}</div>` : ''}
+                        <div class="pr">${EP(i, 'price', p.price || '')}${(p.compareAt || ed) ? ` <s>${EP(i, 'compareAt', p.compareAt || '')}</s>` : ''}</div>
+                        <div class="mk-qty">${EP(i, 'qty', String(p.qty || 1))}${_MK_ICO.chev}</div>
+                        <div class="mk-rm">${E('cart.remove', 'Remove')}</div>
+                    </div>
+                </div>`).join('');
+
+            const cartFrame = `<div class="mk-frame mk-cart" style="${vars}">
+                ${store}
+                <div class="mk-dim" style="opacity:${dim};pointer-events:none;"></div>
+                <aside class="mk-drawer">
+                    <div class="mk-dr-head"><span>${E('cart.title', 'Cart')} (${t.count})</span><span class="x">✕</span></div>
+                    ${_mkOn('mk-show-ship') ? `<div class="mk-ship">${E('cart.ship', shipMsg)}<div class="bar"><div style="width:${shipPct}%;"></div></div></div>` : ''}
+                    <div class="mk-sec">${E('cart.products', 'Products')}</div>
+                    <div class="mk-items">${cartRows}</div>
+                    ${_mkOn('mk-show-gift') ? `<div class="mk-gift">${E('cart.gift', 'Is this a gift?')}<span>+</span></div>` : ''}
+                    <div class="mk-foot">
+                        <div class="mk-subrow"><span class="l">${E('cart.subtotal', 'Subtotal')}</span><span class="r">${money(t.subtotal)} ${E('cart.cur', 'USD')}</span></div>
+                        <div class="mk-protect"><span class="l">${E('cart.protect', 'Loss, Damage, Theft Protection')}${_MK_ICO.info}</span>${FEE}</div>
+                        <div class="mk-btn p">${E('cart.cta', 'Checkout')}&nbsp;|&nbsp;${money(t.total)}</div>
+                        <div class="mk-btn o">${E('cart.decline', 'or checkout without protection')}</div>
+                        ${_mkOn('mk-show-viewcart') ? `<div class="mk-btn v">${E('cart.view', 'View Cart')}</div>` : ''}
+                        ${_mkOn('mk-show-note') ? `<div class="mk-note">${E('cart.note', 'Shipping, taxes, and discount codes are calculated at checkout')}</div>` : ''}
+                    </div>
+                </aside>
+            </div>`;
+
+            // ── Frame 2: checkout page with the ShipInsure line item ──
+            const IN = (key, def, icon) => `<div class="mk-in">${E(key, def)}${icon || ''}</div>`;
+            const coRows = t.items.map((p, i) => `<div class="mk-li">
+                    <div class="tile"><span class="badge">${parseInt(p.qty) || 1}</span><div class="im">${IMG('p.' + i, p.img, 'cover', ph(p.name))}</div></div>
+                    <div class="tx"><div>${EP(i, 'name', p.name || '')}</div>${p.desc ? `<div class="sm">${EP(i, 'desc', p.desc)}</div>` : ''}</div>
+                    <div class="amt">${money(_mkMoney(p.price) * (parseInt(p.qty) || 1))}</div>
+                </div>`).join('');
+            const checkoutFrame = `<div class="mk-frame mk-co" style="${vars}">
+                <div class="mk-co-head"><div>${logo}</div><span class="bag">${_MK_ICO.bag}</span></div>
+                <div class="mk-co-body">
+                    <div class="mk-co-main">
+                        ${_mkOn('mk-show-express') ? `<div class="mk-express">${E('co.express', 'Express checkout')}<div class="sp">shop</div><div class="mk-or">${E('co.or', 'OR')}</div></div>` : ''}
+                        <div class="mk-h2">${E('co.contact', 'Contact')}<span class="lk">${E('co.signin', 'Sign in')}</span></div>
+                        ${IN('co.email', 'Email', _MK_ICO.help)}
+                        <div class="mk-chk"><span class="bx"></span>${E('co.news', 'Email me with news and offers')}</div>
+                        <div class="mk-h2">${E('co.delivery', 'Delivery')}</div>
+                        <div class="mk-in"><div><div class="fl">${E('co.country', 'Country/Region')}</div><div class="vl">${E('co.countryVal', 'United States')}</div></div>${_MK_ICO.chev}</div>
+                        <div class="mk-in2">${IN('co.first', 'First name')}${IN('co.last', 'Last name')}</div>
+                        ${IN('co.company', 'Company (optional)')}
+                        ${IN('co.address', 'Address', _MK_ICO.search)}
+                        ${IN('co.apt', 'Apartment, suite, etc. (optional)')}
+                        <div class="mk-in3">${IN('co.city', 'City')}${IN('co.state', 'State', _MK_ICO.chev)}${IN('co.zip', 'ZIP code')}</div>
+                        ${IN('co.phone', 'Phone (optional)', _MK_ICO.help)}
+                        <div class="mk-chk" style="margin-bottom:22px;"><span class="bx"></span>${E('co.save', 'Save this information for next time')}</div>
+                        ${_mkOn('mk-show-shipmethod') ? `<div style="font-size:17px;font-weight:600;margin-bottom:12px;">${E('co.shipMethod', 'Shipping method')}</div><div class="mk-shipbox">${E('co.shipMsg', 'Enter your shipping address to view available shipping methods.')}</div>` : ''}
+                    </div>
+                    <div class="mk-co-side"><div>
+                        <div class="mk-li">
+                            <div class="tile"><span class="badge">1</span><div class="im" style="padding:9px;">${IMG('lock', lockSrc, 'contain')}</div></div>
+                            <div class="tx"><div>${E('co.siName', 'ShipInsure Package Protection')}</div><div class="sm">${FEE}</div><div class="rm">${E('co.remove', 'Remove')}</div></div>
+                            <div class="amt">${FEE}</div>
+                        </div>
+                        ${coRows}
+                        <div class="mk-disc"><div class="mk-in">${E('co.discount', 'Discount code or gift card')}</div><div class="ap">${E('co.apply', 'Apply')}</div></div>
+                        <div class="mk-tot"><span>${E('co.subtotal', 'Subtotal')} · ${t.count + 1} items</span><span>${money(t.total)}</span></div>
+                        <div class="mk-tot"><span style="display:inline-flex;align-items:center;gap:5px;">${E('co.shipping', 'Shipping')}${_MK_ICO.help}</span><span class="mu">${E('co.shipVal', 'Enter shipping address')}</span></div>
+                        <div class="mk-tot big"><span>${E('co.total', 'Total')}</span><span><span class="cur">${E('co.cur', 'USD')}</span>${money(t.total)}</span></div>
+                    </div></div>
+                </div>
+            </div>`;
+
+            const show = _mkv('mk-show', 'both');
+            const block = (label, frame) => `<div class="mk-flabel"><span>${label}</span>${ed ? `<button type="button" onclick="mkFullscreen(this)" title="Edit full-size">⤢ Full screen</button>` : ''}</div><div class="mk-fit${ed ? ' mk-edit' : ''}">${frame}</div>`;
+            area.innerHTML = (show !== 'checkout' ? block('Cart Drawer', cartFrame) : '') + (show !== 'cart' ? block('Checkout', checkoutFrame) : '');
+            mkFit(area);
+
+            // Pricing readout in the config panel.
+            const info = document.getElementById('mkFeeInfo');
+            if (info) {
+                const sel = document.getElementById('pricingTemplate');
+                const tpl = sel && sel.selectedOptions[0] ? sel.selectedOptions[0].textContent.replace(/\s+—\s+\d+ merchants?$/, '') : '';
+                info.innerHTML = t.typed
+                    ? `<b>SI fee ${_escHtml(money(t.fee))}</b> — typed in the preview (template would be ${money(t.calcFee)}). ↺ Reset Text Edits to go back to the template.`
+                    : `<b>SI fee ${money(t.fee)}</b> on a ${money(t.base)} ${t.subtotal > 0 ? 'cart subtotal' : 'AOV'} · <span style="color:#6c757d;">${_escHtml(tpl)}</span>`;
+            }
+        }
+
+        // Scale each 1440×900 frame to its container (or the screen when full-screened).
+        function mkFit(root) {
+            (root || document).querySelectorAll('.mk-fit').forEach(w => {
+                const f = w.querySelector('.mk-frame'); if (!f) return;
+                const fs = document.fullscreenElement === w;
+                const z = fs ? Math.min(window.innerWidth / MK_W, window.innerHeight / MK_H) : (w.clientWidth || 0) / MK_W;
+                if (z > 0) f.style.zoom = z;
+            });
+        }
+        function mkFullscreen(btn) {
+            const w = btn.closest('.mk-flabel').nextElementSibling;
+            if (w && w.requestFullscreen) w.requestFullscreen().catch(() => {});
+        }
+        document.addEventListener('fullscreenchange', () => mkFit(document));
+        window.addEventListener('resize', () => mkFit(document));
+
+        // In-preview editing: commit on blur (Enter = done), then re-render so totals follow.
+        function mkCommitEdit(el) {
+            const key = el.getAttribute('data-mk');
+            const txt = (el.textContent || '').replace(/\s+/g, ' ').trim();
+            if (txt === (el.getAttribute('data-o') || '').replace(/\s+/g, ' ').trim()) return false;
+            const m = key.match(/^p\.(\d+)\.(\w+)$/);
+            if (m) {
+                const p = _mkEnsureProducts()[+m[1]]; if (!p) return false;
+                p[m[2]] = m[2] === 'qty' ? Math.max(1, parseInt(txt) || 1) : txt;
+            } else if (key === 'fee') {
+                if (txt) _mk.text.fee = txt; else delete _mk.text.fee;
+            } else {
+                _mk.text[key] = txt;
+            }
+            return true;
+        }
+        // Tabbing/clicking straight into another text keeps editing; totals re-render once focus leaves.
+        let _mkPending = false;
+        document.addEventListener('focusout', e => {
+            const el = e.target && e.target.closest ? e.target.closest('#widgetPreviewArea [data-mk]') : null;
+            if (!el || _mkReadOnly) return;
+            if (mkCommitEdit(el) === true) { el.setAttribute('data-o', el.textContent); _mkPending = true; }
+            const next = e.relatedTarget && e.relatedTarget.closest ? e.relatedTarget.closest('#widgetPreviewArea [data-mk]') : null;
+            if (_mkPending && !next) { _mkPending = false; updateWidgetPreview(); }
+        });
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Enter' && e.target && e.target.closest && e.target.closest('#widgetPreviewArea [data-mk]')) { e.preventDefault(); e.target.blur(); }
+        });
+        document.addEventListener('click', e => {
+            if (_mkReadOnly || !e.target.closest || !e.target.closest('#widgetPreviewArea .mk-edit')) return;
+            if (e.target.closest('[data-mk]')) return;   // clicking text edits it
+            const del = e.target.closest('[data-mk-del]');
+            if (del) { mkRemoveProduct(+del.getAttribute('data-mk-del')); return; }
+            const im = e.target.closest('[data-mk-img]');
+            if (im) mkPickImage(im.getAttribute('data-mk-img'));
+        });
+
+        function mkPickImage(target) {
+            _mkImgTarget = target;
+            const inp = document.getElementById('mkImgInput');
+            if (inp) { inp.value = ''; inp.click(); }
+        }
+        function mkLoadImage(input) {
+            const file = input.files && input.files[0];
+            const target = _mkImgTarget;
+            if (!file || !target) return;
+            if (file.size > 8 * 1024 * 1024) { alert('Image must be under 8MB'); return; }
+            const reader = new FileReader();
+            reader.onload = e => {
+                // Backdrop is a full page → JPEG; the rest keep transparency as small PNGs.
+                const isBackdrop = target === 'backdrop';
+                _compressImage(e.target.result, isBackdrop ? 1440 : (target === 'logo' ? 360 : 240), out => {
+                    if (target === 'logo' || target === 'lock' || target === 'backdrop') _mk[target] = out;
+                    else { const m = target.match(/^p\.(\d+)$/); if (m) { const p = _mkEnsureProducts()[+m[1]]; if (p) p.img = out; } }
+                    updateWidgetPreview();
+                }, isBackdrop ? 'image/jpeg' : null);
+            };
+            reader.readAsDataURL(file);
+        }
+        function mkClearImage(target) { _mk[target] = null; updateWidgetPreview(); }
+        function mkAddProduct() {
+            const aov = parseFloat(removeCommas(document.getElementById('avgOrderValue').value)) || 0;
+            _mkEnsureProducts().push({ name: 'New Product', desc: '', price: formatCurrencyWithCents(aov || 25), compareAt: '', qty: 1, img: null });
+            updateWidgetPreview();
+        }
+        function mkRemoveProduct(i) { _mkEnsureProducts().splice(i, 1); updateWidgetPreview(); }
+        function mkResetProducts() { _mk.products = null; updateWidgetPreview(); }
+        function mkResetText() { _mk.text = {}; updateWidgetPreview(); }
+
+        // Colors from the scans: Scan Cart fills the Dual fields + cart bg, Scan Checkout the summary bg.
+        function mkMatchScan(d) {
+            const hex = c => (typeof c === 'string' && /^#?[0-9a-fA-F]{3,8}$/.test(c.trim())) ? (c.trim().startsWith('#') ? c.trim() : '#' + c.trim()) : null;
+            const setV = (id, val) => { const e = document.getElementById(id); if (e && val != null && val !== '') e.value = val; };
+            const g = id => (document.getElementById(id) || {}).value;
+            d = d || {};
+            const brand = hex(d.buttonBg) || g('wc-dual-p-bg');
+            setV('mk-brand', brand);
+            setV('mk-btn-text', hex(d.buttonTextColor) || g('wc-dual-p-color'));
+            setV('mk-accent', hex(d.accentColor) || g('wc-dual-s-color') || brand);
+            if (d.buttonBorderRadius != null && !isNaN(parseFloat(d.buttonBorderRadius))) setV('mk-radius', String(Math.round(parseFloat(d.buttonBorderRadius))));
+            else setV('mk-radius', g('wc-dual-p-bd-radius'));
+            setV('mk-text', hex(d.headerTextColor) || g('wc-dual-h-color'));
+            setV('mk-muted', hex(d.bodyTextColor) || g('wc-dual-b-color'));
+            setV('mk-drawer', hex(d.backgroundColor) || _cartScanBg || hex(d.containerBg));
+            const b = g('mk-brand') || '#1a1a1a';
+            setV('mk-page', _mkHexMix(b, '#ffffff', 0.96));
+            setV('mk-summary', _extScanBg || _mkHexMix(b, '#ffffff', 0.86));
+            updateWidgetPreview();
+        }
+
         // ── Copy Link: serialize the whole design into a shareable URL ──────
         function _collectDesign() {
             const fields = {};
@@ -2912,7 +3419,8 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 cartScanItems: _cartScanItems,
                 dualLogo: _dualLogoSrc,
                 togLogo: _toggleLogoSrc,
-                extLogo: _extLogoSrc
+                extLogo: _extLogoSrc,
+                mk: _mk
             };
         }
 
@@ -2943,6 +3451,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             if (data.dualLogo !== undefined) _dualLogoSrc   = data.dualLogo;
             if (data.togLogo  !== undefined) _toggleLogoSrc = data.togLogo;
             if (data.extLogo  !== undefined) _extLogoSrc    = data.extLogo;
+            _mk = Object.assign(_mkFresh(), data.mk || {});
             Object.entries(data.fields || {}).forEach(([id, val]) => {
                 const el = document.getElementById(id);
                 if (!el) return;
@@ -2979,7 +3488,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
         }
         function removeMerchantExample(i) { _merchantExamples.splice(i, 1); renderMerchantChips(); }
         // Category of an example for the Recommended column: 'cart' (dual/toggle) or 'checkout'.
-        function _exCategory(ex) { return (ex && ex.design && ex.design.wtype === 'extension') ? 'checkout' : 'cart'; }
+        function _exCategory(ex) { const w = ex && ex.design && ex.design.wtype; return w === 'extension' ? 'checkout' : w === 'mockup' ? 'mockup' : 'cart'; }
         // Designate one Cart and/or one Checkout design as the recommended deployment design.
         function setRecommendedExample(i) {
             const ex = _merchantExamples[i]; if (!ex) return;
@@ -3008,7 +3517,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                     <button class="mp-move" title="Move earlier" ${i === 0 ? 'disabled' : ''} onclick="moveMerchantExample(${i},-1)">‹</button>
                     ${_escHtml(ex.label)}
                     <button class="mp-move" title="Move later" ${i === last ? 'disabled' : ''} onclick="moveMerchantExample(${i},1)">›</button>
-                    <button class="mp-star ${ex.recommended ? 'on' : ''}" title="Set as the recommended ${_exCategory(ex)} design" onclick="setRecommendedExample(${i})">${ex.recommended ? '★' : '☆'}</button>
+                    ${_exCategory(ex) === 'mockup' ? '' : `<button class="mp-star ${ex.recommended ? 'on' : ''}" title="Set as the recommended ${_exCategory(ex)} design" onclick="setRecommendedExample(${i})">${ex.recommended ? '★' : '☆'}</button>`}
                     <button title="Remove" onclick="removeMerchantExample(${i})">✕</button>
                 </span>`).join('');
         }
@@ -3035,6 +3544,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             _dualLogoSrc   = d.dualLogo !== undefined ? d.dualLogo : null;
             _toggleLogoSrc = d.togLogo  !== undefined ? d.togLogo  : null;
             _extLogoSrc    = d.extLogo  !== undefined ? d.extLogo  : null;
+            _mk = Object.assign(_mkFresh(), d.mk || {});
             Object.entries(d.fields || {}).forEach(([id, val]) => {
                 const el = document.getElementById(id);
                 if (!el) return;
@@ -3059,6 +3569,8 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             };
         }
         function renderMerchantView(examples, name) {
+            _mkReadOnly = true;
+            _previewName = name || '';   // mockups default their store name from the preview name
             ['.app-header', '.control-bar', '.designer-body'].forEach(sel => {
                 const el = document.querySelector(sel); if (el) el.style.display = 'none';
             });
@@ -3078,8 +3590,10 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             const cart = { dual: [], checkbox: [], toggleSwitch: [] };
             const chk  = { cwidget: [], litem: [] };
             let recCart = null, recChk = null;   // { label, html } for the Recommended column
+            const mocks = [];                    // full Cart + Checkout mockups (own section)
             examples.forEach(ex => {
                 const p = _exampleParts(ex);
+                if (p.wtype === 'mockup') { mocks.push(`<div class="mp-mock">${p.widgetHtml}</div>`); return; }
                 const rec = !!ex.recommended;   // recommended views live ONLY in the Recommended column
                 let recLabel = '', recHtml = '';
                 if (p.wtype === 'dual') {
@@ -3113,6 +3627,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 .filter(([k]) => chk[k].length).map(([k, t]) => scol(k, t, chk[k])).join('');
 
             let sectionsHtml = '';
+            if (mocks.length) sectionsHtml += section('Cart &amp; Checkout <span>Mockups</span>', mocks.join(''));
             if (cartCols) sectionsHtml += section('Cart <span>Designs</span>', cartCols);
             if (chkCols)  sectionsHtml += section('Checkout <span>Designs</span>', chkCols);
 
@@ -3127,6 +3642,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
 
             mv.innerHTML = headerHtml + `<div class="mp-layout"><div class="mp-content">${sectionsHtml}</div>${recHtml}</div>`;
             mv.style.display = 'block';
+            mkFit(mv);
         }
 
         // ── Control-bar wiring ──────────────────────────────────────────────
@@ -3234,6 +3750,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             setSubPos(_dualSubPos);
             setTogInfoPos(_togInfoPos);
             setWidgetType(_widgetType);   // also triggers updateWidgetPreview()
+            if (window.ResizeObserver) new ResizeObserver(() => mkFit(document.getElementById('widgetPreviewArea'))).observe(document.getElementById('widgetPreviewArea'));
 
             // ── Merchant folder save/load (Rep Hub → Merchant Folders) ──
             if (window.SIFolderBar) SIFolderBar.mount({
