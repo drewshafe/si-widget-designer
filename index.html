@@ -7,7 +7,7 @@
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/drewshafe/si-roi-calculator/main/si_lock.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Poppins:ital,wght@0,400;0,500;0,600;1,400&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -440,7 +440,8 @@
         @media (max-width: 1180px) { .mp-scol, .mp-scol.col-cwidget, .mp-scol.col-litem { min-width: 300px; } }
 
 
-        /* ── Cart + Checkout Mockup (Dual Checkout Figma frames, 1440×900, scaled to fit) ── */
+        /* ── Cart + Checkout Mockup — Dual Checkout Figma ("A Shop of Things pp") at 1440×900, scaled to fit.
+              Metrics below are the Figma frame's (cart drawer 5698:2453, checkout 5698:2531). ── */
         body.mk-mode .config-col { flex: 0 0 380px; }
         body.mk-mode .preview-col { flex: 1 1 0; min-width: 0; }
         @media (max-width: 1120px) { body.mk-mode .config-col, body.mk-mode .preview-col { flex: 1 1 auto; width: 100%; } }
@@ -448,7 +449,7 @@
         .mk-flabel button { font-size: 1em; font-weight: 800; letter-spacing: 0.04em; background: #f4f5ff; color: #4a5fc1; border: 1px solid #d5d9f0; border-radius: 6px; padding: 3px 9px; cursor: pointer; }
         .mk-fit { width: 100%; overflow: hidden; border-radius: 8px; box-shadow: 0 2px 14px rgba(0,0,0,0.12); margin-bottom: 18px; background: #fff; }
         .mk-fit:fullscreen { background: #15151c; display: flex; align-items: center; justify-content: center; border-radius: 0; margin: 0; }
-        .mk-frame { width: 1440px; height: 900px; position: relative; overflow: hidden; flex-shrink: 0; font-family: var(--mk-font); color: var(--mk-text); font-size: 15px; line-height: 1.35; text-align: left; }
+        .mk-frame { width: 1440px; height: 900px; position: relative; overflow: hidden; flex-shrink: 0; font-family: var(--mk-font); color: var(--mk-text); font-size: 14px; line-height: 1.35; text-align: left; }
         .mk-frame * { box-sizing: border-box; }
         .mk-frame [data-mk] { outline: none; border-radius: 3px; min-width: 6px; }
         .mk-edit [data-mk]:hover { box-shadow: 0 0 0 2px rgba(102,117,255,0.55); cursor: text; }
@@ -456,94 +457,97 @@
         .mk-edit [data-mk]:empty::before { content: '\2026'; opacity: 0.35; }
         .mk-edit [data-mk-img] { cursor: pointer; }
         .mk-edit [data-mk-img]:hover { box-shadow: 0 0 0 2px rgba(102,117,255,0.55); }
-        .mk-del { display: none; position: absolute; top: 6px; left: -4px; width: 22px; height: 22px; border-radius: 50%; border: none; background: #ff5a5f; color: #fff; font-size: 12px; font-weight: 800; cursor: pointer; z-index: 3; line-height: 22px; padding: 0; }
+        .mk-del { display: none; position: absolute; top: 8px; left: 4px; width: 22px; height: 22px; border-radius: 50%; border: none; background: #ff5a5f; color: #fff; font-size: 12px; font-weight: 800; cursor: pointer; z-index: 3; line-height: 22px; padding: 0; }
         .mk-edit .mk-prow:hover .mk-del { display: block; }
         .mk-ico { width: 1em; height: 1em; display: inline-block; vertical-align: -0.15em; flex-shrink: 0; }
-        /* store page behind the drawer */
+        /* Figma's own icons (mockup/*.svg), drawn as masks so they take the theme color */
+        .mk-i { display: inline-block; flex-shrink: 0; background-color: currentColor; -webkit-mask-position: center; mask-position: center; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: contain; mask-size: contain; }
+        /* store page behind the drawer (generated unless a screenshot is uploaded) */
         .mk-store { position: absolute; inset: 0; background: #fff; }
-        .mk-store > img { width: 100%; height: 100%; object-fit: cover; object-position: top left; display: block; }
+        .mk-store > div[data-mk-img] img { object-position: top left; }
         .mk-ann { height: 40px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; letter-spacing: 0.02em; }
-        .mk-nav { height: 86px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 48px; border-bottom: 1px solid rgba(0,0,0,0.08); font-size: 26px; }
+        .mk-nav { height: 118px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 48px; border-bottom: 1px solid rgba(0,0,0,0.08); font-size: 24px; }
         .mk-nav .r { justify-self: end; display: flex; gap: 22px; }
         .mk-nav .l { display: flex; gap: 22px; }
-        .mk-hero { height: 420px; display: flex; align-items: center; gap: 60px; padding: 0 90px; }
+        .mk-hero { height: 400px; display: flex; align-items: center; gap: 60px; padding: 0 90px; }
         .mk-hero .copy { flex: 1; }
-        .mk-hero .kick { font-size: 15px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.7; }
-        .mk-hero .head { font-size: 64px; font-weight: 800; line-height: 1.05; margin: 14px 0 26px; letter-spacing: -0.01em; }
-        .mk-hero .cta { display: inline-block; padding: 16px 34px; font-weight: 700; font-size: 16px; letter-spacing: 0.06em; text-transform: uppercase; }
-        .mk-hero .shot { width: 330px; height: 330px; border-radius: 18px; overflow: hidden; background: rgba(255,255,255,0.5); flex-shrink: 0; }
-        .mk-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px; padding: 34px 90px; }
-        .mk-grid .card .im { height: 190px; border-radius: 12px; overflow: hidden; background: #f1f1f4; }
-        .mk-grid .card .nm { font-weight: 600; margin-top: 12px; font-size: 16px; }
+        .mk-hero .kick { font-size: 15px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.7; }
+        .mk-hero .head { font-size: 64px; font-weight: 600; line-height: 1.05; margin: 14px 0 26px; letter-spacing: -0.01em; }
+        .mk-hero .cta { display: inline-block; padding: 16px 34px; font-weight: 600; font-size: 16px; letter-spacing: 0.06em; text-transform: uppercase; }
+        .mk-hero .shot { width: 320px; height: 320px; border-radius: 18px; overflow: hidden; background: rgba(255,255,255,0.5); flex-shrink: 0; }
+        .mk-grid { display: grid; grid-template-columns: repeat(4, 185px); gap: 32px; padding: 34px 186px; }
+        .mk-grid .card .im { height: 240px; overflow: hidden; background: #f1f1f4; }
+        .mk-grid .card .nm { margin-top: 12px; font-size: 15px; }
         .mk-grid .card .pr { margin-top: 4px; opacity: 0.75; }
         .mk-dim { position: absolute; inset: 0; background: #000; }
         /* cart drawer */
-        .mk-drawer { position: absolute; top: 0; right: 0; bottom: 0; width: 400px; background: var(--mk-drawer); display: flex; flex-direction: column; box-shadow: -8px 0 30px rgba(0,0,0,0.25); }
-        .mk-dr-head { display: flex; align-items: center; justify-content: space-between; padding: 22px 24px 18px; border-bottom: 1px solid var(--mk-line); font-size: 18px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
-        .mk-dr-head .x { font-size: 22px; font-weight: 400; }
-        .mk-ship { padding: 14px 24px 16px; border-bottom: 1px solid var(--mk-line); font-size: 14px; }
-        .mk-ship .bar { height: 7px; border-radius: 4px; background: rgba(255,255,255,0.9); margin-top: 10px; overflow: hidden; }
-        .mk-ship .bar > div { height: 100%; border-radius: 4px; background: var(--mk-accent); opacity: 0.75; }
-        .mk-sec { padding: 14px 24px 6px; font-size: 13px; font-weight: 600; }
-        .mk-items { flex: 1 1 auto; overflow: hidden; }
-        .mk-prow { position: relative; display: flex; gap: 18px; padding: 10px 24px 16px; }
-        .mk-prow .im { width: 84px; height: 84px; flex-shrink: 0; overflow: hidden; border-radius: 6px; background: rgba(0,0,0,0.06); }
-        .mk-prow .nm { font-size: 16px; font-weight: 500; }
-        .mk-prow .ds { font-size: 13px; color: var(--mk-muted); margin-top: 2px; }
-        .mk-prow .pr { font-size: 15px; font-weight: 600; margin-top: 6px; }
-        .mk-prow .pr s { font-weight: 400; color: var(--mk-muted); margin-left: 8px; font-size: 13px; }
-        .mk-qty { display: inline-flex; align-items: center; gap: 22px; border: 1.5px solid var(--mk-text); border-radius: 20px; padding: 5px 14px; margin-top: 10px; font-size: 14px; }
-        .mk-rm { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 8px; color: var(--mk-muted); }
-        .mk-gift { display: flex; justify-content: space-between; padding: 14px 24px; border-top: 1px solid var(--mk-line); border-bottom: 1px solid var(--mk-line); font-size: 13px; font-weight: 600; }
-        .mk-foot { padding: 16px 24px 22px; border-top: 1px solid var(--mk-line); }
-        .mk-subrow { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 14px; margin-bottom: 12px; border-bottom: 1px solid var(--mk-line); }
-        .mk-subrow .l { font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
-        .mk-subrow .r { font-size: 20px; }
-        .mk-protect { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+        .mk-drawer { position: absolute; top: 0; right: 0; bottom: 0; width: 380px; background: var(--mk-drawer); border-left: 0.8px solid var(--mk-text); display: flex; flex-direction: column; }
+        .mk-dr-head { height: 43.8px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 9px 0 15px; border-bottom: 0.8px solid var(--mk-text); font-size: 16px; font-weight: 500; line-height: 16px; text-transform: uppercase; white-space: pre; }
+        .mk-ship { height: 59.4px; flex-shrink: 0; padding: 13px 15px 0; border-bottom: 0.8px solid var(--mk-text); font-size: 12px; line-height: 15.6px; }
+        .mk-ship .bar { height: 8px; border-radius: 4px; background: #fff; margin-top: 6.6px; overflow: hidden; }
+        .mk-ship .bar > div { height: 100%; border-radius: 4px; background: var(--mk-grad); }
+        .mk-sec { padding: 13.4px 15px 0; font-size: 12px; font-weight: 500; line-height: 13.92px; }
+        .mk-prow { position: relative; display: flex; align-items: center; gap: 30px; padding: 14px 15px 16px; }
+        .mk-prow .im { width: 90px; height: 90px; flex-shrink: 0; overflow: hidden; }
+        .mk-prow .nm { font-size: 16px; line-height: 21.6px; }
+        .mk-prow .ds { font-size: 12px; color: var(--mk-muted); margin-top: 2px; }
+        .mk-prow .pr { font-size: 14px; font-weight: 500; line-height: 18.62px; margin-top: 6px; }
+        .mk-prow .pr s { font-weight: 400; color: var(--mk-muted); margin-left: 8px; font-size: 12px; }
+        .mk-qty { display: flex; align-items: center; justify-content: space-between; width: 95px; height: 40.64px; border: 1px solid var(--mk-text); border-radius: 22px; padding: 0 13px 0 11.8px; margin-top: 8px; font-size: 14px; }
+        .mk-rm { font-size: 12px; letter-spacing: 0.6px; text-transform: uppercase; margin-top: 8.8px; }
+        .mk-gift { height: 41.5px; flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; border-top: 0.8px solid var(--mk-text); border-bottom: 0.8px solid var(--mk-text); font-size: 12px; font-weight: 500; }
+        .mk-foot { height: 348.8px; flex-shrink: 0; margin-top: auto; border-top: 0.8px solid var(--mk-text); padding: 0 15px; }
+        .mk-subrow { height: 52.6px; display: flex; justify-content: space-between; align-items: center; padding-top: 1px; }
+        .mk-subrow .l { font-size: 12px; font-weight: 500; letter-spacing: 1.68px; text-transform: uppercase; }
+        .mk-subrow .r { font-size: 20px; font-weight: 500; line-height: 26.6px; }
+        .mk-protect { display: flex; justify-content: space-between; align-items: center; height: 25px; margin-top: 13px; padding-bottom: 5px; font-size: 12px; font-weight: 600; line-height: 20px; color: var(--mk-strong); }
         .mk-protect .l { display: inline-flex; align-items: center; gap: 6px; }
-        .mk-btn { display: flex; align-items: center; justify-content: center; gap: 0; text-align: center; border-radius: var(--mk-radius); width: 100%; }
-        .mk-btn.p { height: 56px; background: var(--mk-brand); color: var(--mk-btn-text); font-size: 17px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
-        .mk-btn.o { height: 50px; margin-top: 10px; border: 1.5px solid var(--mk-brand); color: var(--mk-brand); font-size: 13px; }
-        .mk-btn.v { height: 46px; margin-top: 10px; border: 1.5px solid var(--mk-text); font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; }
-        .mk-note { margin-top: 14px; font-size: 13px; font-style: italic; color: var(--mk-muted); }
-        /* checkout */
-        .mk-co { background: var(--mk-page); }
-        .mk-co-head { height: 108px; border-bottom: 1px solid rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between; padding: 0 233px 0 231px; }
-        .mk-co-head .bag { font-size: 26px; color: var(--mk-accent); }
-        .mk-co-body { display: grid; grid-template-columns: 768px 1fr; height: calc(900px - 108px); }
-        .mk-co-main { padding: 38px 41px 0 231px; overflow: hidden; }
-        .mk-co-side { background: var(--mk-summary); border-left: 1px solid rgba(0,0,0,0.06); padding: 38px 0 0 41px; overflow: hidden; }
+        .mk-protect .fee { letter-spacing: 0.48px; }
+        .mk-btn { display: flex; align-items: center; justify-content: center; text-align: center; width: 100%; }
+        .mk-btn.p { height: 46.4px; margin-top: -0.4px; background: var(--mk-brand); border: 1px solid var(--mk-brand); border-radius: var(--mk-radius); color: var(--mk-btn-text); font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; }
+        .mk-btn.o { height: 46.4px; margin-top: 8px; border: 1px solid var(--mk-brand); border-radius: var(--mk-radius); color: var(--mk-brand); font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
+        .mk-btn.v { height: 39.48px; margin-top: 10px; border: 1px solid var(--mk-text); border-radius: 300px; font-size: 13px; letter-spacing: 1.3px; text-transform: uppercase; }
+        .mk-note { margin-top: 21.7px; font-size: 12px; line-height: 16.32px; font-style: italic; padding-right: 25px; }
+        /* checkout (Shopify) */
+        .mk-co { background: var(--mk-page); font-family: var(--mk-co-font); color: #000; }
+        .mk-co-head { height: 100.8px; border-bottom: 0.8px solid var(--mk-co-line); display: flex; align-items: center; justify-content: space-between; padding: 0 230px; }
+        .mk-co-body { display: grid; grid-template-columns: 770px 1fr; height: 799.2px; }
+        .mk-co-main { padding: 40px 40px 0 230px; border-right: 0.8px solid var(--mk-co-line); overflow: hidden; }
+        .mk-co-side { background: var(--mk-summary); padding: 40px 0 0 40px; overflow: hidden; }
         .mk-co-side > div { width: 400px; }
-        .mk-h2 { display: flex; justify-content: space-between; align-items: baseline; font-size: 21px; font-weight: 600; margin: 0 0 12px; }
+        .mk-h2 { display: flex; justify-content: space-between; align-items: baseline; font-size: 20px; font-weight: 600; line-height: 24px; margin: 0 0 14.5px; }
         .mk-h2 .lk { font-size: 14px; font-weight: 400; color: var(--mk-accent); text-decoration: underline; }
-        .mk-in { position: relative; display: flex; align-items: center; justify-content: space-between; height: 48px; padding: 0 13px; border: 1px solid rgba(0,0,0,0.14); border-radius: 8px; background: #fff; color: #707070; font-size: 14px; margin-bottom: 10px; }
-        .mk-in.sel { flex-direction: row; }
-        .mk-in .fl { font-size: 12px; color: #707070; }
-        .mk-in .vl { color: #1a1a1a; font-size: 14px; }
-        .mk-in2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .mk-in3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-        .mk-chk { display: flex; align-items: center; gap: 10px; font-size: 14px; margin: 2px 0 26px; }
-        .mk-chk .bx { width: 18px; height: 18px; border: 1px solid rgba(0,0,0,0.25); border-radius: 4px; background: #fff; flex-shrink: 0; }
-        .mk-shipbox { padding: 18px; border-radius: 8px; background: rgba(0,0,0,0.04); color: #707070; font-size: 14px; text-align: center; }
+        .mk-in { position: relative; display: flex; align-items: center; justify-content: space-between; height: 48.6px; padding: 0 9.8px 0 10px; border: 1px solid #dedede; border-radius: 12px; background: #fff; color: #707070; font-size: 14px; margin-bottom: 10px; }
+        .mk-in.sel { height: 49px; align-items: flex-start; padding-top: 6.9px; }
+        .mk-in .fl { font-size: 12px; line-height: 16.2px; color: #707070; }
+        .mk-in .vl { color: #000; font-size: 14px; line-height: 18.9px; }
+        .mk-in .chev { align-self: center; margin-right: 6px; }
+        .mk-in2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; }
+        .mk-in3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 10px; }
+        .mk-chk { display: flex; align-items: center; gap: 10px; font-size: 14px; line-height: 18.9px; color: #000; }
+        .mk-chk .bx { width: 18px; height: 18px; border-radius: 8px; background: #fff; box-shadow: inset 0 0 0 1px #dedede; flex-shrink: 0; }
+        .mk-shiph { font-size: 16px; font-weight: 600; line-height: 19.2px; margin: 25px 0 14px; }
+        .mk-shipbox { height: 50.9px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: var(--mk-shipbox); color: rgba(0,0,0,0.56); font-size: 14px; }
         .mk-express { text-align: center; color: #707070; font-size: 14px; margin-bottom: 26px; }
         .mk-express .sp { display: inline-flex; align-items: center; justify-content: center; width: 100%; height: 50px; margin-top: 10px; border-radius: 6px; background: #5a31f4; color: #fff; font-weight: 800; font-size: 22px; letter-spacing: -0.02em; }
         .mk-or { display: flex; align-items: center; gap: 14px; color: #707070; font-size: 14px; margin-top: 18px; }
         .mk-or::before, .mk-or::after { content: ''; flex: 1; height: 1px; background: rgba(0,0,0,0.12); }
-        .mk-li { position: relative; display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
-        .mk-li .tile { position: relative; width: 64px; height: 64px; flex-shrink: 0; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.6); }
-        .mk-li .tile .im { width: 100%; height: 100%; border-radius: 7px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        .mk-li .badge { position: absolute; top: -9px; right: -9px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: #000; color: #fff; font-size: 12px; font-weight: 600; line-height: 22px; text-align: center; z-index: 2; }
-        .mk-li .tx { flex: 1; min-width: 0; font-size: 14px; }
-        .mk-li .sm { font-size: 12px; color: #707070; margin-top: 1px; }
-        .mk-li .rm { font-size: 12px; color: #707070; text-decoration: underline; }
-        .mk-li .amt { font-size: 14px; align-self: flex-start; padding-top: 2px; }
-        .mk-disc { display: flex; gap: 10px; margin: 6px 0 22px; }
+        .mk-li { position: relative; display: flex; gap: 16px; height: 64px; margin-bottom: 16px; font-size: 14px; line-height: 18.9px; }
+        .mk-li .tile { position: relative; width: 64px; height: 64px; flex-shrink: 0; border-radius: 16px; border: 1px solid #fff; background: var(--mk-tile); box-shadow: 0 0 0 0.5px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.06); }
+        .mk-li .tile .im { width: 100%; height: 100%; border-radius: 15px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .mk-li .badge { position: absolute; top: -5px; right: -5px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 8px; border: 1px solid #fff; background: #000; color: #fff; font-size: 12px; font-weight: 600; line-height: 18px; text-align: center; z-index: 2; }
+        .mk-li .tx { flex: 1; min-width: 0; padding-top: 7.35px; }
+        .mk-li.prod .tx, .mk-li.prod .amt { align-self: center; padding-top: 0; }
+        .mk-li .sm { font-size: 12px; line-height: 16.2px; color: rgba(0,0,0,0.56); }
+        .mk-li .rm { font-size: 12px; line-height: 16.2px; color: rgba(0,0,0,0.56); text-decoration: underline; }
+        .mk-li .amt { padding-top: 7.35px; text-align: right; }
+        .mk-disc { display: flex; gap: 10px; margin: 6px 0 34px; }
         .mk-disc .mk-in { flex: 1; margin: 0; }
-        .mk-disc .ap { width: 70px; height: 48px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: rgba(0,0,0,0.04); color: #707070; display: flex; align-items: center; justify-content: center; font-size: 14px; }
-        .mk-tot { display: flex; justify-content: space-between; align-items: baseline; font-size: 14px; margin-bottom: 8px; }
-        .mk-tot .mu { color: #707070; }
-        .mk-tot.big { font-size: 19px; font-weight: 600; margin-top: 14px; }
-        .mk-tot.big .cur { font-size: 12px; font-weight: 400; color: #707070; margin-right: 6px; }
+        .mk-disc .ap { width: 66.11px; height: 48.6px; border-radius: 12px; background: var(--mk-tile); box-shadow: inset 0 0 0 1px var(--mk-apply-line); opacity: 0.5; color: #000; font-weight: 600; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+        .mk-tot { display: flex; justify-content: space-between; align-items: center; font-size: 14px; line-height: 18.9px; margin-bottom: 6px; }
+        .mk-tot .mu { color: rgba(0,0,0,0.56); }
+        .mk-tot.big { font-size: 18px; font-weight: 600; line-height: 24.3px; margin-top: 16.9px; }
+        .mk-tot.big .cur { font-size: 12px; font-weight: 400; color: rgba(0,0,0,0.56); margin-right: 6px; }
         .mp-mock { width: 100%; }
         .mp-mock .mk-flabel { font-size: 0.78em; margin-top: 4px; }
 
@@ -1409,13 +1413,13 @@
                         <label>Merchant Logo</label>
                         <button type="button" onclick="mkPickImage('logo')">⬆ Upload</button>
                         <button type="button" onclick="mkClearImage('logo')">✕ Clear</button>
-                        <div class="wcs" style="flex-shrink:0;"><label>Height (px)</label><input type="number" id="mk-logo-h" value="44" min="16" max="120" style="width:54px;" onchange="updateWidgetPreview()"></div>
+                        <div class="wcs" style="flex-shrink:0;"><label>Height (px)</label><input type="number" id="mk-logo-h" value="60" min="16" max="120" style="width:54px;" onchange="updateWidgetPreview()"></div>
                     </div>
                     <div class="wconfig-upload">
                         <label>Store Page</label>
                         <button type="button" onclick="mkPickImage('backdrop')" title="Screenshot of the merchant's store page — sits behind the cart drawer">⬆ Screenshot</button>
                         <button type="button" onclick="mkClearImage('backdrop')">✕ Use generated</button>
-                        <div class="wcs" style="flex-shrink:0;"><label>Dim %</label><input type="number" id="mk-dim" value="45" min="0" max="90" style="width:50px;" onchange="updateWidgetPreview()"></div>
+                        <div class="wcs" style="flex-shrink:0;"><label>Dim %</label><input type="number" id="mk-dim" value="40" min="0" max="90" style="width:50px;" onchange="updateWidgetPreview()"></div>
                     </div>
                     <details class="wconfig-style-grp" open>
                         <summary>Colors &amp; Type</summary>
@@ -1432,9 +1436,10 @@
                                 <div class="wcs"><label>Order Summary</label><input type="color" id="mk-summary" value="#f5f5f5" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('mk-summary')" title="Pick color from screen">💧</button></div>
                             </div>
                             <div class="wconfig-style-row" style="margin-top:6px;">
-                                <div class="wcs"><label>Text</label><input type="color" id="mk-text" value="#1a1a1a" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('mk-text')" title="Pick color from screen">💧</button></div>
+                                <div class="wcs"><label>Text</label><input type="color" id="mk-text" value="#212121" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('mk-text')" title="Pick color from screen">💧</button></div>
                                 <div class="wcs"><label>Muted Text</label><input type="color" id="mk-muted" value="#6b6b6b" onchange="updateWidgetPreview()"><button type="button" class="eye-drop-btn" onclick="eyeDrop('mk-muted')" title="Pick color from screen">💧</button></div>
-                                <div class="wcs"><label>Font Family</label><input type="text" id="mk-font" placeholder="inherit" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>Store Font</label><input type="text" id="mk-font" placeholder="Poppins" onchange="updateWidgetPreview()"></div>
+                                <div class="wcs"><label>Checkout Font</label><input type="text" id="mk-co-font" placeholder="Open Sans" onchange="updateWidgetPreview()"></div>
                             </div>
                         </div>
                     </details>
@@ -3097,9 +3102,6 @@ For uncertain values make your best visual estimate. Always use valid hex colors
         let _mkImgTarget = null;
 
         const _MK_ICO = {
-            info:   '<svg class="mk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.5v.5" stroke-linecap="round"/></svg>',
-            help:   '<svg class="mk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9.5"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.4M12 17v.3" stroke-linecap="round"/></svg>',
-            chev:   '<svg class="mk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7 10 5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
             search: '<svg class="mk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4" stroke-linecap="round"/></svg>',
             menu:   '<svg class="mk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/></svg>',
             user:   '<svg class="mk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4-5.4 7.5-5.4s6.3 1.8 7.5 5.4" stroke-linecap="round"/></svg>',
@@ -3170,27 +3172,39 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             const fmtFee = t.typed ? T('fee', '') : money(t.fee);
             const FEE = `<span data-mk="fee"${edAttr(fmtFee)}>${_escHtml(fmtFee)}</span>`;
             const brand = _mkv('mk-brand', '#1a1a1a');
+            const page = _mkv('mk-page', '#ffffff'), summary = _mkv('mk-summary', '#f5f5f5'), text = _mkv('mk-text', '#212121');
+            const font = (id, fb) => (_mkv(id, '') || fb).replace(/[;"<>]/g, '');
+            // The checkout's tinted layers (tiles, shipping box, dividers) are derived from the page / summary colors,
+            // the way the Figma's pinks step off #fff1fe / #ffcef4.
             const vars = `--mk-brand:${brand};--mk-btn-text:${_mkv('mk-btn-text', '#ffffff')};--mk-accent:${_mkv('mk-accent', brand)};`
-                + `--mk-radius:${_mkv('mk-radius', '30')}px;--mk-drawer:${_mkv('mk-drawer', '#ffffff')};--mk-page:${_mkv('mk-page', '#ffffff')};`
-                + `--mk-summary:${_mkv('mk-summary', '#f5f5f5')};--mk-text:${_mkv('mk-text', '#1a1a1a')};--mk-muted:${_mkv('mk-muted', '#6b6b6b')};`
-                + `--mk-line:rgba(0,0,0,0.14);--mk-font:${_mkv('mk-font', '') ? _mkv('mk-font', '').replace(/[;"<>]/g, '') + ',' : ''}-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;`;
+                + `--mk-radius:${_mkv('mk-radius', '30')}px;--mk-drawer:${_mkv('mk-drawer', '#ffffff')};--mk-page:${page};`
+                + `--mk-summary:${summary};--mk-text:${text};--mk-strong:${_mkHexMix(text, '#000000', 0.4)};--mk-muted:${_mkv('mk-muted', '#6b6b6b')};`
+                + `--mk-tile:${_mkHexMix(summary, brand, 0.07)};--mk-apply-line:${_mkHexMix(_mkHexMix(summary, brand, 0.07), '#000000', 0.12)};`
+                + `--mk-shipbox:${_mkHexMix(page, brand, 0.06)};--mk-co-line:${_mkHexMix(page, brand, 0.15)};`
+                + `--mk-grad:linear-gradient(66deg, ${_mkHexMix(brand, '#ffffff', 0.8)} 0%, ${_mkHexMix(_mkv('mk-accent', brand), '#ffffff', 0.45)} 100%);`
+                + `--mk-font:'${font('mk-font', 'Poppins')}',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;`
+                + `--mk-co-font:'${font('mk-co-font', 'Open Sans')}',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;`;
+            // Figma icon assets (mockup/*.svg) as theme-colored masks.
+            const ICON = (name, w, h, color) => `<span class="mk-i" style="width:${w}px;height:${h}px;${color ? `color:${color};` : ''}-webkit-mask-image:url(mockup/${name}.svg);mask-image:url(mockup/${name}.svg);"></span>`;
+            const sp$ = /\$\s/.test((_mkProducts()[0] || {}).price || '') ? '$ ' : '$';   // match the store's "$ 34.00" style
+            const smoney = n => money(n).replace('$', sp$);
             const storeName = T('store.name', (_previewName || '').replace(/\s*[—–-].*$/, '').trim() || 'Your Store');
-            const logoH = parseInt(_mkv('mk-logo-h', '44')) || 44;
+            const logoH = parseInt(_mkv('mk-logo-h', '60')) || 60;
             const logo = _mk.logo
                 ? `<div data-mk-img="logo" ${ed ? 'title="Click to replace the logo"' : ''} style="height:${logoH}px;display:inline-block;"><img src="${_mk.logo}" style="height:100%;width:auto;display:block;" alt=""></div>`
                 : `<span style="font-size:${Math.round(logoH * 0.62)}px;font-weight:800;letter-spacing:-0.01em;">${E('store.name', storeName)}</span>`;
             const ph = (name) => `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:${_mkHexMix(brand, '#ffffff', 0.86)};color:${brand};font-weight:800;font-size:28px;">${_escHtml((name || '?').trim().charAt(0).toUpperCase())}</div>`;
-            const lockSrc = _mk.lock || _extLogoSrc || 'https://raw.githubusercontent.com/drewshafe/si-roi-calculator/main/si_lock.png';
+            const lockSrc = _mk.lock || _extLogoSrc || 'mockup/lock.png';   // Figma's ShipInsure lock unless a custom lock is set
 
             // ── Frame 1: store page + cart drawer ──
             const shipAt = parseFloat(_mkv('mk-ship-at', '50')) || 0;
             const left = Math.max(0, shipAt - t.subtotal);
-            const shipMsg = left > 0 ? `You are ${money(left).replace(/\.00$/, '')} away from free shipping!!!` : 'You unlocked free shipping!';
+            const shipMsg = left > 0 ? `You are ${smoney(left).replace(/\.00$/, '')} away from free shipping!!!` : 'You unlocked free shipping!';
             const shipPct = shipAt > 0 ? Math.min(100, Math.round(t.subtotal / shipAt * 100)) : 100;
             const store = _mk.backdrop
                 ? `<div class="mk-store">${IMG('backdrop', _mk.backdrop, 'cover')}</div>`
                 : `<div class="mk-store" ${ed ? 'data-mk-img="backdrop" title="Click to upload a store-page screenshot"' : ''}>
-                    <div class="mk-ann" style="background:${brand};color:var(--mk-btn-text);">${E('store.ann', `Free shipping on orders over $${shipAt || 50}`)}</div>
+                    <div class="mk-ann" style="background:${brand};color:var(--mk-btn-text);">${E('store.ann', `Only ${smoney(left || shipAt).replace(/\.00$/, '')} away from free shipping`)}</div>
                     <div class="mk-nav"><div class="l">${_MK_ICO.menu}${_MK_ICO.search}</div><div>${logo}</div><div class="r">${_MK_ICO.user}${_MK_ICO.bag}</div></div>
                     <div class="mk-hero" style="background:linear-gradient(120deg, ${_mkHexMix(brand, '#ffffff', 0.82)}, ${_mkHexMix(brand, '#ffffff', 0.94)});">
                         <div class="copy"><div class="kick">${E('store.kick', 'New Arrivals')}</div><div class="head">${E('store.head', 'Shop the latest drop')}</div>
@@ -3199,7 +3213,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                     </div>
                     <div class="mk-grid">${[0, 1, 2, 3].map(k => { const p = t.items[k % Math.max(1, t.items.length)] || {}; return `<div class="card"><div class="im">${p.img ? `<img src="${p.img}" style="width:100%;height:100%;object-fit:cover;" alt="">` : ph(p.name)}</div><div class="nm">${_escHtml(p.name || '')}</div><div class="pr">${_escHtml(p.price || '')}</div></div>`; }).join('')}</div>
                 </div>`;
-            const dim = Math.max(0, Math.min(90, parseFloat(_mkv('mk-dim', '45')) || 0)) / 100;
+            const dim = Math.max(0, Math.min(90, parseFloat(_mkv('mk-dim', '40')) || 0)) / 100;
 
             const cartRows = t.items.map((p, i) => `<div class="mk-prow">
                     ${ed ? `<button type="button" class="mk-del" data-mk-del="${i}" title="Remove this product">✕</button>` : ''}
@@ -3208,7 +3222,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                         <div class="nm">${EP(i, 'name', p.name || '')}</div>
                         ${(p.desc || ed) ? `<div class="ds">${EP(i, 'desc', p.desc || '')}</div>` : ''}
                         <div class="pr">${EP(i, 'price', p.price || '')}${(p.compareAt || ed) ? ` <s>${EP(i, 'compareAt', p.compareAt || '')}</s>` : ''}</div>
-                        <div class="mk-qty">${EP(i, 'qty', String(p.qty || 1))}${_MK_ICO.chev}</div>
+                        <div class="mk-qty">${EP(i, 'qty', String(p.qty || 1))}${ICON('chev-cart', 10.5, 6)}</div>
                         <div class="mk-rm">${E('cart.remove', 'Remove')}</div>
                     </div>
                 </div>`).join('');
@@ -3217,14 +3231,14 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 ${store}
                 <div class="mk-dim" style="opacity:${dim};pointer-events:none;"></div>
                 <aside class="mk-drawer">
-                    <div class="mk-dr-head"><span>${E('cart.title', 'Cart')} (${t.count})</span><span class="x">✕</span></div>
+                    <div class="mk-dr-head"><span>${E('cart.title', 'Cart')}  (${t.count})</span>${ICON('close', 24, 24)}</div>
                     ${_mkOn('mk-show-ship') ? `<div class="mk-ship">${E('cart.ship', shipMsg)}<div class="bar"><div style="width:${shipPct}%;"></div></div></div>` : ''}
                     <div class="mk-sec">${E('cart.products', 'Products')}</div>
-                    <div class="mk-items">${cartRows}</div>
-                    ${_mkOn('mk-show-gift') ? `<div class="mk-gift">${E('cart.gift', 'Is this a gift?')}<span>+</span></div>` : ''}
+                    <div>${cartRows}</div>
+                    ${_mkOn('mk-show-gift') ? `<div class="mk-gift">${E('cart.gift', 'Is this a gift?')}${ICON('plus', 16, 16)}</div>` : ''}
                     <div class="mk-foot">
-                        <div class="mk-subrow"><span class="l">${E('cart.subtotal', 'Subtotal')}</span><span class="r">${money(t.subtotal)} ${E('cart.cur', 'USD')}</span></div>
-                        <div class="mk-protect"><span class="l">${E('cart.protect', 'Loss, Damage, Theft Protection')}${_MK_ICO.info}</span>${FEE}</div>
+                        <div class="mk-subrow"><span class="l">${E('cart.subtotal', 'Subtotal')}</span><span class="r">${smoney(t.subtotal)} ${E('cart.cur', 'USD')}</span></div>
+                        <div class="mk-protect"><span class="l">${E('cart.protect', 'Loss, Damage, Theft Protection')}${ICON('info', 14, 14)}</span><span class="fee">${FEE}</span></div>
                         <div class="mk-btn p">${E('cart.cta', 'Checkout')}&nbsp;|&nbsp;${money(t.total)}</div>
                         <div class="mk-btn o">${E('cart.decline', 'or checkout without protection')}</div>
                         ${_mkOn('mk-show-viewcart') ? `<div class="mk-btn v">${E('cart.view', 'View Cart')}</div>` : ''}
@@ -3233,42 +3247,45 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 </aside>
             </div>`;
 
-            // ── Frame 2: checkout page with the ShipInsure line item ──
+            // ── Frame 2: Shopify checkout with the ShipInsure line item ──
             const IN = (key, def, icon) => `<div class="mk-in">${E(key, def)}${icon || ''}</div>`;
-            const coRows = t.items.map((p, i) => `<div class="mk-li">
+            const Q = ICON('question', 15.74, 15.74, '#707070');
+            const coRows = t.items.map((p, i) => `<div class="mk-li prod">
                     <div class="tile"><span class="badge">${parseInt(p.qty) || 1}</span><div class="im">${IMG('p.' + i, p.img, 'cover', ph(p.name))}</div></div>
                     <div class="tx"><div>${EP(i, 'name', p.name || '')}</div>${p.desc ? `<div class="sm">${EP(i, 'desc', p.desc)}</div>` : ''}</div>
                     <div class="amt">${money(_mkMoney(p.price) * (parseInt(p.qty) || 1))}</div>
                 </div>`).join('');
             const checkoutFrame = `<div class="mk-frame mk-co" style="${vars}">
-                <div class="mk-co-head"><div>${logo}</div><span class="bag">${_MK_ICO.bag}</span></div>
+                <div class="mk-co-head"><div>${logo}</div>${ICON('bag', 24, 24, 'var(--mk-accent)')}</div>
                 <div class="mk-co-body">
                     <div class="mk-co-main">
                         ${_mkOn('mk-show-express') ? `<div class="mk-express">${E('co.express', 'Express checkout')}<div class="sp">shop</div><div class="mk-or">${E('co.or', 'OR')}</div></div>` : ''}
                         <div class="mk-h2">${E('co.contact', 'Contact')}<span class="lk">${E('co.signin', 'Sign in')}</span></div>
-                        ${IN('co.email', 'Email', _MK_ICO.help)}
-                        <div class="mk-chk"><span class="bx"></span>${E('co.news', 'Email me with news and offers')}</div>
+                        ${IN('co.email', 'Email', Q)}
+                        <div class="mk-chk" style="margin:-0.4px 0 32.5px;"><span class="bx"></span>${E('co.news', 'Email me with news and offers')}</div>
                         <div class="mk-h2">${E('co.delivery', 'Delivery')}</div>
-                        <div class="mk-in"><div><div class="fl">${E('co.country', 'Country/Region')}</div><div class="vl">${E('co.countryVal', 'United States')}</div></div>${_MK_ICO.chev}</div>
+                        <div class="mk-in sel"><div><div class="fl">${E('co.country', 'Country/Region')}</div><div class="vl">${E('co.countryVal', 'United States')}</div></div><span class="chev">${ICON('chev-select', 10, 10)}</span></div>
                         <div class="mk-in2">${IN('co.first', 'First name')}${IN('co.last', 'Last name')}</div>
                         ${IN('co.company', 'Company (optional)')}
-                        ${IN('co.address', 'Address', _MK_ICO.search)}
+                        ${IN('co.address', 'Address', ICON('search', 18, 18, '#707070'))}
                         ${IN('co.apt', 'Apartment, suite, etc. (optional)')}
-                        <div class="mk-in3">${IN('co.city', 'City')}${IN('co.state', 'State', _MK_ICO.chev)}${IN('co.zip', 'ZIP code')}</div>
-                        ${IN('co.phone', 'Phone (optional)', _MK_ICO.help)}
-                        <div class="mk-chk" style="margin-bottom:22px;"><span class="bx"></span>${E('co.save', 'Save this information for next time')}</div>
-                        ${_mkOn('mk-show-shipmethod') ? `<div style="font-size:17px;font-weight:600;margin-bottom:12px;">${E('co.shipMethod', 'Shipping method')}</div><div class="mk-shipbox">${E('co.shipMsg', 'Enter your shipping address to view available shipping methods.')}</div>` : ''}
+                        <div class="mk-in3">${IN('co.city', 'City')}<div class="mk-in">${E('co.state', 'State')}<span class="chev">${ICON('chev-select', 10, 10, '#707070')}</span></div>${IN('co.zip', 'ZIP code')}</div>
+                        ${IN('co.phone', 'Phone (optional)', Q)}
+                        <div class="mk-chk"><span class="bx"></span>${E('co.save', 'Save this information for next time')}</div>
+                        ${_mkOn('mk-show-shipmethod') ? `<div class="mk-shiph">${E('co.shipMethod', 'Shipping method')}</div><div class="mk-shipbox">${E('co.shipMsg', 'Enter your shipping address to view available shipping methods.')}</div>` : ''}
                     </div>
                     <div class="mk-co-side"><div>
                         <div class="mk-li">
-                            <div class="tile"><span class="badge">1</span><div class="im" style="padding:9px;">${IMG('lock', lockSrc, 'contain')}</div></div>
+                            <div class="tile"><span class="badge">1</span><div class="im">${lockSrc === 'mockup/lock.png'
+                                ? `<div data-mk-img="lock" ${ed ? 'title="Click to upload a custom lock"' : ''} style="width:23.83px;height:34px;"><img src="${lockSrc}" style="width:100%;height:100%;display:block;" alt=""></div>`
+                                : `<div style="width:100%;height:100%;padding:9px;">${IMG('lock', lockSrc, 'contain')}</div>`}</div></div>
                             <div class="tx"><div>${E('co.siName', 'ShipInsure Package Protection')}</div><div class="sm">${FEE}</div><div class="rm">${E('co.remove', 'Remove')}</div></div>
                             <div class="amt">${FEE}</div>
                         </div>
                         ${coRows}
                         <div class="mk-disc"><div class="mk-in">${E('co.discount', 'Discount code or gift card')}</div><div class="ap">${E('co.apply', 'Apply')}</div></div>
                         <div class="mk-tot"><span>${E('co.subtotal', 'Subtotal')} · ${t.count + 1} items</span><span>${money(t.total)}</span></div>
-                        <div class="mk-tot"><span style="display:inline-flex;align-items:center;gap:5px;">${E('co.shipping', 'Shipping')}${_MK_ICO.help}</span><span class="mu">${E('co.shipVal', 'Enter shipping address')}</span></div>
+                        <div class="mk-tot"><span style="display:inline-flex;align-items:center;gap:3.6px;">${E('co.shipping', 'Shipping')}${ICON('question-sm', 12.4, 12.4, 'rgba(0,0,0,0.56)')}</span><span class="mu">${E('co.shipVal', 'Enter shipping address')}</span></div>
                         <div class="mk-tot big"><span>${E('co.total', 'Total')}</span><span><span class="cur">${E('co.cur', 'USD')}</span>${money(t.total)}</span></div>
                     </div></div>
                 </div>
@@ -3391,8 +3408,8 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             setV('mk-muted', hex(d.bodyTextColor) || g('wc-dual-b-color'));
             setV('mk-drawer', hex(d.backgroundColor) || _cartScanBg || hex(d.containerBg));
             const b = g('mk-brand') || '#1a1a1a';
-            setV('mk-page', _mkHexMix(b, '#ffffff', 0.96));
-            setV('mk-summary', _extScanBg || _mkHexMix(b, '#ffffff', 0.86));
+            setV('mk-page', _mkHexMix(b, '#ffffff', 0.94));
+            setV('mk-summary', _extScanBg || _mkHexMix(b, '#ffffff', 0.8));
             updateWidgetPreview();
         }
 
