@@ -1423,6 +1423,7 @@
             <div class="scan-key-row">
                 <input type="password" id="scanKeyInput" class="scan-key-input" placeholder="Anthropic API key (sk-ant-...)">
                 <button class="scan-key-save-btn" onclick="saveScanKey()">Save Key</button>
+                <button class="scan-key-save-btn" id="scanKeyForget" style="background:#8a8fa6;" onclick="forgetScanKey()" title="Remove the API key saved in this browser">Remove</button>
             </div>
         </div>
         <div class="scan-auth-note">Uses your Rep Hub sign-in (folder bar at the top). <button id="scanKeyChange" class="scan-key-change" onclick="showScanKeySection()">🔑 Use your own API key instead</button></div>
@@ -2372,14 +2373,23 @@
         // anywhere). Not signed in: a key the rep pasted into the scan modal, if any.
         const SI_CLAUDE_TOKEN_FN = 'https://oiljklutlmtztascnkpm.supabase.co/functions/v1/anthropic-token';
         let _siClaudeTok = null;   // { token, exp, user } — memory only
+        // Signed in → the sign-in token or its real error (never a stale saved key behind it).
+        // Signed out → the saved key, if any. _siClaudeVia says which one the request used.
+        let _siClaudeVia = '';
         async function siClaudeHeaders() {
             const h = { 'anthropic-version': '2023-06-01', 'content-type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' };
-            let why = '';
-            try { const tok = await _siClaudeSignInToken(); if (tok) return Object.assign(h, { authorization: 'Bearer ' + tok }); }
-            catch (e) { why = e.message; }
+            const tok = await _siClaudeSignInToken();   // throws with the reason when signed in but refused
+            if (tok) { _siClaudeVia = 'signin'; return Object.assign(h, { authorization: 'Bearer ' + tok }); }
             const key = (localStorage.getItem('si_anthropic_key') || '').trim();
-            if (key) return Object.assign(h, { 'x-api-key': key });
-            throw new Error(why || 'Sign in from the folder bar at the top to use the scans (or use your own Anthropic API key).');
+            if (key) { _siClaudeVia = 'key'; return Object.assign(h, { 'x-api-key': key }); }
+            throw new Error('Sign in from the folder bar at the top to use the scans (or use your own Anthropic API key).');
+        }
+        // A Claude API error, explained in terms of which credential was sent.
+        function siClaudeError(status, msg) {
+            if ((status === 401 || /x-api-key|authentication/i.test(msg || '')) && _siClaudeVia === 'key')
+                return 'Your saved API key was rejected (probably the expired one). Sign in from the folder bar at the top instead, and remove the saved key (🔑 in the scan window).';
+            if (status === 401 && _siClaudeVia === 'signin') { _siClaudeTok = null; return 'Claude rejected the sign-in token (' + msg + '). Try again; if it repeats, sign out and back in.'; }
+            return msg || 'HTTP ' + status;
         }
         async function _siClaudeSignInToken() {
             if (!window.SIsb) return null;
@@ -2442,8 +2452,16 @@
             document.getElementById('scanKeyInput').value = '';
         }
 
+        function forgetScanKey() {
+            localStorage.removeItem('si_anthropic_key');
+            document.getElementById('scanKeySection').style.display = 'none';
+            document.getElementById('scanKeyChange').textContent = '🔑 Use your own API key instead';
+            showScanStatus('Saved API key removed. Scans now use your sign-in.', 'success');
+        }
+
         function showScanKeySection() {
             document.getElementById('scanKeySection').style.display = '';
+            document.getElementById('scanKeyForget').style.display = (localStorage.getItem('si_anthropic_key') || '').trim() ? '' : 'none';
         }
 
         function handleScanPaste(e) {
@@ -2621,7 +2639,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 });
                 if (!resp.ok) {
                     const err = await resp.json().catch(() => ({}));
-                    throw new Error(err.error?.message || `HTTP ${resp.status}`);
+                    throw new Error(siClaudeError(resp.status, err.error?.message));
                 }
                 const data = await resp.json();
                 const raw = data.content?.[0]?.text || '';
@@ -3435,7 +3453,7 @@ Return ONLY JSON — no markdown, no code fences:
                         ] }]
                     })
                 });
-                if (!resp.ok) { const err = await resp.json().catch(() => ({})); throw new Error((err.error && err.error.message) || 'HTTP ' + resp.status); }
+                if (!resp.ok) { const err = await resp.json().catch(() => ({})); throw new Error(siClaudeError(resp.status, err.error && err.error.message)); }
                 const data = await resp.json();
                 const raw = ((data.content || []).find(b => b.type === 'text') || {}).text || '';
                 const parsed = JSON.parse(raw.replace(/^[\s\S]*?(\{)/, '$1').replace(/\}[^}]*$/, '}'));
