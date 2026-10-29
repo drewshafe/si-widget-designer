@@ -357,9 +357,10 @@
         }
         .scan-key-save-btn:hover { background: #3a4fa0; }
         .scan-key-change {
-            font-size: 0.72em; color: #4a5fc1; text-decoration: underline;
-            cursor: pointer; background: none; border: none; padding: 0 0 10px; display: block;
+            font-size: 1em; color: #4a5fc1; text-decoration: underline;
+            cursor: pointer; background: none; border: none; padding: 0; display: inline;
         }
+        .scan-auth-note { font-size: 0.72em; color: #6c757d; margin: 0 0 10px; line-height: 1.5; }
         .scan-drop-zone {
             border: 2px dashed #c7cde8; border-radius: 10px; padding: 28px 16px;
             text-align: center; cursor: pointer; background: #f8f9ff;
@@ -1424,7 +1425,7 @@
                 <button class="scan-key-save-btn" onclick="saveScanKey()">Save Key</button>
             </div>
         </div>
-        <button id="scanKeyChange" class="scan-key-change" onclick="showScanKeySection()" style="display:none;">🔑 Change API Key</button>
+        <div class="scan-auth-note">Uses your Rep Hub sign-in (folder bar at the top). <button id="scanKeyChange" class="scan-key-change" onclick="showScanKeySection()">🔑 Use your own API key instead</button></div>
         <div id="scanDropZone" class="scan-drop-zone" onclick="document.getElementById('scanFileInput').click()">
             <div class="scan-drop-zone-text">
                 <strong>Paste (⌘V) or click to upload</strong>
@@ -2365,6 +2366,39 @@
             }
         }
 
+        // ── Claude API access ───────────────────────────────────────────────
+        // Signed in (folder bar): the rep's Supabase login is traded for a short-lived Claude
+        // token by the anthropic-token Edge Function (Workload Identity Federation — no API key
+        // anywhere). Not signed in: a key the rep pasted into the scan modal, if any.
+        const SI_CLAUDE_TOKEN_FN = 'https://oiljklutlmtztascnkpm.supabase.co/functions/v1/anthropic-token';
+        let _siClaudeTok = null;   // { token, exp, user } — memory only
+        async function siClaudeHeaders() {
+            const h = { 'anthropic-version': '2023-06-01', 'content-type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' };
+            let why = '';
+            try { const tok = await _siClaudeSignInToken(); if (tok) return Object.assign(h, { authorization: 'Bearer ' + tok }); }
+            catch (e) { why = e.message; }
+            const key = (localStorage.getItem('si_anthropic_key') || '').trim();
+            if (key) return Object.assign(h, { 'x-api-key': key });
+            throw new Error(why || 'Sign in from the folder bar at the top to use the scans (or use your own Anthropic API key).');
+        }
+        async function _siClaudeSignInToken() {
+            if (!window.SIsb) return null;
+            const c = await SIsb.client();
+            let s = ((await c.auth.getSession()).data || {}).session;
+            if (!s) return null;
+            if (_siClaudeTok && _siClaudeTok.user === s.user.id && _siClaudeTok.exp > Date.now() + 60000) return _siClaudeTok.token;
+            const ask = jwt => fetch(SI_CLAUDE_TOKEN_FN, { method: 'POST', headers: { authorization: 'Bearer ' + jwt } })
+                .then(async r => ({ ok: r.ok, status: r.status, j: await r.json().catch(() => ({})) }));
+            let r = await ask(s.access_token);
+            if (!r.ok && r.status === 401) {   // each login token trades once; refresh it and retry
+                s = ((await c.auth.refreshSession()).data || {}).session;
+                if (s) r = await ask(s.access_token);
+            }
+            if (!r.ok || !r.j.access_token) throw new Error('Your sign-in couldn’t get Claude access (' + (r.j.error || 'HTTP ' + r.status) + ').');
+            _siClaudeTok = { token: r.j.access_token, exp: Date.now() + (r.j.expires_in || 600) * 1000, user: s.user.id };
+            return _siClaudeTok.token;
+        }
+
         let _scanTarget = 'widget';   // 'widget' (full design) | 'checkout' (line item) | 'cart' (cart context)
         function openScanModal(target) {
             _scanTarget = (target === 'checkout' || target === 'cart') ? target : 'widget';
@@ -2380,9 +2414,10 @@
             document.getElementById('scanStatus').textContent = '';
             document.getElementById('scanStatus').className = 'scan-status';
 
+            // Claude access comes from the rep's sign-in; a pasted key is only the fallback.
             const _hk = !!(localStorage.getItem('si_anthropic_key')||'').trim();
-            document.getElementById('scanKeySection').style.display = _hk ? 'none' : '';
-            document.getElementById('scanKeyChange').style.display  = _hk ? 'block' : 'none';
+            document.getElementById('scanKeySection').style.display = 'none';
+            document.getElementById('scanKeyChange').textContent = _hk ? '🔑 Change your API key' : '🔑 Use your own API key instead';
 
             modal.style.display = 'flex';
             modal._pasteHandler = e => handleScanPaste(e);
@@ -2403,13 +2438,12 @@
             if (!val) return;
             localStorage.setItem('si_anthropic_key', val);
             document.getElementById('scanKeySection').style.display = 'none';
-            document.getElementById('scanKeyChange').style.display  = 'block';
+            document.getElementById('scanKeyChange').textContent = '🔑 Change your API key';
             document.getElementById('scanKeyInput').value = '';
         }
 
         function showScanKeySection() {
             document.getElementById('scanKeySection').style.display = '';
-            document.getElementById('scanKeyChange').style.display  = 'none';
         }
 
         function handleScanPaste(e) {
@@ -2462,8 +2496,9 @@
         }
 
         async function runWidgetScan() {
-            const key = (localStorage.getItem('si_anthropic_key')||'').trim();
-            if (!key) { showScanStatus('Enter your Anthropic API key to scan (button below).', 'error'); showScanKeySection(); return; }
+            let claudeHeaders;
+            try { claudeHeaders = await siClaudeHeaders(); }
+            catch (e) { showScanStatus(e.message, 'error'); return; }
             if (!_scanImageBase64) { showScanStatus('No image loaded.', 'error'); return; }
 
             setRunScanBusy(true);
@@ -2571,12 +2606,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             try {
                 const resp = await fetch('https://api.anthropic.com/v1/messages', {
                     method: 'POST',
-                    headers: {
-                        'x-api-key': key,
-                        'anthropic-version': '2023-06-01',
-                        'content-type': 'application/json',
-                        'anthropic-dangerous-direct-browser-access': 'true'
-                    },
+                    headers: claudeHeaders,
                     body: JSON.stringify({
                         model: 'claude-sonnet-5-5',
                         max_tokens: 1024,
@@ -3377,9 +3407,8 @@ For uncertain values make your best visual estimate. Always use valid hex colors
         // Flat pages (screenshots, image-only PDFs): the scan model finds the text.
         async function mkFindText(pi) {
             const pg = _mk.pages[pi]; if (!pg) return;
-            const key = (localStorage.getItem('si_anthropic_key') || '').trim();
-            if (!key) { _mkStatus('Finding text on an image uses the scan model: add your Anthropic API key first (any 🔍 Scan button → 🔑 Change API Key), then click 🔎 Find text on the page.', 'error'); return; }
             try {
+                const claudeHeaders = await siClaudeHeaders();
                 _mkStatus(`Finding the text on “${pg.name}”… (about 20–40 seconds)`, 'info');
                 const cv = await _mkPageCanvas(pg);
                 const f = Math.min(1, 1568 / Math.max(pg.w, pg.h));
@@ -3397,7 +3426,7 @@ Return ONLY JSON — no markdown, no code fences:
 - role: "fee" for the shipping protection / ShipInsure price, "item" for a product's price, "sub" for a subtotal that does NOT include protection, "total" for any amount that includes protection (order total, the checkout button's amount), otherwise "".`;
                 const resp = await fetch('https://api.anthropic.com/v1/messages', {
                     method: 'POST',
-                    headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+                    headers: claudeHeaders,
                     body: JSON.stringify({
                         model: 'claude-sonnet-5-5', max_tokens: 16000,
                         messages: [{ role: 'user', content: [
@@ -3588,11 +3617,7 @@ Return ONLY JSON — no markdown, no code fences:
                 (flat.length ? `${flat.length === pages.length ? 'It' : flat.length + ' page(s)'} is a flat image, so finding its text… ` : '') +
                 (nT && !fee ? 'No ShipInsure price found: click it in the preview and tag it “ShipInsure price”.' : ''), nT || !flat.length ? 'ok' : 'info');
             _mkPersistImages();
-            if (flat.length && (localStorage.getItem('si_anthropic_key') || '').trim()) {
-                (async () => { for (const i of flat) await mkFindText(i); })();
-            } else if (flat.length) {
-                _mkStatus(`Imported ${pages.length} page(s). They're flat images, so the text has to be found first: add your Anthropic API key (any 🔍 Scan button → 🔑 Change API Key), then click 🔎 Find text on each page.`, 'info');
-            }
+            if (flat.length) (async () => { for (const i of flat) await mkFindText(i); })();
         }
 
         // Page images go to public storage once signed in, so links + folder saves stay small.
