@@ -2404,7 +2404,7 @@
                 s = ((await c.auth.refreshSession()).data || {}).session;
                 if (s) r = await ask(s.access_token);
             }
-            if (!r.ok || !r.j.access_token) throw new Error('Your sign-in couldn’t get Claude access (' + (r.j.error || 'HTTP ' + r.status) + ').');
+            if (!r.ok || !r.j.access_token) throw new Error('Your sign-in couldn’t get Claude access (' + (r.j.error || 'HTTP ' + r.status) + ').' + (r.j.hint ? ' ' + r.j.hint : ''));
             _siClaudeTok = { token: r.j.access_token, exp: Date.now() + (r.j.expires_in || 600) * 1000, user: s.user.id };
             return _siClaudeTok.token;
         }
