@@ -472,8 +472,10 @@
         .mk-edit .mk2-b:hover { outline: calc(1.5px / var(--z)) dashed rgba(70,86,199,0.75); }
         .mk-edit .mk2-b.sel { outline: calc(2px / var(--z)) solid #4656c7; }
         .mk2-rz { position: absolute; right: calc(-7px / var(--z)); bottom: calc(-7px / var(--z)); width: calc(14px / var(--z)); height: calc(14px / var(--z)); box-sizing: border-box; background: #4656c7; border: calc(2px / var(--z)) solid #fff; border-radius: 50%; cursor: nwse-resize; }
-        .mk2-page.tool-box, .mk2-page.tool-image, .mk2-page.tool-text { cursor: crosshair; }
-        .mk2-page.tool-box .mk2-t, .mk2-page.tool-box .mk2-b, .mk2-page.tool-image .mk2-t, .mk2-page.tool-image .mk2-b, .mk2-page.tool-text .mk2-t, .mk2-page.tool-text .mk2-b { pointer-events: none; }
+        .mk2-page.tool-box, .mk2-page.tool-image, .mk2-page.tool-text, .mk2-page.tool-lift { cursor: crosshair; }
+        .mk2-page:is(.tool-box, .tool-image, .tool-text, .tool-lift) :is(.mk2-t, .mk2-b) { pointer-events: none; }
+        .mk2-cover { position: absolute; z-index: 1; pointer-events: none; }
+        .mk2-tint { position: absolute; inset: 0; display: block; pointer-events: none; }
         .mk2-draw { position: absolute; z-index: 5; box-sizing: border-box; border: calc(2px / var(--z)) dashed #4656c7; background: rgba(70,86,199,0.12); pointer-events: none; }
         .mk2-empty { border: 2px dashed #ccd1e6; border-radius: 12px; padding: 44px 28px; text-align: center; color: #5d6480; font-size: 0.9em; line-height: 1.6; background: #fafbff; }
         .mk2-empty b { color: #2d3561; }
@@ -1377,6 +1379,7 @@
                         <button type="button" data-tool="select" class="on" onclick="mkSetTool('select')" title="Click text to edit · click / drag boxes">↖ Select</button>
                         <button type="button" data-tool="box" onclick="mkSetTool('box')" title="Drag a box to cover or recolor an area (e.g. a button)">▭ Box</button>
                         <button type="button" data-tool="image" onclick="mkSetTool('image')" title="Drag where an image goes (logo, product photo), then pick the file">🖼 Image</button>
+                        <button type="button" data-tool="lift" onclick="mkSetTool('lift')" title="Drag around an icon or any part of the mockup (e.g. the ⓘ) to move, resize, recolor or remove it">✥ Move area</button>
                         <button type="button" data-tool="text" onclick="mkSetTool('text')" title="Click where new text goes">T Text</button>
                     </div>
                     <div class="wconfig-style-row">
@@ -3699,15 +3702,22 @@ Return ONLY JSON — no markdown, no code fences:
         }
         function _mkBoxHtml(b, pi, ed) {
             const sel = ed && _mkIsSel('b', pi, b.id);
+            // A tinted piece paints its color through the image's shape (the image as a mask).
+            const size = { cover: 'cover', fill: '100% 100%' }[b.fit] || 'contain';
+            const pic = !b.img ? '' : b.tint
+                ? `<i class="mk2-tint" style="background:${b.tint};-webkit-mask:url('${b.img}') center/${size} no-repeat;mask:url('${b.img}') center/${size} no-repeat;"></i>`
+                : `<img src="${b.img}" alt="" draggable="false" style="object-fit:${b.fit || 'contain'};border-radius:${b.r || 0}px;">`;
             return `<div class="mk2-b${sel ? ' sel' : ''}"${ed ? ` data-b="${b.id}"` : ''} style="left:${b.x}px;top:${b.y}px;width:${b.w}px;height:${b.h}px;background:${b.fill || 'transparent'};border-radius:${b.r || 0}px;">` +
-                (b.img ? `<img src="${b.img}" alt="" draggable="false" style="object-fit:${b.fit || 'contain'};border-radius:${b.r || 0}px;">` : '') + (sel ? '<i class="mk2-rz"></i>' : '') + '</div>';
+                pic + (sel ? '<i class="mk2-rz"></i>' : '') + '</div>';
         }
+        // Where a moved piece used to be: painted over in the background it sat on.
+        const _mkCoverHtml = b => b.cover ? `<div class="mk2-cover" style="left:${b.cover.x}px;top:${b.cover.y}px;width:${b.cover.w}px;height:${b.cover.h}px;background:${b.cover.fill};"></div>` : '';
         function _mkPageHtml(pg, pi, ed) {
             const btns = ed ? `<span class="mk2-pbtns">${!pg.texts.length ? `<button type="button" onclick="mkFindText(${pi})" title="Find the text on this image so it can be edited (uses the scan model)">🔎 Find text</button>` : ''}<button type="button" onclick="mkFullscreen(this)" title="Edit full-size">⤢ Full screen</button><button type="button" onclick="mkRemovePage(${pi})" title="Remove this page">✕</button></span>` : '';
             const cls = 'mk2-page' + (ed && _mkTool !== 'select' ? ' tool-' + _mkTool : '') + (ed && _mkOn('mk-tags') ? ' tags' : '');
             return `<div class="mk-flabel"><span>${_escHtml(pg.name || 'Page ' + (pi + 1))}</span>${btns}</div>` +
                 `<div class="mk-fit${ed ? ' mk-edit' : ''}"><div class="${cls}" data-p="${pi}" style="width:${pg.w}px;height:${pg.h}px;">` +
-                `<img class="mk2-base" src="${pg.img}" alt="" draggable="false">${pg.boxes.map(b => _mkBoxHtml(b, pi, ed)).join('')}${pg.texts.map(t => _mkTextHtml(t, pg, pi, ed)).join('')}</div></div>`;
+                `<img class="mk2-base" src="${pg.img}" alt="" draggable="false">${pg.boxes.map(_mkCoverHtml).join('')}${pg.boxes.map(b => _mkBoxHtml(b, pi, ed)).join('')}${pg.texts.map(t => _mkTextHtml(t, pg, pi, ed)).join('')}</div></div>`;
         }
         function mkRender() {
             const area = document.getElementById('widgetPreviewArea');
@@ -3786,6 +3796,19 @@ Return ONLY JSON — no markdown, no code fences:
                     ${o.fg && !o.add ? '<label class="mk2-chk"><input type="checkbox" id="mkGrp" checked> Font &amp; weight changes apply to all text in this same font</label>' : ''}
                     <div class="mk2-row"><button type="button" onclick="mkRevertT()">↺ Revert</button><button type="button" onclick="mkDeleteT()">${o.add ? '✕ Delete' : '⌫ Erase'}</button></div>
                 </div>`;
+            } else if (o.cover) {
+                el.innerHTML = `<div class="mk2-insp">
+                    <div class="mk2-insp-h">Moved area <span>drag to move · corner to resize · arrow keys nudge</span></div>
+                    <div class="wconfig-style-row">
+                        <div class="wcs"><label>Color</label><input type="color" value="${o.tint || '#111111'}" onchange="mkSetB('tint', this.value)"></div>
+                        <div class="wcs"><label>Cover color (old spot)</label><input type="color" value="${o.cover.fill}" onchange="mkSetB('coverFill', this.value)"></div>
+                    </div>
+                    <label class="mk2-chk"><input type="checkbox" ${o.tint ? '' : 'checked'} ${o.img ? '' : 'disabled'} onchange="mkSetB('tint', this.checked ? '' : '#111111')"> Original colors</label>
+                    <div class="mk2-row">
+                        <button type="button" onclick="mkDeleteB()" title="Undo the move: the original shows again where it was">↺ Put back</button>
+                        ${o.img ? '<button type="button" onclick="mkSetB(\'img\', null)" title="Hide it everywhere (its old spot stays covered)">⌫ Remove it</button>' : ''}
+                    </div>
+                </div>`;
             } else {
                 el.innerHTML = `<div class="mk2-insp">
                     <div class="mk2-insp-h">Box <span>drag to move · corner to resize</span></div>
@@ -3831,8 +3854,33 @@ Return ONLY JSON — no markdown, no code fences:
         }
         function mkSetB(prop, val) {
             const c = _mkCur(); if (!c || _mkSel.k !== 'b') return;
-            c.o[prop] = val;
+            if (prop === 'coverFill') { if (c.o.cover) c.o.cover.fill = val; }
+            else c.o[prop] = val;
             mkRender();
+        }
+        // Move area: cut a piece of the mockup's own pixels (an icon, a badge, a logo) into a
+        // box that can move, resize, recolor or go away. Pixels matching the background around
+        // the selection turn transparent, so the piece sits cleanly anywhere; its old spot is
+        // covered in that background.
+        async function _mkLift(pg, pi, r) {
+            let cv;
+            try { cv = await _mkPageCanvas(pg); } catch (e) { _mkStatus('Couldn’t read that page’s pixels: ' + e.message, 'error'); return; }
+            const k = cv.k, X = Math.max(0, Math.round(r.x * k)), Y = Math.max(0, Math.round(r.y * k));
+            const W = Math.max(1, Math.min(cv.ctx.canvas.width - X, Math.round(r.w * k))), H = Math.max(1, Math.min(cv.ctx.canvas.height - Y, Math.round(r.h * k)));
+            const bg = _mkSample(cv, r.x, r.y, r.w, r.h).bg, rgb = [1, 3, 5].map(i => parseInt(bg.slice(i, i + 2), 16));
+            const img = cv.ctx.getImageData(X, Y, W, H), d = img.data;
+            for (let o = 0; o < d.length; o += 4) {
+                const dist = Math.hypot(d[o] - rgb[0], d[o + 1] - rgb[1], d[o + 2] - rgb[2]);
+                d[o + 3] = Math.round(255 * Math.min(1, Math.max(0, (dist - 18) / 60)));
+            }
+            const c = document.createElement('canvas'); c.width = W; c.height = H;
+            c.getContext('2d').putImageData(img, 0, 0);
+            const box = { x: _mkR(r.x), y: _mkR(r.y), w: _mkR(r.w), h: _mkR(r.h) };
+            const b = Object.assign({ id: _mkId('b') }, box, { fill: 'transparent', r: 0, img: c.toDataURL('image/png'), fit: 'contain', tint: '', cover: Object.assign({ fill: bg }, box) });
+            pg.boxes.push(b);
+            _mkSel = { p: pi, k: 'b', id: b.id };
+            mkRender();
+            _mkPersistImages();
         }
         function mkDeleteB() {
             const c = _mkCur(); if (!c || _mkSel.k !== 'b') return;
@@ -3850,7 +3898,7 @@ Return ONLY JSON — no markdown, no code fences:
             _mkTool = t;
             document.querySelectorAll('#mkTools button').forEach(b => b.classList.toggle('on', b.dataset.tool === t));
             document.querySelectorAll('#widgetPreviewArea .mk2-page').forEach(p => {
-                p.classList.remove('tool-box', 'tool-image', 'tool-text');
+                p.classList.remove('tool-box', 'tool-image', 'tool-text', 'tool-lift');
                 if (t !== 'select') p.classList.add('tool-' + t);
             });
         }
@@ -3942,7 +3990,7 @@ Return ONLY JSON — no markdown, no code fences:
                 document.addEventListener('mousemove', mm); document.addEventListener('mouseup', mu);
             };
             const p0 = pt(e);
-            if (_mkTool === 'box' || _mkTool === 'image') {
+            if (_mkTool === 'box' || _mkTool === 'image' || _mkTool === 'lift') {
                 e.preventDefault();
                 const tool = _mkTool, d = document.createElement('div');
                 d.className = 'mk2-draw'; pe.appendChild(d);
@@ -3955,6 +4003,7 @@ Return ONLY JSON — no markdown, no code fences:
                     d.remove();
                     mkSetTool('select');
                     if (r.w < 4 || r.h < 4) return;
+                    if (tool === 'lift') { _mkLift(pg, pi, r); return; }
                     let fill = 'transparent';
                     if (tool === 'box') { try { fill = _mkSample(await _mkPageCanvas(pg), r.x + r.w / 2 - 1, r.y + r.h / 2 - 1, 2, 2).bg; } catch (er) { fill = '#ffffff'; } }
                     const b = { id: _mkId('b'), x: _mkR(r.x), y: _mkR(r.y), w: _mkR(r.w), h: _mkR(r.h), fill, r: 0, img: null, fit: 'contain' };
