@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>One-Pager · ShipInsure Designer</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/drewshafe/si-roi-calculator/main/si_lock.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://drewshafe.github.io/si-roi-calculator/sb.js"></script>
+<script src="https://drewshafe.github.io/si-roi-calculator/portal-templates.js"></script>
+<script src="https://drewshafe.github.io/si-rep-hub/folder-bar.js"></script>
+<style>
+  /* One-Pager ("Deal Doc") — the Post-Meeting One-Pager canvas as a fill-in page.
+     One US Letter page (816×1056 px), three audience versions, every text editable in place,
+     exported with the browser's print → Save as PDF (exactly one page, no headers/footers). */
+  * { margin:0; padding:0; box-sizing:border-box; }
+  [hidden] { display:none !important; }
+  :root { --page:#f4f5fb; --card:#fff; --ink:#1d2240; --muted:#6b7090; --line:#e3e5f2; --accent:#4a5fc1; --accent-soft:#eef0ff; --stage:#e8eaf4; --warn:#a2470a; --warn-soft:#fff3e2; --field:#f7f8fc; }
+  body.pm { --page:#07070a; --card:#111116; --ink:#ece6d6; --muted:#9a927f; --line:#26262f; --accent:#d4af37; --accent-soft:#1f1b10; --stage:#0b0b10; --warn:#f0b35a; --warn-soft:#231a0b; --field:#16161c; }
+  html, body { height:100%; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:var(--page); color:var(--ink); font-size:14px; display:flex; flex-direction:column; overflow:hidden; }
+  button, input, select { font:inherit; color:inherit; }
+
+  .op-app { flex:1; min-height:0; display:grid; grid-template-columns:318px minmax(0, 1fr); }
+  .op-side { background:var(--card); border-right:1px solid var(--line); overflow-y:auto; padding:18px 18px 28px; display:flex; flex-direction:column; gap:18px; }
+  .op-stage { background:var(--stage); overflow:auto; padding:28px 28px 40px; display:flex; flex-direction:column; align-items:center; gap:12px; }
+
+  .op-h1 { font-size:18px; font-weight:800; letter-spacing:-.01em; }
+  .op-h2 { font-size:12.5px; line-height:1.45; color:var(--muted); margin-top:4px; }
+  .grp { display:flex; flex-direction:column; gap:8px; }
+  .lbl { font-size:10.5px; font-weight:800; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); }
+  .lbl-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .fld { display:flex; flex-direction:column; gap:4px; min-width:0; }
+  .fld label { font-size:11.5px; font-weight:600; color:var(--muted); }
+  .fld input, .grp select { width:100%; border:1px solid var(--line); background:var(--field); border-radius:8px; padding:8px 10px; font-size:13px; }
+  .fld input:focus, .grp select:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+  .fld input.need { border-color:#e9b27a; background:var(--warn-soft); }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+
+  .seg { display:grid; grid-template-columns:repeat(3, 1fr); gap:4px; padding:4px; background:var(--field); border:1px solid var(--line); border-radius:10px; }
+  .seg button { border:0; background:transparent; border-radius:7px; padding:8px 4px; font-size:12.5px; font-weight:700; color:var(--muted); cursor:pointer; white-space:nowrap; }
+  .seg button:hover { color:var(--ink); }
+  .seg button.on { background:var(--card); color:var(--ink); box-shadow:0 1px 3px rgba(20,24,60,.14), 0 0 0 1px var(--line); }
+  body.pm .seg button.on { background:#1f1f27; box-shadow:0 0 0 1px #3a3628; color:#f3e7c4; }
+
+  .src { list-style:none; display:flex; flex-direction:column; gap:5px; font-size:11.8px; line-height:1.4; color:var(--muted); background:var(--field); border:1px solid var(--line); border-radius:9px; padding:9px 10px; }
+  .src li { display:flex; gap:7px; }
+  .src li i { font-style:normal; flex:0 0 auto; width:14px; text-align:center; }
+  .src li b { color:var(--ink); font-weight:600; }
+
+  .sw { display:flex; flex-wrap:wrap; gap:7px; align-items:center; }
+  .sw button { width:28px; height:28px; border-radius:999px; border:2px solid var(--card); box-shadow:0 0 0 1px var(--line); cursor:pointer; position:relative; }
+  .sw button.on { box-shadow:0 0 0 2px var(--ink); }
+  .sw button.brand::after { content:'Brand'; position:absolute; top:31px; left:50%; transform:translateX(-50%); font-size:9px; font-weight:700; color:var(--muted); letter-spacing:.03em; }
+  .sw .pick { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--muted); cursor:pointer; margin-left:4px; }
+  .sw .pick input { width:28px; height:28px; border:1px solid var(--line); border-radius:8px; padding:2px; background:var(--field); cursor:pointer; }
+  .sw.has-brand { padding-bottom:12px; }
+  .note { font-size:11.5px; line-height:1.4; color:var(--muted); }
+  .chk { display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer; }
+  .chk input { width:15px; height:15px; accent-color:var(--accent); }
+
+  .btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:8px; padding:8px 13px; font-weight:700; font-size:13px; cursor:pointer; white-space:nowrap; }
+  .btn:hover:not(:disabled) { border-color:#c3c8ee; }
+  .btn.small { padding:4px 9px; font-size:11.5px; }
+  .btn.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .btn.primary:hover { filter:brightness(1.07); }
+  .btn.big { padding:11px 14px; font-size:14px; }
+  .btn:disabled { opacity:.5; cursor:default; }
+  body.pm .btn { background:#16161c; border-color:#2e2b22; }
+  body.pm .btn.primary { color:#0a0a0a; background:linear-gradient(135deg,#b8902d,#e3c56a); border-color:transparent; }
+  .acts { display:grid; grid-template-columns:1fr auto; gap:8px; }
+  .tip { font-size:11.5px; line-height:1.45; color:var(--muted); }
+
+  .op-warn { width:100%; max-width:816px; display:flex; gap:8px; align-items:center; font-size:12.5px; font-weight:600; color:var(--warn); background:var(--warn-soft); border:1px solid #efc89a; border-radius:9px; padding:8px 12px; }
+  body.pm .op-warn { border-color:#4a3714; }
+  .op-fit { flex:0 0 auto; position:relative; overflow:hidden; border-radius:4px; box-shadow:0 1px 2px rgba(20,24,60,.10), 0 14px 40px rgba(20,24,60,.16); background:#fff; }
+  body.pm .op-fit { box-shadow:0 0 0 1px #26262f, 0 20px 60px rgba(0,0,0,.6); }
+  .op-hint { font-size:12px; color:var(--muted); text-align:center; }
+  .op-toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(90px); background:#222; color:#fff; font-weight:600; font-size:13px; padding:10px 16px; border-radius:8px; transition:transform .25s; z-index:300; }
+  .op-toast.show { transform:translateX(-50%) translateY(0); }
+
+  /* ── The page (values straight from the canvas: Main.dc.html) ── */
+  .op-page { position:relative; width:816px; height:1056px; display:flex; flex-direction:column; background:#FFFFFF; color:#17152B; font-family:'Montserrat', system-ui, sans-serif; overflow:hidden; overflow-wrap:break-word; transform-origin:0 0; --ac:#4F46E5; -webkit-font-smoothing:antialiased; text-align:left; }
+  .op-page header { background:#15123B; color:#FFFFFF; padding:36px 56px 32px; display:flex; flex-direction:column; gap:16px; }
+  .pg-top { display:flex; justify-content:space-between; align-items:center; gap:16px; }
+  .pg-brand { display:flex; align-items:center; gap:12px; min-width:0; }
+  .pg-logo { flex:none; height:30px; padding:4px 8px; background:#FFFFFF; border-radius:7px; display:flex; align-items:center; }
+  .pg-logo img { display:block; max-height:22px; max-width:96px; object-fit:contain; }
+  .pg-eye { font-size:13px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#C9CBFF; min-width:0; }
+  .pg-pill { flex:none; font-size:12px; font-weight:600; padding:6px 12px; border:1px solid #5B58A8; border-radius:999px; color:#E6E7FF; white-space:nowrap; }
+  .pg-tt { display:flex; flex-direction:column; gap:8px; }
+  .pg-tt h1 { margin:0; font-size:34px; font-weight:800; line-height:1.15; letter-spacing:-0.01em; }
+  .pg-tt p { margin:0; font-size:16px; line-height:1.45; color:#D5D6F5; }
+  .op-page main { flex:1; display:flex; flex-direction:column; gap:28px; padding:32px 56px 0; }
+  .pg-lbl { font-size:12px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--ac); }
+  .pg-tp { display:flex; flex-direction:column; gap:14px; }
+  .pg-lead { margin:0; font-size:19px; font-weight:600; line-height:1.45; }
+  .pg-cards { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:12px; }
+  .pg-card { border:1px solid #E1E1EC; border-radius:10px; padding:14px 16px; display:flex; flex-direction:column; gap:6px; }
+  .pg-ct { font-size:14px; font-weight:700; }
+  .pg-cb { font-size:13px; line-height:1.45; color:#4A4960; }
+  .pg-grid { display:grid; grid-template-columns:minmax(0, 1fr) 272px; gap:28px; align-items:start; }
+  .pg-steps { display:flex; flex-direction:column; gap:6px; min-width:0; }
+  .pg-sh { display:flex; align-items:baseline; justify-content:space-between; gap:12px; padding-bottom:8px; }
+  .pg-cnt { font-size:12px; font-weight:600; color:#5E5D73; white-space:nowrap; }
+  .pg-steps ol { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; }
+  .pg-steps li { display:flex; gap:16px; padding:16px 0; border-top:1px solid #E1E1EC; }
+  .pg-n { flex:none; width:34px; height:34px; border-radius:999px; background:var(--ac); color:#FFFFFF; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:700; }
+  .pg-sb { display:flex; flex-direction:column; gap:4px; padding-top:6px; min-width:0; }
+  .pg-sb.g10 { gap:10px; }
+  .pg-st { font-size:16px; font-weight:700; line-height:1.35; }
+  .pg-sn { font-size:14px; line-height:1.45; color:#4A4960; }
+  .pg-sku { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .pg-chip { font-family:ui-monospace, 'SFMono-Regular', Menlo, monospace; font-size:13px; font-weight:600; padding:6px 10px; border-radius:6px; background:#EEEEFB; color:#15123B; }
+  .pg-band { font-size:14px; font-weight:600; }
+  .op-page aside { background:#F3F3FC; border-radius:12px; padding:20px; display:flex; flex-direction:column; gap:14px; }
+  .pg-rule { display:flex; flex-direction:column; gap:4px; padding-top:12px; border-top:1px solid #DCDCEE; }
+  .pg-rt { font-size:14px; font-weight:700; }
+  .pg-rb { font-size:13px; line-height:1.45; color:#4A4960; }
+  .op-page footer { margin:0 56px; padding:18px 0 32px; border-top:1px solid #E1E1EC; display:flex; justify-content:space-between; align-items:center; gap:16px; font-size:13px; color:#4A4960; }
+  .pg-rep { font-weight:700; color:#17152B; }
+  .pg-site { font-weight:700; color:var(--ac); white-space:nowrap; }
+
+  /* In-place editing (screen only) */
+  .op-page [contenteditable] { outline:none; border-radius:3px; cursor:text; transition:box-shadow .12s, background-color .12s; }
+  .op-page [contenteditable]:hover { box-shadow:0 0 0 2px rgba(79,70,229,.25); }
+  .op-page [contenteditable]:focus { box-shadow:0 0 0 2px var(--ac); background-color:rgba(79,70,229,.05); }
+  .op-page header [contenteditable]:hover { box-shadow:0 0 0 2px rgba(255,255,255,.32); }
+  .op-page header [contenteditable]:focus { box-shadow:0 0 0 2px rgba(255,255,255,.85); background-color:rgba(255,255,255,.08); }
+  .op-page .bind { display:inline-block; max-width:100%; min-width:1ch; overflow-wrap:anywhere; vertical-align:bottom; }
+  .op-page [contenteditable]:empty::before { content:attr(data-ph); color:#A2470A; background:#FFF0DC; border-radius:3px; padding:0 4px; font-weight:600; letter-spacing:normal; text-transform:none; font-family:'Montserrat', system-ui, sans-serif; }
+  .op-page header [contenteditable]:empty::before { color:#FFD9A8; background:rgba(255,170,80,.18); }
+  body.view .op-page [contenteditable] { cursor:default; }
+
+  /* Merchant view of a short link: just the page and a download button */
+  body.view .op-side { display:none; }
+  body.view .op-app { grid-template-columns:1fr; }
+  .op-dl { display:none; }
+  body.view .op-dl { display:inline-flex; }
+  body.view .op-hint { display:none; }
+
+  @media (max-width:900px) {
+    body { overflow:auto; display:block; }
+    .op-app { display:block; }
+    .op-side { border-right:0; border-bottom:1px solid var(--line); overflow:visible; }
+    .op-stage { overflow:visible; padding:18px 16px 32px; }
+  }
+
+  /* ── Export: one Letter page, edge to edge ── */
+  @page { size:8.5in 11in; margin:0; }
+  @media print {
+    html, body { width:816px !important; height:1056px !important; min-height:0 !important; margin:0 !important; padding:0 !important; overflow:hidden !important; background:#FFFFFF !important; display:block !important; }
+    body > :not(.op-app) { display:none !important; }
+    .op-app { display:block !important; height:auto !important; }
+    .op-side, .op-warn, .op-hint, .op-dl { display:none !important; }
+    .op-stage { display:block !important; padding:0 !important; margin:0 !important; overflow:visible !important; background:none !important; }
+    .op-fit { width:816px !important; height:1056px !important; box-shadow:none !important; border-radius:0 !important; overflow:hidden !important; }
+    .op-page { transform:none !important; break-after:avoid; break-inside:avoid; }
+    .op-page [contenteditable] { box-shadow:none !important; background-color:transparent !important; }
+    .op-page [contenteditable]:empty::before { content:none !important; }
+    * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+  }
+</style>
+</head>
+<body>
+<div class="op-app">
+  <aside class="op-side" id="side">
+    <div>
+      <div class="op-h1">📄 One-Pager</div>
+      <div class="op-h2">One Letter page from this deal's data. Pick who it's for, then click any text on the page to edit it.</div>
+    </div>
+
+    <div class="grp">
+      <span class="lbl">Who it's for</span>
+      <div class="seg" id="aud" role="tablist">
+        <button type="button" data-aud="sales" role="tab">Sales team</button>
+        <button type="button" data-aud="leads" role="tab">Store leads</button>
+        <button type="button" data-aud="support" role="tab">Support team</button>
+      </div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl-row"><span class="lbl">Deal data</span><button type="button" class="btn small" id="refill" title="Fill merchant, rep, brand color and SKU from the Brand Folder and your sign-in again">↻ Refill from deal</button></div>
+      <div class="fld"><label for="f-merchant">Merchant</label><input id="f-merchant" data-b="merchant" placeholder="Merchant name" autocomplete="off"></div>
+      <div class="two">
+        <div class="fld"><label for="f-repName">Rep name</label><input id="f-repName" data-b="repName" placeholder="Your name" autocomplete="off"></div>
+        <div class="fld"><label for="f-repEmail">Rep email</label><input id="f-repEmail" data-b="repEmail" type="email" placeholder="you@shipinsure.io" autocomplete="off"></div>
+      </div>
+      <ul class="src" id="src"></ul>
+    </div>
+
+    <div class="grp">
+      <span class="lbl">Accent</span>
+      <div class="sw" id="sw"></div>
+      <div class="note" id="accNote" hidden></div>
+    </div>
+
+    <div class="grp">
+      <span class="lbl">SKU example · step 3</span>
+      <select id="bandSel" aria-label="SKU example"></select>
+      <div class="two">
+        <div class="fld"><label for="f-skuCode">SKU</label><input id="f-skuCode" data-b="skuCode" autocomplete="off"></div>
+        <div class="fld"><label for="f-skuLabel">Covers</label><input id="f-skuLabel" data-b="skuLabel" autocomplete="off"></div>
+      </div>
+    </div>
+
+    <div class="grp" id="supGrp">
+      <span class="lbl">Support team version</span>
+      <div class="fld"><label for="f-claimsLink">Claims link</label><input id="f-claimsLink" data-b="claimsLink" placeholder="Where customers file a claim" autocomplete="off"></div>
+      <div class="fld"><label for="f-escalation">Escalation contact</label><input id="f-escalation" data-b="escalation" placeholder="Name or email for unconverted drafts" autocomplete="off"></div>
+    </div>
+
+    <div class="grp" id="logoGrp" hidden>
+      <label class="chk"><input type="checkbox" id="showLogo"> Merchant logo in the header</label>
+    </div>
+
+    <div class="grp">
+      <div class="acts">
+        <button type="button" class="btn primary big" id="exportBtn">⬇ Export PDF</button>
+        <button type="button" class="btn" id="resetBtn" title="Put all page text back to the template">Reset text</button>
+      </div>
+      <div class="tip">In the print window pick <b>Save as PDF</b>. Letter size, no margins and no headers are already set, so it comes out as exactly one page.</div>
+    </div>
+  </aside>
+
+  <main class="op-stage" id="stage">
+    <div class="op-warn" id="warn" hidden>⚠ The text runs past the bottom of the page. Trim some copy so it fits on one page.</div>
+    <button type="button" class="btn primary op-dl" id="dlBtn">⬇ Download PDF</button>
+    <div class="op-fit" id="fit"><div class="op-page" id="page"></div></div>
+    <div class="op-hint">Click any text to edit it · drafts are kept in this browser · use Save above to file it in the Brand Folder</div>
+  </main>
+</div>
+<div class="op-toast" id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+  // folder-bar / sb.js file every save under a merchant_assets kind. Until the hosted sb.js
+  // lists 'onepager', add it here (same array saveAsset checks).
+  if (window.SIsb && Array.isArray(SIsb.ASSET_KINDS) && SIsb.ASSET_KINDS.indexOf('onepager') < 0) SIsb.ASSET_KINDS.push('onepager');
+
+  const DEF_ACCENT = '#4F46E5';
+  const SWATCHES = ['#4F46E5', '#2563EB', '#0F766E', '#15123B'];
+  const AUD = { sales: 'Sales team', leads: 'Store leads', support: 'Support team' };
+  const EX_SKU = { code: 'SI_LEVEL_0-100', label: '$0–$100 orders' };
+
+  // Template copy (Post-Meeting One-Pager canvas). Audience copy changes the title, subtitle and
+  // talking points; steps, rules and footer are shared by all three versions.
+  const COPY = {
+    sales: {
+      pill: 'For: Sales team',
+      title: 'Adding ShipInsure to draft orders',
+      sub: 'What to tell the customer, and how to add protection in four steps.',
+      tpLabel: 'What to tell the customer',
+      lead: '“I can add shipping protection to your order. If the package is lost, stolen or damaged in transit, ShipInsure will take care of it.”',
+      c1t: 'Lost, stolen, damaged', c1b: 'Covers the package in transit, from the moment the order is placed.',
+      c2t: 'One place to file', c2b: 'Claims go straight to ShipInsure. No back-and-forth with the store.',
+      c3t: 'Priced by order value', c3b: 'A small fee based on the merchandise total, shown as its own line.'
+    },
+    leads: {
+      pill: 'For: Store leads',
+      title: 'ShipInsure on draft orders',
+      sub: 'Why it matters for the store, and what your team needs to do on every manual order.',
+      tpLabel: 'Why it matters for the store',
+      lead: 'Phone and in-person orders get the same protection as online checkout, but only if the team adds it to the draft.',
+      c1t: 'Claims off your plate', c1b: 'Customers file with ShipInsure, not your support inbox.',
+      c2t: 'Stop eating reships', c2b: 'Lost, stolen and damaged packages are covered, not absorbed by the store.',
+      c3t: 'Same on every channel', c3b: 'Online, by phone, in store: one program, one claims process.'
+    },
+    support: {
+      pill: 'For: Support team',
+      title: 'ShipInsure on manual orders',
+      sub: 'How coverage works on draft orders, and where to send a customer with a problem.',
+      tpLabel: 'When a customer reports a problem',
+      lead: 'If the order has a ShipInsure line, send them to ShipInsure to file a claim. No ShipInsure line means no coverage.',
+      c1t: 'Check the order', c1b: 'Look for the ShipInsure line item (SKU starts with SI_LEVEL).',
+      c2t: 'Send them to file', c2b: 'Claims link:',
+      c3t: 'Still a draft?', c3b: 'Drafts never converted to orders aren’t covered. Flag it to', c3e: '.'
+    },
+    shared: {
+      eye: 'ShipInsure ×',
+      stepsLabel: 'Add it to a draft order', stepsCount: '4 steps',
+      s1: 'Build the draft with the customer’s items.',
+      s2: 'Search products for “ShipInsure.”',
+      s3: 'Pick the variant whose SKU matches the merchandise total.',
+      s3n: 'That variant’s price is the protection fee.',
+      s4: 'Add one unit, then convert the draft to an order.',
+      s4n: 'Coverage starts the moment it’s an order.',
+      rulesLabel: 'Before you convert',
+      r1t: 'Drafts aren’t protected', r1b: 'Coverage starts once the draft becomes an order. Left as a draft, it’s not covered.',
+      r2t: 'Match the SKU to the total', r2b: 'Shopify won’t block the wrong band. Check it before you convert.',
+      r3t: 'Auto-fulfill on?', r3b: 'The ShipInsure line fulfills automatically. No shipping email is sent for it.',
+      r4t: 'Your currency', r4b: 'Pricing bands reflect your store’s currency.',
+      footQ: 'Questions? Message', site: 'shipinsure.io'
+    }
+  };
+
+  // ROI calculator's own $-based / tiered presets (si-roi-calculator index.html pricingTemplates),
+  // so a scenario saved on one of them gives its real SKU bands. Merchant Portal templates (pt_<id>)
+  // come from portal-templates.js; p_<pct>_<min> and %-Based are worked out from the % and minimum.
+  const CALC_TIERS = {
+    f_150: [{ min: 0, max: 1000, premium: 1.50 }], f_175: [{ min: 0, max: 2000, premium: 1.75 }], f_195: [{ min: 0, max: 2000, premium: 1.95 }],
+    f_199: [{ min: 0, max: 1000, premium: 1.99 }], f_399: [{ min: 0, max: 2000, premium: 3.99 }], f_450: [{ min: 0, max: 1000, premium: 4.50 }],
+    f_595: [{ min: 0, max: 1000, premium: 5.95 }], f_695: [{ min: 0, max: 2000, premium: 6.95 }], f_795: [{ min: 0, max: 8200, premium: 7.95 }],
+    t_175_195_25: [{ min: 0, max: 150, premium: 1.75 }, { min: 150, max: 250, premium: 1.95 }, { min: 250, max: 9900, pct: 0.025 }],
+    t_150_200: [{ min: 0, max: 300, premium: 1.5 }, { min: 300, max: 5000, premium: 2.0 }],
+    t_2pct_25pct: [{ min: 0, max: 300, pct: 0.02 }, { min: 300, max: 5000, pct: 0.025 }],
+    t_25_3pct: [{ min: 0, max: 41, premium: 0.98 }, { min: 41, max: 1000, pct: 0.025 }, { min: 1000, max: 4600, pct: 0.03 }],
+    t_098_149: [{ min: 0, max: 100, premium: 0.98 }, { min: 100, max: 150, premium: 1.49 }],
+    t_143_284: [{ min: 0, max: 100, premium: 1.43 }, { min: 100, max: 1000, premium: 2.84 }],
+    t_150_298: [{ min: 0, max: 100, premium: 1.5 }, { min: 100, max: 2000, premium: 2.98 }],
+    t_ladder: [{ min: 0, max: 65, premium: 1.5 }, { min: 65, max: 100, premium: 1.95 }, { min: 100, max: 200, premium: 3.0 }, { min: 200, max: 300, premium: 6.0 }, { min: 300, max: 1000, premium: 9.0 }],
+    t_175_195_3: [{ min: 0, max: 150, premium: 1.75 }, { min: 150, max: 250, premium: 1.95 }, { min: 250, max: 10000, premium: 3.0 }],
+    t_198_298: [{ min: 0, max: 100, premium: 1.98 }, { min: 100, max: 2000, premium: 2.98 }],
+    t_200_400: [{ min: 0, max: 300, premium: 2.0 }, { min: 300, max: 1000, premium: 4.0 }],
+    t_398_498: [{ min: 0, max: 200, premium: 3.98 }, { min: 200, max: 1000, premium: 4.98 }],
+    t_3pct_2pct: [{ min: 0, max: 65, premium: 1.95 }, { min: 65, max: 1000, pct: 0.03 }, { min: 1000, max: 4900, pct: 0.02 }]
+  };
+
+  const $ = id => document.getElementById(id);
+  const page = $('page'), fitEl = $('fit'), stage = $('stage');
+  const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const okHex = c => typeof c === 'string' && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(c.trim());
+  const PLAIN = (() => { const d = document.createElement('div'); try { d.contentEditable = 'plaintext-only'; } catch (e) {} return d.contentEditable === 'plaintext-only' ? 'plaintext-only' : 'true'; })();
+  function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2600); }
+
+  // ── State ──
+  const blank = () => ({
+    v: 1, audience: 'sales', folderId: null,
+    merchant: '', repName: '', repEmail: '', logo: '', showLogo: true,
+    accent: DEF_ACCENT, accentSet: false, brandAccent: '',
+    skuCode: EX_SKU.code, skuLabel: EX_SKU.label, band: 'ex', bands: [], pricing: null,
+    claimsLink: '', escalation: '',
+    copy: { sales: {}, leads: {}, support: {}, shared: {} }, src: {}
+  });
+  function hydrate(d) {
+    const S = Object.assign(blank(), d || {});
+    S.copy = Object.assign({ sales: {}, leads: {}, support: {}, shared: {} }, (d && d.copy) || {});
+    if (!AUD[S.audience]) S.audience = 'sales';
+    if (!Array.isArray(S.bands)) S.bands = [];
+    S.src = S.src || {};
+    return S;
+  }
+  let S = blank();
+  let user = null;
+  const txt = (g, k) => (S.copy[g] && S.copy[g][k] != null) ? S.copy[g][k] : (COPY[g][k] != null ? COPY[g][k] : '');
+
+  // Drafts: one per Brand Folder (or "none"), in this browser, so switching merchants keeps each one.
+  const DKEY = id => 'si_onepager_draft:' + (id || 'none');
+  function readDraft(id) { try { const r = localStorage.getItem(DKEY(id)); return r ? JSON.parse(r) : null; } catch (e) { return null; } }
+  let _dt = null;
+  function saveDraft() { clearTimeout(_dt); _dt = setTimeout(() => { try { localStorage.setItem(DKEY(S.folderId), JSON.stringify(S)); } catch (e) {} }, 250); }
+
+  // ── Accent: a light brand color is darkened just enough to read on white (labels, step circles) ──
+  const hexRgb = h => { h = h.replace('#', ''); if (h.length === 3) h = h.replace(/./g, '$&$&'); const n = parseInt(h, 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+  const rgbHex = a => '#' + a.map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('').toUpperCase();
+  const lum = a => { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }; return 0.2126 * f(a[0]) + 0.7152 * f(a[1]) + 0.0722 * f(a[2]); };
+  const onWhite = a => 1.05 / (lum(a) + 0.05);
+  function legible(hex) {
+    let a = hexRgb(hex), i = 0;
+    while (onWhite(a) < 4.5 && i++ < 40) a = a.map(v => v * 0.93);
+    return rgbHex(a);
+  }
+
+  // ── Pricing bands for the SKU chip ──
+  const num = v => (Math.round(v * 100) / 100).toString();
+  const usd = v => '$' + Number(v).toLocaleString('en-US', { maximumFractionDigits: 2 });
+  const fee2 = v => '$' + Number(v).toFixed(2);
+  function band(min, max, fee) {
+    return max != null
+      ? { code: 'SI_LEVEL_' + num(min) + '-' + num(max), label: usd(min) + '–' + usd(max) + ' orders', fee: fee }
+      : { code: 'SI_LEVEL_' + num(min) + '+', label: usd(min) + '+ orders', fee: fee };
+  }
+  function pricingOf(q) {
+    const tpl = q.get('template') || 'percentage';
+    if (tpl.indexOf('pt_') === 0 && window.SI_PORTAL) {
+      const t = SI_PORTAL.byId(tpl.slice(3));
+      if (t) return { rule: t.rule, name: t.name, max: t.max || null, label: 'Portal template #' + t.id, exact: !t.approx };
+    }
+    if (CALC_TIERS[tpl]) return { rule: CALC_TIERS[tpl], label: tpl.indexOf('f_') === 0 ? 'Flat ' + fee2(CALC_TIERS[tpl][0].premium) : 'Tiered preset', exact: true };
+    const m = /^p_([\d.]+)_([\d.]+)$/.exec(tpl);
+    if (m) return { rule: 'USE_PERCENTAGE_' + m[1] + '_MIN_' + m[2], label: m[1] + '% · min ' + fee2(m[2]), exact: false };
+    if (tpl === 'percentage') {
+      const p = parseFloat(q.get('premium')), mn = parseFloat(q.get('minp') || '0') || 0;
+      if (p > 0) return { rule: 'USE_PERCENTAGE_' + p + '_MIN_' + mn, label: p + '%' + (mn ? ' · min ' + fee2(mn) : ''), exact: false };
+    }
+    if (tpl === 'flat_dollar') { const f = parseFloat(q.get('premium')); if (f > 0) return { rule: null, flat: f, label: 'Flat ' + fee2(f), exact: false }; }
+    return null;
+  }
+  function bandsOf(pr) {
+    if (!pr) return [];
+    if (Array.isArray(pr.rule)) return pr.rule.map(t => band(t.min, t.max >= 100000 ? pr.max : t.max, t.premium != null ? fee2(t.premium) : num(t.pct * 100) + '%'));
+    const m = /^USE_PERCENTAGE_([\d.]+)_MIN_([\d.]+)$/.exec(pr.rule || '');
+    if (m) {
+      const p = +m[1], mn = +m[2];
+      // Portal names state the minimum-fee band ("Min $0.98 < $100"); otherwise work it out.
+      const named = pr.name && /<\s*\$\s*([\d,.]+)/.exec(pr.name);
+      const top = named ? +named[1].replace(/,/g, '') : (mn > 0 && p > 0 ? Math.ceil(mn / (p / 100)) : 0);
+      return top > 0 ? [band(0, top, fee2(mn))] : [];
+    }
+    return [];
+  }
+
+  // ── Deal data: Brand Folder (name, logo, brand color, ROI scenario pricing) + the signed-in rep ──
+  function nameOf(u) {
+    const m = u.user_metadata || {}, n = m.full_name || m.name || m.display_name;
+    if (n) return String(n).trim();
+    return (u.email || '').split('@')[0].split(/[._-]+/).filter(Boolean).map(w => w[0].toUpperCase() + w.slice(1)).join(' ');
+  }
+  async function dealData() {
+    const d = { src: {} };
+    const f = window.SIsb ? SIsb.getActiveFolder() : null;
+    if (f) { d.folderId = f.id; d.merchant = f.name || ''; d.logo = f.logo || ''; d.src.merchant = 'Brand Folder'; }
+    try { user = window.SIsb ? await SIsb.currentUser() : null; } catch (e) { user = null; }
+    if (user) { d.repEmail = user.email || ''; d.repName = nameOf(user); d.src.rep = 'your sign-in'; }
+    if (f && user) {
+      try {
+        const m = await SIsb.getMerchant(f.id);
+        let b = m && m.bld; if (typeof b === 'string') { try { b = JSON.parse(b); } catch (e) { b = null; } }
+        const br = (b && b.branding) || {};
+        const c = okHex(br.accent) ? br.accent : okHex(br.accent2) ? br.accent2 : '';
+        if (c) { d.brandAccent = c.trim().toUpperCase(); d.src.accent = 'brand color'; }
+        if (!d.logo && m && m.logo_path) d.logo = m.logo_path;
+      } catch (e) {}
+      try {
+        const cfgs = (await SIsb.listConfigs()).filter(c => c.merchant_ref === f.id).sort((a, b) => (Date.parse(b.updated_at) || 0) - (Date.parse(a.updated_at) || 0));
+        for (const c of cfgs.slice(0, 4)) {
+          const full = await SIsb.loadConfig(c.id);
+          const pr = pricingOf(new URLSearchParams(((full && full.data && full.data.q) || '').replace(/^\?/, '')));
+          const bands = bandsOf(pr);
+          if (bands.length) { d.bands = bands; d.pricing = { label: pr.label, exact: pr.exact, scenario: c.title || 'ROI scenario' }; break; }
+        }
+      } catch (e) {}
+    }
+    return d;
+  }
+  // force = the rep asked for a refill; otherwise only blanks are filled (a draft's edits win).
+  function applyDeal(d, force) {
+    const fill = (k, v) => { if (v != null && v !== '' && (force || !S[k])) S[k] = v; };
+    fill('merchant', d.merchant); fill('repName', d.repName); fill('repEmail', d.repEmail);
+    if (d.logo && (force || !S.logo)) S.logo = d.logo;
+    if (d.folderId) S.folderId = d.folderId;
+    S.brandAccent = d.brandAccent || (force ? '' : S.brandAccent);
+    if (S.brandAccent && (force || !S.accentSet)) S.accent = S.brandAccent;
+    if (d.bands && d.bands.length) {
+      S.bands = d.bands; S.pricing = d.pricing;
+      if (force || S.band === 'ex') { S.band = '0'; S.skuCode = d.bands[0].code; S.skuLabel = d.bands[0].label; }
+    } else if (force) { S.bands = []; S.pricing = null; }
+    S.src = Object.assign({}, d.src);
+    paintAll();
+    saveDraft();
+  }
+
+  // ── Render the page ──
+  const E = (g, k, tag, cls, ph) => '<' + (tag || 'span') + (cls ? ' class="' + cls + '"' : '') + ' contenteditable="' + PLAIN + '" spellcheck="true" data-g="' + g + '" data-k="' + k + '" data-ph="' + esc(ph == null ? 'Add text' : ph) + '">' + esc(txt(g, k)) + '</' + (tag || 'span') + '>';
+  const B = (b, cls, ph) => '<span class="bind' + (cls ? ' ' + cls : '') + '" contenteditable="' + PLAIN + '" spellcheck="false" data-b="' + b + '" data-ph="' + esc(ph) + '">' + esc(S[b]) + '</span>';
+  function render() {
+    const g = S.audience, sup = g === 'support';
+    const card = i => '<div class="pg-card">' + E(g, 'c' + i + 't', 'div', 'pg-ct') +
+      (sup && i === 2 ? '<div class="pg-cb">' + E(g, 'c2b') + ' ' + B('claimsLink', 'pg-link', 'Add claims link') + '</div>'
+        : sup && i === 3 ? '<div class="pg-cb">' + E(g, 'c3b') + ' ' + B('escalation', '', 'Add escalation contact') + E(g, 'c3e', 'span', '', '') + '</div>'
+        : E(g, 'c' + i + 'b', 'div', 'pg-cb')) + '</div>';
+    const step = (n, body, g10) => '<li><div class="pg-n">' + n + '</div><div class="pg-sb' + (g10 ? ' g10' : '') + '">' + body + '</div></li>';
+    const rule = i => '<div class="pg-rule">' + E('shared', 'r' + i + 't', 'div', 'pg-rt') + E('shared', 'r' + i + 'b', 'div', 'pg-rb') + '</div>';
+    const logo = S.logo && S.showLogo ? '<div class="pg-logo"><img alt="" src="' + esc(S.logo) + '"></div>' : '';
+    page.innerHTML =
+      '<header>' +
+        '<div class="pg-top"><div class="pg-brand">' + logo + '<div class="pg-eye">' + E('shared', 'eye') + ' ' + B('merchant', '', 'Merchant') + '</div></div>' + E(g, 'pill', 'div', 'pg-pill') + '</div>' +
+        '<div class="pg-tt">' + E(g, 'title', 'h1') + E(g, 'sub', 'p') + '</div>' +
+      '</header>' +
+      '<main>' +
+        '<section class="pg-tp">' + E(g, 'tpLabel', 'div', 'pg-lbl') + E(g, 'lead', 'p', 'pg-lead') + '<div class="pg-cards">' + card(1) + card(2) + card(3) + '</div></section>' +
+        '<div class="pg-grid">' +
+          '<section class="pg-steps"><div class="pg-sh">' + E('shared', 'stepsLabel', 'div', 'pg-lbl') + E('shared', 'stepsCount', 'div', 'pg-cnt') + '</div><ol>' +
+            step(1, E('shared', 's1', 'div', 'pg-st')) +
+            step(2, E('shared', 's2', 'div', 'pg-st')) +
+            step(3, E('shared', 's3', 'div', 'pg-st') +
+              '<div class="pg-sku"><div class="pg-chip">' + B('skuCode', '', 'SKU') + '</div>' +
+              '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E5D73" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg>' +
+              '<div class="pg-band">' + B('skuLabel', '', 'Order range') + '</div></div>' +
+              E('shared', 's3n', 'div', 'pg-sn'), true) +
+            step(4, E('shared', 's4', 'div', 'pg-st') + E('shared', 's4n', 'div', 'pg-sn')) +
+          '</ol></section>' +
+          '<aside>' + E('shared', 'rulesLabel', 'div', 'pg-lbl') + rule(1) + rule(2) + rule(3) + rule(4) + '</aside>' +
+        '</div>' +
+      '</main>' +
+      '<footer><div>' + E('shared', 'footQ') + '&nbsp;' + B('repName', 'pg-rep', 'Your name') + ' · ' + B('repEmail', '', 'you@shipinsure.io') + '</div>' + E('shared', 'site', 'div', 'pg-site') + '</footer>';
+    if (document.body.classList.contains('view')) page.querySelectorAll('[contenteditable]').forEach(el => el.setAttribute('contenteditable', 'false'));
+    page.style.setProperty('--ac', legible(S.accent));
+    requestAnimationFrame(checkFit);
+  }
+
+  // ── Side panel ──
+  function paintSide() {
+    document.querySelectorAll('#aud [data-aud]').forEach(b => { const on = b.dataset.aud === S.audience; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
+    document.querySelectorAll('.op-side input[data-b]').forEach(i => { if (document.activeElement !== i) i.value = S[i.dataset.b] || ''; });
+    const sup = S.audience === 'support';
+    ['claimsLink', 'escalation'].forEach(k => $('f-' + k).classList.toggle('need', sup && !S[k]));
+    ['merchant', 'repName', 'repEmail'].forEach(k => $('f-' + k).classList.toggle('need', !S[k]));
+    // Where the deal data came from
+    const f = window.SIsb ? SIsb.getActiveFolder() : null;
+    const li = (i, h) => '<li><i>' + i + '</i><span>' + h + '</span></li>';
+    let src = '';
+    src += f ? li('📁', 'Merchant from Brand Folder <b>' + esc(f.name) + '</b>') : li('📁', 'No Brand Folder picked. Pick one in the bar above to fill this in.');
+    src += user ? li('👤', 'Rep from your sign-in') : li('👤', 'Sign in (bar above) to fill in your name and email');
+    if (f && user) {
+      src += S.src.accent ? li('🎨', 'Accent from the folder’s brand color') : li('🎨', 'No brand color in this folder, so the template accent');
+      src += S.pricing ? li('💲', 'SKU bands from <b>' + esc(S.pricing.scenario) + '</b> (' + esc(S.pricing.label) + (S.pricing.exact ? '' : ', first band estimated') + ')')
+                       : li('💲', 'No ROI scenario with pricing in this folder, so the template’s example SKU');
+    }
+    $('src').innerHTML = src;
+    // Accent swatches
+    const brand = S.brandAccent && okHex(S.brandAccent) ? S.brandAccent.toUpperCase() : '';
+    const list = (brand ? [brand] : []).concat(SWATCHES.filter(c => c !== brand));
+    const cur = (S.accent || DEF_ACCENT).toUpperCase();
+    $('sw').classList.toggle('has-brand', !!brand);
+    $('sw').innerHTML = list.map(c => '<button type="button" data-c="' + c + '" class="' + (c === cur ? 'on ' : '') + (c === brand ? 'brand' : '') + '" style="background:' + c + '" title="' + (c === brand ? 'Brand color ' : '') + c + (c === DEF_ACCENT ? ' (template default)' : '') + '" aria-label="Accent ' + c + '"></button>').join('') +
+      '<label class="pick" title="Any color"><input type="color" id="accPick" value="' + (okHex(cur) && cur.length === 7 ? cur.toLowerCase() : '#4f46e5') + '">Custom</label>';
+    const shown = legible(cur);
+    $('accNote').hidden = shown === cur;
+    $('accNote').textContent = 'This color is light on white, so the page uses a slightly darker ' + shown + ' to keep it readable.';
+    // SKU bands
+    const opts = S.bands.map((b, i) => '<option value="' + i + '">' + esc(b.code + ' → ' + b.label + (b.fee ? ' · ' + b.fee : '')) + '</option>');
+    opts.push('<option value="ex">' + esc(EX_SKU.code + ' → ' + EX_SKU.label + ' (template example)') + '</option>');
+    opts.push('<option value="custom">Custom (type it below or on the page)</option>');
+    $('bandSel').innerHTML = opts.join('');
+    $('bandSel').value = S.band in { ex: 1, custom: 1 } || S.bands[+S.band] ? S.band : 'custom';
+    // Logo
+    $('logoGrp').hidden = !S.logo;
+    $('showLogo').checked = !!S.showLogo;
+  }
+  function paintAll() { render(); paintSide(); }
+
+  // Keep every copy of a bound field (page + side panel) in step, except the one being typed in.
+  function syncBind(b, from) {
+    page.querySelectorAll('[data-b="' + b + '"]').forEach(el => { if (el !== from && el.textContent !== S[b]) el.textContent = S[b]; });
+    const inp = document.querySelector('.op-side input[data-b="' + b + '"]');
+    if (inp && inp !== from && inp.value !== S[b]) inp.value = S[b];
+    if (b === 'skuCode' || b === 'skuLabel') { S.band = 'custom'; $('bandSel').value = 'custom'; }
+    const sup = S.audience === 'support';
+    if (b === 'claimsLink' || b === 'escalation') $('f-' + b).classList.toggle('need', sup && !S[b]);
+    if (b === 'merchant' || b === 'repName' || b === 'repEmail') $('f-' + b).classList.toggle('need', !S[b]);
+  }
+
+  // ── Page editing ──
+  page.addEventListener('input', e => {
+    const el = e.target.closest('[contenteditable]'); if (!el) return;
+    if (el.textContent === '' && el.innerHTML !== '') el.innerHTML = '';   // drop the stray <br> so the placeholder shows
+    const v = el.textContent.replace(/\s*\n\s*/g, ' ');
+    if (el.dataset.b) { S[el.dataset.b] = v; syncBind(el.dataset.b, el); }
+    else {
+      const g = el.dataset.g, k = el.dataset.k;
+      if (v === COPY[g][k]) delete S.copy[g][k]; else S.copy[g][k] = v;
+    }
+    saveDraft(); checkFit();
+  });
+  page.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === 'Escape') { const el = e.target.closest('[contenteditable]'); if (el) { e.preventDefault(); el.blur(); } }
+  });
+  page.addEventListener('paste', e => {
+    if (PLAIN === 'plaintext-only') return;
+    const el = e.target.closest('[contenteditable]'); if (!el) return;
+    e.preventDefault();
+    document.execCommand('insertText', false, ((e.clipboardData && e.clipboardData.getData('text/plain')) || '').replace(/\s*\n\s*/g, ' '));
+  });
+  page.addEventListener('focusout', e => {
+    const el = e.target.closest && e.target.closest('[contenteditable]'); if (!el) return;
+    if (!el.textContent.trim() && el.innerHTML !== '') el.innerHTML = '';
+  });
+
+  // ── Side panel events ──
+  $('aud').addEventListener('click', e => {
+    const b = e.target.closest('[data-aud]'); if (!b || b.dataset.aud === S.audience) return;
+    S.audience = b.dataset.aud; paintAll(); saveDraft();
+  });
+  document.querySelectorAll('.op-side input[data-b]').forEach(inp => inp.addEventListener('input', () => {
+    S[inp.dataset.b] = inp.value; syncBind(inp.dataset.b, inp); saveDraft(); checkFit();
+  }));
+  $('sw').addEventListener('click', e => {
+    const b = e.target.closest('button[data-c]'); if (!b) return;
+    S.accent = b.dataset.c; S.accentSet = true; paintAll(); saveDraft();
+  });
+  $('sw').addEventListener('input', e => {
+    if (e.target.id !== 'accPick') return;
+    S.accent = e.target.value.toUpperCase(); S.accentSet = true;
+    page.style.setProperty('--ac', legible(S.accent));
+    document.querySelectorAll('#sw button').forEach(b => b.classList.toggle('on', b.dataset.c === S.accent));
+    const shown = legible(S.accent); $('accNote').hidden = shown === S.accent;
+    $('accNote').textContent = 'This color is light on white, so the page uses a slightly darker ' + shown + ' to keep it readable.';
+    saveDraft();
+  });
+  $('bandSel').addEventListener('change', e => {
+    const v = e.target.value; S.band = v;
+    if (v === 'ex') { S.skuCode = EX_SKU.code; S.skuLabel = EX_SKU.label; }
+    else if (S.bands[+v]) { S.skuCode = S.bands[+v].code; S.skuLabel = S.bands[+v].label; }
+    else { const el = page.querySelector('[data-b="skuCode"]'); if (el) el.focus(); }
+    ['skuCode', 'skuLabel'].forEach(b => { page.querySelectorAll('[data-b="' + b + '"]').forEach(el => { el.textContent = S[b]; }); $('f-' + b).value = S[b]; });
+    saveDraft(); checkFit();
+  });
+  $('showLogo').addEventListener('change', e => { S.showLogo = e.target.checked; render(); saveDraft(); });
+  $('refill').addEventListener('click', async () => {
+    const b = $('refill'); b.disabled = true; b.textContent = '↻ Filling…';
+    try { applyDeal(await dealData(), true); toast('Filled from the deal data'); } finally { b.disabled = false; b.textContent = '↻ Refill from deal'; }
+  });
+  $('resetBtn').addEventListener('click', () => {
+    if (!confirm('Put all page text back to the template, for all three versions?\nMerchant, rep, accent, SKU and links stay as they are.')) return;
+    S.copy = { sales: {}, leads: {}, support: {}, shared: {} }; render(); saveDraft(); toast('Text reset to the template');
+  });
+
+  // ── Fit: scale the page to the stage width; warn when copy runs past one page ──
+  function fit() {
+    const w = stage.clientWidth - (window.innerWidth <= 900 ? 32 : 56);
+    const s = Math.max(0.3, Math.min(1, w / 816));
+    fitEl.style.width = Math.floor(816 * s) + 'px';
+    fitEl.style.height = Math.floor(1056 * s) + 'px';
+    page.style.transform = s === 1 ? '' : 'scale(' + s + ')';
+  }
+  function overflows() {
+    const foot = page.querySelector('footer'); if (!foot) return false;
+    return foot.offsetTop + foot.offsetHeight > 1056 + 1 || page.scrollWidth > 816 + 1;
+  }
+  function checkFit() { $('warn').hidden = !overflows(); }
+  if (window.ResizeObserver) new ResizeObserver(fit).observe(stage); else window.addEventListener('resize', fit);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(checkFit);
+
+  // ── Export PDF (print → Save as PDF) ──
+  const fileName = () => ['ShipInsure', S.merchant || 'Merchant', AUD[S.audience], 'one-pager'].join(' – ').replace(/[\\/:*?"<>|]+/g, '');
+  let _title = document.title;
+  async function exportPdf(viewer) {
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    if (!viewer) {
+      const miss = [];
+      if (!S.merchant) miss.push('merchant name');
+      if (!S.repName) miss.push('rep name');
+      if (!S.repEmail) miss.push('rep email');
+      if (S.audience === 'support' && !S.claimsLink) miss.push('claims link');
+      if (S.audience === 'support' && !S.escalation) miss.push('escalation contact');
+      if (miss.length && !confirm('Still empty: ' + miss.join(', ') + '.\nThose spots print blank. Export anyway?')) return;
+      if (overflows() && !confirm('The text runs past the bottom of the page and will be cut off. Export anyway?')) return;
+    }
+    try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) {}
+    const imgs = Array.from(page.querySelectorAll('img')).filter(i => !i.complete);
+    await Promise.all(imgs.map(i => new Promise(r => { i.onload = i.onerror = r; setTimeout(r, 2500); })));
+    _title = document.title; document.title = fileName();
+    window.print();
+  }
+  window.addEventListener('afterprint', () => { document.title = _title; });
+  $('exportBtn').addEventListener('click', () => exportPdf(false));
+  $('dlBtn').addEventListener('click', () => exportPdf(true));
+
+  // ── Rep Hub theme hand-off ──
+  const setTheme = t => document.body.classList.toggle('pm', t === 'midnight');
+  setTheme(new URLSearchParams(location.search).get('theme'));
+  window.addEventListener('message', e => { const d = e.data || {}; if (d.siHub === 'apply' && d.theme) setTheme(d.theme); });
+
+  // ── Brand Folder save / load (shared folder bar; kind 'onepager') ──
+  if (window.SIsb) {
+    // Before onepager-kind.sql has run, Supabase rejects the new kind. Say so plainly.
+    const _save = SIsb.saveAsset;
+    SIsb.saveAsset = function (a) {
+      return _save.apply(this, arguments).catch(err => {
+        if (a && a.kind === 'onepager' && /check constraint|merchant_assets_kind/i.test((err && err.message) || '')) throw new Error('One-Pagers need a one-time Supabase update (onepager-kind.sql) before they can be saved');
+        throw err;
+      });
+    };
+  }
+  let bar = null;
+  if (window.SIFolderBar) {
+    bar = SIFolderBar.mount({
+      kind: 'onepager',
+      tool: 'One-Pager',
+      before: document.querySelector('.op-app'),
+      getData: () => JSON.parse(JSON.stringify(S)),
+      applyData: (data, kind, row) => {
+        S = hydrate(data);
+        if (row && row.merchant_ref) S.folderId = row.merchant_ref;
+        paintAll(); saveDraft();
+      },
+      defaultTitle: () => 'One-pager – ' + (S.merchant || 'Merchant')
+    });
+  }
+
+  // ── Start: this folder's draft (or a fresh page), then fill blanks from the deal data ──
+  const qp = new URLSearchParams(location.search);
+  function startFor(folder) {
+    S = hydrate(readDraft(folder && folder.id) || null);
+    S.folderId = folder ? folder.id : null;
+    paintAll();
+  }
+  const active = window.SIsb ? SIsb.getActiveFolder() : null;
+  startFor(active);
+  if (AUD[qp.get('audience')]) { S.audience = qp.get('audience'); paintAll(); }
+  fit();
+  const wantAsset = qp.get('asset');
+  dealData().then(d => {
+    // A merchant opening a short link (signed out) just sees the page.
+    if (!user && wantAsset) { document.body.classList.add('view'); render(); fit(); }
+    if (!wantAsset || user) applyDeal(d, false);
+    else paintSide();
+  });
+  // Brand Folder switched (Hub chip, Folders tab, the bar) → that folder's own draft.
+  if (window.SIsb) SIsb.onActiveFolder(f => {
+    if (f && f.id === S.folderId) { dealData().then(d => applyDeal(d, false)); return; }
+    try { localStorage.setItem(DKEY(S.folderId), JSON.stringify(S)); } catch (e) {}
+    startFor(f);
+    dealData().then(d => applyDeal(d, false));
+  });
+})();
+</script>
+</body>
+</html>
