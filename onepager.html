@@ -94,6 +94,7 @@
 
   .op-warn { width:100%; max-width:816px; display:flex; gap:8px; align-items:center; font-size:12.5px; font-weight:600; color:var(--warn); background:var(--warn-soft); border:1px solid #efc89a; border-radius:9px; padding:8px 12px; }
   body.pm .op-warn { border-color:#4a3714; }
+  .op-warn.ok { color:var(--ink); background:var(--accent-soft); border-color:var(--line); }
   .op-fit { flex:0 0 auto; position:relative; overflow:hidden; border-radius:4px; box-shadow:0 1px 2px rgba(20,24,60,.10), 0 14px 40px rgba(20,24,60,.16); background:#fff; }
   body.pm .op-fit { box-shadow:0 0 0 1px #26262f, 0 20px 60px rgba(0,0,0,.6); }
   .op-hint { font-size:12px; color:var(--muted); text-align:center; }
@@ -383,7 +384,7 @@
   </aside>
 
   <main class="op-stage" id="stage">
-    <div class="op-warn" id="warn" hidden><span style="flex:1">⚠ The text runs past the bottom of the page. Trim some copy or turn a section off so it fits on one page.</span><button type="button" class="btn small" id="fitBtn" hidden>Make it fit</button></div>
+    <div class="op-warn" id="warn" hidden role="status" aria-live="polite"><span style="flex:1" id="warnTxt"></span><button type="button" class="btn small primary" id="tightBtn" hidden title="Claude rewrites the page's copy shorter (Caveman Cliff Notes style: point first, short sentences, no filler) and keeps every fact, name, number and date">✂ More succinct version</button><button type="button" class="btn small" id="fitBtn" hidden>Make it fit</button><button type="button" class="btn small" id="tightUndo" hidden title="Put the copy back the way it was">↺ Undo</button></div>
     <button type="button" class="btn primary op-dl" id="dlBtn">⬇ Download PDF</button>
     <div class="op-fit" id="fit"><div class="op-page" id="page"></div></div>
     <div class="op-hint">Click any text to edit it · orange chips are blanks to fill in (they print empty) · drafts are kept in this browser · use Save above to file it in the Brand Folder</div>
@@ -583,6 +584,7 @@
   }
   let S = blank();
   let user = null;
+  const _tight = { undo: null, busy: false };   // ✂ More succinct version: copy before it, and a busy flag
   const recap = () => S.template === 'recap';
   const lensG = () => 'lens:' + S.r.audience;
 
@@ -934,6 +936,7 @@
   // ── Page editing ──
   page.addEventListener('input', e => {
     const el = e.target.closest('[contenteditable]'); if (!el) return;
+    _tight.undo = null;
     if (el.textContent === '' && el.innerHTML !== '') el.innerHTML = '';
     const v = el.textContent.replace(/\s*\n\s*/g, ' ');
     if (el.dataset.b) { S[el.dataset.b] = v; syncBind(el.dataset.b, el); }
@@ -1086,9 +1089,14 @@
     if (recap()) { const cols = page.querySelectorAll('main > *'); return Array.prototype.some.call(cols, c => c.offsetTop + c.offsetHeight > 1056 - 8); }
     const foot = page.querySelector('footer'); return !!foot && foot.offsetTop + foot.offsetHeight > 1056 + 1;
   }
+  const WARN_TXT = '⚠ The text runs past the bottom of the page. Trim some copy or turn a section off so it fits on one page.';
   function checkFit() {
     const over = overflows();
-    $('warn').hidden = !over;
+    $('warn').hidden = !over && !_tight.undo;
+    $('warn').classList.toggle('ok', !over);
+    $('warnTxt').textContent = over ? (_tight.undo ? '⚠ Still a little long. Tighten again, or trim a section.' : WARN_TXT) : '✂ Copy tightened. It fits on one page.';
+    $('tightBtn').hidden = !over;
+    $('tightUndo').hidden = !_tight.undo;
     $('fitBtn').hidden = !(over && recap() && S.r.banner !== 'None');
     if (fit.s) page.style.transform = fit.s === 1 ? '' : 'scale(' + fit.s + ')';
   }
@@ -1101,6 +1109,68 @@
     paintSide(); saveDraft(); checkFit();
     toast(overflows() ? msg + '. Still too long: trim some copy or turn a section off.' : msg + ', and it fits on one page');
   });
+  // ── ✂ More succinct version: Claude tightens the page's copy so it fits on one page ──
+  // Caveman Cliff Notes rules (point first, short sentences, strong verbs, nothing invented),
+  // kept client-ready for a printed page. Only the editable copy changes; ↺ Undo puts it back.
+  function overBy() {
+    if (recap()) return Math.max(0, ...Array.prototype.map.call(page.querySelectorAll('main > *'), c => c.offsetTop + c.offsetHeight - (1056 - 8)));
+    const foot = page.querySelector('footer'); return foot ? Math.max(0, foot.offsetTop + foot.offsetHeight - 1056) : 0;
+  }
+  async function tighten() {
+    if (_tight.busy) return;
+    const items = {}, map = {};
+    page.querySelectorAll('[contenteditable][data-g][data-k]').forEach(el => {
+      const g = el.dataset.g, k = el.dataset.k, t = el.textContent.replace(/\s+/g, ' ').trim();
+      if (t.length < 28 || /Label$|^th|L$/.test(k)) return;   // labels and short values stay
+      const id = g + '|' + k; items[id] = t; map[id] = [g, k];
+    });
+    if (!Object.keys(items).length) { toast('No long copy to tighten: turn a section off instead'); return; }
+    const total = Object.values(items).reduce((n, t) => n + t.length, 0);
+    const pct = Math.max(15, Math.min(45, Math.round(overBy() / 1056 * 160) + 12));
+    _tight.busy = true;
+    const b = $('tightBtn'); b.disabled = true; b.textContent = '✂ Tightening…';
+    try {
+      const prompt = 'Tighten the copy on a one-page ' + (recap() ? S.r.meetingType.toLowerCase() + ' recap' : 'draft-order guide') + ' that a ShipInsure rep sends to ' + (S.merchant || 'a merchant') +
+        '. It runs ' + Math.round(overBy()) + 'px past the bottom of a US Letter page, so the ' + total + ' characters below must shrink by about ' + pct + '% in total.\n\n' +
+        'Style (Caveman Cliff Notes): lead with the point. Short sentences. Strong verbs, no adverbs (really, truly, quickly, simply, just). No hedging, filler or clichés. Every word earns its keep. ' +
+        'This is a printed, client-ready page, so stay polished: no emoji, no slang, no koans, no em dashes.\n\n' +
+        'Rules: keep every fact, number, name, date, product and commitment. Never invent anything. Each item keeps its meaning and stays under its own key. Cut the longest items most; an item that is already tight can stay as it is.\n\n' +
+        'Return ONLY JSON with the same keys and the new text, no markdown:\n' + JSON.stringify(items, null, 1);
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST', headers: await claudeHeaders(),
+        body: JSON.stringify({ model: 'claude-sonnet-5-5', max_tokens: 4000, messages: [{ role: 'user', content: prompt }] })
+      });
+      if (!resp.ok) { const e = await resp.json().catch(() => ({})); if (resp.status === 401) _claudeTok = null; throw new Error((e.error && e.error.message) || 'HTTP ' + resp.status); }
+      const raw = (((await resp.json()).content || []).find(x => x.type === 'text') || {}).text || '';
+      const out = JSON.parse(raw.replace(/^[\s\S]*?(\{)/, '$1').replace(/\}[^}]*$/, '}'));
+      const before = JSON.parse(JSON.stringify(S.copy));
+      let n = 0;
+      Object.keys(map).forEach(id => {
+        const v = typeof out[id] === 'string' ? out[id].replace(/\s+/g, ' ').trim() : '';
+        if (!v || v === items[id]) return;
+        const [g, k] = map[id];
+        S.copy[g] = S.copy[g] || {};
+        if (v === shownDef(g, k)) delete S.copy[g][k]; else S.copy[g][k] = v;
+        n++;
+      });
+      if (!n) { toast('Already tight: turn a section off to make room'); return; }
+      if (!_tight.undo) _tight.undo = before;   // Undo goes back to before the first tightening
+      const was = overBy();
+      render(); saveDraft(); checkFit();
+      toast(!overflows() ? 'Tightened ' + n + ' items, and it fits on one page'
+        : overBy() > was - 6 ? 'The copy is about as tight as it gets. Turn a section off' + (recap() && S.r.banner !== 'None' ? ' or use Make it fit' : '') + '.'
+        : 'Tightened ' + n + ' items. Still a little long.');
+    } catch (e) {
+      toast('Couldn’t tighten: ' + (e.message || e));
+    } finally { _tight.busy = false; b.disabled = false; b.textContent = '✂ More succinct version'; checkFit(); }
+  }
+  $('tightBtn').addEventListener('click', tighten);
+  $('tightUndo').addEventListener('click', () => {
+    if (!_tight.undo) return;
+    S.copy = _tight.undo; _tight.undo = null;
+    render(); saveDraft(); checkFit(); toast('Copy put back');
+  });
+
   if (window.ResizeObserver) new ResizeObserver(fit).observe(stage); else window.addEventListener('resize', fit);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(checkFit);
   page.addEventListener('load', checkFit, true);   // images change the layout as they arrive
