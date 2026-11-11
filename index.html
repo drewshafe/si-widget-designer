@@ -644,6 +644,15 @@
         .co-imp { width: 100%; box-sizing: border-box; font: 0.95em ui-monospace, Menlo, monospace; padding: 6px 8px; border: 1px solid #8a8a8a; border-radius: 8px; resize: vertical; }
         .co-rm { margin-top: 14px; border: 0; background: none; color: #c70a24; font: inherit; font-weight: 550; padding: 4px 0; cursor: pointer; }
         .co-rm:hover { text-decoration: underline; }
+        .calc-folder-btn { padding: 7px 12px; font-size: 0.82em; font-weight: 700; border-radius: 7px; border: 1.5px solid #d5d9f0; background: #fff; color: #4a5fc1; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
+        .calc-folder-btn:hover { border-color: #b9bff0; }
+        .calc-dd { position: absolute; top: 100%; left: 0; margin-top: 4px; width: max(100%, 280px); max-width: calc(100vw - 28px); max-height: 320px; overflow: auto; background: #fff; border: 1px solid #d8dbe8; border-radius: 12px; box-shadow: 0 14px 40px rgba(20,24,60,.18); padding: 6px; z-index: 80; text-transform: none; letter-spacing: 0; }
+        .calc-dd .hd { font-size: 0.7em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #6b7090; padding: 6px 10px 4px; }
+        .calc-dd .it { display: flex; flex-direction: column; gap: 2px; width: 100%; text-align: left; border: 0; background: none; font: inherit; padding: 8px 10px; border-radius: 8px; cursor: pointer; color: #1d2240; }
+        .calc-dd .it:hover, .calc-dd .it:focus-visible { background: #f3f4fb; outline: none; }
+        .calc-dd .it b { font-weight: 600; font-size: 0.86em; }
+        .calc-dd .it span { font-size: 0.76em; color: #6b7090; }
+        .calc-dd .em { padding: 10px; color: #6b7090; font-size: 0.8em; line-height: 1.4; }
         .mp-mock { width: 100%; }
         .mp-mock .mk-flabel { font-size: 0.78em; margin-top: 4px; }
 
@@ -665,11 +674,12 @@
     </div>
 
     <div class="control-bar">
-        <div class="ctrl" id="impactLinkCtrl" style="flex:1 1 260px;min-width:220px;">
-            <label for="impactLinkInput">Load From Calc Link</label>
+        <div class="ctrl" id="impactLinkCtrl" style="flex:1 1 260px;min-width:220px;position:relative;">
+            <label for="impactLinkInput" id="impactLinkLabel">Load From Calc Link</label>
             <div style="display:flex;gap:6px;">
                 <input type="text" id="impactLinkInput" placeholder="Paste an ROI Calculator link…" style="flex:1;min-width:0;">
                 <button type="button" id="impactLinkLoadBtn" onclick="loadImpactLink()" style="padding:7px 14px;font-size:0.82em;font-weight:700;border-radius:7px;border:1.5px solid #d5d9f0;background:#f8f9fd;color:#4a5fc1;cursor:pointer;flex-shrink:0;">Load</button>
+                <button type="button" id="calcFolderBtn" class="calc-folder-btn" onclick="calcFolderMenu(this)" aria-haspopup="true" style="display:none;">📁 Folder ▾</button>
             </div>
         </div>
         <div class="ctrl">
@@ -6104,7 +6114,10 @@ Return ONLY JSON — no markdown, no code fences:
                 setTimeout(() => { input.style.borderColor = ''; }, 1500);
                 return;
             }
-            const p = url.searchParams;
+            _applyCalcParams(url.searchParams);
+        }
+        // The calc's settings (a link's query, or a saved scenario's) → Mode / AOV / Pricing / Premium / Cashback.
+        function _applyCalcParams(p) {
             const setVal = (id, val) => { if (val !== null && val !== undefined && val !== '') { const el = document.getElementById(id); if (el) el.value = val; } };
 
             setVal('avgOrderValue', p.get('aov'));
@@ -6135,6 +6148,55 @@ Return ONLY JSON — no markdown, no code fences:
             syncContributionVisibility();
             updateWidgetPreview();
         }
+
+        // ── The alternative to pasting a calc link: an ROI scenario saved in the active merchant
+        // folder (ROI Builder ☁ Save, or a Custom Build). Both store the calc's query in data.q. ──
+        function _calcFolderSync() {
+            const b = document.getElementById('calcFolderBtn'), lb = document.getElementById('impactLinkLabel');
+            const a = window.SIsb && SIsb.getActiveFolder();
+            if (b) { b.style.display = a ? '' : 'none'; b.title = a ? `Load an ROI scenario saved in ${a.name}’s merchant folder` : ''; }
+            if (lb) lb.textContent = a ? 'Load From Calc Link or Folder' : 'Load From Calc Link';
+            const dd = document.getElementById('calcFolderDD'); if (dd) dd.remove();
+        }
+        function _agoTxt(t) {
+            const s = (Date.now() - Date.parse(t)) / 1000;
+            if (!(s >= 0)) return '';
+            return s < 3600 ? Math.max(1, Math.round(s / 60)) + 'm ago' : s < 86400 ? Math.round(s / 3600) + 'h ago' : Math.round(s / 86400) + 'd ago';
+        }
+        async function calcFolderMenu(btn) {
+            let dd = document.getElementById('calcFolderDD');
+            if (dd) { dd.remove(); return; }
+            const a = window.SIsb && SIsb.getActiveFolder(); if (!a) return;
+            dd = document.createElement('div'); dd.id = 'calcFolderDD'; dd.className = 'calc-dd'; dd.setAttribute('role', 'menu');
+            dd.innerHTML = '<div class="em">Loading…</div>';
+            document.getElementById('impactLinkCtrl').appendChild(dd);
+            try {
+                const u = await SIsb.currentUser();
+                if (!u) throw new Error('Sign in from the folder bar to see this folder’s ROI scenarios.');
+                const rows = ((await SIsb.folderContents(a.id)).scenarios || []).filter(r => r.kind === 'roi' || r.kind === 'proposal');
+                dd.innerHTML = `<div class="hd">ROI scenarios in ${_escHtml(a.name)}</div>` + (rows.length
+                    ? rows.map(r => `<button type="button" class="it" role="menuitem" data-id="${_escHtml(r.id)}"><b>${_escHtml(r.title || 'ROI scenario')}</b><span>${r.kind === 'proposal' ? 'Custom Build' : 'ROI Builder'} · ${_escHtml(_agoTxt(r.updated_at))}</span></button>`).join('')
+                    : `<div class="em">No ROI scenarios in ${_escHtml(a.name)} yet. Save one from the ROI Builder to this merchant.</div>`);
+            } catch (e) { dd.innerHTML = `<div class="em">${_escHtml(e.message || e)}</div>`; }
+        }
+        async function loadCalcScenario(id) {
+            try {
+                const row = await SIsb.loadConfig(id);
+                const q = (row.data || {}).q;
+                if (!q) throw new Error('that scenario has no calculator settings');
+                _applyCalcParams(new URLSearchParams(q));
+                const inp = document.getElementById('impactLinkInput'); if (inp) inp.value = '';
+                showToast('Loaded “' + (row.title || 'ROI scenario') + '”');
+            } catch (e) { showToast('Couldn’t load: ' + (e.message || e)); }
+        }
+        document.addEventListener('click', e => {
+            const dd = document.getElementById('calcFolderDD'); if (!dd) return;
+            const it = e.target.closest && e.target.closest('#calcFolderDD .it');
+            if (it) { dd.remove(); loadCalcScenario(it.dataset.id); return; }
+            if (!dd.contains(e.target) && !e.target.closest('#calcFolderBtn')) dd.remove();
+        });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') { const dd = document.getElementById('calcFolderDD'); if (dd) dd.remove(); } });
+        if (window.SIsb) { SIsb.onActiveFolder(_calcFolderSync); _calcFolderSync(); }
 
         function onControlChange(e) {
             if (e.target.id === 'pricingTemplate') toggleProtectionPremiumVisibility();
