@@ -62,6 +62,11 @@
   .src li { display:flex; gap:7px; }
   .src li i { font-style:normal; flex:0 0 auto; width:14px; text-align:center; }
   .src li b { color:var(--ink); font-weight:600; }
+  .fx-row { display:flex; gap:6px; }
+  .fx-row input { flex:1; min-width:0; }
+  .fx-msg { font-size:11.5px; line-height:1.4; color:var(--muted); }
+  .fx-msg:empty { display:none; }
+  .fx-msg.warn { color:var(--warn); }
 
   .sw { display:flex; flex-wrap:wrap; gap:7px; align-items:center; }
   .sw button { width:28px; height:28px; border-radius:999px; border:2px solid var(--card); box-shadow:0 0 0 1px var(--line); cursor:pointer; position:relative; }
@@ -283,6 +288,11 @@
         <div class="fld"><label for="f-repEmail">Rep email</label><input id="f-repEmail" data-b="repEmail" type="email" placeholder="you@shipinsure.io" autocomplete="off"></div>
       </div>
       <ul class="src" id="src"></ul>
+      <div class="fld" data-only="recap">
+        <label for="f-fathom">Fathom call</label>
+        <div class="fx-row"><input id="f-fathom" type="url" placeholder="Call, share or call-folder link" autocomplete="off"><button type="button" class="btn small primary" id="fathomGo" title="Read the call from Fathom and draft this recap from it: meeting type and date, attendees, what we heard, next steps, setup, pricing and go-live">🎙 Draft</button></div>
+        <div class="fx-msg" id="fathomMsg" role="status" aria-live="polite"></div>
+      </div>
     </div>
 
     <!-- Meeting recap: header / imagery / sections -->
@@ -875,6 +885,7 @@
     src += user ? li('👤', 'Rep from your sign-in') : li('👤', 'Sign in (bar above) to fill in your name and email');
     if (f && user) {
       src += S.src.accent ? li('🎨', 'Accent from the folder’s brand color') : li('🎨', 'No brand color in this folder, so the template accent');
+      if (recap() && S.fathom) src += li('🎙', 'Drafted from Fathom call <b>' + esc(S.fathom.title || 'call') + '</b>' + (S.fathom.date ? ' (' + esc(S.fathom.date) + ')' : ''));
       if (recap()) {
         src += S.pricing && S.pricing.text ? li('💲', 'Pricing from <b>' + esc(S.pricing.scenario) + '</b>') : li('💲', 'No ROI scenario with pricing in this folder');
         src += S.econ ? li('📈', 'Economics from <b>' + esc(S.econ.scenario) + '</b> (turn on Modeled economics under Sections)') : '';
@@ -1140,8 +1151,9 @@
       });
     };
   }
+  let _bar = null;
   if (window.SIFolderBar) {
-    SIFolderBar.mount({
+    _bar = SIFolderBar.mount({
       kind: 'onepager',
       tool: 'One-Pager',
       before: document.querySelector('.op-app'),
@@ -1154,6 +1166,125 @@
       defaultTitle: () => (recap() ? S.r.meetingType + ' recap' : 'Draft-order guide') + ' – ' + (S.merchant || 'Merchant')
     });
   }
+
+
+  // ── Draft the meeting recap from a Fathom call ──
+  // A call, share or call-folder link (from here, or Brand Folders → One-Pagers → 🎙 From Fathom call).
+  // The fathom-call function reads the call (the Fathom key stays server-side); Claude drafts the
+  // recap's fields from its summary, action items and transcript; the draft is saved to the folder.
+  const SB_FN = 'https://oiljklutlmtztascnkpm.supabase.co/functions/v1/';
+  const FATHOM_RE = /^(https?:\/\/)?([\w-]+\.)?fathom\.(video|ai)\/(calls|share|folders)\/[\w-]+/i;
+  let _claudeTok = null;
+  async function claudeHeaders() {
+    const c = await SIsb.client();
+    let s = ((await c.auth.getSession()).data || {}).session;
+    if (!s) throw new Error('Sign in from the folder bar at the top first.');
+    if (!(_claudeTok && _claudeTok.user === s.user.id && _claudeTok.exp > Date.now() + 60000)) {
+      const ask = jwt => fetch(SB_FN + 'anthropic-token', { method: 'POST', headers: { authorization: 'Bearer ' + jwt } }).then(async r => ({ ok: r.ok, status: r.status, j: await r.json().catch(() => ({})) }));
+      let r = await ask(s.access_token);
+      if (!r.ok && r.status === 401) { s = ((await c.auth.refreshSession()).data || {}).session; if (s) r = await ask(s.access_token); }
+      if (!r.ok || !r.j.access_token) throw new Error('Your sign-in couldn’t get Claude access (' + (r.j.error || 'HTTP ' + r.status) + ').');
+      _claudeTok = { token: r.j.access_token, exp: Date.now() + (r.j.expires_in || 600) * 1000, user: s.user.id };
+    }
+    return { 'anthropic-version': '2023-06-01', 'content-type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true', authorization: 'Bearer ' + _claudeTok.token };
+  }
+  function fathomSay(msg, warn) { const m = $('fathomMsg'); m.textContent = msg || ''; m.classList.toggle('warn', !!warn); }
+  // The merchant's email domain (the Brand Folder's store URL): finds its calls for a folder link.
+  async function folderDomain() {
+    const q = new URLSearchParams(location.search).get('domain'); if (q) return q;
+    if (!S.folderId || !window.SIsb) return '';
+    try { const c = await SIsb.client(); const r = await c.from('merchants').select('domain').eq('id', S.folderId).single(); return (r.data && r.data.domain) || ''; } catch (e) { return ''; }
+  }
+  const longDate = d => { const t = d ? new Date(/^\d{4}-\d{2}-\d{2}$/.test(d) ? d + 'T12:00:00' : d) : null; return t && !isNaN(t) ? t.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : ''; };
+  function callBlock(c, full) {
+    const ppl = (c.invitees || []).map(p => (p.name || p.email) + (p.email ? ' <' + p.email + '>' : '') + (p.external ? ' (merchant side)' : ' (ShipInsure)')).join('; ');
+    const acts = (c.action_items || []).map(a => '- ' + a.description + (a.assignee ? ' (' + a.assignee + ')' : '')).join('\n');
+    return 'Call: ' + (c.title || 'Call') + ' · ' + (longDate(c.date) || 'date unknown') + '\nAttendees: ' + (ppl || 'unknown') +
+      (c.summary ? '\nFathom summary:\n' + c.summary : '') + (acts ? '\nFathom action items:\n' + acts : '') +
+      (full && c.transcript ? '\nTranscript:\n"""\n' + c.transcript + '\n"""' : '');
+  }
+  async function recapFromCall(j) {
+    const [call, ...older] = j.calls;
+    const prompt = 'You are drafting a one-page meeting recap that a ShipInsure sales rep sends to a merchant after a call. ShipInsure sells shipping protection for Shopify stores: lost, stolen and damaged packages are covered, customers file claims in a branded claims wizard, and the merchant earns a revenue share.\n' +
+      'Merchant: ' + (S.merchant || 'unknown') + '. ShipInsure rep: ' + (S.repName || 'unknown') + '.\n\n' +
+      callBlock(call, true) + (older.length ? '\n\nEarlier calls with this merchant (context only):\n' + older.map(c => callBlock(c, false)).join('\n\n') : '') + '\n\n' +
+      'Return ONLY JSON, no markdown or code fences:\n' +
+      '{"meetingType": one of ' + JSON.stringify(RTYPES) + ',\n' +
+      ' "date": "YYYY-MM-DD of this call",\n' +
+      ' "attendees": "the merchant-side people as \\"Name (Title)\\", comma-separated; a title only if it was said",\n' +
+      ' "platform": "Shopify, Shopify Plus or another platform, as said; empty if unknown",\n' +
+      ' "currentSetup": "their current shipping protection or claims setup in a few words; empty if unknown",\n' +
+      ' "heard": ["3 to 5 of the merchant\'s priorities or pain points, one plain sentence each, under 120 characters, in their words where possible"],\n' +
+      ' "steps": [{"step": "an agreed next step, under 70 characters", "owner": "person or company", "by": "the date or timing as said, empty if none"}],\n' +
+      ' "pricing": "the fee structure discussed, one line; empty if none",\n' +
+      ' "goLive": "the target go-live as said; empty if none",\n' +
+      ' "stackTitle": "a short heading for how ShipInsure fits a returns, claims or support tool they use; empty if none came up",\n' +
+      ' "stackDetail": "one sentence of detail for that; empty if none"}\n' +
+      'Use only what was said on the call: never invent names, numbers or dates, and leave a field empty when it is unknown. 2 to 5 steps. Plain sentences, no em dashes.';
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST', headers: await claudeHeaders(),
+      body: JSON.stringify({ model: 'claude-sonnet-5-5', max_tokens: 3000, messages: [{ role: 'user', content: prompt }] })
+    });
+    if (!resp.ok) { const e = await resp.json().catch(() => ({})); if (resp.status === 401) _claudeTok = null; throw new Error('Claude: ' + ((e.error && e.error.message) || 'HTTP ' + resp.status)); }
+    const raw = (((await resp.json()).content || []).find(b => b.type === 'text') || {}).text || '';
+    return JSON.parse(raw.replace(/^[\s\S]*?(\{)/, '$1').replace(/\}[^}]*$/, '}'));
+  }
+  // The draft replaces this recap's call details (the rep asked for it); everything else stays.
+  function applyRecap(d, call) {
+    const str = v => typeof v === 'string' ? v.replace(/\s+/g, ' ').trim() : '';
+    S.template = 'recap';
+    if (RTYPES.includes(d.meetingType)) S.r.meetingType = d.meetingType;
+    S.meetingDate = longDate(str(d.date)) || longDate(call.date) || S.meetingDate;
+    const rc = S.copy.recap;
+    Object.keys(rc).forEach(k => { if (/^(h\d+|s\d+[abc])$/.test(k)) delete rc[k]; });
+    const heard = (Array.isArray(d.heard) ? d.heard : []).map(str).filter(Boolean).slice(0, 6);
+    heard.forEach((t, i) => { rc['h' + (i + 1)] = t; });
+    if (heard.length) { S.r.heardN = heard.length; S.r.sections.heard = true; }
+    const steps = (Array.isArray(d.steps) ? d.steps : []).filter(x => x && str(x.step)).slice(0, 8);
+    steps.forEach((x, i) => { rc['s' + (i + 1) + 'a'] = str(x.step); if (str(x.owner)) rc['s' + (i + 1) + 'b'] = str(x.owner); if (str(x.by)) rc['s' + (i + 1) + 'c'] = str(x.by); });
+    if (steps.length) { S.r.stepsN = steps.length; S.r.sections.steps = true; }
+    const put = (k, v) => { if (str(v)) rc[k] = str(v); };
+    put('dAtt', d.attendees); put('dPlat', d.platform); put('dSet', d.currentSetup); put('pGo', d.goLive);
+    if (!(S.pricing && S.pricing.text)) put('pPr', d.pricing);
+    if (str(d.stackTitle)) { rc.f2t = str(d.stackTitle); rc.f2d = str(d.stackDetail); S.r.sections.fit = true; }
+    S.fathom = { url: call.share_url || call.url || '', title: call.title || 'Call', date: longDate(call.date) };
+    paintAll(); saveDraft();
+  }
+  let _fathomBusy = false;
+  async function draftFromFathom(url) {
+    url = String(url || '').trim();
+    if (_fathomBusy || !url) return;
+    if (!FATHOM_RE.test(url)) { fathomSay('That isn’t a Fathom call, share or folder link.', true); return; }
+    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+    if (!window.SIsb) { fathomSay('Sign-in isn’t available on this page.', true); return; }
+    _fathomBusy = true; $('fathomGo').disabled = true;
+    try {
+      const c = await SIsb.client();
+      const s = ((await c.auth.getSession()).data || {}).session;
+      if (!s) throw new Error('Sign in from the folder bar at the top first.');
+      fathomSay('Reading the call from Fathom…');
+      const r = await fetch(SB_FN + 'fathom-call', { method: 'POST', headers: { authorization: 'Bearer ' + s.access_token, 'content-type': 'application/json' }, body: JSON.stringify({ url, domain: await folderDomain() }) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.calls || !j.calls.length) throw new Error(j.error || (r.status === 404 ? 'The Fathom connection isn’t set up yet (fathom-call function).' : 'Fathom lookup failed (HTTP ' + r.status + ').'));
+      const call = j.calls[0];
+      fathomSay('Drafting the recap from “' + (call.title || 'the call') + '”… about 20 seconds.');
+      applyRecap(await recapFromCall(j), call);
+      let saved = '';
+      if (_bar && S.folderId && user) {
+        const title = S.r.meetingType + ' recap – ' + (S.merchant || 'Merchant') + (S.meetingDate ? ' (' + S.meetingDate + ')' : '');
+        try {
+          const res = await SIsb.saveAsset({ merchant_ref: S.folderId, kind: 'onepager', title, data: JSON.parse(JSON.stringify(S)) });
+          await _bar.load(res.id, true);   // now the save the folder bar's Save updates
+          saved = ' Saved to the folder as “' + title + '”.';
+        } catch (e) { saved = ' Not saved to the folder (' + (e.message || e) + '): use Save above.'; }
+      }
+      fathomSay('Drafted from “' + (call.title || 'the call') + '”' + (j.kind === 'folder' ? ', the latest call with @' + j.domain : '') + '.' + saved + ' Check it, fill any orange blanks, and edit any text on the page.');
+    } catch (e) {
+      fathomSay(e.message || String(e), true);
+    } finally { _fathomBusy = false; $('fathomGo').disabled = false; }
+  }
+  $('fathomGo').addEventListener('click', () => draftFromFathom($('f-fathom').value));
+  $('f-fathom').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); draftFromFathom($('f-fathom').value); } });
 
   // ── Start: this folder's draft (or a fresh page), then fill blanks from the deal data ──
   const qp = new URLSearchParams(location.search);
@@ -1169,10 +1300,14 @@
   paintAll();
   fit();
   const wantAsset = qp.get('asset');
+  const wantCall = qp.get('fathom');
+  if (wantCall) $('f-fathom').value = wantCall;
   dealData().then(d => {
     if (!user && wantAsset) { document.body.classList.add('view'); render(); fit(); }
     if (!wantAsset || user) applyDeal(d, false);
     else paintSide();
+    // Brand Folders → One-Pagers → 🎙 From Fathom call: draft straight away.
+    if (wantCall && !wantAsset) { S.template = 'recap'; paintAll(); draftFromFathom(wantCall); }
   });
   if (window.SIsb) SIsb.onActiveFolder(f => {
     if (f && f.id === S.folderId) { dealData().then(d => applyDeal(d, false)); return; }
