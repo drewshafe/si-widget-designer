@@ -12,9 +12,10 @@
 <script src="https://drewshafe.github.io/si-roi-calculator/portal-templates.js"></script>
 <script src="https://drewshafe.github.io/si-rep-hub/folder-bar.js"></script>
 <style>
-  /* One-Pager ("Deal Doc") — the Post-Meeting One-Pager canvas as a fill-in page.
-     One US Letter page (816×1056 px), three audience versions, every text editable in place,
-     exported with the browser's print → Save as PDF (exactly one page, no headers/footers). */
+  /* One-Pager ("Deal Doc") — the Post-Meeting One-Pager canvas as fill-in pages.
+     Two templates: the Meeting recap master (8 audiences, header / imagery / section tweaks) and the
+     Draft-order guide (Sales team / Store leads / Support team). One US Letter page (816×1056 px),
+     every text editable in place, exported with print → Save as PDF (exactly one page). */
   * { margin:0; padding:0; box-sizing:border-box; }
   [hidden] { display:none !important; }
   :root { --page:#f4f5fb; --card:#fff; --ink:#1d2240; --muted:#6b7090; --line:#e3e5f2; --accent:#4a5fc1; --accent-soft:#eef0ff; --stage:#e8eaf4; --warn:#a2470a; --warn-soft:#fff3e2; --field:#f7f8fc; }
@@ -33,17 +34,29 @@
   .lbl { font-size:10.5px; font-weight:800; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); }
   .lbl-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
   .fld { display:flex; flex-direction:column; gap:4px; min-width:0; }
-  .fld label { font-size:11.5px; font-weight:600; color:var(--muted); }
-  .fld input, .grp select { width:100%; border:1px solid var(--line); background:var(--field); border-radius:8px; padding:8px 10px; font-size:13px; }
-  .fld input:focus, .grp select:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+  .fld > label, .fld > .fl { font-size:11.5px; font-weight:600; color:var(--muted); display:flex; justify-content:space-between; gap:6px; }
+  .fld > label b, .fld > .fl b { font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums; }
+  .fld input:not([type=range]):not([type=checkbox]), .op-side select { width:100%; border:1px solid var(--line); background:var(--field); border-radius:8px; padding:8px 10px; font-size:13px; }
+  .fld input:focus, .op-side select:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
   .fld input.need { border-color:#e9b27a; background:var(--warn-soft); }
+  .fld input[type=range] { width:100%; accent-color:var(--accent); }
   .two { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .row { display:flex; gap:8px; align-items:center; }
+  .row > * { flex:1; min-width:0; }
 
-  .seg { display:grid; grid-template-columns:repeat(3, 1fr); gap:4px; padding:4px; background:var(--field); border:1px solid var(--line); border-radius:10px; }
+  .seg { display:grid; grid-auto-flow:column; grid-auto-columns:1fr; gap:4px; padding:4px; background:var(--field); border:1px solid var(--line); border-radius:10px; }
   .seg button { border:0; background:transparent; border-radius:7px; padding:8px 4px; font-size:12.5px; font-weight:700; color:var(--muted); cursor:pointer; white-space:nowrap; }
   .seg button:hover { color:var(--ink); }
   .seg button.on { background:var(--card); color:var(--ink); box-shadow:0 1px 3px rgba(20,24,60,.14), 0 0 0 1px var(--line); }
   body.pm .seg button.on { background:#1f1f27; box-shadow:0 0 0 1px #3a3628; color:#f3e7c4; }
+  .seg.big button { padding:10px 4px; font-size:13px; }
+
+  details.dz { border:1px solid var(--line); border-radius:10px; background:var(--card); }
+  details.dz > summary { list-style:none; cursor:pointer; padding:10px 12px; font-size:10.5px; font-weight:800; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); display:flex; justify-content:space-between; align-items:center; }
+  details.dz > summary::-webkit-details-marker { display:none; }
+  details.dz > summary::after { content:'▸'; font-size:11px; transition:transform .15s; }
+  details.dz[open] > summary::after { transform:rotate(90deg); }
+  details.dz > .dzb { padding:2px 12px 12px; display:flex; flex-direction:column; gap:10px; }
 
   .src { list-style:none; display:flex; flex-direction:column; gap:5px; font-size:11.8px; line-height:1.4; color:var(--muted); background:var(--field); border:1px solid var(--line); border-radius:9px; padding:9px 10px; }
   .src li { display:flex; gap:7px; }
@@ -59,7 +72,8 @@
   .sw.has-brand { padding-bottom:12px; }
   .note { font-size:11.5px; line-height:1.4; color:var(--muted); }
   .chk { display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer; }
-  .chk input { width:15px; height:15px; accent-color:var(--accent); }
+  .chk input { width:15px; height:15px; accent-color:var(--accent); flex:none; }
+  .chks { display:grid; grid-template-columns:1fr 1fr; gap:7px 10px; }
 
   .btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:8px; padding:8px 13px; font-weight:700; font-size:13px; cursor:pointer; white-space:nowrap; }
   .btn:hover:not(:disabled) { border-color:#c3c8ee; }
@@ -81,9 +95,12 @@
   .op-toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(90px); background:#222; color:#fff; font-weight:600; font-size:13px; padding:10px 16px; border-radius:8px; transition:transform .25s; z-index:300; }
   .op-toast.show { transform:translateX(-50%) translateY(0); }
 
-  /* ── The page (values straight from the canvas: Main.dc.html) ── */
-  .op-page { position:relative; width:816px; height:1056px; display:flex; flex-direction:column; background:#FFFFFF; color:#17152B; font-family:'Montserrat', system-ui, sans-serif; overflow:hidden; overflow-wrap:break-word; transform-origin:0 0; --ac:#4F46E5; -webkit-font-smoothing:antialiased; text-align:left; }
-  .op-page header { background:#15123B; color:#FFFFFF; padding:36px 56px 32px; display:flex; flex-direction:column; gap:16px; }
+  /* ── The page: shared ── */
+  .op-page { position:relative; width:816px; height:1056px; display:flex; flex-direction:column; background:#FFFFFF; color:#17152B; font-family:'Montserrat', system-ui, sans-serif; overflow:hidden; overflow-wrap:break-word; transform-origin:0 0; --ac:#4652E6; -webkit-font-smoothing:antialiased; text-align:left; }
+  .pg-lbl { font-size:12px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--ac); }
+
+  /* ── Draft-order guide (Main.dc.html) ── */
+  .t-guide header { background:#15123B; color:#FFFFFF; padding:36px 56px 32px; display:flex; flex-direction:column; gap:16px; }
   .pg-top { display:flex; justify-content:space-between; align-items:center; gap:16px; }
   .pg-brand { display:flex; align-items:center; gap:12px; min-width:0; }
   .pg-logo { flex:none; height:30px; padding:4px 8px; background:#FFFFFF; border-radius:7px; display:flex; align-items:center; }
@@ -93,8 +110,7 @@
   .pg-tt { display:flex; flex-direction:column; gap:8px; }
   .pg-tt h1 { margin:0; font-size:34px; font-weight:800; line-height:1.15; letter-spacing:-0.01em; }
   .pg-tt p { margin:0; font-size:16px; line-height:1.45; color:#D5D6F5; }
-  .op-page main { flex:1; display:flex; flex-direction:column; gap:28px; padding:32px 56px 0; }
-  .pg-lbl { font-size:12px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--ac); }
+  .t-guide main { flex:1; display:flex; flex-direction:column; gap:28px; padding:32px 56px 0; }
   .pg-tp { display:flex; flex-direction:column; gap:14px; }
   .pg-lead { margin:0; font-size:19px; font-weight:600; line-height:1.45; }
   .pg-cards { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:12px; }
@@ -115,24 +131,83 @@
   .pg-sku { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
   .pg-chip { font-family:ui-monospace, 'SFMono-Regular', Menlo, monospace; font-size:13px; font-weight:600; padding:6px 10px; border-radius:6px; background:#EEEEFB; color:#15123B; }
   .pg-band { font-size:14px; font-weight:600; }
-  .op-page aside { background:#F3F3FC; border-radius:12px; padding:20px; display:flex; flex-direction:column; gap:14px; }
+  .t-guide aside { background:#F3F3FC; border-radius:12px; padding:20px; display:flex; flex-direction:column; gap:14px; }
   .pg-rule { display:flex; flex-direction:column; gap:4px; padding-top:12px; border-top:1px solid #DCDCEE; }
   .pg-rt { font-size:14px; font-weight:700; }
   .pg-rb { font-size:13px; line-height:1.45; color:#4A4960; }
-  .op-page footer { margin:0 56px; padding:18px 0 32px; border-top:1px solid #E1E1EC; display:flex; justify-content:space-between; align-items:center; gap:16px; font-size:13px; color:#4A4960; }
+  .t-guide footer { margin:0 56px; padding:18px 0 32px; border-top:1px solid #E1E1EC; display:flex; justify-content:space-between; align-items:center; gap:16px; font-size:13px; color:#4A4960; }
   .pg-rep { font-weight:700; color:#17152B; }
   .pg-site { font-weight:700; color:var(--ac); white-space:nowrap; }
+
+  /* ── Meeting recap (Recap.dc.html master) ── */
+  /* Spacing a few px tighter than the master (32/30 header, 28/32 main, 16/18/12 aside): at the master's values its
+     right column runs past the page even with every field still blank. */
+  .t-recap header { background:var(--hb); color:var(--ht); border-bottom:1px solid var(--hbd); padding:28px 56px 26px; display:flex; align-items:center; justify-content:space-between; gap:32px; }
+  .rc-hl { display:flex; flex-direction:column; gap:18px; min-width:0; }
+  .rc-logos { display:flex; align-items:center; gap:18px; }
+  .rc-logos > img { display:block; width:auto; }
+  .rc-div { width:1px; background:var(--hdv); flex:none; }
+  .rc-plate { display:flex; align-items:center; border-radius:8px; }
+  .rc-plate img { display:block; width:auto; max-width:240px; object-fit:contain; }
+  .rc-tt { display:flex; flex-direction:column; gap:8px; }
+  .rc-tt h1 { margin:0; font-size:32px; font-weight:800; line-height:1.15; letter-spacing:-0.01em; }
+  .rc-subrow { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .rc-sub { font-size:15px; font-weight:500; color:var(--hs); }
+  .rc-pill { font-size:12px; font-weight:600; padding:5px 11px; border:1px solid var(--hdv); border-radius:999px; color:var(--hs); white-space:nowrap; }
+  .rc-hero { display:block; flex:none; height:auto; }
+  .rc-banner { display:block; width:100%; object-fit:cover; flex:none; }
+  .t-recap main { flex:1; min-height:0; display:grid; grid-template-columns:minmax(0, 1fr) 236px; gap:28px; align-items:start; padding:24px 56px 24px; }
+  .rc-col { display:flex; flex-direction:column; gap:26px; min-width:0; }
+  .rc-sec { display:flex; flex-direction:column; gap:12px; }
+  .rc-heard { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+  .rc-heard li { display:flex; gap:12px; align-items:baseline; }
+  .rc-dot { flex:none; width:7px; height:7px; border-radius:2px; background:var(--ac); transform:translateY(-2px); }
+  .rc-heard li > div:last-child { font-size:15px; line-height:1.5; min-width:0; }
+  .rc-lt { font-size:19px; font-weight:700; line-height:1.3; }
+  .rc-pts { display:flex; flex-direction:column; }
+  .rc-pt { display:flex; flex-direction:column; gap:3px; padding:12px 0; border-top:1px solid #E1E1EC; }
+  .rc-pt > div:first-child { font-size:15px; font-weight:700; }
+  .rc-pt > div:last-child { font-size:14px; line-height:1.45; color:#4A4960; }
+  .rc-econ { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px; }
+  .rc-ec { border:1px solid #E1E1EC; border-radius:10px; padding:12px 14px; display:flex; flex-direction:column; gap:3px; }
+  .rc-ec .v { font-size:24px; font-weight:800; line-height:1.1; }
+  .rc-ec .l { font-size:13px; font-weight:700; }
+  .rc-ec .s { font-size:12px; color:#4A4960; }
+  .rc-ec.hi { background:var(--ac); border-color:var(--ac); color:#FFFFFF; }
+  .rc-ec.hi .s { color:#E6E7FF; }
+  .rc-ein { font-size:12px; color:#4A4960; line-height:1.45; }
+  .rc-fit { display:flex; flex-direction:column; gap:8px; }
+  .rc-fc { background:#F3F3FC; border-radius:10px; padding:12px 14px; display:flex; flex-direction:column; gap:4px; }
+  .rc-fc > div:first-child { font-size:14px; font-weight:700; }
+  .rc-fc > div:last-child { font-size:13px; line-height:1.45; color:#4A4960; }
+  .rc-tbl { width:100%; border-collapse:collapse; font-size:14px; line-height:1.4; table-layout:fixed; }
+  .rc-tbl th { text-align:left; font-size:12px; font-weight:700; color:#4A4960; padding:0 12px 8px 0; border-bottom:1px solid #C9C9DA; }
+  .rc-tbl th:nth-child(2) { width:110px; } .rc-tbl th:nth-child(3) { width:84px; padding-right:0; }
+  .rc-tbl td { padding:10px 12px 10px 0; border-bottom:1px solid #E1E1EC; vertical-align:top; }
+  .rc-tbl td:first-child { font-weight:600; } .rc-tbl td:last-child { padding-right:0; }
+  .t-recap aside { display:flex; flex-direction:column; gap:12px; }
+  .rc-card { background:#F3F3FC; border-radius:12px; padding:16px; display:flex; flex-direction:column; gap:9px; }
+  .rc-card.line { background:none; border:1px solid #E1E1EC; gap:6px; }
+  .rc-kv { display:flex; flex-direction:column; gap:2px; }
+  .rc-kv > div:first-child { font-size:12px; font-weight:600; color:#4A4960; }
+  .rc-kv > div:last-child { font-size:14px; font-weight:600; line-height:1.4; }
+  .rc-cn { font-size:15px; font-weight:700; }
+  .rc-cs { font-size:13px; color:#4A4960; }
+  .ph-box { display:flex; align-items:center; justify-content:center; border:1.5px dashed #9B98C8; border-radius:8px; color:#6B68A8; font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; cursor:pointer; background:rgba(155,152,200,.08); }
+  .t-recap header .ph-box { border-color:color-mix(in srgb, var(--hs) 60%, transparent); color:var(--hs); }
 
   /* In-place editing (screen only) */
   .op-page [contenteditable] { outline:none; border-radius:3px; cursor:text; transition:box-shadow .12s, background-color .12s; }
   .op-page [contenteditable]:hover { box-shadow:0 0 0 2px rgba(79,70,229,.25); }
   .op-page [contenteditable]:focus { box-shadow:0 0 0 2px var(--ac); background-color:rgba(79,70,229,.05); }
-  .op-page header [contenteditable]:hover { box-shadow:0 0 0 2px rgba(255,255,255,.32); }
-  .op-page header [contenteditable]:focus { box-shadow:0 0 0 2px rgba(255,255,255,.85); background-color:rgba(255,255,255,.08); }
+  .op-page header.dk [contenteditable]:hover { box-shadow:0 0 0 2px rgba(255,255,255,.32); }
+  .op-page header.dk [contenteditable]:focus { box-shadow:0 0 0 2px rgba(255,255,255,.85); background-color:rgba(255,255,255,.08); }
+  .op-page .rc-ec.hi [contenteditable]:focus { box-shadow:0 0 0 2px #fff; }
   .op-page .bind { display:inline-block; max-width:100%; min-width:1ch; overflow-wrap:anywhere; vertical-align:bottom; }
   .op-page [contenteditable]:empty::before { content:attr(data-ph); color:#A2470A; background:#FFF0DC; border-radius:3px; padding:0 4px; font-weight:600; letter-spacing:normal; text-transform:none; font-family:'Montserrat', system-ui, sans-serif; }
-  .op-page header [contenteditable]:empty::before { color:#FFD9A8; background:rgba(255,170,80,.18); }
+  .op-page header.dk [contenteditable]:empty::before { color:#FFD9A8; background:rgba(255,170,80,.18); }
   body.view .op-page [contenteditable] { cursor:default; }
+  body.view .ph-box { display:none !important; }
 
   /* Merchant view of a short link: just the page and a download button */
   body.view .op-side { display:none; }
@@ -154,7 +229,7 @@
     html, body { width:816px !important; height:1056px !important; min-height:0 !important; margin:0 !important; padding:0 !important; overflow:hidden !important; background:#FFFFFF !important; display:block !important; }
     body > :not(.op-app) { display:none !important; }
     .op-app { display:block !important; height:auto !important; }
-    .op-side, .op-warn, .op-hint, .op-dl { display:none !important; }
+    .op-side, .op-warn, .op-hint, .op-dl, .ph-box, .ph-only { display:none !important; }
     .op-stage { display:block !important; padding:0 !important; margin:0 !important; overflow:visible !important; background:none !important; }
     .op-fit { width:816px !important; height:1056px !important; box-shadow:none !important; border-radius:0 !important; overflow:hidden !important; }
     .op-page { transform:none !important; break-after:avoid; break-inside:avoid; }
@@ -169,10 +244,29 @@
   <aside class="op-side" id="side">
     <div>
       <div class="op-h1">📄 One-Pager</div>
-      <div class="op-h2">One Letter page from this deal's data. Pick who it's for, then click any text on the page to edit it.</div>
+      <div class="op-h2">One Letter page from this deal's data. Pick the template and who it's for, then click any text on the page to edit it.</div>
     </div>
 
     <div class="grp">
+      <span class="lbl">Template</span>
+      <div class="seg big" id="tplSeg">
+        <button type="button" data-tpl="recap">Meeting recap</button>
+        <button type="button" data-tpl="guide">Draft-order guide</button>
+      </div>
+    </div>
+
+    <!-- Meeting recap: version -->
+    <div class="grp" data-only="recap">
+      <span class="lbl">Version</span>
+      <div class="fld"><label for="rAud">Who it's for</label><select id="rAud" data-r="audience"></select></div>
+      <div class="two">
+        <div class="fld"><label for="rType">Meeting</label><select id="rType" data-r="meetingType"></select></div>
+        <div class="fld"><label for="rDate">Date</label><input id="rDate" type="date"></div>
+      </div>
+    </div>
+
+    <!-- Draft-order guide: audience -->
+    <div class="grp" data-only="guide">
       <span class="lbl">Who it's for</span>
       <div class="seg" id="aud" role="tablist">
         <button type="button" data-aud="sales" role="tab">Sales team</button>
@@ -182,7 +276,7 @@
     </div>
 
     <div class="grp">
-      <div class="lbl-row"><span class="lbl">Deal data</span><button type="button" class="btn small" id="refill" title="Fill merchant, rep, brand color and SKU from the Brand Folder and your sign-in again">↻ Refill from deal</button></div>
+      <div class="lbl-row"><span class="lbl">Deal data</span><button type="button" class="btn small" id="refill" title="Fill merchant, rep, brand color, pricing and economics from the Brand Folder and your sign-in again">↻ Refill from deal</button></div>
       <div class="fld"><label for="f-merchant">Merchant</label><input id="f-merchant" data-b="merchant" placeholder="Merchant name" autocomplete="off"></div>
       <div class="two">
         <div class="fld"><label for="f-repName">Rep name</label><input id="f-repName" data-b="repName" placeholder="Your name" autocomplete="off"></div>
@@ -191,13 +285,66 @@
       <ul class="src" id="src"></ul>
     </div>
 
+    <!-- Meeting recap: header / imagery / sections -->
+    <details class="dz" data-only="recap" open>
+      <summary>Header</summary>
+      <div class="dzb">
+        <div class="seg" id="hStyle">
+          <button type="button" data-hs="Dark">Dark</button>
+          <button type="button" data-hs="Black">Black</button>
+          <button type="button" data-hs="Light">Light</button>
+        </div>
+        <div class="fld"><label for="rSiLogo">ShipInsure logo</label><select id="rSiLogo" data-r="siLogo"></select></div>
+        <div class="fld"><label for="rSiLogoH">Logo size <b data-v="siLogoH"></b></label><input id="rSiLogoH" type="range" min="16" max="96" step="2" data-r="siLogoH"></div>
+        <label class="chk"><input type="checkbox" data-r="showMerchantLogo"> Merchant logo</label>
+        <div class="fld" data-if="showMerchantLogo"><label for="rMLogoH">Merchant logo size <b data-v="merchantLogoH"></b></label><input id="rMLogoH" type="range" min="16" max="96" step="2" data-r="merchantLogoH"></div>
+        <div class="row" data-if="showMerchantLogo">
+          <div class="fld"><label for="rPlate">White plate</label><select id="rPlate" data-r="plate"><option>Auto</option><option>On</option><option>Off</option></select></div>
+          <div class="fld"><span class="fl">&nbsp;</span><button type="button" class="btn" data-up="logo">⬆ Replace logo</button></div>
+        </div>
+      </div>
+    </details>
+    <details class="dz" data-only="recap">
+      <summary>Imagery</summary>
+      <div class="dzb">
+        <div class="fld"><label for="rHero">Hero mark</label><select id="rHero" data-r="hero"></select></div>
+        <div class="fld" data-if="hero"><label for="rHeroSize">Hero size <b data-v="heroSize"></b></label><input id="rHeroSize" type="range" min="40" max="200" step="4" data-r="heroSize"></div>
+        <div class="fld"><label for="rBanner">Banner</label><select id="rBanner" data-r="banner"></select></div>
+        <div data-if="banner" style="display:flex;flex-direction:column;gap:10px">
+          <div class="fld"><label for="rBannerH">Banner height <b data-v="bannerH"></b></label><input id="rBannerH" type="range" min="80" max="320" step="4" data-r="bannerH"></div>
+          <div class="row">
+            <div class="fld"><label for="rFocus">Focus</label><select id="rFocus" data-r="bannerFocus"><option>Top</option><option>Center</option><option>Bottom</option></select></div>
+            <div class="fld" data-if="merchantBanner"><span class="fl">&nbsp;</span><button type="button" class="btn" data-up="banner">⬆ Banner image</button></div>
+          </div>
+        </div>
+      </div>
+    </details>
+    <details class="dz" data-only="recap">
+      <summary>Sections</summary>
+      <div class="dzb">
+        <div class="chks">
+          <label class="chk"><input type="checkbox" data-sec="heard"> What we heard</label>
+          <label class="chk"><input type="checkbox" data-sec="lens"> Audience lens</label>
+          <label class="chk"><input type="checkbox" data-sec="econ"> Modeled economics</label>
+          <label class="chk"><input type="checkbox" data-sec="fit"> How it fits</label>
+          <label class="chk"><input type="checkbox" data-sec="steps"> Next steps</label>
+          <label class="chk"><input type="checkbox" data-sec="program"> Program at a glance</label>
+        </div>
+        <div class="two">
+          <div class="fld"><label for="rHeardN">“Heard” bullets</label><input id="rHeardN" type="number" min="1" max="6" data-r="heardN"></div>
+          <div class="fld"><label for="rStepsN">Next-step rows</label><input id="rStepsN" type="number" min="1" max="8" data-r="stepsN"></div>
+        </div>
+      </div>
+    </details>
+
     <div class="grp">
       <span class="lbl">Accent</span>
       <div class="sw" id="sw"></div>
       <div class="note" id="accNote" hidden></div>
     </div>
 
-    <div class="grp">
+    <!-- Draft-order guide: SKU + logo -->
+    <div class="grp" data-only="guide">
       <span class="lbl">SKU example · step 3</span>
       <select id="bandSel" aria-label="SKU example"></select>
       <div class="two">
@@ -212,47 +359,124 @@
       <div class="fld"><label for="f-escalation">Escalation contact</label><input id="f-escalation" data-b="escalation" placeholder="Name or email for unconverted drafts" autocomplete="off"></div>
     </div>
 
-    <div class="grp" id="logoGrp" hidden>
+    <div class="grp" id="logoGrp" data-only="guide" hidden>
       <label class="chk"><input type="checkbox" id="showLogo"> Merchant logo in the header</label>
     </div>
 
     <div class="grp">
       <div class="acts">
         <button type="button" class="btn primary big" id="exportBtn">⬇ Export PDF</button>
-        <button type="button" class="btn" id="resetBtn" title="Put all page text back to the template">Reset text</button>
+        <button type="button" class="btn" id="resetBtn" title="Put this template's page text back to the template">Reset text</button>
       </div>
       <div class="tip">In the print window pick <b>Save as PDF</b>. Letter size, no margins and no headers are already set, so it comes out as exactly one page.</div>
     </div>
   </aside>
 
   <main class="op-stage" id="stage">
-    <div class="op-warn" id="warn" hidden>⚠ The text runs past the bottom of the page. Trim some copy so it fits on one page.</div>
+    <div class="op-warn" id="warn" hidden><span style="flex:1">⚠ The text runs past the bottom of the page. Trim some copy or turn a section off so it fits on one page.</span><button type="button" class="btn small" id="fitBtn" hidden>Make it fit</button></div>
     <button type="button" class="btn primary op-dl" id="dlBtn">⬇ Download PDF</button>
     <div class="op-fit" id="fit"><div class="op-page" id="page"></div></div>
-    <div class="op-hint">Click any text to edit it · drafts are kept in this browser · use Save above to file it in the Brand Folder</div>
+    <div class="op-hint">Click any text to edit it · orange chips are blanks to fill in (they print empty) · drafts are kept in this browser · use Save above to file it in the Brand Folder</div>
   </main>
 </div>
+<input type="file" id="upFile" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden>
 <div class="op-toast" id="toast"></div>
 
 <script>
 (function () {
   'use strict';
-  // folder-bar / sb.js file every save under a merchant_assets kind. Until the hosted sb.js
-  // lists 'onepager', add it here (same array saveAsset checks).
+  // folder-bar / sb.js file every save under a merchant_assets kind ('onepager').
   if (window.SIsb && Array.isArray(SIsb.ASSET_KINDS) && SIsb.ASSET_KINDS.indexOf('onepager') < 0) SIsb.ASSET_KINDS.push('onepager');
 
-  const DEF_ACCENT = '#4F46E5';
-  const SWATCHES = ['#4F46E5', '#2563EB', '#0F766E', '#15123B'];
+  const ASSET = 'onepager-assets/';
+  const DEF_ACCENT = { recap: '#4652E6', guide: '#4F46E5' };
+  const SWATCHES = { recap: ['#4652E6', '#15123B', '#0F766E', '#B45309'], guide: ['#4F46E5', '#2563EB', '#0F766E', '#15123B'] };
   const AUD = { sales: 'Sales team', leads: 'Store leads', support: 'Support team' };
   const EX_SKU = { code: 'SI_LEVEL_0-100', label: '$0–$100 orders' };
 
-  // Template copy (Post-Meeting One-Pager canvas). Audience copy changes the title, subtitle and
-  // talking points; steps, rules and footer are shared by all three versions.
+  // ═════ Meeting recap master (Recap.dc.html) ═════
+  const RTYPES = ['Discovery call', 'Demo', 'Follow-up', 'Pricing review', 'Onboarding kickoff', 'Business review'];
+  const IMG = {
+    siHBW: ASSET + 'si-horizontal-blue-white.png', siHB: ASSET + 'si-horizontal-blue.png', siHK: ASSET + 'si-horizontal-black.png',
+    siVBW: ASSET + 'si-vertical-blue-white.png', siVB: ASSET + 'si-vertical-blue.png',
+    mBlue: ASSET + 'si-mark-blue.png', mBlack: ASSET + 'si-mark-black.png', mLight: ASSET + 'si-mark-light.png', mTile: ASSET + 'si-mark-blue-tile.png',
+    bBlue: ASSET + 'si-banner-blue.jpg', bBlack: ASSET + 'si-banner-black.jpg'
+  };
+  const THEMES = {
+    Dark:  { bg: '#15123B', text: '#FFFFFF', sub: '#D5D6F5', border: '#15123B', divider: '#5B58A8', logo: IMG.siHBW, plate: true, dark: true },
+    Black: { bg: '#0B0B10', text: '#FFFFFF', sub: '#D4D4DE', border: '#0B0B10', divider: '#4A4A58', logo: IMG.siHBW, plate: true, dark: true },
+    Light: { bg: '#FFFFFF', text: '#17152B', sub: '#4A4960', border: '#E1E1EC', divider: '#C9C9DA', logo: IMG.siHB, plate: false, dark: false }
+  };
+  const LOGOS = {
+    'Auto': null, 'Horizontal · blue/white': IMG.siHBW, 'Horizontal · blue': IMG.siHB, 'Horizontal · black': IMG.siHK,
+    'Vertical · blue/white': IMG.siVBW, 'Vertical · blue': IMG.siVB, 'Mark · blue': IMG.mBlue, 'Mark · black': IMG.mBlack, 'Mark · light': IMG.mLight
+  };
+  const HEROES = { 'None': null, 'Box · blue': IMG.mBlue, 'Box · black': IMG.mBlack, 'Box · light': IMG.mLight, 'Box · blue tile': IMG.mTile };
+  const BANNERS = { 'None': null, 'ShipInsure · blue': IMG.bBlue, 'ShipInsure · black': IMG.bBlack, 'Merchant banner': 'merchant' };
+  const FOCUS = { Top: 'center top', Center: 'center center', Bottom: 'center bottom' };
+  // Audience lens copy. "[…]" = a blank the rep fills in (shown as an orange chip, printed empty).
+  const LENSES = {
+    'Executive summary': { k: 'Executive summary', title: 'The short version', pts: [
+      { t: 'Where they are today', d: '[Current setup and the core problem, in one line]' },
+      { t: 'What changes with ShipInsure', d: '[The fix, in one line]' },
+      { t: 'What it is worth', d: '[Modeled annual value and the inputs behind it]' },
+      { t: 'Decision needed', d: '[What, from whom, by when]' } ] },
+    'Founder / Exec': { k: 'For founders and execs', title: 'What this means for the business', pts: [
+      { t: 'Carrier problems stop hitting margin', d: 'Lost, stolen and damaged packages are covered by ShipInsure.' },
+      { t: 'Paid per order, priced by order value', d: 'Protection is a small fee on the order, shown as its own line.' },
+      { t: 'One program on every channel', d: 'Online checkout and manual or draft orders run through the same coverage.' } ] },
+    'Ecommerce / Growth': { k: 'For ecommerce and growth', title: 'What this means for checkout and retention', pts: [
+      { t: 'Confidence before they pay', d: 'Customers see protection on the order at checkout.' },
+      { t: 'A bad delivery gets resolved', d: 'Covered customers file with ShipInsure instead of stalling in your inbox.' },
+      { t: 'Built for Shopify', d: 'Runs inside your existing Shopify store and orders.' } ] },
+    'Operations': { k: 'For operations and fulfillment', title: 'What this means for fulfillment', pts: [
+      { t: 'Claims leave your queue', d: 'Lost, stolen and damaged claims run through ShipInsure.' },
+      { t: 'Clean order data', d: 'Protection is its own SKU and line item on every covered order.' },
+      { t: 'Fits your current flow', d: '[Fulfillment detail from the call: 3PL, auto-fulfill, carriers]' } ] },
+    'Customer experience': { k: 'For customer experience', title: 'What this means for your support team', pts: [
+      { t: 'One answer for a missing package', d: 'Covered customers file their claim with ShipInsure directly.' },
+      { t: 'Coverage is easy to check', d: 'If the order has the ShipInsure line, it is covered.' },
+      { t: 'Where it helps most', d: '[Ticket volume or delivery-issue detail from the call]' } ] },
+    'Finance': { k: 'For finance', title: 'What this means for the numbers', pts: [
+      { t: 'Loss stops being a surprise cost', d: 'Lost, stolen and damaged packages are covered by ShipInsure.' },
+      { t: 'Clean reporting', d: 'The protection fee sits on its own SKU, separate from merchandise.' },
+      { t: 'Your baseline', d: '[Current monthly reship and refund cost from the call]' } ] },
+    'Store sales team': { k: 'For the sales team', title: 'What to tell the customer', pts: [
+      { t: 'Lost, stolen, damaged', d: 'If the package has a problem in transit, the customer is covered.' },
+      { t: 'One place to file', d: 'Claims go straight to ShipInsure, with no back-and-forth with the store.' },
+      { t: 'Priced by order value', d: 'A small fee based on the merchandise total, shown as its own line.' } ] },
+    'Support team': { k: 'For the support team', title: 'When a customer reports a problem', pts: [
+      { t: 'Check the order', d: 'Look for the ShipInsure line item. No line means no coverage.' },
+      { t: 'Send them to file', d: 'Claims link:' },                                                   // + claims link field
+      { t: 'Still a draft?', d: 'Drafts never converted to orders are not covered. Flag it to' } ] }  // + escalation field + "."
+  };
+  const RAUDS = Object.keys(LENSES);
+  // Recap page copy (master + the Black Optical recap's economics / fit blocks).
+  const RC = {
+    title: () => S.r.meetingType + ' recap',
+    subMid: '× ShipInsure ·',
+    heardLabel: 'What we heard',
+    econLabel: 'Modeled economics · estimates to confirm',
+    e1v: '[~$0]', e1l: 'Annual premiums', e1s: '[Protected orders × average fee]',
+    e2v: '[~$0]', e2l: 'Costs funded', e2s: '[What the premiums pay for]',
+    e3v: '[~$0]', e3l: 'Your revenue share', e3s: '[Share of the balance]',
+    e4v: '[~$0]', e4l: () => 'Kept by ' + (S.merchant || 'you'), e4s: 'Funded costs + rev share',
+    eIn: '[Inputs: premium, attach rate, orders, AOV, claims rate]',
+    fitLabel: 'How ShipInsure fits your stack',
+    f1t: 'Claims in about 20 seconds', f1d: 'Filed from the delivered email in a branded wizard. Most resolve within an hour, 24 hours worst case.',
+    f2t: '[How it works with their returns or claims tools]', f2d: '[Detail from the call]',
+    f3t: 'Your brand, your checkout', f3d: 'Shopify-aligned checkout, plus one-click claim links in your order emails.',
+    stepsLabel: 'Agreed next steps', thStep: 'Step', thOwner: 'Owner', thBy: 'By',
+    detailsLabel: 'Meeting details', dDateL: 'Date', dAttL: 'Attendees', dAtt: '[Names, titles]', dPlatL: 'Platform', dPlat: '[Shopify / Shopify Plus]', dSetL: 'Current setup', dSet: '[Current provider, or none]',
+    programLabel: 'Program at a glance', pCovL: 'Coverage', pCov: 'Lost, stolen and damaged in transit', pClL: 'Claims', pCl: 'Filed by the customer with ShipInsure',
+    pPrL: 'Pricing', pPr: '[Fee structure discussed]', pGoL: 'Target go-live', pGo: '[Date]',
+    contactLabel: 'Your ShipInsure contact', phone: '[Phone or booking link]'
+  };
+
+  // ═════ Draft-order guide (Main.dc.html) ═════
   const COPY = {
     sales: {
-      pill: 'For: Sales team',
-      title: 'Adding ShipInsure to draft orders',
-      sub: 'What to tell the customer, and how to add protection in four steps.',
+      pill: 'For: Sales team', title: 'Adding ShipInsure to draft orders', sub: 'What to tell the customer, and how to add protection in four steps.',
       tpLabel: 'What to tell the customer',
       lead: '“I can add shipping protection to your order. If the package is lost, stolen or damaged in transit, ShipInsure will take care of it.”',
       c1t: 'Lost, stolen, damaged', c1b: 'Covers the package in transit, from the moment the order is placed.',
@@ -260,9 +484,7 @@
       c3t: 'Priced by order value', c3b: 'A small fee based on the merchandise total, shown as its own line.'
     },
     leads: {
-      pill: 'For: Store leads',
-      title: 'ShipInsure on draft orders',
-      sub: 'Why it matters for the store, and what your team needs to do on every manual order.',
+      pill: 'For: Store leads', title: 'ShipInsure on draft orders', sub: 'Why it matters for the store, and what your team needs to do on every manual order.',
       tpLabel: 'Why it matters for the store',
       lead: 'Phone and in-person orders get the same protection as online checkout, but only if the team adds it to the draft.',
       c1t: 'Claims off your plate', c1b: 'Customers file with ShipInsure, not your support inbox.',
@@ -270,9 +492,7 @@
       c3t: 'Same on every channel', c3b: 'Online, by phone, in store: one program, one claims process.'
     },
     support: {
-      pill: 'For: Support team',
-      title: 'ShipInsure on manual orders',
-      sub: 'How coverage works on draft orders, and where to send a customer with a problem.',
+      pill: 'For: Support team', title: 'ShipInsure on manual orders', sub: 'How coverage works on draft orders, and where to send a customer with a problem.',
       tpLabel: 'When a customer reports a problem',
       lead: 'If the order has a ShipInsure line, send them to ShipInsure to file a claim. No ShipInsure line means no coverage.',
       c1t: 'Check the order', c1b: 'Look for the ShipInsure line item (SKU starts with SI_LEVEL).',
@@ -280,14 +500,10 @@
       c3t: 'Still a draft?', c3b: 'Drafts never converted to orders aren’t covered. Flag it to', c3e: '.'
     },
     shared: {
-      eye: 'ShipInsure ×',
-      stepsLabel: 'Add it to a draft order', stepsCount: '4 steps',
-      s1: 'Build the draft with the customer’s items.',
-      s2: 'Search products for “ShipInsure.”',
-      s3: 'Pick the variant whose SKU matches the merchandise total.',
-      s3n: 'That variant’s price is the protection fee.',
-      s4: 'Add one unit, then convert the draft to an order.',
-      s4n: 'Coverage starts the moment it’s an order.',
+      eye: 'ShipInsure ×', stepsLabel: 'Add it to a draft order', stepsCount: '4 steps',
+      s1: 'Build the draft with the customer’s items.', s2: 'Search products for “ShipInsure.”',
+      s3: 'Pick the variant whose SKU matches the merchandise total.', s3n: 'That variant’s price is the protection fee.',
+      s4: 'Add one unit, then convert the draft to an order.', s4n: 'Coverage starts the moment it’s an order.',
       rulesLabel: 'Before you convert',
       r1t: 'Drafts aren’t protected', r1b: 'Coverage starts once the draft becomes an order. Left as a draft, it’s not covered.',
       r2t: 'Match the SKU to the total', r2b: 'Shopify won’t block the wrong band. Check it before you convert.',
@@ -297,9 +513,7 @@
     }
   };
 
-  // ROI calculator's own $-based / tiered presets (si-roi-calculator index.html pricingTemplates),
-  // so a scenario saved on one of them gives its real SKU bands. Merchant Portal templates (pt_<id>)
-  // come from portal-templates.js; p_<pct>_<min> and %-Based are worked out from the % and minimum.
+  // ROI calculator presets (si-roi-calculator index.html pricingTemplates) for SKU bands + pricing text.
   const CALC_TIERS = {
     f_150: [{ min: 0, max: 1000, premium: 1.50 }], f_175: [{ min: 0, max: 2000, premium: 1.75 }], f_195: [{ min: 0, max: 2000, premium: 1.95 }],
     f_199: [{ min: 0, max: 1000, premium: 1.99 }], f_399: [{ min: 0, max: 2000, premium: 3.99 }], f_450: [{ min: 0, max: 1000, premium: 4.50 }],
@@ -323,51 +537,82 @@
   const page = $('page'), fitEl = $('fit'), stage = $('stage');
   const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const okHex = c => typeof c === 'string' && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(c.trim());
+  const isPh = s => typeof s === 'string' && /^\[[^\]]*\]$/.test(s);
   const PLAIN = (() => { const d = document.createElement('div'); try { d.contentEditable = 'plaintext-only'; } catch (e) {} return d.contentEditable === 'plaintext-only' ? 'plaintext-only' : 'true'; })();
   function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2600); }
+  const todayStr = () => new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
   // ── State ──
+  const blankR = () => ({
+    audience: 'Founder / Exec', meetingType: 'Discovery call', headerStyle: 'Dark', siLogo: 'Auto', siLogoH: 30,
+    showMerchantLogo: true, merchantLogoH: 34, plate: 'Auto', hero: 'Box · blue', heroSize: 96,
+    // Banner 120px (the live recaps' height): at the master's 150px the right column runs 19px past the page.
+    banner: 'ShipInsure · blue', bannerH: 120, bannerFocus: 'Center', merchantBanner: '',
+    sections: { heard: null, lens: true, econ: false, fit: false, steps: true, program: true }, heardN: 3, stepsN: 3
+  });
   const blank = () => ({
-    v: 1, audience: 'sales', folderId: null,
-    merchant: '', repName: '', repEmail: '', logo: '', showLogo: true,
-    accent: DEF_ACCENT, accentSet: false, brandAccent: '',
-    skuCode: EX_SKU.code, skuLabel: EX_SKU.label, band: 'ex', bands: [], pricing: null,
+    v: 2, template: 'recap', audience: 'sales', folderId: null,
+    merchant: '', repName: '', repEmail: '', logo: '', showLogo: true, meetingDate: todayStr(),
+    accent: DEF_ACCENT.recap, accentSet: false, brandAccent: '',
+    skuCode: EX_SKU.code, skuLabel: EX_SKU.label, band: 'ex', bands: [], pricing: null, econ: null,
     claimsLink: '', escalation: '',
-    copy: { sales: {}, leads: {}, support: {}, shared: {} }, src: {}
+    copy: { sales: {}, leads: {}, support: {}, shared: {}, recap: {} }, src: {}, r: blankR()
   });
   function hydrate(d) {
     const S = Object.assign(blank(), d || {});
-    S.copy = Object.assign({ sales: {}, leads: {}, support: {}, shared: {} }, (d && d.copy) || {});
+    // Saves and drafts from before the recap template are draft-order guides.
+    if (d && !d.template) { S.template = 'guide'; if (!d.meetingDate) S.meetingDate = todayStr(); }
+    S.copy = Object.assign({ sales: {}, leads: {}, support: {}, shared: {}, recap: {} }, (d && d.copy) || {});
+    S.r = Object.assign(blankR(), (d && d.r) || {});
+    S.r.sections = Object.assign(blankR().sections, ((d && d.r) || {}).sections || {});
     if (!AUD[S.audience]) S.audience = 'sales';
+    if (!LENSES[S.r.audience]) S.r.audience = 'Founder / Exec';
     if (!Array.isArray(S.bands)) S.bands = [];
     S.src = S.src || {};
     return S;
   }
   let S = blank();
   let user = null;
-  const txt = (g, k) => (S.copy[g] && S.copy[g][k] != null) ? S.copy[g][k] : (COPY[g][k] != null ? COPY[g][k] : '');
+  const recap = () => S.template === 'recap';
+  const lensG = () => 'lens:' + S.r.audience;
 
-  // Drafts: one per Brand Folder (or "none"), in this browser, so switching merchants keeps each one.
+  // Default text for a copy key (functions follow the current state).
+  function def(g, k) {
+    let v;
+    if (COPY[g]) v = COPY[g][k];
+    else if (g === 'recap') {
+      v = RC[k];
+      let m;
+      if (v == null && (m = /^h(\d+)$/.exec(k))) v = +m[1] === 1 ? '[Priority or pain point #1, in their words]' : '[Priority or pain point #' + m[1] + ']';
+      if (v == null && (m = /^s(\d+)([abc])$/.exec(k))) v = { a: '[Next step]', b: '[Owner]', c: '[Date]' }[m[2]];
+    } else if (g.indexOf('lens:') === 0) {
+      const a = g.slice(5), L = LENSES[a] || {}, m = /^p(\d)([td])$/.exec(k);
+      v = k === 'pill' ? 'For: ' + a : k === 'k' ? L.k : k === 'title' ? L.title : m && L.pts && L.pts[m[1] - 1] ? L.pts[m[1] - 1][m[2]] : '';
+    }
+    return typeof v === 'function' ? v() : (v == null ? '' : v);
+  }
+  const shownDef = (g, k) => { const d = def(g, k); return isPh(d) ? '' : d; };
+  const txt = (g, k) => (S.copy[g] && S.copy[g][k] != null) ? S.copy[g][k] : shownDef(g, k);
+  const phOf = (g, k, fb) => { const d = def(g, k); return isPh(d) ? d.slice(1, -1) : (fb == null ? 'Add text' : fb); };
+
+  // Drafts: one per Brand Folder (or "none"), in this browser.
   const DKEY = id => 'si_onepager_draft:' + (id || 'none');
   function readDraft(id) { try { const r = localStorage.getItem(DKEY(id)); return r ? JSON.parse(r) : null; } catch (e) { return null; } }
   let _dt = null;
-  function saveDraft() { clearTimeout(_dt); _dt = setTimeout(() => { try { localStorage.setItem(DKEY(S.folderId), JSON.stringify(S)); } catch (e) {} }, 250); }
+  function saveDraft() { clearTimeout(_dt); _dt = setTimeout(() => { try { localStorage.setItem(DKEY(S.folderId), JSON.stringify(S)); } catch (e) { toast('This browser is out of space for drafts. Save to the folder instead.'); } }, 250); }
 
-  // ── Accent: a light brand color is darkened just enough to read on white (labels, step circles) ──
+  // ── Accent: a light brand color is darkened just enough to read on white ──
   const hexRgb = h => { h = h.replace('#', ''); if (h.length === 3) h = h.replace(/./g, '$&$&'); const n = parseInt(h, 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
   const rgbHex = a => '#' + a.map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('').toUpperCase();
   const lum = a => { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }; return 0.2126 * f(a[0]) + 0.7152 * f(a[1]) + 0.0722 * f(a[2]); };
   const onWhite = a => 1.05 / (lum(a) + 0.05);
-  function legible(hex) {
-    let a = hexRgb(hex), i = 0;
-    while (onWhite(a) < 4.5 && i++ < 40) a = a.map(v => v * 0.93);
-    return rgbHex(a);
-  }
+  function legible(hex) { let a = hexRgb(hex), i = 0; while (onWhite(a) < 4.5 && i++ < 40) a = a.map(v => v * 0.93); return rgbHex(a); }
 
-  // ── Pricing bands for the SKU chip ──
+  // ── Pricing: SKU bands (guide) and a plain-English fee line (recap) ──
   const num = v => (Math.round(v * 100) / 100).toString();
   const usd = v => '$' + Number(v).toLocaleString('en-US', { maximumFractionDigits: 2 });
   const fee2 = v => '$' + Number(v).toFixed(2);
+  const kUsd = v => v >= 1000 ? '~$' + (v / 1000).toFixed(v >= 100000 ? 0 : 1).replace(/\.0$/, '') + 'k' : '~$' + Math.round(v);
   function band(min, max, fee) {
     return max != null
       ? { code: 'SI_LEVEL_' + num(min) + '-' + num(max), label: usd(min) + '–' + usd(max) + ' orders', fee: fee }
@@ -386,24 +631,54 @@
       const p = parseFloat(q.get('premium')), mn = parseFloat(q.get('minp') || '0') || 0;
       if (p > 0) return { rule: 'USE_PERCENTAGE_' + p + '_MIN_' + mn, label: p + '%' + (mn ? ' · min ' + fee2(mn) : ''), exact: false };
     }
-    if (tpl === 'flat_dollar') { const f = parseFloat(q.get('premium')); if (f > 0) return { rule: null, flat: f, label: 'Flat ' + fee2(f), exact: false }; }
+    if (tpl === 'flat_dollar') { const f = parseFloat(q.get('premium')); if (f > 0) return { rule: [{ min: 0, max: 1000000, premium: f }], label: 'Flat ' + fee2(f), exact: false, flat: true }; }
     return null;
   }
   function bandsOf(pr) {
     if (!pr) return [];
-    if (Array.isArray(pr.rule)) return pr.rule.map(t => band(t.min, t.max >= 100000 ? pr.max : t.max, t.premium != null ? fee2(t.premium) : num(t.pct * 100) + '%'));
+    if (Array.isArray(pr.rule)) return pr.flat ? [] : pr.rule.map(t => band(t.min, t.max >= 100000 ? pr.max : t.max, t.premium != null ? fee2(t.premium) : num(t.pct * 100) + '%'));
     const m = /^USE_PERCENTAGE_([\d.]+)_MIN_([\d.]+)$/.exec(pr.rule || '');
     if (m) {
       const p = +m[1], mn = +m[2];
-      // Portal names state the minimum-fee band ("Min $0.98 < $100"); otherwise work it out.
       const named = pr.name && /<\s*\$\s*([\d,.]+)/.exec(pr.name);
       const top = named ? +named[1].replace(/,/g, '') : (mn > 0 && p > 0 ? Math.ceil(mn / (p / 100)) : 0);
       return top > 0 ? [band(0, top, fee2(mn))] : [];
     }
     return [];
   }
+  function pricingText(pr) {
+    if (!pr) return '';
+    if (Array.isArray(pr.rule)) {
+      const r = pr.rule;
+      if (r.length === 1 && r[0].premium != null) return 'Flat ' + fee2(r[0].premium) + ' per order';
+      const fees = r.filter(t => t.premium != null).map(t => t.premium), pcts = r.filter(t => t.pct != null).map(t => num(t.pct * 100) + '%');
+      if (!pcts.length && fees.length) return 'Tiered by order value, ' + fee2(Math.min.apply(null, fees)) + '–' + fee2(Math.max.apply(null, fees)) + ' per order';
+      return 'Tiered by order value' + (fees.length ? ', from ' + fee2(Math.min.apply(null, fees)) : '') + (pcts.length ? ' up to ' + pcts[pcts.length - 1] : '');
+    }
+    const m = /^USE_PERCENTAGE_([\d.]+)_MIN_([\d.]+)$/.exec(pr.rule || '');
+    if (m) return num(+m[1]) + '% of order value' + (+m[2] > 0 ? ', ' + fee2(m[2]) + ' minimum' : '');
+    return '';
+  }
+  // Modeled economics from an ROI scenario: only the parts the inputs pin down exactly.
+  function econOf(q) {
+    const n = k => parseFloat(String(q.get(k) || '').replace(/,/g, '')) || 0;
+    const orders = n('orders'), aov = n('aov'), attach = n('attach'), avgP = n('avg_premium'), prem = n('premium');
+    if (!(orders > 0 && attach > 0 && avgP > 0)) return null;
+    const monthly = (q.get('view') || 'monthly') !== 'annual';
+    const annual = monthly ? orders * 12 : orders, protectedOrders = Math.round(annual * attach / 100);
+    const claims = n('claims'), ct = q.get('claimstype') || 'pct';
+    const tpl = q.get('template') || 'percentage';
+    const premTxt = tpl === 'percentage' && prem ? num(prem) + '% premium' : tpl === 'flat_dollar' && prem ? fee2(prem) + ' fee' : '';
+    const bits = [premTxt, num(attach) + '% attach', Math.round(orders).toLocaleString('en-US') + (monthly ? ' orders/mo' : ' orders/yr'),
+      aov ? usd(Math.round(aov)) + ' AOV' : '', claims ? (ct === 'pct' ? num(claims) + '% claims' : Math.round(claims) + (monthly ? ' claims/mo' : ' claims/yr')) : ''].filter(Boolean);
+    return {
+      e1v: kUsd(protectedOrders * avgP),
+      e1s: protectedOrders.toLocaleString('en-US') + ' protected orders × ~' + fee2(avgP).replace(/\.00$/, ''),
+      eIn: bits.join(', ') + '.'
+    };
+  }
 
-  // ── Deal data: Brand Folder (name, logo, brand color, ROI scenario pricing) + the signed-in rep ──
+  // ── Deal data: Brand Folder (name, logo, brand color, ROI scenario) + the signed-in rep ──
   function nameOf(u) {
     const m = u.user_metadata || {}, n = m.full_name || m.name || m.display_name;
     if (n) return String(n).trim();
@@ -428,9 +703,11 @@
         const cfgs = (await SIsb.listConfigs()).filter(c => c.merchant_ref === f.id).sort((a, b) => (Date.parse(b.updated_at) || 0) - (Date.parse(a.updated_at) || 0));
         for (const c of cfgs.slice(0, 4)) {
           const full = await SIsb.loadConfig(c.id);
-          const pr = pricingOf(new URLSearchParams(((full && full.data && full.data.q) || '').replace(/^\?/, '')));
-          const bands = bandsOf(pr);
-          if (bands.length) { d.bands = bands; d.pricing = { label: pr.label, exact: pr.exact, scenario: c.title || 'ROI scenario' }; break; }
+          const q = new URLSearchParams(((full && full.data && full.data.q) || '').replace(/^\?/, ''));
+          const pr = pricingOf(q);
+          if (!d.pricing && pr) { d.pricing = { label: pr.label, exact: pr.exact, scenario: c.title || 'ROI scenario', text: pricingText(pr) }; d.bands = bandsOf(pr); }
+          if (!d.econ) { const e = econOf(q); if (e) d.econ = Object.assign(e, { scenario: c.title || 'ROI scenario' }); }
+          if (d.pricing && d.econ) break;
         }
       } catch (e) {}
     }
@@ -445,18 +722,24 @@
     S.brandAccent = d.brandAccent || (force ? '' : S.brandAccent);
     if (S.brandAccent && (force || !S.accentSet)) S.accent = S.brandAccent;
     if (d.bands && d.bands.length) {
-      S.bands = d.bands; S.pricing = d.pricing;
+      S.bands = d.bands;
       if (force || S.band === 'ex') { S.band = '0'; S.skuCode = d.bands[0].code; S.skuLabel = d.bands[0].label; }
-    } else if (force) { S.bands = []; S.pricing = null; }
+    } else if (force) S.bands = [];
+    S.pricing = d.pricing || (force ? null : S.pricing);
+    S.econ = d.econ || (force ? null : S.econ);
+    const rc = S.copy.recap, put = (k, v) => { if (v && (force || rc[k] == null || rc[k] === '')) rc[k] = v; };
+    if (d.pricing && d.pricing.text) put('pPr', d.pricing.text);
+    if (d.econ) { put('e1v', d.econ.e1v); put('e1s', d.econ.e1s); put('eIn', d.econ.eIn); }
     S.src = Object.assign({}, d.src);
     paintAll();
     saveDraft();
   }
 
-  // ── Render the page ──
-  const E = (g, k, tag, cls, ph) => '<' + (tag || 'span') + (cls ? ' class="' + cls + '"' : '') + ' contenteditable="' + PLAIN + '" spellcheck="true" data-g="' + g + '" data-k="' + k + '" data-ph="' + esc(ph == null ? 'Add text' : ph) + '">' + esc(txt(g, k)) + '</' + (tag || 'span') + '>';
+  // ── Editable pieces ──
+  const E = (g, k, tag, cls, ph) => '<' + (tag || 'span') + (cls ? ' class="' + cls + '"' : '') + ' contenteditable="' + PLAIN + '" spellcheck="true" data-g="' + esc(g) + '" data-k="' + k + '" data-ph="' + esc(phOf(g, k, ph)) + '">' + esc(txt(g, k)) + '</' + (tag || 'span') + '>';
   const B = (b, cls, ph) => '<span class="bind' + (cls ? ' ' + cls : '') + '" contenteditable="' + PLAIN + '" spellcheck="false" data-b="' + b + '" data-ph="' + esc(ph) + '">' + esc(S[b]) + '</span>';
-  function render() {
+
+  function renderGuide() {
     const g = S.audience, sup = g === 'support';
     const card = i => '<div class="pg-card">' + E(g, 'c' + i + 't', 'div', 'pg-ct') +
       (sup && i === 2 ? '<div class="pg-cb">' + E(g, 'c2b') + ' ' + B('claimsLink', 'pg-link', 'Add claims link') + '</div>'
@@ -465,8 +748,9 @@
     const step = (n, body, g10) => '<li><div class="pg-n">' + n + '</div><div class="pg-sb' + (g10 ? ' g10' : '') + '">' + body + '</div></li>';
     const rule = i => '<div class="pg-rule">' + E('shared', 'r' + i + 't', 'div', 'pg-rt') + E('shared', 'r' + i + 'b', 'div', 'pg-rb') + '</div>';
     const logo = S.logo && S.showLogo ? '<div class="pg-logo"><img alt="" src="' + esc(S.logo) + '"></div>' : '';
+    page.className = 'op-page t-guide';
     page.innerHTML =
-      '<header>' +
+      '<header class="dk">' +
         '<div class="pg-top"><div class="pg-brand">' + logo + '<div class="pg-eye">' + E('shared', 'eye') + ' ' + B('merchant', '', 'Merchant') + '</div></div>' + E(g, 'pill', 'div', 'pg-pill') + '</div>' +
         '<div class="pg-tt">' + E(g, 'title', 'h1') + E(g, 'sub', 'p') + '</div>' +
       '</header>' +
@@ -487,17 +771,101 @@
         '</div>' +
       '</main>' +
       '<footer><div>' + E('shared', 'footQ') + '&nbsp;' + B('repName', 'pg-rep', 'Your name') + ' · ' + B('repEmail', '', 'you@shipinsure.io') + '</div>' + E('shared', 'site', 'div', 'pg-site') + '</footer>';
+  }
+
+  const secOn = k => k === 'heard' ? (S.r.sections.heard == null ? S.r.audience !== 'Executive summary' : !!S.r.sections.heard) : !!S.r.sections[k];
+  function renderRecap() {
+    const R = S.r, t = THEMES[R.headerStyle] || THEMES.Dark, L = LENSES[R.audience], lg = lensG(), sup = R.audience === 'Support team';
+    const plate = R.plate === 'On' || (R.plate === 'Auto' && t.plate);
+    const siSrc = LOGOS[R.siLogo] || t.logo, hero = HEROES[R.hero], bk = BANNERS[R.banner];
+    const mLogo = R.showMerchantLogo
+      ? '<div class="rc-div" style="height:' + (Math.max(R.siLogoH, R.merchantLogoH) + 8) + 'px"' + (S.logo ? '' : ' data-ph-only') + '></div>' +
+        (S.logo ? '<div class="rc-plate" style="padding:' + (plate ? '8px 12px' : '0') + ';background:' + (plate ? '#FFFFFF' : 'transparent') + '"><img alt="" src="' + esc(S.logo) + '" style="height:' + R.merchantLogoH + 'px"></div>'
+                : '<div class="ph-box" data-up="logo" title="Upload the merchant logo" style="height:' + R.merchantLogoH + 'px;padding:0 14px">Merchant logo</div>')
+      : '';
+    const banner = !bk ? ''
+      : bk === 'merchant'
+        ? (R.merchantBanner ? '<img class="rc-banner" alt="" src="' + esc(R.merchantBanner) + '" style="height:' + R.bannerH + 'px;object-position:' + FOCUS[R.bannerFocus] + '">'
+                            : '<div class="ph-box" data-up="banner" title="Upload a merchant banner" style="height:' + R.bannerH + 'px;border-radius:0;flex:none">Merchant banner · click to upload</div>')
+        : '<img class="rc-banner" alt="ShipInsure shipping protection" src="' + bk + '" style="height:' + R.bannerH + 'px;object-position:' + FOCUS[R.bannerFocus] + '">';
+    const heard = !secOn('heard') ? '' : '<section class="rc-sec">' + E('recap', 'heardLabel', 'div', 'pg-lbl') + '<ul class="rc-heard">' +
+      Array.from({ length: R.heardN }, (_, i) => '<li><div class="rc-dot"></div>' + E('recap', 'h' + (i + 1), 'div') + '</li>').join('') + '</ul></section>';
+    const lensPt = (i) => {
+      let d;
+      if (sup && i === 2) d = '<div>' + E(lg, 'p2d') + ' ' + B('claimsLink', '', 'CLAIMS LINK') + '</div>';
+      else if (sup && i === 3) d = '<div>' + E(lg, 'p3d') + ' ' + B('escalation', '', 'ESCALATION CONTACT') + '.</div>';
+      else d = E(lg, 'p' + i + 'd', 'div');
+      return '<div class="rc-pt">' + E(lg, 'p' + i + 't', 'div') + d + '</div>';
+    };
+    const lens = !secOn('lens') ? '' : '<section class="rc-sec">' + E(lg, 'k', 'div', 'pg-lbl') + E(lg, 'title', 'div', 'rc-lt') +
+      '<div class="rc-pts">' + L.pts.map((_, i) => lensPt(i + 1)).join('') + '</div></section>';
+    const ec = (i, hi) => '<div class="rc-ec' + (hi ? ' hi' : '') + '">' + E('recap', 'e' + i + 'v', 'div', 'v') + E('recap', 'e' + i + 'l', 'div', 'l') + E('recap', 'e' + i + 's', 'div', 's') + '</div>';
+    const econ = !secOn('econ') ? '' : '<section class="rc-sec" style="gap:10px">' + E('recap', 'econLabel', 'div', 'pg-lbl') +
+      '<div class="rc-econ">' + ec(1) + ec(2) + ec(3) + ec(4, true) + '</div>' + E('recap', 'eIn', 'div', 'rc-ein') + '</section>';
+    const fc = i => '<div class="rc-fc">' + E('recap', 'f' + i + 't', 'div') + E('recap', 'f' + i + 'd', 'div') + '</div>';
+    const fit = !secOn('fit') ? '' : '<section class="rc-sec" style="gap:10px">' + E('recap', 'fitLabel', 'div', 'pg-lbl') + '<div class="rc-fit">' + fc(1) + fc(2) + fc(3) + '</div></section>';
+    const steps = !secOn('steps') ? '' : '<section class="rc-sec">' + E('recap', 'stepsLabel', 'div', 'pg-lbl') +
+      '<table class="rc-tbl"><thead><tr>' + E('recap', 'thStep', 'th') + E('recap', 'thOwner', 'th') + E('recap', 'thBy', 'th') + '</tr></thead><tbody>' +
+      Array.from({ length: R.stepsN }, (_, i) => '<tr>' + E('recap', 's' + (i + 1) + 'a', 'td') + E('recap', 's' + (i + 1) + 'b', 'td') + E('recap', 's' + (i + 1) + 'c', 'td') + '</tr>').join('') +
+      '</tbody></table></section>';
+    const kv = (lk, vk, bind) => '<div class="rc-kv">' + E('recap', lk, 'div') + (bind ? '<div>' + B(bind, '', 'Meeting date') + '</div>' : E('recap', vk, 'div')) + '</div>';
+    const details = '<div class="rc-card">' + E('recap', 'detailsLabel', 'div', 'pg-lbl') + kv('dDateL', null, 'meetingDate') + kv('dAttL', 'dAtt') + kv('dPlatL', 'dPlat') + kv('dSetL', 'dSet') + '</div>';
+    const program = !secOn('program') ? '' : '<div class="rc-card">' + E('recap', 'programLabel', 'div', 'pg-lbl') + kv('pCovL', 'pCov') + kv('pClL', 'pCl') + kv('pPrL', 'pPr') + kv('pGoL', 'pGo') + '</div>';
+    const contact = '<div class="rc-card line">' + E('recap', 'contactLabel', 'div', 'pg-lbl') + '<div class="rc-cn">' + B('repName', '', 'Your name') + '</div>' +
+      '<div class="rc-cs">' + B('repEmail', '', 'you@shipinsure.io') + '</div>' + E('recap', 'phone', 'div', 'rc-cs') + '</div>';
+    page.className = 'op-page t-recap';
+    page.style.setProperty('--hb', t.bg); page.style.setProperty('--ht', t.text); page.style.setProperty('--hs', t.sub);
+    page.style.setProperty('--hbd', t.border); page.style.setProperty('--hdv', t.divider);
+    page.innerHTML =
+      '<header class="' + (t.dark ? 'dk' : '') + '"><div class="rc-hl">' +
+        '<div class="rc-logos"><img alt="ShipInsure" src="' + siSrc + '" style="height:' + R.siLogoH + 'px">' + mLogo + '</div>' +
+        '<div class="rc-tt">' + E('recap', 'title', 'h1') +
+          '<div class="rc-subrow"><div class="rc-sub">' + B('merchant', '', 'Merchant') + ' ' + E('recap', 'subMid') + ' ' + B('meetingDate', '', 'Meeting date') + '</div>' + E(lg, 'pill', 'div', 'rc-pill') + '</div>' +
+        '</div></div>' +
+        (hero ? '<img class="rc-hero" alt="" aria-hidden="true" src="' + hero + '" style="width:' + R.heroSize + 'px">' : '') +
+      '</header>' + banner +
+      '<main><div class="rc-col">' + heard + lens + econ + fit + steps + '</div><aside>' + details + program + contact + '</aside></main>';
+    // A missing merchant logo leaves no stray divider in the PDF.
+    page.querySelectorAll('[data-ph-only]').forEach(el => el.classList.add('ph-only'));
+  }
+
+  function render() {
+    page.removeAttribute('style');
+    if (fit.s && fit.s !== 1) page.style.transform = 'scale(' + fit.s + ')';
+    recap() ? renderRecap() : renderGuide();
     if (document.body.classList.contains('view')) page.querySelectorAll('[contenteditable]').forEach(el => el.setAttribute('contenteditable', 'false'));
     page.style.setProperty('--ac', legible(S.accent));
     requestAnimationFrame(checkFit);
   }
 
   // ── Side panel ──
+  const fillSelect = (sel, opts) => { if (sel.options.length !== opts.length) sel.innerHTML = opts.map(o => '<option>' + esc(o) + '</option>').join(''); };
   function paintSide() {
+    document.querySelectorAll('#tplSeg [data-tpl]').forEach(b => b.classList.toggle('on', b.dataset.tpl === S.template));
+    document.querySelectorAll('[data-only]').forEach(el => { el.hidden = el.dataset.only !== S.template || (el.id === 'logoGrp' && !S.logo); });
     document.querySelectorAll('#aud [data-aud]').forEach(b => { const on = b.dataset.aud === S.audience; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
     document.querySelectorAll('.op-side input[data-b]').forEach(i => { if (document.activeElement !== i) i.value = S[i.dataset.b] || ''; });
-    const sup = S.audience === 'support';
-    ['claimsLink', 'escalation'].forEach(k => $('f-' + k).classList.toggle('need', sup && !S[k]));
+    // Recap controls
+    fillSelect($('rAud'), RAUDS); fillSelect($('rType'), RTYPES); fillSelect($('rSiLogo'), Object.keys(LOGOS));
+    fillSelect($('rHero'), Object.keys(HEROES)); fillSelect($('rBanner'), Object.keys(BANNERS));
+    document.querySelectorAll('.op-side [data-r]').forEach(el => {
+      const v = S.r[el.dataset.r];
+      if (el.type === 'checkbox') el.checked = !!v; else if (document.activeElement !== el) el.value = v;
+    });
+    document.querySelectorAll('.op-side [data-v]').forEach(el => { el.textContent = S.r[el.dataset.v] + 'px'; });
+    document.querySelectorAll('#hStyle [data-hs]').forEach(b => b.classList.toggle('on', b.dataset.hs === S.r.headerStyle));
+    document.querySelectorAll('.op-side [data-sec]').forEach(el => { el.checked = secOn(el.dataset.sec); });
+    document.querySelectorAll('.op-side [data-if]').forEach(el => {
+      const k = el.dataset.if;
+      el.hidden = k === 'hero' ? S.r.hero === 'None' : k === 'banner' ? S.r.banner === 'None' : k === 'merchantBanner' ? S.r.banner !== 'Merchant banner' : !S.r[k];
+    });
+    const iso = (() => { const d = new Date(S.meetingDate); return isNaN(d) ? '' : d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })();
+    if (document.activeElement !== $('rDate')) $('rDate').value = iso;
+    // Support fields
+    const sup = recap() ? S.r.audience === 'Support team' : true;
+    $('supGrp').hidden = !sup;
+    const needSup = recap() ? S.r.audience === 'Support team' : S.audience === 'support';
+    ['claimsLink', 'escalation'].forEach(k => $('f-' + k).classList.toggle('need', needSup && !S[k]));
     ['merchant', 'repName', 'repEmail'].forEach(k => $('f-' + k).classList.toggle('need', !S[k]));
     // Where the deal data came from
     const f = window.SIsb ? SIsb.getActiveFolder() : null;
@@ -507,29 +875,35 @@
     src += user ? li('👤', 'Rep from your sign-in') : li('👤', 'Sign in (bar above) to fill in your name and email');
     if (f && user) {
       src += S.src.accent ? li('🎨', 'Accent from the folder’s brand color') : li('🎨', 'No brand color in this folder, so the template accent');
-      src += S.pricing ? li('💲', 'SKU bands from <b>' + esc(S.pricing.scenario) + '</b> (' + esc(S.pricing.label) + (S.pricing.exact ? '' : ', first band estimated') + ')')
-                       : li('💲', 'No ROI scenario with pricing in this folder, so the template’s example SKU');
+      if (recap()) {
+        src += S.pricing && S.pricing.text ? li('💲', 'Pricing from <b>' + esc(S.pricing.scenario) + '</b>') : li('💲', 'No ROI scenario with pricing in this folder');
+        src += S.econ ? li('📈', 'Economics from <b>' + esc(S.econ.scenario) + '</b> (turn on Modeled economics under Sections)') : '';
+      } else {
+        src += S.pricing ? li('💲', 'SKU bands from <b>' + esc(S.pricing.scenario) + '</b> (' + esc(S.pricing.label) + (S.pricing.exact ? '' : ', first band estimated') + ')')
+                         : li('💲', 'No ROI scenario with pricing in this folder, so the template’s example SKU');
+      }
     }
     $('src').innerHTML = src;
     // Accent swatches
     const brand = S.brandAccent && okHex(S.brandAccent) ? S.brandAccent.toUpperCase() : '';
-    const list = (brand ? [brand] : []).concat(SWATCHES.filter(c => c !== brand));
-    const cur = (S.accent || DEF_ACCENT).toUpperCase();
+    const list = (brand ? [brand] : []).concat(SWATCHES[S.template].filter(c => c !== brand));
+    const cur = (S.accent || DEF_ACCENT[S.template]).toUpperCase();
     $('sw').classList.toggle('has-brand', !!brand);
-    $('sw').innerHTML = list.map(c => '<button type="button" data-c="' + c + '" class="' + (c === cur ? 'on ' : '') + (c === brand ? 'brand' : '') + '" style="background:' + c + '" title="' + (c === brand ? 'Brand color ' : '') + c + (c === DEF_ACCENT ? ' (template default)' : '') + '" aria-label="Accent ' + c + '"></button>').join('') +
-      '<label class="pick" title="Any color"><input type="color" id="accPick" value="' + (okHex(cur) && cur.length === 7 ? cur.toLowerCase() : '#4f46e5') + '">Custom</label>';
-    const shown = legible(cur);
-    $('accNote').hidden = shown === cur;
-    $('accNote').textContent = 'This color is light on white, so the page uses a slightly darker ' + shown + ' to keep it readable.';
-    // SKU bands
+    $('sw').innerHTML = list.map(c => '<button type="button" data-c="' + c + '" class="' + (c === cur ? 'on ' : '') + (c === brand ? 'brand' : '') + '" style="background:' + c + '" title="' + (c === brand ? 'Brand color ' : '') + c + (c === DEF_ACCENT[S.template] ? ' (template default)' : '') + '" aria-label="Accent ' + c + '"></button>').join('') +
+      '<label class="pick" title="Any color"><input type="color" id="accPick" value="' + (okHex(cur) && cur.length === 7 ? cur.toLowerCase() : '#4652e6') + '">Custom</label>';
+    paintAccNote(cur);
+    // SKU bands (guide)
     const opts = S.bands.map((b, i) => '<option value="' + i + '">' + esc(b.code + ' → ' + b.label + (b.fee ? ' · ' + b.fee : '')) + '</option>');
     opts.push('<option value="ex">' + esc(EX_SKU.code + ' → ' + EX_SKU.label + ' (template example)') + '</option>');
     opts.push('<option value="custom">Custom (type it below or on the page)</option>');
     $('bandSel').innerHTML = opts.join('');
     $('bandSel').value = S.band in { ex: 1, custom: 1 } || S.bands[+S.band] ? S.band : 'custom';
-    // Logo
-    $('logoGrp').hidden = !S.logo;
     $('showLogo').checked = !!S.showLogo;
+  }
+  function paintAccNote(cur) {
+    const shown = legible(cur);
+    $('accNote').hidden = shown === cur;
+    $('accNote').textContent = 'This color is light on white, so the page uses a slightly darker ' + shown + ' to keep it readable.';
   }
   function paintAll() { render(); paintSide(); }
 
@@ -539,20 +913,23 @@
     const inp = document.querySelector('.op-side input[data-b="' + b + '"]');
     if (inp && inp !== from && inp.value !== S[b]) inp.value = S[b];
     if (b === 'skuCode' || b === 'skuLabel') { S.band = 'custom'; $('bandSel').value = 'custom'; }
-    const sup = S.audience === 'support';
-    if (b === 'claimsLink' || b === 'escalation') $('f-' + b).classList.toggle('need', sup && !S[b]);
+    if (b === 'merchant' && recap()) { const el = page.querySelector('[data-g="recap"][data-k="e4l"]'); if (el && S.copy.recap.e4l == null) el.textContent = def('recap', 'e4l'); }
+    const needSup = recap() ? S.r.audience === 'Support team' : S.audience === 'support';
+    if (b === 'claimsLink' || b === 'escalation') $('f-' + b).classList.toggle('need', needSup && !S[b]);
     if (b === 'merchant' || b === 'repName' || b === 'repEmail') $('f-' + b).classList.toggle('need', !S[b]);
+    if (b === 'meetingDate') paintSide();
   }
 
   // ── Page editing ──
   page.addEventListener('input', e => {
     const el = e.target.closest('[contenteditable]'); if (!el) return;
-    if (el.textContent === '' && el.innerHTML !== '') el.innerHTML = '';   // drop the stray <br> so the placeholder shows
+    if (el.textContent === '' && el.innerHTML !== '') el.innerHTML = '';
     const v = el.textContent.replace(/\s*\n\s*/g, ' ');
     if (el.dataset.b) { S[el.dataset.b] = v; syncBind(el.dataset.b, el); }
     else {
       const g = el.dataset.g, k = el.dataset.k;
-      if (v === COPY[g][k]) delete S.copy[g][k]; else S.copy[g][k] = v;
+      S.copy[g] = S.copy[g] || {};
+      if (v === shownDef(g, k)) delete S.copy[g][k]; else S.copy[g][k] = v;
     }
     saveDraft(); checkFit();
   });
@@ -570,10 +947,77 @@
     if (!el.textContent.trim() && el.innerHTML !== '') el.innerHTML = '';
   });
 
+  // ── Images: merchant logo / banner (downscaled; uploaded to storage when signed in) ──
+  let upWhat = null;
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-up]'); if (!b || document.body.classList.contains('view')) return;
+    upWhat = b.dataset.up; $('upFile').value = ''; $('upFile').click();
+  });
+  function shrink(file, maxW) {
+    return new Promise((res, rej) => {
+      const fr = new FileReader();
+      fr.onerror = () => rej(new Error('Could not read that file'));
+      fr.onload = () => {
+        if (/svg/.test(file.type)) return res(fr.result);
+        const im = new Image();
+        im.onerror = () => rej(new Error('That file isn’t an image'));
+        im.onload = () => {
+          const k = Math.min(1, maxW / im.naturalWidth), c = document.createElement('canvas');
+          c.width = Math.round(im.naturalWidth * k); c.height = Math.round(im.naturalHeight * k);
+          c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+          res(file.type === 'image/jpeg' ? c.toDataURL('image/jpeg', 0.86) : c.toDataURL('image/png'));
+        };
+        im.src = fr.result;
+      };
+      fr.readAsDataURL(file);
+    });
+  }
+  $('upFile').addEventListener('change', async e => {
+    const f = e.target.files && e.target.files[0]; if (!f || !upWhat) return;
+    try {
+      let url = await shrink(f, upWhat === 'banner' ? 2000 : 800);
+      if (user && window.SIsb) { try { url = await SIsb.uploadLogo(url) || url; } catch (x) {} }
+      if (upWhat === 'banner') { S.r.merchantBanner = url; S.r.banner = 'Merchant banner'; } else { S.logo = url; S.r.showMerchantLogo = true; }
+      paintAll(); saveDraft(); toast(upWhat === 'banner' ? 'Banner added' : 'Merchant logo replaced');
+    } catch (x) { toast(x.message || 'Couldn’t use that image'); }
+  });
+
   // ── Side panel events ──
+  $('tplSeg').addEventListener('click', e => {
+    const b = e.target.closest('[data-tpl]'); if (!b || b.dataset.tpl === S.template) return;
+    S.template = b.dataset.tpl;
+    if (!S.accentSet && !S.brandAccent) S.accent = DEF_ACCENT[S.template];
+    paintAll(); saveDraft();
+  });
   $('aud').addEventListener('click', e => {
     const b = e.target.closest('[data-aud]'); if (!b || b.dataset.aud === S.audience) return;
     S.audience = b.dataset.aud; paintAll(); saveDraft();
+  });
+  $('hStyle').addEventListener('click', e => {
+    const b = e.target.closest('[data-hs]'); if (!b) return;
+    S.r.headerStyle = b.dataset.hs; paintAll(); saveDraft();
+  });
+  document.querySelectorAll('.op-side [data-r]').forEach(el => el.addEventListener(el.type === 'range' || el.type === 'number' ? 'input' : 'change', () => {
+    const k = el.dataset.r;
+    let v = el.type === 'checkbox' ? el.checked : el.value;
+    if (el.type === 'range' || el.type === 'number') {
+      v = parseInt(el.value, 10); if (isNaN(v)) return;
+      v = Math.max(+el.min || 0, Math.min(+el.max || 999, v));
+    }
+    S.r[k] = v;
+    if (k === 'banner' && v === 'Merchant banner' && !S.r.merchantBanner) toast('Click the banner placeholder (or ⬆ Banner image) to upload one');
+    if (el.type === 'range') { const lab = document.querySelector('[data-v="' + k + '"]'); if (lab) lab.textContent = v + 'px'; render(); }
+    else paintAll();
+    saveDraft();
+  }));
+  document.querySelectorAll('.op-side [data-sec]').forEach(el => el.addEventListener('change', () => {
+    S.r.sections[el.dataset.sec] = el.checked; render(); saveDraft();
+  }));
+  $('rDate').addEventListener('change', e => {
+    const v = e.target.value; if (!v) return;
+    const [y, m, d] = v.split('-').map(Number);
+    S.meetingDate = new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    syncBind('meetingDate'); saveDraft(); checkFit();
   });
   document.querySelectorAll('.op-side input[data-b]').forEach(inp => inp.addEventListener('input', () => {
     S[inp.dataset.b] = inp.value; syncBind(inp.dataset.b, inp); saveDraft(); checkFit();
@@ -587,9 +1031,7 @@
     S.accent = e.target.value.toUpperCase(); S.accentSet = true;
     page.style.setProperty('--ac', legible(S.accent));
     document.querySelectorAll('#sw button').forEach(b => b.classList.toggle('on', b.dataset.c === S.accent));
-    const shown = legible(S.accent); $('accNote').hidden = shown === S.accent;
-    $('accNote').textContent = 'This color is light on white, so the page uses a slightly darker ' + shown + ' to keep it readable.';
-    saveDraft();
+    paintAccNote(S.accent); saveDraft();
   });
   $('bandSel').addEventListener('change', e => {
     const v = e.target.value; S.band = v;
@@ -605,9 +1047,18 @@
     try { applyDeal(await dealData(), true); toast('Filled from the deal data'); } finally { b.disabled = false; b.textContent = '↻ Refill from deal'; }
   });
   $('resetBtn').addEventListener('click', () => {
-    if (!confirm('Put all page text back to the template, for all three versions?\nMerchant, rep, accent, SKU and links stay as they are.')) return;
-    S.copy = { sales: {}, leads: {}, support: {}, shared: {} }; render(); saveDraft(); toast('Text reset to the template');
+    const which = recap() ? 'the Meeting recap (all audiences)' : 'the Draft-order guide (all three versions)';
+    if (!confirm('Put the page text of ' + which + ' back to the template?\nMerchant, rep, date, accent, images and links stay as they are.')) return;
+    if (recap()) { S.copy.recap = {}; Object.keys(S.copy).forEach(g => { if (g.indexOf('lens:') === 0) delete S.copy[g]; }); applyDealCopyOnly(); }
+    else ['sales', 'leads', 'support', 'shared'].forEach(g => { S.copy[g] = {}; });
+    render(); saveDraft(); toast('Text reset to the template');
   });
+  // After a reset, deal-derived recap text (pricing, economics) comes back.
+  function applyDealCopyOnly() {
+    const rc = S.copy.recap;
+    if (S.pricing && S.pricing.text) rc.pPr = S.pricing.text;
+    if (S.econ) { rc.e1v = S.econ.e1v; rc.e1s = S.econ.e1s; rc.eIn = S.econ.eIn; }
+  }
 
   // ── Fit: scale the page to the stage width; warn when copy runs past one page ──
   function fit() {
@@ -616,17 +1067,37 @@
     fitEl.style.width = Math.floor(816 * s) + 'px';
     fitEl.style.height = Math.floor(1056 * s) + 'px';
     page.style.transform = s === 1 ? '' : 'scale(' + s + ')';
+    fit.s = s;
   }
   function overflows() {
-    const foot = page.querySelector('footer'); if (!foot) return false;
-    return foot.offsetTop + foot.offsetHeight > 1056 + 1 || page.scrollWidth > 816 + 1;
+    if (page.scrollWidth > 816 + 1) return true;
+    // Recap: either column ending closer than 8px to the page's bottom edge (it can use part of the bottom padding).
+    if (recap()) { const cols = page.querySelectorAll('main > *'); return Array.prototype.some.call(cols, c => c.offsetTop + c.offsetHeight > 1056 - 8); }
+    const foot = page.querySelector('footer'); return !!foot && foot.offsetTop + foot.offsetHeight > 1056 + 1;
   }
-  function checkFit() { $('warn').hidden = !overflows(); }
+  function checkFit() {
+    const over = overflows();
+    $('warn').hidden = !over;
+    $('fitBtn').hidden = !(over && recap() && S.r.banner !== 'None');
+    if (fit.s) page.style.transform = fit.s === 1 ? '' : 'scale(' + fit.s + ')';
+  }
+  // Make it fit: give the banner's height back to the content (down to 80px, then drop the banner).
+  $('fitBtn').addEventListener('click', () => {
+    const before = S.r.bannerH;
+    while (overflows() && S.r.bannerH > 80) { S.r.bannerH = Math.max(80, S.r.bannerH - 4); render(); }
+    let msg = 'Banner ' + before + ' → ' + S.r.bannerH + 'px';
+    if (overflows()) { S.r.banner = 'None'; render(); msg = 'Banner turned off'; }
+    paintSide(); saveDraft(); checkFit();
+    toast(overflows() ? msg + '. Still too long: trim some copy or turn a section off.' : msg + ', and it fits on one page');
+  });
   if (window.ResizeObserver) new ResizeObserver(fit).observe(stage); else window.addEventListener('resize', fit);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(checkFit);
+  page.addEventListener('load', checkFit, true);   // images change the layout as they arrive
 
   // ── Export PDF (print → Save as PDF) ──
-  const fileName = () => ['ShipInsure', S.merchant || 'Merchant', AUD[S.audience], 'one-pager'].join(' – ').replace(/[\\/:*?"<>|]+/g, '');
+  const fileName = () => (recap()
+    ? ['ShipInsure', S.merchant || 'Merchant', S.r.meetingType + ' recap', S.r.audience]
+    : ['ShipInsure', S.merchant || 'Merchant', AUD[S.audience], 'draft-order guide']).join(' – ').replace(/[\\/:*?"<>|]+/g, '');
   let _title = document.title;
   async function exportPdf(viewer) {
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
@@ -635,8 +1106,12 @@
       if (!S.merchant) miss.push('merchant name');
       if (!S.repName) miss.push('rep name');
       if (!S.repEmail) miss.push('rep email');
-      if (S.audience === 'support' && !S.claimsLink) miss.push('claims link');
-      if (S.audience === 'support' && !S.escalation) miss.push('escalation contact');
+      const sup = recap() ? S.r.audience === 'Support team' : S.audience === 'support';
+      if (sup && !S.claimsLink) miss.push('claims link');
+      if (sup && !S.escalation) miss.push('escalation contact');
+      const blanks = Array.from(page.querySelectorAll('[contenteditable]')).filter(el => !el.textContent.trim() && el.dataset.ph && !el.dataset.b).length;
+      if (blanks) miss.push(blanks + ' blank' + (blanks === 1 ? '' : 's') + ' on the page (orange chips)');
+      if (page.querySelector('.ph-box')) miss.push(page.querySelector('[data-up="banner"].ph-box') ? 'merchant banner image' : 'merchant logo');
       if (miss.length && !confirm('Still empty: ' + miss.join(', ') + '.\nThose spots print blank. Export anyway?')) return;
       if (overflows() && !confirm('The text runs past the bottom of the page and will be cut off. Export anyway?')) return;
     }
@@ -657,7 +1132,6 @@
 
   // ── Brand Folder save / load (shared folder bar; kind 'onepager') ──
   if (window.SIsb) {
-    // Before onepager-kind.sql has run, Supabase rejects the new kind. Say so plainly.
     const _save = SIsb.saveAsset;
     SIsb.saveAsset = function (a) {
       return _save.apply(this, arguments).catch(err => {
@@ -666,9 +1140,8 @@
       });
     };
   }
-  let bar = null;
   if (window.SIFolderBar) {
-    bar = SIFolderBar.mount({
+    SIFolderBar.mount({
       kind: 'onepager',
       tool: 'One-Pager',
       before: document.querySelector('.op-app'),
@@ -678,7 +1151,7 @@
         if (row && row.merchant_ref) S.folderId = row.merchant_ref;
         paintAll(); saveDraft();
       },
-      defaultTitle: () => 'One-pager – ' + (S.merchant || 'Merchant')
+      defaultTitle: () => (recap() ? S.r.meetingType + ' recap' : 'Draft-order guide') + ' – ' + (S.merchant || 'Merchant')
     });
   }
 
@@ -689,18 +1162,18 @@
     S.folderId = folder ? folder.id : null;
     paintAll();
   }
-  const active = window.SIsb ? SIsb.getActiveFolder() : null;
-  startFor(active);
-  if (AUD[qp.get('audience')]) { S.audience = qp.get('audience'); paintAll(); }
+  startFor(window.SIsb ? SIsb.getActiveFolder() : null);
+  if (qp.get('template') === 'guide' || qp.get('template') === 'recap') S.template = qp.get('template');
+  if (AUD[qp.get('audience')]) { S.template = 'guide'; S.audience = qp.get('audience'); }
+  if (LENSES[qp.get('audience')]) { S.template = 'recap'; S.r.audience = qp.get('audience'); }
+  paintAll();
   fit();
   const wantAsset = qp.get('asset');
   dealData().then(d => {
-    // A merchant opening a short link (signed out) just sees the page.
     if (!user && wantAsset) { document.body.classList.add('view'); render(); fit(); }
     if (!wantAsset || user) applyDeal(d, false);
     else paintSide();
   });
-  // Brand Folder switched (Hub chip, Folders tab, the bar) → that folder's own draft.
   if (window.SIsb) SIsb.onActiveFolder(f => {
     if (f && f.id === S.folderId) { dealData().then(d => applyDeal(d, false)); return; }
     try { localStorage.setItem(DKEY(S.folderId), JSON.stringify(S)); } catch (e) {}
