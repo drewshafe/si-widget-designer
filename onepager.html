@@ -184,8 +184,8 @@
   .rc-ein { font-size:12px; color:#4A4960; line-height:1.45; }
   .rc-fit { display:flex; flex-direction:column; gap:8px; }
   .rc-fc { background:#F3F3FC; border-radius:10px; padding:12px 14px; display:flex; flex-direction:column; gap:4px; }
-  .rc-fc > div:first-child { font-size:14px; font-weight:700; }
-  .rc-fc > div:last-child { font-size:13px; line-height:1.45; color:#4A4960; }
+  .rc-fc > div:first-of-type { font-size:14px; font-weight:700; }
+  .rc-fc > div:last-of-type { font-size:13px; line-height:1.45; color:#4A4960; }
   .rc-tbl { width:100%; border-collapse:collapse; font-size:14px; line-height:1.4; table-layout:fixed; }
   .rc-tbl th { text-align:left; font-size:12px; font-weight:700; color:#4A4960; padding:0 12px 8px 0; border-bottom:1px solid #C9C9DA; }
   .rc-tbl th:nth-child(2) { width:110px; } .rc-tbl th:nth-child(3) { width:84px; padding-right:0; }
@@ -201,6 +201,86 @@
   .rc-cs { font-size:13px; color:#4A4960; }
   .ph-box { display:flex; align-items:center; justify-content:center; border:1.5px dashed #9B98C8; border-radius:8px; color:#6B68A8; font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; cursor:pointer; background:rgba(155,152,200,.08); }
   .t-recap header .ph-box { border-color:color-mix(in srgb, var(--hs) 60%, transparent); color:var(--hs); }
+  .t-recap main > :empty { display:none; }
+
+  /* ── Recap blocks: per-block style (set inline) + Liquid glass ──
+     Liquid glass (samasante/liquid-glass look, as the ROI Calculator's Custom Build): a dark, accent-tinted
+     background that drifts slowly on screen (static in the PDF) with glass tiles; the library's lens plates
+     are mounted on screen only. Section blocks only, never the header or banner. */
+  .op-page [data-blk] { position:relative; }
+  .op-page [data-blk][data-pad] { padding:14px 16px; border-radius:12px; }
+  .op-page [data-tx] .rc-pt > div:last-child, .op-page [data-tx] .rc-kv > div:first-child, .op-page [data-tx] .rc-cs, .op-page [data-tx] .rc-ein,
+  .op-page [data-tx] .rc-ec:not(.hi) .s, .op-page [data-tx] .rc-fc > div:last-of-type, .op-page [data-tx] .rc-tbl th { color:inherit; opacity:.78; }
+  @property --gx1 { syntax:'<percentage>'; inherits:false; initial-value:0%; }
+  @property --gy1 { syntax:'<percentage>'; inherits:false; initial-value:0%; }
+  @property --gx2 { syntax:'<percentage>'; inherits:false; initial-value:100%; }
+  @property --gy2 { syntax:'<percentage>'; inherits:false; initial-value:0%; }
+  @property --gx3 { syntax:'<percentage>'; inherits:false; initial-value:50%; }
+  @property --gy3 { syntax:'<percentage>'; inherits:false; initial-value:100%; }
+  @keyframes glDrift {
+    0% { --gx1:0%; --gy1:0%; --gx2:100%; --gy2:0%; --gx3:50%; --gy3:100%; }
+    50% { --gx1:100%; --gy1:60%; --gx2:0%; --gy2:100%; --gx3:0%; --gy3:20%; }
+    100% { --gx1:35%; --gy1:100%; --gx2:70%; --gy2:15%; --gx3:100%; --gy3:60%; }
+  }
+  .op-page [data-glass] { isolation:isolate; color:#EEF0FA; padding:16px 18px; border-radius:16px; border:1px solid rgba(255,255,255,.14);
+    background:
+      radial-gradient(55% 75% at 18% 22%, rgba(var(--acr),.62) 0%, rgba(var(--acr),0) 62%),
+      radial-gradient(48% 68% at 84% 28%, rgba(139,92,246,.5) 0%, rgba(139,92,246,0) 62%),
+      radial-gradient(60% 80% at 50% 105%, rgba(20,184,166,.4) 0%, rgba(20,184,166,0) 62%),
+      linear-gradient(160deg, #0d1020 0%, #080a16 100%);
+    background-size:190% 190%, 210% 210%, 230% 230%, 100% 100%;
+    background-position:var(--gx1) var(--gy1), var(--gx2) var(--gy2), var(--gx3) var(--gy3), 0 0;
+    box-shadow:0 10px 28px rgba(8,10,24,.26), inset 0 1px 0 rgba(255,255,255,.16), inset 0 0 0 1px rgba(255,255,255,.05); }
+  @media screen { .op-page [data-glass] { animation:glDrift 28s ease-in-out infinite alternate; } }
+  @media screen and (prefers-reduced-motion: reduce) { .op-page [data-glass] { animation:none; } }
+  .op-page [data-glass] .pg-lbl { color:var(--acl); }
+  .op-page [data-glass] .rc-dot { background:var(--acl); }
+  .op-page [data-glass] .rc-pt, .op-page [data-glass] .rc-tbl td { border-color:rgba(255,255,255,.14); }
+  .op-page [data-glass] .rc-tbl th { color:rgba(238,240,250,.72); border-color:rgba(255,255,255,.3); }
+  .op-page [data-glass] .rc-pt > div:last-child, .op-page [data-glass] .rc-kv > div:first-child, .op-page [data-glass] .rc-cs,
+  .op-page [data-glass] .rc-ein, .op-page [data-glass] .rc-ec .s, .op-page [data-glass] .rc-fc > div:last-of-type { color:rgba(238,240,250,.74); }
+  .op-page [data-glass] .rc-ec, .op-page [data-glass] .rc-fc { position:relative; isolation:isolate; background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.22); border-radius:12px; box-shadow:inset 0 1px 0 rgba(255,255,255,.28), 0 8px 18px rgba(0,0,0,.26); }
+  .op-page [data-glass] .rc-ec.hi { background:rgba(var(--acr),.5); border-color:rgba(255,255,255,.34); }
+  .op-page [data-glass] .rc-ec.hi .s { color:#E6E7FF; }
+  .op-page [data-glass] [contenteditable]:hover { box-shadow:0 0 0 2px rgba(255,255,255,.32); }
+  .op-page [data-glass] [contenteditable]:focus { box-shadow:0 0 0 2px rgba(255,255,255,.85); background-color:rgba(255,255,255,.08); }
+  .op-page [data-glass] [contenteditable]:empty::before { color:#FFD9A8; background:rgba(255,170,80,.18); }
+  .gl-plate { display:block; position:absolute; inset:0; z-index:-1; pointer-events:none; border-radius:inherit; }
+  .gl-on { -webkit-backdrop-filter:none !important; backdrop-filter:none !important; }
+
+  /* ── Canvas editing (screen only): outline + toolbar on each block ── */
+  body.blk-edit .op-page [data-blk] { cursor:pointer; }
+  body.blk-edit .op-page [data-blk]:hover { outline:1.5px dashed rgba(70,82,230,.55); outline-offset:4px; }
+  body.blk-edit .op-page [data-blk].blk-sel { outline:2.5px solid #4652E6; outline-offset:4px; }
+  .op-page [data-blk].blk-drag { opacity:.4; }
+  .blk-bar { display:none; position:absolute; z-index:40; top:-15px; right:4px; align-items:center; gap:2px; padding:3px 4px; background:#1f2430; color:#fff; border-radius:8px; box-shadow:0 6px 18px rgba(20,24,48,.28); font:700 11px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; letter-spacing:0; text-transform:none; white-space:nowrap; user-select:none; -webkit-user-select:none; cursor:default; }
+  body.blk-edit .op-page [data-blk]:hover > .blk-bar, body.blk-edit .op-page [data-blk].blk-sel > .blk-bar { display:flex; }
+  .blk-bar button { border:0; background:transparent; color:#fff; font:inherit; padding:4px 6px; border-radius:5px; cursor:pointer; }
+  .blk-bar button:hover { background:rgba(255,255,255,.14); }
+  .blk-bar button.on { background:linear-gradient(135deg, #6c5cff, #2dd4bf); }
+  .blk-bar .grip { cursor:grab; color:#aeb6ff; font-size:13px; padding:3px 5px; touch-action:none; }
+  .blk-bar .nm { padding:0 5px 0 2px; color:#cfd3ea; max-width:120px; overflow:hidden; text-overflow:ellipsis; }
+  .blk-bar .sep { width:1px; height:14px; background:rgba(255,255,255,.18); margin:0 2px; }
+  .blk-drop { position:fixed; z-index:200; background:#4652E6; border-radius:3px; pointer-events:none; box-shadow:0 0 0 3px rgba(70,82,230,.22); }
+  .blk-chip { position:fixed; z-index:201; pointer-events:none; transform:translate(10px, 8px); background:#1f2430; color:#fff; font:700 12px/1 -apple-system, BlinkMacSystemFont, sans-serif; padding:7px 10px; border-radius:8px; box-shadow:0 8px 22px rgba(20,24,48,.3); }
+
+  /* Side panel: block list + block editor */
+  .bl-list { display:flex; flex-direction:column; gap:5px; }
+  .bl-row { display:flex; align-items:center; gap:7px; padding:6px 8px; border:1px solid var(--line); border-radius:8px; background:var(--field); font-size:12.5px; }
+  .bl-row.on { border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-soft); }
+  .bl-row input[type=checkbox] { width:15px; height:15px; accent-color:var(--accent); flex:none; margin:0; }
+  .bl-row .bn { flex:1; min-width:0; border:0; background:none; text-align:left; font-weight:600; cursor:pointer; padding:2px 0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .bl-row .bn.off { color:var(--muted); text-decoration:line-through; }
+  .bl-row .col { font-size:10.5px; font-weight:800; color:var(--muted); letter-spacing:.04em; flex:none; }
+  .bl-row .gl { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:700; color:var(--muted); cursor:pointer; flex:none; }
+  .bl-row .gl input:checked + span { background:linear-gradient(135deg, #6c5cff, #2dd4bf); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .be { border:1px solid var(--accent); border-radius:10px; padding:10px; display:flex; flex-direction:column; gap:9px; background:var(--card); }
+  .be-h { display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:13px; font-weight:800; }
+  .cc { display:flex; gap:4px; align-items:center; }
+  .cc input[type=color] { flex:1; min-width:0; height:30px; padding:2px; border:1px solid var(--line); border-radius:7px; background:var(--field); cursor:pointer; }
+  .cc button { border:1px solid var(--line); background:var(--field); color:var(--muted); border-radius:6px; padding:5px 7px; font-size:11px; cursor:pointer; line-height:1; }
+  .cc.unset input[type=color] { opacity:.45; }
+  .three { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
 
   /* In-place editing (screen only) */
   .op-page [contenteditable] { outline:none; border-radius:3px; cursor:text; transition:box-shadow .12s, background-color .12s; }
@@ -241,6 +321,11 @@
     .op-page { transform:none !important; break-after:avoid; break-inside:avoid; }
     .op-page [contenteditable] { box-shadow:none !important; background-color:transparent !important; }
     .op-page [contenteditable]:empty::before { content:none !important; }
+    .blk-bar, .blk-drop, .blk-chip, .gl-plate { display:none !important; }
+    .op-page [data-blk] { outline:none !important; opacity:1 !important; }
+    /* Blurred outer shadows print as grey boxes in PDF viewers: glass keeps only its inner rim */
+    .op-page [data-glass] { box-shadow:inset 0 1px 0 rgba(255,255,255,.16), inset 0 0 0 1px rgba(255,255,255,.05) !important; isolation:auto !important; animation:none !important; }
+    .op-page [data-glass] .rc-ec, .op-page [data-glass] .rc-fc { box-shadow:inset 0 1px 0 rgba(255,255,255,.28) !important; isolation:auto !important; }
     * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
   }
 </style>
@@ -330,20 +415,39 @@
         </div>
       </div>
     </details>
-    <details class="dz" data-only="recap">
-      <summary>Sections</summary>
+    <details class="dz" data-only="recap" id="blkDz" open>
+      <summary>Blocks</summary>
       <div class="dzb">
-        <div class="chks">
-          <label class="chk"><input type="checkbox" data-sec="heard"> What we heard</label>
-          <label class="chk"><input type="checkbox" data-sec="lens"> Audience lens</label>
-          <label class="chk"><input type="checkbox" data-sec="econ"> Modeled economics</label>
-          <label class="chk"><input type="checkbox" data-sec="fit"> How it fits</label>
-          <label class="chk"><input type="checkbox" data-sec="steps"> Next steps</label>
-          <label class="chk"><input type="checkbox" data-sec="program"> Program at a glance</label>
-        </div>
-        <div class="two">
-          <div class="fld"><label for="rHeardN">“Heard” bullets</label><input id="rHeardN" type="number" min="1" max="6" data-r="heardN"></div>
-          <div class="fld"><label for="rStepsN">Next-step rows</label><input id="rStepsN" type="number" min="1" max="8" data-r="stepsN"></div>
+        <div class="tip">Click a block on the page to style it. Drag <b>⣿</b> to move it, including to the other column.</div>
+        <label class="chk"><input type="checkbox" id="glassAll"> <span>Liquid glass · all blocks</span></label>
+        <div class="bl-list" id="blList"></div>
+        <div class="be" id="blkEd" hidden>
+          <div class="be-h"><span id="beName">Block</span><button type="button" class="btn small" id="beClose" title="Done with this block">Done</button></div>
+          <div class="row">
+            <div class="fld"><span class="fl">Column</span><div class="seg" id="beCol"><button type="button" data-o="left">◧ Left</button><button type="button" data-o="right">Right ◨</button></div></div>
+            <div class="fld" style="flex:0 0 auto"><span class="fl">Order</span><div class="row"><button type="button" class="btn small" id="beUp" title="Move up">↑</button><button type="button" class="btn small" id="beDn" title="Move down">↓</button></div></div>
+          </div>
+          <label class="chk"><input type="checkbox" data-bs="glass"> Liquid glass</label>
+          <div class="fld" data-for="heard"><label for="rHeardN">Bullets</label><input id="rHeardN" type="number" min="1" max="6" data-r="heardN"></div>
+          <div class="fld" data-for="steps"><label for="rStepsN">Step rows</label><input id="rStepsN" type="number" min="1" max="8" data-r="stepsN"></div>
+          <div class="two" data-noglass>
+            <div class="fld"><span class="fl">Background</span><div class="cc" data-cc="bg"><input type="color" data-bs="bg"><button type="button" data-clear="bg" title="Back to the template">✕</button></div></div>
+            <div class="fld"><span class="fl">Border color</span><div class="cc" data-cc="bc"><input type="color" data-bs="bc"><button type="button" data-clear="bc" title="Back to the template">✕</button></div></div>
+          </div>
+          <div class="two">
+            <div class="fld" data-noglass><span class="fl">Text</span><div class="cc" data-cc="color"><input type="color" data-bs="color"><button type="button" data-clear="color" title="Back to the template">✕</button></div></div>
+            <div class="fld"><span class="fl">Label + bullets</span><div class="cc" data-cc="lc"><input type="color" data-bs="lc"><button type="button" data-clear="lc" title="Back to the accent">✕</button></div></div>
+          </div>
+          <div class="two">
+            <div class="fld"><label for="beFont">Font</label><select id="beFont" data-bs="font"></select></div>
+            <div class="fld"><span class="fl">Text size</span><div class="seg" id="beSize"><button type="button" data-o="S">S</button><button type="button" data-o="">M</button><button type="button" data-o="L">L</button></div></div>
+          </div>
+          <div class="three">
+            <div class="fld" data-noglass><label for="beBw">Border <b id="beBwV"></b></label><input id="beBw" type="range" min="0" max="4" step="1" data-bs="bw"></div>
+            <div class="fld"><label for="beRad">Corners <b id="beRadV"></b></label><input id="beRad" type="range" min="0" max="28" step="2" data-bs="radius"></div>
+            <div class="fld"><label for="bePad">Padding <b id="bePadV"></b></label><input id="bePad" type="range" min="0" max="32" step="2" data-bs="pad"></div>
+          </div>
+          <div class="row"><button type="button" class="btn small" id="beReset">↺ Reset block style</button><button type="button" class="btn small" id="beHide">Hide block</button></div>
         </div>
       </div>
     </details>
@@ -425,6 +529,14 @@
   const HEROES = { 'None': null, 'Box · blue': IMG.mBlue, 'Box · black': IMG.mBlack, 'Box · light': IMG.mLight, 'Box · blue tile': IMG.mTile };
   const BANNERS = { 'None': null, 'ShipInsure · blue': IMG.bBlue, 'ShipInsure · black': IMG.bBlack, 'Merchant banner': 'merchant' };
   const FOCUS = { Top: 'center top', Center: 'center center', Bottom: 'center bottom' };
+  // Section blocks (header + banner are not blocks: they have their own panels)
+  const BLK = {
+    heard: 'What we heard', lens: 'Audience lens', econ: 'Modeled economics', fit: 'How it fits', steps: 'Next steps',
+    details: 'Meeting details', program: 'Program at a glance', contact: 'Your contact'
+  };
+  const BCOL = { left: ['heard', 'lens', 'econ', 'fit', 'steps'], right: ['details', 'program', 'contact'] };
+  const BFONTS = { '': 'Montserrat', 'Inter': 'Inter', 'DM Sans': 'DM Sans', 'Poppins': 'Poppins', 'Lora': 'Lora', 'Playfair Display': 'Playfair Display', 'Georgia': 'Georgia' };
+  const BSIZE = { S: 0.92, L: 1.08 };
   // Audience lens copy. "[…]" = a blank the rep fills in (shown as an orange chip, printed empty).
   const LENSES = {
     'Executive summary': { k: 'Executive summary', title: 'The short version', pts: [
@@ -557,10 +669,20 @@
   const blankR = () => ({
     audience: 'Founder / Exec', meetingType: 'Discovery call', headerStyle: 'Dark', siLogo: 'Auto', siLogoH: 30,
     showMerchantLogo: true, merchantLogoH: 34, plate: 'Auto', hero: 'Box · blue', heroSize: 96,
-    // Banner 120px (the live recaps' height): at the master's 150px the right column runs 19px past the page.
-    banner: 'ShipInsure · blue', bannerH: 120, bannerFocus: 'Center', merchantBanner: '',
-    sections: { heard: null, lens: true, econ: false, fit: false, steps: true, program: true }, heardN: 3, stepsN: 3
+    // No banner by default (a rep can still pick one under Imagery). When one is on: 120px, the live recaps'
+    // height (at the master's 150px the right column runs 19px past the page).
+    banner: 'None', bannerH: 120, bannerFocus: 'Center', merchantBanner: '',
+    sections: { heard: null, lens: true, econ: false, fit: false, steps: true, program: true, details: true, contact: true }, heardN: 3, stepsN: 3,
+    // Blocks: which column each sits in (top to bottom), and each one's style / Liquid glass
+    order: { left: BCOL.left.slice(), right: BCOL.right.slice() }, blk: {}
   });
+  // Normalize a saved block order: every block exactly once, unknown keys dropped.
+  function normOrder(o) {
+    const out = { left: [], right: [] }, seen = {};
+    ['left', 'right'].forEach(c => ((o && Array.isArray(o[c])) ? o[c] : []).forEach(k => { if (BLK[k] && !seen[k]) { seen[k] = 1; out[c].push(k); } }));
+    ['left', 'right'].forEach(c => BCOL[c].forEach(k => { if (!seen[k]) { seen[k] = 1; out[c].push(k); } }));
+    return out;
+  }
   const blank = () => ({
     v: 2, template: 'recap', audience: 'sales', folderId: null,
     merchant: '', repName: '', repEmail: '', logo: '', showLogo: true, meetingDate: todayStr(),
@@ -576,6 +698,8 @@
     S.copy = Object.assign({ sales: {}, leads: {}, support: {}, shared: {}, recap: {} }, (d && d.copy) || {});
     S.r = Object.assign(blankR(), (d && d.r) || {});
     S.r.sections = Object.assign(blankR().sections, ((d && d.r) || {}).sections || {});
+    S.r.order = normOrder(S.r.order);
+    S.r.blk = (S.r.blk && typeof S.r.blk === 'object') ? S.r.blk : {};
     if (!AUD[S.audience]) S.audience = 'sales';
     if (!LENSES[S.r.audience]) S.r.audience = 'Founder / Exec';
     if (!Array.isArray(S.bands)) S.bands = [];
@@ -785,7 +909,42 @@
       '<footer><div>' + E('shared', 'footQ') + '&nbsp;' + B('repName', 'pg-rep', 'Your name') + ' · ' + B('repEmail', '', 'you@shipinsure.io') + '</div>' + E('shared', 'site', 'div', 'pg-site') + '</footer>';
   }
 
-  const secOn = k => k === 'heard' ? (S.r.sections.heard == null ? S.r.audience !== 'Executive summary' : !!S.r.sections.heard) : !!S.r.sections[k];
+  const secOn = k => k === 'heard' ? (S.r.sections.heard == null ? S.r.audience !== 'Executive summary' : !!S.r.sections.heard) : S.r.sections[k] !== false && (S.r.sections[k] != null || k === 'details' || k === 'contact');
+
+  // ── Blocks: one section of the recap, wrapped with its style (inline) and Liquid glass ──
+  const bst = k => S.r.blk[k] || {};
+  const setNum = v => v != null && v !== '' && !isNaN(+v);
+  const _fontsOn = {};
+  function loadFont(f) {
+    if (!f || f === 'Georgia' || _fontsOn[f]) return;
+    _fontsOn[f] = 1;
+    const l = document.createElement('link'); l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(f).replace(/%20/g, '+') + ':wght@400;500;600;700;800&display=swap';
+    l.onload = () => checkFit();
+    document.head.appendChild(l);
+  }
+  function blk(k, tag, cls, inner, base) {
+    if (!secOn(k)) return '';
+    const st = bst(k), glass = !!st.glass;
+    let css = base || '';
+    const sec = cls === 'rc-sec';
+    if (!glass) {
+      if (okHex(st.bg)) css += 'background:' + st.bg + ';';
+      if (setNum(st.bw)) css += 'border:' + (+st.bw) + 'px solid ' + (okHex(st.bc) ? st.bc : '#E1E1EC') + ';';
+      else if (okHex(st.bc)) css += 'border:1px solid ' + st.bc + ';';
+      if (okHex(st.color)) css += 'color:' + st.color + ';';
+    }
+    if (okHex(st.lc)) css += '--ac:' + st.lc + ';--acl:' + st.lc + ';';
+    if (setNum(st.radius)) css += 'border-radius:' + (+st.radius) + 'px;';
+    if (setNum(st.pad)) css += 'padding:' + (+st.pad) + 'px;';
+    if (st.font && BFONTS[st.font]) { loadFont(st.font); css += "font-family:'" + st.font + "', " + (/Lora|Playfair|Georgia/.test(st.font) ? 'Georgia, serif' : 'system-ui, sans-serif') + ';'; }
+    if (BSIZE[st.size]) css += 'zoom:' + BSIZE[st.size] + ';';
+    // A plain section given a fill or border gets card padding unless a padding is set
+    const pad = !glass && sec && !setNum(st.pad) && (okHex(st.bg) || (setNum(st.bw) && +st.bw > 0) || okHex(st.bc));
+    return '<' + tag + ' class="' + cls + '" data-blk="' + k + '"' + (glass ? ' data-glass' : '') + (pad ? ' data-pad' : '') + (!glass && okHex(st.color) ? ' data-tx' : '') +
+      (css ? ' style="' + esc(css) + '"' : '') + '>' + inner + '</' + tag + '>';
+  }
+
   function renderRecap() {
     const R = S.r, t = THEMES[R.headerStyle] || THEMES.Dark, L = LENSES[R.audience], lg = lensG(), sup = R.audience === 'Support team';
     const plate = R.plate === 'On' || (R.plate === 'Auto' && t.plate);
@@ -800,8 +959,8 @@
         ? (R.merchantBanner ? '<img class="rc-banner" alt="" src="' + esc(R.merchantBanner) + '" style="height:' + R.bannerH + 'px;object-position:' + FOCUS[R.bannerFocus] + '">'
                             : '<div class="ph-box" data-up="banner" title="Upload a merchant banner" style="height:' + R.bannerH + 'px;border-radius:0;flex:none">Merchant banner · click to upload</div>')
         : '<img class="rc-banner" alt="ShipInsure shipping protection" src="' + bk + '" style="height:' + R.bannerH + 'px;object-position:' + FOCUS[R.bannerFocus] + '">';
-    const heard = !secOn('heard') ? '' : '<section class="rc-sec">' + E('recap', 'heardLabel', 'div', 'pg-lbl') + '<ul class="rc-heard">' +
-      Array.from({ length: R.heardN }, (_, i) => '<li><div class="rc-dot"></div>' + E('recap', 'h' + (i + 1), 'div') + '</li>').join('') + '</ul></section>';
+    const heard = blk('heard', 'section', 'rc-sec', E('recap', 'heardLabel', 'div', 'pg-lbl') + '<ul class="rc-heard">' +
+      Array.from({ length: R.heardN }, (_, i) => '<li><div class="rc-dot"></div>' + E('recap', 'h' + (i + 1), 'div') + '</li>').join('') + '</ul>');
     const lensPt = (i) => {
       let d;
       if (sup && i === 2) d = '<div>' + E(lg, 'p2d') + ' ' + B('claimsLink', '', 'CLAIMS LINK') + '</div>';
@@ -809,22 +968,24 @@
       else d = E(lg, 'p' + i + 'd', 'div');
       return '<div class="rc-pt">' + E(lg, 'p' + i + 't', 'div') + d + '</div>';
     };
-    const lens = !secOn('lens') ? '' : '<section class="rc-sec">' + E(lg, 'k', 'div', 'pg-lbl') + E(lg, 'title', 'div', 'rc-lt') +
-      '<div class="rc-pts">' + L.pts.map((_, i) => lensPt(i + 1)).join('') + '</div></section>';
+    const lens = blk('lens', 'section', 'rc-sec', E(lg, 'k', 'div', 'pg-lbl') + E(lg, 'title', 'div', 'rc-lt') +
+      '<div class="rc-pts">' + L.pts.map((_, i) => lensPt(i + 1)).join('') + '</div>');
     const ec = (i, hi) => '<div class="rc-ec' + (hi ? ' hi' : '') + '">' + E('recap', 'e' + i + 'v', 'div', 'v') + E('recap', 'e' + i + 'l', 'div', 'l') + E('recap', 'e' + i + 's', 'div', 's') + '</div>';
-    const econ = !secOn('econ') ? '' : '<section class="rc-sec" style="gap:10px">' + E('recap', 'econLabel', 'div', 'pg-lbl') +
-      '<div class="rc-econ">' + ec(1) + ec(2) + ec(3) + ec(4, true) + '</div>' + E('recap', 'eIn', 'div', 'rc-ein') + '</section>';
+    const econ = blk('econ', 'section', 'rc-sec', E('recap', 'econLabel', 'div', 'pg-lbl') +
+      '<div class="rc-econ">' + ec(1) + ec(2) + ec(3) + ec(4, true) + '</div>' + E('recap', 'eIn', 'div', 'rc-ein'), 'gap:10px;');
     const fc = i => '<div class="rc-fc">' + E('recap', 'f' + i + 't', 'div') + E('recap', 'f' + i + 'd', 'div') + '</div>';
-    const fit = !secOn('fit') ? '' : '<section class="rc-sec" style="gap:10px">' + E('recap', 'fitLabel', 'div', 'pg-lbl') + '<div class="rc-fit">' + fc(1) + fc(2) + fc(3) + '</div></section>';
-    const steps = !secOn('steps') ? '' : '<section class="rc-sec">' + E('recap', 'stepsLabel', 'div', 'pg-lbl') +
+    const fit = blk('fit', 'section', 'rc-sec', E('recap', 'fitLabel', 'div', 'pg-lbl') + '<div class="rc-fit">' + fc(1) + fc(2) + fc(3) + '</div>', 'gap:10px;');
+    const steps = blk('steps', 'section', 'rc-sec', E('recap', 'stepsLabel', 'div', 'pg-lbl') +
       '<table class="rc-tbl"><thead><tr>' + E('recap', 'thStep', 'th') + E('recap', 'thOwner', 'th') + E('recap', 'thBy', 'th') + '</tr></thead><tbody>' +
       Array.from({ length: R.stepsN }, (_, i) => '<tr>' + E('recap', 's' + (i + 1) + 'a', 'td') + E('recap', 's' + (i + 1) + 'b', 'td') + E('recap', 's' + (i + 1) + 'c', 'td') + '</tr>').join('') +
-      '</tbody></table></section>';
+      '</tbody></table>');
     const kv = (lk, vk, bind) => '<div class="rc-kv">' + E('recap', lk, 'div') + (bind ? '<div>' + B(bind, '', 'Meeting date') + '</div>' : E('recap', vk, 'div')) + '</div>';
-    const details = '<div class="rc-card">' + E('recap', 'detailsLabel', 'div', 'pg-lbl') + kv('dDateL', null, 'meetingDate') + kv('dAttL', 'dAtt') + kv('dPlatL', 'dPlat') + kv('dSetL', 'dSet') + '</div>';
-    const program = !secOn('program') ? '' : '<div class="rc-card">' + E('recap', 'programLabel', 'div', 'pg-lbl') + kv('pCovL', 'pCov') + kv('pClL', 'pCl') + kv('pPrL', 'pPr') + kv('pGoL', 'pGo') + '</div>';
-    const contact = '<div class="rc-card line">' + E('recap', 'contactLabel', 'div', 'pg-lbl') + '<div class="rc-cn">' + B('repName', '', 'Your name') + '</div>' +
-      '<div class="rc-cs">' + B('repEmail', '', 'you@shipinsure.io') + '</div>' + E('recap', 'phone', 'div', 'rc-cs') + '</div>';
+    const details = blk('details', 'div', 'rc-card', E('recap', 'detailsLabel', 'div', 'pg-lbl') + kv('dDateL', null, 'meetingDate') + kv('dAttL', 'dAtt') + kv('dPlatL', 'dPlat') + kv('dSetL', 'dSet'));
+    const program = blk('program', 'div', 'rc-card', E('recap', 'programLabel', 'div', 'pg-lbl') + kv('pCovL', 'pCov') + kv('pClL', 'pCl') + kv('pPrL', 'pPr') + kv('pGoL', 'pGo'));
+    const contact = blk('contact', 'div', 'rc-card line', E('recap', 'contactLabel', 'div', 'pg-lbl') + '<div class="rc-cn">' + B('repName', '', 'Your name') + '</div>' +
+      '<div class="rc-cs">' + B('repEmail', '', 'you@shipinsure.io') + '</div>' + E('recap', 'phone', 'div', 'rc-cs'));
+    const H = { heard, lens, econ, fit, steps, details, program, contact };
+    const col = c => R.order[c].map(k => H[k] || '').join('');
     page.className = 'op-page t-recap';
     page.style.setProperty('--hb', t.bg); page.style.setProperty('--ht', t.text); page.style.setProperty('--hs', t.sub);
     page.style.setProperty('--hbd', t.border); page.style.setProperty('--hdv', t.divider);
@@ -836,7 +997,7 @@
         '</div></div>' +
         (hero ? '<img class="rc-hero" alt="" aria-hidden="true" src="' + hero + '" style="width:' + R.heroSize + 'px">' : '') +
       '</header>' + banner +
-      '<main><div class="rc-col">' + heard + lens + econ + fit + steps + '</div><aside>' + details + program + contact + '</aside></main>';
+      '<main><div class="rc-col">' + col('left') + '</div><aside>' + col('right') + '</aside></main>';
     // A missing merchant logo leaves no stray divider in the PDF.
     page.querySelectorAll('[data-ph-only]').forEach(el => el.classList.add('ph-only'));
   }
@@ -846,8 +1007,240 @@
     if (fit.s && fit.s !== 1) page.style.transform = 'scale(' + fit.s + ')';
     recap() ? renderRecap() : renderGuide();
     if (document.body.classList.contains('view')) page.querySelectorAll('[contenteditable]').forEach(el => el.setAttribute('contenteditable', 'false'));
-    page.style.setProperty('--ac', legible(S.accent));
+    const ac = legible(S.accent), acA = hexRgb(ac);
+    page.style.setProperty('--ac', ac);
+    page.style.setProperty('--acr', acA.join(','));
+    page.style.setProperty('--acl', rgbHex(acA.map(v => v + (255 - v) * 0.55)));   // the accent, light enough for Liquid glass
+    const editing = recap() && !document.body.classList.contains('view');
+    document.body.classList.toggle('blk-edit', editing);
+    if (editing) paintBars();
+    syncPlates();
     requestAnimationFrame(checkFit);
+  }
+
+  // ═════ Canvas editing: select, style, move, hide, Liquid glass (recap blocks) ═════
+  let SELK = null;
+  const colOf = k => S.r.order.left.indexOf(k) >= 0 ? 'left' : 'right';
+  function paintBars() {
+    page.querySelectorAll('[data-blk]').forEach(el => {
+      const k = el.dataset.blk, gl = !!bst(k).glass, other = colOf(k) === 'left' ? 'right' : 'left';
+      const bar = document.createElement('div');
+      bar.className = 'blk-bar'; bar.setAttribute('contenteditable', 'false');
+      bar.innerHTML = '<span class="grip" title="Drag to move">⣿</span><span class="nm">' + esc(BLK[k]) + '</span><span class="sep"></span>' +
+        '<button type="button" data-op="col" title="Move to the ' + other + ' column">' + (other === 'left' ? '⇤' : '⇥') + '</button>' +
+        '<button type="button" data-op="glass" class="' + (gl ? 'on' : '') + '" title="Liquid glass ' + (gl ? 'on: click to turn it off' : 'off: click to turn it on') + '">✦ Glass</button>' +
+        '<button type="button" data-op="style" title="Style this block">🎨</button>' +
+        '<button type="button" data-op="hide" title="Hide this block (show it again under Blocks)">👁</button>';
+      el.appendChild(bar);
+      el.classList.toggle('blk-sel', k === SELK);
+    });
+  }
+  function selectBlk(k, open) {
+    SELK = k || null;
+    page.querySelectorAll('[data-blk]').forEach(el => el.classList.toggle('blk-sel', el.dataset.blk === SELK));
+    paintBlocks();
+    if (SELK && open) {
+      $('blkDz').open = true;
+      setTimeout(() => { try { $('blkEd').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) {} }, 30);
+    }
+  }
+  function setBst(k, key, v) {
+    const st = Object.assign({}, bst(k));
+    if (v === '' || v == null || v === false) delete st[key]; else st[key] = v;
+    if (Object.keys(st).length) S.r.blk[k] = st; else delete S.r.blk[k];
+  }
+  function moveBlk(k, toCol, idx) {
+    const O = S.r.order;
+    ['left', 'right'].forEach(c => { const i = O[c].indexOf(k); if (i >= 0) O[c].splice(i, 1); });
+    const list = O[toCol];
+    list.splice(idx == null ? list.length : Math.max(0, Math.min(list.length, idx)), 0, k);
+  }
+  function blkChanged() { render(); paintBlocks(); saveDraft(); }
+
+  page.addEventListener('click', e => {
+    if (!document.body.classList.contains('blk-edit')) return;
+    const btn = e.target.closest('.blk-bar [data-op]');
+    if (btn) {
+      e.preventDefault(); e.stopPropagation();
+      const k = btn.closest('[data-blk]').dataset.blk, op = btn.dataset.op;
+      if (op === 'col') { const to = colOf(k) === 'left' ? 'right' : 'left'; moveBlk(k, to); SELK = k; blkChanged(); toast(BLK[k] + ' moved to the ' + to + ' column'); }
+      else if (op === 'glass') { setBst(k, 'glass', !bst(k).glass); SELK = k; blkChanged(); }
+      else if (op === 'style') selectBlk(k, true);
+      else if (op === 'hide') { S.r.sections[k] = false; if (SELK === k) SELK = null; blkChanged(); toast(BLK[k] + ' hidden. Tick it under Blocks to show it again.'); }
+      return;
+    }
+    if (e.target.closest('.blk-bar')) { e.preventDefault(); return; }
+    const host = e.target.closest('[data-blk]');
+    if (host && host.dataset.blk !== SELK) selectBlk(host.dataset.blk, false);
+  });
+
+  // Drag a block by its ⣿ grip: drop it in either column, between any two blocks.
+  let D = null;
+  page.addEventListener('pointerdown', e => {
+    const grip = e.target.closest && e.target.closest('.blk-bar .grip'); if (!grip) return;
+    const el = grip.closest('[data-blk]');
+    e.preventDefault(); e.stopPropagation();
+    try { grip.setPointerCapture(e.pointerId); } catch (x) {}
+    const drop = document.createElement('div'); drop.className = 'blk-drop'; drop.style.display = 'none';
+    const chip = document.createElement('div'); chip.className = 'blk-chip'; chip.textContent = '⣿ ' + BLK[el.dataset.blk];
+    document.body.append(drop, chip);
+    el.classList.add('blk-drag');
+    D = { k: el.dataset.blk, el, drop, chip, to: null };
+    dragMove(e);
+  });
+  function dragMove(e) {
+    if (!D) return;
+    D.chip.style.left = e.clientX + 'px'; D.chip.style.top = e.clientY + 'px';
+    const cols = { left: page.querySelector('.rc-col'), right: page.querySelector('.t-recap aside') };
+    if (!cols.left || !cols.right) return;
+    const rl = cols.left.getBoundingClientRect(), rr = cols.right.getBoundingClientRect();
+    const c = Math.abs(e.clientX - (rl.left + rl.right) / 2) <= Math.abs(e.clientX - (rr.left + rr.right) / 2) ? 'left' : 'right';
+    const cr = c === 'left' ? rl : rr;
+    const peers = S.r.order[c].filter(k => k !== D.k).map(k => page.querySelector('[data-blk="' + k + '"]')).filter(Boolean);
+    let idx = peers.length, y = null;
+    for (let i = 0; i < peers.length; i++) { const r = peers[i].getBoundingClientRect(); if (e.clientY < r.top + r.height / 2) { idx = i; y = r.top - 7; break; } }
+    if (y == null) { const last = peers[peers.length - 1]; y = last ? last.getBoundingClientRect().bottom + 5 : cr.top; }
+    // Index among the column's blocks (hidden ones keep their place)
+    const vis = peers.map(p => p.dataset.blk), all = S.r.order[c].filter(k => k !== D.k);
+    D.to = { c, idx: idx < vis.length ? all.indexOf(vis[idx]) : all.length };
+    const ds = D.drop.style; ds.display = ''; ds.left = cr.left + 'px'; ds.width = cr.width + 'px'; ds.top = (y - 2) + 'px'; ds.height = '4px';
+  }
+  page.addEventListener('pointermove', dragMove);
+  function endDrag(commit) {
+    if (!D) return;
+    const d = D; D = null;
+    d.el.classList.remove('blk-drag'); d.drop.remove(); d.chip.remove();
+    if (commit && d.to) {
+      const before = JSON.stringify(S.r.order);
+      moveBlk(d.k, d.to.c, d.to.idx);
+      if (JSON.stringify(S.r.order) !== before) { SELK = d.k; blkChanged(); }
+    }
+  }
+  page.addEventListener('pointerup', () => endDrag(true));
+  page.addEventListener('pointercancel', () => endDrag(false));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && D) endDrag(false); });
+
+  // Side panel: block list (show · name · column · Liquid glass) and the selected block's editor
+  function paintBlocks() {
+    if (!recap()) return;
+    const rows = [];
+    ['left', 'right'].forEach(c => S.r.order[c].forEach(k => {
+      const on = secOn(k), gl = !!bst(k).glass;
+      rows.push('<div class="bl-row' + (k === SELK ? ' on' : '') + '" data-k="' + k + '">' +
+        '<input type="checkbox" data-show title="Show on the page"' + (on ? ' checked' : '') + '>' +
+        '<button type="button" class="bn' + (on ? '' : ' off') + '" data-pick title="Style this block">' + esc(BLK[k]) + '</button>' +
+        '<span class="col" title="' + (c === 'left' ? 'Left' : 'Right') + ' column">' + (c === 'left' ? '◧' : '◨') + '</span>' +
+        '<label class="gl" title="Liquid glass"><input type="checkbox" data-glass' + (gl ? ' checked' : '') + '><span>Glass</span></label></div>');
+    }));
+    $('blList').innerHTML = rows.join('');
+    const ks = Object.keys(BLK).filter(secOn), nG = ks.filter(k => bst(k).glass).length;
+    $('glassAll').checked = ks.length > 0 && nG === ks.length;
+    $('glassAll').indeterminate = nG > 0 && nG < ks.length;
+    // Editor
+    const ed = $('blkEd');
+    ed.hidden = !SELK;
+    if (!SELK) return;
+    const st = bst(SELK), gl = !!st.glass;
+    $('beName').textContent = BLK[SELK];
+    document.querySelectorAll('#beCol [data-o]').forEach(b => b.classList.toggle('on', b.dataset.o === colOf(SELK)));
+    ed.querySelectorAll('[data-for]').forEach(el => { el.hidden = el.dataset.for !== SELK; });
+    ed.querySelectorAll('[data-noglass]').forEach(el => { el.hidden = gl; });
+    ed.querySelector('[data-bs="glass"]').checked = gl;
+    const DEFC = { bg: SELK === 'contact' ? '#FFFFFF' : (/details|program/.test(SELK) ? '#F3F3FC' : '#FFFFFF'), bc: '#E1E1EC', color: '#17152B', lc: legible(S.accent) };
+    ['bg', 'bc', 'color', 'lc'].forEach(c => {
+      const inp = ed.querySelector('input[data-bs="' + c + '"]'), set = okHex(st[c]);
+      if (document.activeElement !== inp) inp.value = (set ? st[c] : DEFC[c]).toLowerCase().slice(0, 7);
+      inp.closest('.cc').classList.toggle('unset', !set);
+    });
+    const fs = $('beFont');
+    if (fs.options.length !== Object.keys(BFONTS).length) fs.innerHTML = Object.keys(BFONTS).map(f => '<option value="' + esc(f) + '">' + esc(BFONTS[f]) + '</option>').join('');
+    fs.value = st.font && BFONTS[st.font] ? st.font : '';
+    document.querySelectorAll('#beSize [data-o]').forEach(b => b.classList.toggle('on', b.dataset.o === (BSIZE[st.size] ? st.size : '')));
+    const defs = { bw: SELK === 'contact' ? 1 : 0, radius: gl ? 16 : (/details|program|contact/.test(SELK) ? 12 : 0), pad: gl ? 16 : (/details|program|contact/.test(SELK) ? 16 : 0) };
+    [['bw', 'beBw', 'beBwV'], ['radius', 'beRad', 'beRadV'], ['pad', 'bePad', 'bePadV']].forEach(([key, id, lab]) => {
+      const v = setNum(st[key]) ? +st[key] : defs[key];
+      if (document.activeElement !== $(id)) $(id).value = v;
+      $(lab).textContent = v + 'px';
+    });
+    $('beHide').textContent = secOn(SELK) ? 'Hide block' : 'Show block';
+  }
+  $('blList').addEventListener('click', e => {
+    const row = e.target.closest('.bl-row'); if (!row) return;
+    const k = row.dataset.k;
+    if (e.target.matches('[data-show]')) { S.r.sections[k] = e.target.checked; blkChanged(); return; }
+    if (e.target.matches('[data-glass]')) { setBst(k, 'glass', e.target.checked); blkChanged(); return; }
+    if (e.target.closest('[data-pick]')) selectBlk(k === SELK ? null : k, true);
+  });
+  $('glassAll').addEventListener('change', e => {
+    Object.keys(BLK).forEach(k => setBst(k, 'glass', e.target.checked));
+    blkChanged(); toast(e.target.checked ? 'Liquid glass on every block' : 'Liquid glass off');
+  });
+  $('beClose').addEventListener('click', () => selectBlk(null));
+  $('beCol').addEventListener('click', e => { const b = e.target.closest('[data-o]'); if (!b || !SELK || b.dataset.o === colOf(SELK)) return; moveBlk(SELK, b.dataset.o); blkChanged(); });
+  [['beUp', -1], ['beDn', 1]].forEach(([id, d]) => $(id).addEventListener('click', () => {
+    if (!SELK) return;
+    const c = colOf(SELK), list = S.r.order[c], i = list.indexOf(SELK), j = i + d;
+    if (j < 0 || j >= list.length) { const to = c === 'left' ? 'right' : 'left'; moveBlk(SELK, to, d < 0 ? S.r.order[to].length : 0); }   // past the end: into the other column
+    else { list.splice(i, 1); list.splice(j, 0, SELK); }
+    blkChanged();
+  }));
+  $('beSize').addEventListener('click', e => { const b = e.target.closest('[data-o]'); if (!b || !SELK) return; setBst(SELK, 'size', b.dataset.o); blkChanged(); });
+  $('beReset').addEventListener('click', () => { if (!SELK) return; const gl = bst(SELK).glass; delete S.r.blk[SELK]; if (gl) setBst(SELK, 'glass', true); blkChanged(); toast(BLK[SELK] + ': style back to the template'); });
+  $('beHide').addEventListener('click', () => { if (!SELK) return; S.r.sections[SELK] = !secOn(SELK); blkChanged(); });
+  $('blkEd').addEventListener('click', e => { const b = e.target.closest('[data-clear]'); if (!b || !SELK) return; setBst(SELK, b.dataset.clear, ''); blkChanged(); });
+  $('blkEd').addEventListener('input', e => {
+    const el = e.target, key = el.dataset && el.dataset.bs; if (!key || !SELK) return;
+    if (key === 'glass') return;
+    setBst(SELK, key, el.type === 'color' ? el.value.toUpperCase() : el.type === 'range' ? +el.value : el.value);
+    render(); paintBlocks(); saveDraft();
+  });
+  $('blkEd').addEventListener('change', e => {
+    const el = e.target; if (!SELK) return;
+    if (el.dataset.bs === 'glass') { setBst(SELK, 'glass', el.checked); blkChanged(); }
+    else if (el.dataset.bs === 'font') { setBst(SELK, 'font', el.value); blkChanged(); }
+  });
+
+  // ── Liquid glass lens plates (samasante/liquid-glass), screen only ──
+  // Each glass block gets a rim + sheen plate; its economics / fit tiles get domed lenses that bend the
+  // drifting background (Chrome / Edge; Safari / Firefox frost + rim). Loaded from esm.sh only when a
+  // glass block is on the page. The PDF keeps the CSS glass (the plates are hidden in print).
+  const RIM = { curvature: 0, depth: 0.35, bend: 0.5, bendWidth: 0.12, dispersion: 0.3, frost: 0, saturate: 1.5, sheen: 0.45, sheenWidth: 3 };
+  const DOME = { curvature: 0.25, bend: 0.45, bendWidth: 0.22, dispersion: 0.35, frost: 6, saturate: 1.6, sheen: 0.4 };
+  let _glass = null; const PLATES = new Map(); let _plT = null;
+  function glassLib() {
+    if (!_glass) _glass = Promise.all([
+      import('https://esm.sh/react@19.2.0'),
+      import('https://esm.sh/react-dom@19.2.0/client?deps=react@19.2.0'),
+      import('https://esm.sh/@samasante/liquid-glass@0.1.1?deps=react@19.2.0,react-dom@19.2.0')
+    ]).then(([R, RD, G]) => ({ h: R.createElement, createRoot: RD.createRoot, Glass: G.Glass }))
+      .catch(e => { console.warn('[One-Pager] liquid-glass unavailable, CSS glass only:', e && e.message); return null; });
+    return _glass;
+  }
+  function syncPlates() {
+    clearTimeout(_plT);
+    _plT = setTimeout(async () => {
+      const want = new Map();
+      page.querySelectorAll('[data-glass]').forEach(b => { want.set(b, RIM); b.querySelectorAll('.rc-ec, .rc-fc').forEach(t => want.set(t, DOME)); });
+      PLATES.forEach((rec, host) => {
+        if (want.has(host) && host.isConnected && rec.plate.parentElement === host) return;
+        try { rec.root.unmount(); } catch (e) {}
+        rec.plate.remove(); host.classList.remove('gl-on'); PLATES.delete(host);
+      });
+      const todo = [...want.keys()].filter(h => !PLATES.has(h));
+      if (!todo.length) return;
+      const lib = await glassLib(); if (!lib) return;
+      todo.forEach(host => {
+        if (!host.isConnected || PLATES.has(host)) return;
+        // A <span> at the end, so the host's div:first-of-type / last-of-type rules still match its content
+        const plate = document.createElement('span'); plate.className = 'gl-plate'; plate.setAttribute('aria-hidden', 'true');
+        host.appendChild(plate);
+        const root = lib.createRoot(plate);
+        root.render(lib.h(lib.Glass, { optics: want.get(host), radius: parseFloat(getComputedStyle(host).borderTopLeftRadius) || 14,
+          style: { position: 'absolute', inset: 0, borderRadius: 'inherit', background: 'transparent' } }, ''));
+        host.classList.add('gl-on');
+        PLATES.set(host, { plate, root });
+      });
+    }, 120);
   }
 
   // ── Side panel ──
@@ -912,6 +1305,7 @@
     $('bandSel').innerHTML = opts.join('');
     $('bandSel').value = S.band in { ex: 1, custom: 1 } || S.bands[+S.band] ? S.band : 'custom';
     $('showLogo').checked = !!S.showLogo;
+    paintBlocks();
   }
   function paintAccNote(cur) {
     const shown = legible(cur);
