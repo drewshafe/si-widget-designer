@@ -506,6 +506,17 @@
         .mk2-insp-h span { text-transform: none; letter-spacing: 0; font-weight: 600; color: #777; }
         .mk2-insp .wcs input[type="text"] { width: 110px; }
         .mk2-hint { font-size: 0.74em; color: #8a8fa6; margin: 8px 0; }
+        .mk2-icons { position: absolute; inset: 0; pointer-events: none; }
+        .mk2-ic { position: absolute; z-index: 3; pointer-events: none; background-repeat: no-repeat; }
+        .mk-edit .mk2-t.locked { cursor: pointer; }
+        .mk2-page.tags .mk2-t[data-tag]:not([class*=" r-"]):is(:hover, .sel)::before { background: #7a5ec9; }
+        .mk2-parts { border: 1px solid #d5d9f0; border-radius: 8px; padding: 8px 10px; background: #fafbff; margin: 8px 0; }
+        .mk2-parts summary { font-size: 0.72em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #4a5fc1; cursor: pointer; }
+        .mk2-prow { margin: 8px 0 0; }
+        .mk2-ptog { display: flex; align-items: center; gap: 6px; font-size: 0.8em; font-weight: 700; color: #2d3561; cursor: pointer; }
+        .mk2-ptog.off { color: #9aa0b8; }
+        .mk2-prow input[type="text"], .mk2-prow textarea { width: 100%; box-sizing: border-box; margin-top: 4px; padding: 6px 8px; border: 1px solid #d0d4e8; border-radius: 5px; font: inherit; font-size: 0.8em; resize: vertical; }
+        .mk2-pnote { font-size: 0.7em; color: #8a8fa6; line-height: 1.4; margin-top: 3px; }
         .mp-mock { width: 100%; }
         .mp-mock .mk-flabel { font-size: 0.78em; margin-top: 4px; }
 
@@ -1375,6 +1386,7 @@
                     <div id="mkFeeInfo" class="mk2-fee" style="display:none;"></div>
                     <label class="mk2-chk"><input type="checkbox" id="mk-reprice" checked onchange="mkRender()"> Re-price ShipInsure from the Pricing template</label>
                     <label class="mk2-chk"><input type="checkbox" id="mk-tags" checked onchange="mkRender()"> Outline tagged prices in the preview (hover for the tag)</label>
+                    <div id="mkParts"></div>
                     <div class="mk2-tools" id="mkTools">
                         <button type="button" data-tool="select" class="on" onclick="mkSetTool('select')" title="Click text to edit · click / drag boxes">↖ Select</button>
                         <button type="button" data-tool="box" onclick="mkSetTool('box')" title="Drag a box to cover or recolor an area (e.g. a button)">▭ Box</button>
@@ -1383,7 +1395,7 @@
                         <button type="button" data-tool="text" onclick="mkSetTool('text')" title="Click where new text goes">T Text</button>
                     </div>
                     <div class="wconfig-style-row">
-                        <div class="wcs"><label>Mockup font (edited text)</label><input type="text" id="mk-font" placeholder="e.g. Poppins" onchange="mkSetFont(this.value)"></div>
+                        <div class="wcs"><label>Mockup font (found automatically)</label><input type="text" id="mk-font" placeholder="e.g. Poppins" onchange="mkSetFont(this.value)" title="Edited text is drawn in this font, fitted to the mockup's own letters. Type a different Google font to override."></div>
                     </div>
                     <div id="mkSelPanel"></div>
                     <div class="mk2-row">
@@ -3069,7 +3081,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
         // it differs from the original. Prices tagged fee / item / sub / total re-price from
         // the Pricing template. Boxes cover, recolor or swap images (logo, products).
         // Edits live in _mk and ride along in _collectDesign → links + Merchant Folder saves.
-        const _mkFresh = () => ({ src: '', font: '', pages: [] });
+        const _mkFresh = () => ({ src: '', font: '', fontBy: '', pages: [], parts: null });
         let _mk = _mkFresh();
         let _mkReadOnly = false;      // merchant view: same pages, no edit affordances
         let _mkSel = null;            // { p, k: 't' | 'b', id }
@@ -3191,6 +3203,8 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 if (t.role != null && t.role !== '' && MK_ROLES[t.role]) return;   // the scan already tagged it
                 const own = t.o.toLowerCase(), all = own + ' ' + rowOf(t).toLowerCase(), v = _mkVal(t.o);
                 if (/protect|shipinsure|insure|guarantee/.test(all + ' ' + aboveOf(t).toLowerCase()) && v <= maxV * 0.2) t.role = 'fee';
+                // The secondary button's amount is the cart WITHOUT protection.
+                else if (MK_BTN2_RE.test(own)) { t.role = 'sub'; if (!t._al) { t.al = 'c'; t._al = true; } }
                 else if (/check ?out|pay now|place order|complete (my )?order|buy now/.test(own)) { t.role = 'total'; if (!t._al) { t.al = 'c'; t._al = true; } }
                 else if (/sav(e|ing)|discount|\boff\b|reward|points|gift card/.test(own)) t.role = '';
                 else if (/sub-?total/.test(all)) t.role = 'sub';
@@ -3408,6 +3422,596 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             texts.forEach(t => { delete t.ink; });
         }
 
+        const _mkRgb = h => [1, 3, 5].map(i => parseInt(String(h || '#ffffff').slice(i, i + 2), 16) || 0);
+        const _mkCase = (s, tt) => tt === 'u' ? s.toUpperCase() : tt === 'l' ? s.toLowerCase() : tt === 't' ? s.replace(/\b\w/g, c => c.toUpperCase()) : s;
+        const _mkPlain = s => String(s || '').replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+        // A text's family: one set on it, else the one its letters were fitted to (af), else the mockup's.
+        const _mkFam = t => (t.ff || t.af || _mk.font || '').replace(/['";]/g, '').trim();
+        // What a fit depends on: refit when the rep sets a font on the text or the mockup.
+        const _mkCalKey = t => (t.ff || '') + '|' + (_mk.font || '') + '|' + (_mk.fontBy === 'user' ? 'u' : 'a');
+
+        // ── Icons beside text (the ⓘ after "Shipping Protection"): found once per text, then
+        // moved with the text's new right edge so the gap stays as designed ──
+        function _mkFindIcons(pg, cv) {
+            if (!cv) return;
+            const k = cv.k, CW = cv.ctx.canvas.width, CH = cv.ctx.canvas.height;
+            pg.texts.forEach(t => {
+                if (t.ic !== undefined || t.add) return;
+                t.ic = null;
+                if (t.wrap || !t.o || !t.o.trim()) return;
+                const em = Math.max(t.h, (t.sz || t.h) * 0.75);
+                const x0 = t.x + t.w + 0.5, x1 = t.x + t.w + em * 3, y0 = t.y - em * 0.45, y1 = t.y + t.h + em * 0.45;
+                const X0 = Math.max(0, Math.floor(x0 * k)), X1 = Math.min(CW, Math.ceil(x1 * k));
+                const Y0 = Math.max(0, Math.floor(y0 * k)), Y1 = Math.min(CH, Math.ceil(y1 * k));
+                const RW = X1 - X0, RH = Y1 - Y0;
+                if (RW < 4 || RH < 4) return;
+                const d = cv.ctx.getImageData(X0, Y0, RW, RH).data, bg = _mkRgb(t.bg);
+                const col = new Int32Array(RW), top = new Int32Array(RW).fill(RH), bot = new Int32Array(RW).fill(-1);
+                for (let yy = 0; yy < RH; yy++) for (let xx = 0; xx < RW; xx++) {
+                    const o = (yy * RW + xx) * 4;
+                    if (Math.hypot(d[o] - bg[0], d[o + 1] - bg[1], d[o + 2] - bg[2]) > 70) { col[xx]++; if (yy < top[xx]) top[xx] = yy; if (yy > bot[xx]) bot[xx] = yy; }
+                }
+                let a = 0; while (a < RW && !col[a]) a++;
+                if (a >= RW || a / k > em * 1.4) return;
+                const blank = Math.max(1, Math.round(k * 0.8));
+                let b = a, gap = 0, ty = RH, by = -1;
+                for (let xx = a; xx < RW; xx++) {
+                    if (col[xx]) { b = xx; gap = 0; if (top[xx] < ty) ty = top[xx]; if (bot[xx] > by) by = bot[xx]; }
+                    else if (++gap > blank) break;
+                }
+                if (b >= RW - 1) return;                       // runs on: more text, a rule, a box
+                const ix = (X0 + a) / k, iy = (Y0 + ty) / k, iw = (b - a + 1) / k, ih = (by - ty + 1) / k;
+                if (iw < em * 0.4 || iw > em * 2.2 || ih < em * 0.5 || ih > em * 2.2) return;
+                if (ty === 0 || by === RH - 1) return;          // touches the band's edge: part of something bigger
+                const hit = pg.texts.some(u => u !== t && !u.add && u.x < ix + iw && u.x + u.w > ix && u.y < iy + ih && u.y + u.h > iy);
+                if (hit) return;
+                const P = 1;
+                t.ic = { x: _mkR(ix - P), y: _mkR(iy - P), w: _mkR(iw + 2 * P), h: _mkR(ih + 2 * P), bg: t.bg };
+            });
+        }
+        // Width of a text as drawn, scaled so the ORIGINAL string measures exactly its own ink width.
+        const _mkMctx = document.createElement('canvas').getContext('2d');
+        function _mkMeasure(t, s, st) {
+            st = st || t;
+            const fam = (st.ff || t.af || _mk.font || '').replace(/['";]/g, '');
+            _mkMctx.font = `${st.it ? 'italic ' : ''}${st.fw || 400} 100px ${fam ? `"${fam}",` : ''}"Helvetica Neue",Arial,sans-serif`;
+            const str = _mkCase(_mkPlain(s), st.tt);
+            return (_mkMctx.measureText(str).width / 100) * (st.sz || 14) + (st.ls || 0) * Math.max(0, str.length - 1) + (st.wsp || 0) * (str.match(/ /g) || []).length;
+        }
+        function _mkIconHtml(t, pg) {
+            const ic = t.ic;
+            if (!ic || !_mkShown(t) || t.wrap) return '';
+            const hex = c => /^#[0-9a-f]{3,8}$/i.test(String(c)) ? c : '#ffffff', num = v => +v || 0;
+            const cover = `<div class="mk2-cover" style="left:${num(ic.x)}px;top:${num(ic.y)}px;width:${num(ic.w)}px;height:${num(ic.h)}px;background:${hex(ic.bg || t.bg)};"></div>`;
+            if (!_mkPlain(t.t).trim()) return cover;          // text removed: its icon goes too
+            const os = t.os || t, w0 = _mkMeasure(t, t.o, os), w1 = _mkMeasure(t, t.t);
+            if (!(w0 > 0)) return '';
+            const nw = t.w * w1 / w0;
+            const right = t.al === 'r' ? t.x + t.w : t.al === 'c' ? t.x + t.w / 2 + nw / 2 : t.x + nw;
+            const nx = _mkR(right + (ic.x - (t.x + t.w)));
+            if (Math.abs(nx - ic.x) < 0.5) return '';
+            return cover + `<div class="mk2-ic" style="left:${nx}px;top:${num(ic.y)}px;width:${num(ic.w)}px;height:${num(ic.h)}px;background-image:url('${String(pg.img).replace(/['"<>\\]/g, encodeURIComponent)}');background-size:${pg.w}px ${pg.h}px;background-position:${-ic.x}px ${-ic.y}px;"></div>`;
+        }
+        function _mkPlaceIcons() {
+            document.querySelectorAll('#widgetPreviewArea .mk2-page').forEach(pe => {
+                const pg = _mk.pages[+pe.dataset.p], layer = pe.querySelector('.mk2-icons');
+                if (pg && layer) layer.innerHTML = pg.texts.map(t => _mkIconHtml(t, pg)).join('');
+            });
+        }
+
+        // ── Matching the mockup's own type. A repainted text (edited, re-priced, a widget part
+        // switched) is drawn in the font, weight, size, letter spacing and baseline that best
+        // reproduce the ORIGINAL letters' pixels, so it reads as the same text. The family is
+        // found once per mockup; each repainted text is then fitted on its own. ──
+        const MK_FONT_CANDS = ['Inter', 'Roboto', 'Poppins', 'Montserrat', 'Open Sans', 'Lato', 'DM Sans', 'Nunito Sans', 'Work Sans', 'Manrope', 'Figtree', 'Plus Jakarta Sans', 'Source Sans 3', 'Raleway', 'Rubik', 'Outfit', 'Jost', 'IBM Plex Sans', 'Mulish', 'Karla'];
+        const MK_SYS_FONT = /^(arial|helvetica|helvetica neue|times|times new roman|georgia|verdana|system-ui|sans-serif|serif)$/i;
+        const _mkSc = document.createElement('canvas'), _mkScx = _mkSc.getContext('2d', { willReadFrequently: true });
+        // The original letters as a mask, inside their own ink box (so neighbours don't count).
+        function _mkInkMask(cv, t) {
+            const k = cv.k, pad = 2;
+            const X0 = Math.max(0, Math.floor(t.x * k) - pad), Y0 = Math.max(0, Math.floor(t.y * k) - pad);
+            const X1 = Math.min(cv.ctx.canvas.width, Math.ceil((t.x + t.w) * k) + pad), Y1 = Math.min(cv.ctx.canvas.height, Math.ceil((t.y + t.h) * k) + pad);
+            const W = X1 - X0, H = Y1 - Y0;
+            if (W < 6 || H < 6) return null;
+            const d = cv.ctx.getImageData(X0, Y0, W, H).data, bg = _mkRgb(t.bg), dist = new Float32Array(W * H);
+            let mx = 0;
+            for (let i = 0; i < W * H; i++) { const o = i * 4, v = Math.hypot(d[o] - bg[0], d[o + 1] - bg[1], d[o + 2] - bg[2]); dist[i] = v; if (v > mx) mx = v; }
+            if (mx < 40) return null;
+            // m: how much ink each pixel holds (0–1), with the faint halo a JPEG leaves around
+            // letters taken out, so it compares like for like with freshly drawn text.
+            const m = new Float32Array(W * H);
+            let bx0 = W, by0 = H, bx1 = -1, by1 = -1, n = 0;
+            for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+                const v = dist[y * W + x] / mx;
+                if (v > 0.18) m[y * W + x] = Math.min(1, (v - 0.18) / 0.64);
+                if (v <= 0.45) continue;
+                n++;
+                if (x < bx0) bx0 = x; if (x > bx1) bx1 = x; if (y < by0) by0 = y; if (y > by1) by1 = y;
+            }
+            if (n < 8) return null;
+            let sm = 0, sy = 0;
+            for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const v = m[y * W + x]; sm += v; sy += v * y; }
+            return { X0, Y0, W, H, m, n, cy: sm ? sy / sm : H / 2, bx: bx0, by: by0, bw: bx1 - bx0 + 1, bh: by1 - by0 + 1 };
+        }
+        // Draw s in a font so its ink box lands on the original's; score = overlap of the two
+        // masks, less a penalty for any stretch the fit needed (a wrong font needs stretching).
+        // One size (sy = font px per 100) of one font/weight: stretched to the original's ink width,
+        // set at the height where its ink mass centres on the original's.
+        // The rest of the ink width is made up with letter spacing (tracking adds gaps; it doesn't
+        // widen letters), or, where the browser can't space canvas letters, a horizontal stretch.
+        const MK_CANVAS_LS = 'letterSpacing' in CanvasRenderingContext2D.prototype;
+        function _mkFit1(A, s, fam, fw, it, mt, sy) {
+            const font = px => `${it ? 'italic ' : ''}${fw} ${px}px "${fam}"`;
+            const abl = mt.actualBoundingBoxLeft, abr = mt.actualBoundingBoxRight, asc = mt.actualBoundingBoxAscent;
+            const gaps = s.length - 1, em = 100 * sy;
+            let ls = gaps && MK_CANVAS_LS ? (A.bw - (abl + abr) * sy) / gaps : 0;
+            ls = Math.max(-em * 0.15, Math.min(em * 0.25, ls));
+            const sx = MK_CANVAS_LS ? 1 : A.bw / ((abl + abr) * sy);
+            if (_mkSc.width < A.W || _mkSc.height < A.H) { _mkSc.width = Math.max(_mkSc.width, A.W); _mkSc.height = Math.max(_mkSc.height, A.H); }
+            const ox = A.bx + abl * sy * sx;
+            const draw = base => {
+                _mkScx.setTransform(1, 0, 0, 1, 0, 0);
+                _mkScx.clearRect(0, 0, A.W, A.H);
+                _mkScx.setTransform(sx, 0, 0, 1, ox, base);
+                _mkScx.font = font(em);
+                if (MK_CANVAS_LS) _mkScx.letterSpacing = ls + 'px';
+                _mkScx.fillStyle = '#000';
+                _mkScx.fillText(s, 0, 0);
+                if (MK_CANVAS_LS) _mkScx.letterSpacing = '0px';
+                _mkScx.setTransform(1, 0, 0, 1, 0, 0);
+                return _mkScx.getImageData(0, 0, A.W, A.H).data;
+            };
+            let base = A.by + asc * sy, d = draw(base), sm = 0, cy = 0;
+            for (let y = 0; y < A.H; y++) for (let x = 0; x < A.W; x++) { const v = d[(y * A.W + x) * 4 + 3]; sm += v; cy += v * y; }
+            if (sm) { base += A.cy - cy / sm; d = draw(base); }
+            // Soft overlap: shared ink over total ink, pixel by pixel (stroke weight shows up here).
+            let both = 0, any = 0;
+            for (let i = 0; i < A.W * A.H; i++) {
+                const r = d[i * 4 + 3] / 255, o = A.m[i];
+                both += Math.min(r, o); any += Math.max(r, o);
+            }
+            // A fit that needs a stretch or heavy tracking is probably the wrong font.
+            return { score: (any ? both / any : 0) - 0.6 * Math.abs(Math.log(sx)) - 0.5 * Math.abs(ls) / em, sy, sx, ls, base, abl, abr, asc, width: mt.width };
+        }
+        // Best size for one font/weight: between "same ink height" and "same ink width" (a rule or
+        // an icon drawn into the text can throw either one off), then refined around the winner.
+        function _mkFit(A, s, fam, fw, it, quick) {
+            _mkScx.font = `${it ? 'italic ' : ''}${fw} 100px "${fam}"`;
+            const mt = _mkScx.measureText(s);
+            const iw = mt.actualBoundingBoxLeft + mt.actualBoundingBoxRight, ih = mt.actualBoundingBoxAscent + mt.actualBoundingBoxDescent;
+            if (!(iw > 0 && ih > 0)) return null;
+            const syH = A.bh / ih, syW = A.bw / iw, lo = Math.min(syH, syW) * 0.9, hi = Math.max(syH, syW) * 1.05;
+            let best = null;
+            const tryAt = sy => { const r = _mkFit1(A, s, fam, fw, it, mt, sy); if (!best || r.score > best.score) best = r; };
+            [syH, syW].forEach(tryAt);
+            if (quick) return best;
+            for (let i = 0; i <= 4; i++) tryAt(lo + (hi - lo) * i / 4);
+            const c = best.sy;
+            [-0.03, 0.03].forEach(f => tryAt(c * (1 + f)));
+            return best;
+        }
+        // The original's words, each cut out on its own (so odd spacing, like a wide gap around
+        // a "|", can't throw the letters' fit off). Null when the ink doesn't split into the words.
+        function _mkSub(A, x0, x1) {
+            x0 = Math.max(0, x0); x1 = Math.min(A.W, x1);
+            const W = x1 - x0, m = new Float32Array(W * A.H);
+            let bx0 = W, by0 = A.H, bx1 = -1, by1 = -1, n = 0, sm = 0, sy = 0;
+            for (let y = 0; y < A.H; y++) for (let x = 0; x < W; x++) {
+                const v = A.m[y * A.W + x0 + x]; m[y * W + x] = v; sm += v; sy += v * y;
+                if (v > 0.42) { n++; if (x < bx0) bx0 = x; if (x > bx1) bx1 = x; if (y < by0) by0 = y; if (y > by1) by1 = y; }
+            }
+            if (bx1 < 0) return null;
+            return { X0: A.X0 + x0, Y0: A.Y0, W, H: A.H, m, n, cy: sm ? sy / sm : A.H / 2, bx: bx0, by: by0, bw: bx1 - bx0 + 1, bh: by1 - by0 + 1 };
+        }
+        function _mkWords(A, s) {
+            const words = s.split(/\s+/).filter(Boolean);
+            if (words.length < 2) return null;
+            const col = new Float32Array(A.W);
+            for (let y = 0; y < A.H; y++) for (let x = 0; x < A.W; x++) col[x] += A.m[y * A.W + x];
+            const gapMin = Math.max(2, Math.round(A.bh * 0.14)), runs = [];
+            let x = 0;
+            while (x < A.W) {
+                while (x < A.W && col[x] < 0.3) x++;
+                if (x >= A.W) break;
+                const a = x; let b = x, gap = 0;
+                for (; x < A.W; x++) { if (col[x] >= 0.3) { b = x; gap = 0; } else if (++gap >= gapMin) break; }
+                runs.push([a, b + 1]);
+            }
+            if (runs.length !== words.length) return null;
+            const out = runs.map((r, i) => ({ A: _mkSub(A, r[0] - 1, r[1] + 1), s: words[i] }));
+            return out.every(p => p.A) ? out : null;
+        }
+        // Fit a whole line, word by word when it splits cleanly. Score = ink-weighted mean.
+        function _mkFitLine(A, s, fam, fw, it, quick) {
+            const parts = _mkWords(A, s) || [{ A, s }];
+            const fits = parts.map(p => _mkFit(p.A, p.s, fam, fw, it, quick));
+            if (fits.some(f => !f)) return null;
+            let sw = 0, sc = 0, lsy = 0;
+            fits.forEach((f, i) => { const w = parts[i].A.n; sw += w; sc += f.score * w; lsy += Math.log(f.sy) * w; });
+            return { score: sc / sw, sy: Math.exp(lsy / sw), parts, fits };
+        }
+        function _mkFontCssUrl(fam, weights, text) {
+            return 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(fam).replace(/%20/g, '+') + ':wght@' + weights.join(';') + (text ? '&text=' + encodeURIComponent(text) : '') + '&display=block';
+        }
+        // Probe copies of each candidate (only the letters needed), under their own names so
+        // they never stand in for the real font later.
+        const _mkProbed = {};
+        async function _mkProbeFonts(chars) {
+            const todo = MK_FONT_CANDS.filter(f => !_mkProbed[f + '|' + chars]);
+            await Promise.all(todo.map(async f => {
+                try {
+                    const css = await (await fetch(_mkFontCssUrl(f, [400, 700], chars))).text();
+                    const st = document.createElement('style');
+                    st.textContent = css.replace(/font-family:\s*'[^']+'/g, `font-family: 'mkp ${f}'`);
+                    document.head.appendChild(st);
+                    await Promise.all([400, 700].map(w => document.fonts.load(`${w} 40px "mkp ${f}"`, chars)));
+                    _mkProbed[f + '|' + chars] = 1;
+                } catch (e) { /* that family is just skipped */ }
+            }));
+        }
+        let _mkFontBusy = false;
+        async function _mkDetectFont() {
+            if (_mkFontBusy || _mkReadOnly || _mk.fontBy === 'user' || _mk.fontBy === 'auto' || !_mk.pages.length) return;
+            _mkFontBusy = true;
+            try {
+                const samples = [];
+                for (const pg of _mk.pages) {
+                    let cv; try { cv = await _mkPageCanvas(pg); } catch (e) { continue; }
+                    pg.texts.forEach(t => {
+                        if (t.add || t.wrap || t.ex || !t.o) return;
+                        const s = _mkCase(t.o.trim(), t.tt);
+                        if (s.replace(/\s/g, '').length < 4 || t.h * cv.k < 9) return;
+                        // Prices and widget lines are what gets repainted, so they count most.
+                        samples.push({ t, cv, s, v: new Set(s).size * Math.min(t.h * cv.k, 40) * (t.role || t.part ? 4 : 1) });
+                    });
+                }
+                samples.sort((a, b) => b.v - a.v);
+                const use = samples.slice(0, 6).map(x => Object.assign(x, { A: _mkInkMask(x.cv, x.t) })).filter(x => x.A);
+                if (!use.length) return;
+                const chars = [...new Set(use.map(x => x.s + x.s.toUpperCase()).join(''))].join('');
+                await _mkProbeFonts(chars);
+                const score = {};
+                for (const f of MK_FONT_CANDS.concat(['Helvetica Neue', 'Arial'])) {
+                    const fam = MK_SYS_FONT.test(f) ? f : 'mkp ' + f;
+                    if (!MK_SYS_FONT.test(f) && !_mkProbed[f + '|' + chars]) continue;
+                    score[f] = use.reduce((sum, x) => {
+                        const best = Math.max(...[400, 700].flatMap(w => [x.s, x.s.toUpperCase()].map(cs => { const r = _mkFitLine(x.A, cs, fam, w, x.t.it, true); return r ? r.score : 0; })));
+                        return sum + best;
+                    }, 0) / use.length;
+                    await new Promise(r => setTimeout(r, 0));   // keep the page responsive
+                }
+                const rank = Object.keys(score).sort((a, b) => score[b] - score[a]);
+                if (!rank.length || _mk.fontBy === 'user') return;
+                _mk.font = rank[0]; _mk.fontBy = 'auto'; _mk.fontRank = rank.slice(0, 4);
+                const fi = document.getElementById('mk-font'); if (fi && document.activeElement !== fi) fi.value = _mk.font;
+                mkRender();
+            } finally { _mkFontBusy = false; }
+        }
+        // Fit each repainted text that hasn't been fitted for its current font.
+        let _mkCalBusy = false, _mkCalAgain = false;
+        async function _mkCalibrate() {
+            if (_mkCalBusy) { _mkCalAgain = true; return; }
+            _mkCalBusy = true;
+            try {
+                do {
+                    _mkCalAgain = false;
+                    const todo = [];
+                    _mk.pages.forEach(pg => pg.texts.forEach(t => {
+                        if (t.add || t.sty || t.ex || t.wrap || !t.o || !t.o.trim() || !_mkShown(t) || t.cal === _mkCalKey(t)) return;
+                        // The rep's font (on the text or the mockup) is used as is; otherwise the
+                        // mockup's best few families compete (a cart drawer's font often isn't the store's).
+                        const fams = t.ff ? [t.ff] : _mk.fontBy === 'user' ? [_mk.font] : [...new Set([_mk.font].concat(_mk.fontRank || []))].filter(Boolean).slice(0, 4);
+                        if (fams.length) todo.push({ pg, t, fams, key: _mkCalKey(t) });
+                    }));
+                    for (const { pg, t, fams, key } of todo) {
+                        let cv; try { cv = await _mkPageCanvas(pg); } catch (e) { t.cal = key; continue; }
+                        const A = _mkInkMask(cv, t);
+                        let s = _mkCase(t.o.trim(), t.tt);
+                        if (!A) { t.cal = key; continue; }
+                        const ws = [300, 400, 500, 600, 700, 800];
+                        await Promise.all(fams.filter(f => !MK_SYS_FONT.test(f)).map(async f => { await _mkLoadFont(f); return Promise.all(ws.map(w => document.fonts.load(`${t.it ? 'italic ' : ''}${w} 40px "${f}"`, s).catch(() => {}))); }));
+                        if (t.sty || _mkCalKey(t) !== key) continue;
+                        // Quick pass over every family × weight × case, then a full fit of the best
+                        // three. (A PDF keeps the typed text: a button shown as CHECKOUT is often
+                        // stored as "Checkout", so capitals are tried too.)
+                        const cases = t.tt ? [[s, t.tt]] : [[s, '']].concat(s.toUpperCase() !== s ? [[s.toUpperCase(), 'u']] : []);
+                        const quick = [];
+                        for (const fam of fams) {
+                            ws.forEach(w => cases.forEach(([cs, tt]) => { const r = _mkFitLine(A, cs, fam, w, t.it, true); if (r) quick.push({ fam, w, cs, tt, score: r.score }); }));
+                            await new Promise(r => setTimeout(r, 0));
+                        }
+                        quick.sort((a, b) => b.score - a.score);
+                        let best = null;
+                        for (const q of quick.slice(0, 3)) {
+                            const r = _mkFitLine(A, q.cs, q.fam, q.w, t.it, false);
+                            if (r && (!best || r.score > best.score + 0.004)) best = Object.assign(r, { w: q.w, fam: q.fam, cs: q.cs, tt: q.tt });
+                        }
+                        t.cal = key;
+                        if (!best || best.score < 0.3) continue;   // nothing close: keep the estimate
+                        const fam = best.fam, sy = best.sy, k = cv.k;
+                        if (!t.ff) t.af = fam === _mk.font ? '' : fam;
+                        if (best.tt && !t.tt) t.tt = best.tt;
+                        s = best.cs;
+                        const sz = 100 * sy / k;
+                        // Letter spacing from each word's own width; word spacing makes up the rest
+                        // of the line (the original's gaps, e.g. around a "|").
+                        let lsw = 0, lsn = 0;
+                        best.parts.forEach((p, i) => {
+                            const f = best.fits[i]; if (p.s.length < 2) return;
+                            lsw += (f.ls != null && MK_CANVAS_LS ? f.ls * sy / f.sy : (p.A.bw - (f.abl + f.abr) * sy) / (p.s.length - 1)) * p.A.n; lsn += p.A.n;
+                        });
+                        let ls = lsn ? lsw / lsn / k : 0;
+                        ls = Math.max(-sz * 0.12, Math.min(sz * 0.12, ls));
+                        _mkMctx.font = `${t.it ? 'italic ' : ''}${best.w} 100px "${fam}"`;
+                        const mt = _mkMctx.measureText(s);
+                        const nWords = best.parts.length, n = s.length;
+                        let wsp = 0;
+                        if (nWords > 1) {
+                            const drawn = (mt.actualBoundingBoxLeft + mt.actualBoundingBoxRight) * sy / k + ls * (n - 1);
+                            wsp = Math.max(-sz * 0.3, Math.min(sz * 1.5, (A.bw / k - drawn) / (nWords - 1)));
+                        }
+                        const p0 = best.parts[0].A;
+                        const origin = (p0.X0 + p0.bx) / k + mt.actualBoundingBoxLeft * sy / k;
+                        const adv = mt.width * sy / k + ls * n + wsp * (nWords - 1);
+                        let bw = 0, bsum = 0;
+                        best.parts.forEach((p, i) => { bsum += (p.A.Y0 + best.fits[i].base) * p.A.n; bw += p.A.n; });
+                        const fm = _mkMctx.measureText('Hg'), fa = fm.fontBoundingBoxAscent, fd = fm.fontBoundingBoxDescent;
+                        const br = fa > 0 && fd >= 0 ? ((100 - (fa + fd)) / 2 + fa) / 100 : 0.845;
+                        const set = { sz: _mkR(sz), fw: best.w, br: Math.round(br * 1000) / 1000, ls: Math.abs(ls) < 0.05 ? 0 : _mkR(ls * 100) / 100, wsp: Math.abs(wsp) < 0.1 ? 0 : _mkR(wsp), b: _mkR(bsum / bw / k),
+                            dl: _mkR(origin - t.x), dr: _mkR(origin + adv - (t.x + t.w)), dc: _mkR(origin + adv / 2 - (t.x + t.w / 2)) };
+                        Object.assign(t, set);
+                        if (t.os) ['sz', 'fw'].forEach(p => { t.os[p] = set[p]; });
+                        const el = document.querySelector(`#widgetPreviewArea .mk2-t[data-t="${t.id}"]`);
+                        if (el) el.setAttribute('style', _mkTextStyle(t, pg));
+                    }
+                    _mkPlaceIcons();
+                } while (_mkCalAgain);
+            } finally { _mkCalBusy = false; }
+        }
+        if (document.fonts) document.fonts.addEventListener('loadingdone', () => { if (_widgetType === 'mockup') _mkPlaceIcons(); });
+
+        // ── Dual checkout widget parts: header, body, the two buttons' prices, disclaimer.
+        // Found in the mockup on import (the rep can retag any text); each follows the mockup
+        // until it's switched off or given new text. ──
+        const MK_PARTS = { '': 'Not a widget part', hdr: 'Widget header', body: 'Widget body', b1: 'Main checkout button', b2: 'Secondary checkout button', disc: 'Disclaimer' };
+        const MK_BTN_RE = /check ?out|pay now|place order|complete (my )?order|buy now|continue to/i;
+        const MK_BTN2_RE = /without (shipping |package )?(protection|insurance|coverage)|no protection|unprotected|no,? thanks|decline|continue without|checkout without|skip protection/i;
+        const _mkPartsFresh = () => ({ hdr: { on: true, tpl: null }, body: { on: true, tpl: null }, disc: { on: true, tpl: null }, p1: null, p2: null });
+        function _mkAutoParts(pg) {
+            const T = pg.texts.filter(t => !t.add);
+            T.forEach(t => { if (t.part == null) t.part = ''; });
+            if (T.some(t => t.part)) return;                  // tagged already (by the rep or an earlier pass)
+            const cy = t => t.y + t.h / 2, money = t => _mkVal(t.o) != null;
+            const sameRow = (a, b, reach) => Math.abs(cy(a) - cy(b)) < Math.max(a.h, b.h) * 0.7 && b.x < a.x + a.w + reach && b.x + b.w > a.x - reach;
+            const b2 = T.filter(t => MK_BTN2_RE.test(t.o)).sort((a, b) => a.y - b.y)[0];
+            if (!b2) return;
+            const above = T.filter(t => t !== b2 && t.y + t.h <= b2.y && b2.y - t.y < Math.max(160, b2.h * 9) && t.x < b2.x + b2.w + 120 && t.x + t.w > b2.x - 120);
+            const b1 = above.filter(t => MK_BTN_RE.test(t.o) || t.role === 'total').sort((a, b) => b.y - a.y)[0];
+            const mark = (t, p) => { if (t && !t.part) t.part = p; };
+            const btn = (lead, p) => { mark(lead, p); T.forEach(u => { if (u !== lead && !u.part && money(u) && sameRow(lead, u, 260)) mark(u, p); }); };
+            btn(b2, 'b2');
+            if (!b1) return;
+            btn(b1, 'b1');
+            // Header: the label on the ShipInsure price's row, else the protection line above the button.
+            const fee = T.find(t => t.role === 'fee' && t.y + t.h <= b1.y + 2 && b1.y - t.y < 220);
+            // (A PDF can hold stray text under the design; text sitting inside another's box is skipped.)
+            const ghost = u => T.some(v => v !== u && v.w > u.w && v.x <= u.x + 1 && v.x + v.w >= u.x + u.w - 1 && Math.abs(cy(v) - cy(u)) < Math.max(u.h, v.h) * 0.6);
+            const kw = u => /protect|insur|guarantee|coverage|shipinsure/i.test(u.o) ? 1 : 0;
+            let hdr = fee ? T.filter(u => u !== fee && !u.part && !money(u) && !ghost(u) && sameRow(fee, u, 600) && u.x < fee.x).sort((a, b) => (kw(b) - kw(a)) || (b.w - a.w))[0] : null;
+            if (!hdr) hdr = T.filter(u => !u.part && !money(u) && !ghost(u) && u.y + u.h <= b1.y && b1.y - u.y < 200 && /protect|insur|guarantee|coverage|shipinsure/i.test(u.o)).sort((a, b) => b.y - a.y)[0];
+            if (hdr) {
+                mark(hdr, 'hdr');
+                // Body: the lines right under the header, down to the button.
+                let last = hdr;
+                T.filter(u => !u.part && !money(u) && !ghost(u) && u.y >= hdr.y + hdr.h - 1 && u.y + u.h <= b1.y && u.x < Math.max(hdr.x + hdr.w, b1.x + b1.w) && u.x + u.w > Math.min(hdr.x, b1.x) - 10)
+                    .sort((a, b) => a.y - b.y).forEach(u => {
+                        if (u.y - (last.y + last.h) > Math.max(last.h, u.h) * 1.6) return;
+                        if (u.sz > hdr.sz * 1.15) return;
+                        mark(u, 'body'); last = u;
+                    });
+            }
+            // Disclaimer: small print right under the secondary button.
+            let last = b2;
+            T.filter(u => !u.part && !ghost(u) && u.y >= b2.y + b2.h && u.x < b2.x + b2.w + 160 && u.x + u.w > b2.x - 160)
+                .sort((a, b) => a.y - b.y).forEach(u => {
+                    const lim = last === b2 ? Math.max(b2.h * 4, 40) : Math.max(last.h, u.h) * 1.6;
+                    if (u.y - (last.y + last.h) > lim || u.sz > b2.sz * 1.1) return;
+                    mark(u, 'disc'); last = u;
+                });
+        }
+        function _mkEnsureParts() {
+            if (_mk.parts) return;
+            _mk.parts = _mkPartsFresh();
+            _mk.pages.forEach(_mkAutoParts);
+        }
+        function _mkPartTexts(pg, key) {
+            return pg.texts.filter(t => t.part === key).sort((a, b) => (a.y - b.y) || (a.x - b.x));
+        }
+        function _mkSanitize(html) {
+            const tp = document.createElement('template');
+            tp.innerHTML = String(html || '');
+            const OK = /^(B|STRONG|I|EM|U|S|BR|SMALL|SUP|SUB|SPAN)$/, DROP = /^(SCRIPT|STYLE|IFRAME|OBJECT|EMBED|TEMPLATE|SVG|MATH|LINK|META)$/;
+            (function walk(n) {
+                [...n.childNodes].forEach(c => {
+                    if (c.nodeType === 8) { c.remove(); return; }
+                    if (c.nodeType !== 1) return;
+                    if (DROP.test(c.tagName)) { c.remove(); return; }
+                    walk(c);
+                    if (!OK.test(c.tagName)) { c.replaceWith(...c.childNodes); return; }
+                    [...c.attributes].forEach(a => c.removeAttribute(a.name));
+                });
+            })(tp.content);
+            return tp.innerHTML;
+        }
+        const _mkHasMarkup = s => /<\s*\/?\s*[a-z]|\{\{?\s*[a-z]/i.test(String(s || ''));
+        function _mkMoneyOut(v) {
+            if (v == null || isNaN(v)) return '—';
+            let sym = '$';
+            _mk.pages.some(pg => pg.texts.some(t => { if (t.role === 'fee') { const m = /[$€£]/.exec(t.o); if (m) { sym = m[0]; return true; } } return false; }));
+            const [i, d] = Math.abs(v).toFixed(2).split('.');
+            return (v < 0 ? '-' : '') + sym + i.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '.' + d;
+        }
+        function _mkSubst(tpl, pr) {
+            const F = pr.F, M = pr.M;
+            const mode = (document.getElementById('widgetMode') || {}).value;
+            const cb = Math.round(parseFloat(removeCommas((document.getElementById('widgetCashback') || {}).value || '0'))) || 5;
+            return String(tpl)
+                .replace(/\{\{\s*price\s*\}\}/g, _mkMoneyOut(F))
+                .replace(/\{\{\s*cartTotalWithFee\s*\}\}/g, _mkMoneyOut(M != null && F != null ? M + F : null))
+                .replace(/\{\{\s*cartTotal\s*\}\}/g, _mkMoneyOut(M))
+                .replace(/\{\{\s*offset\s*\}\}/g, _mkMoneyOut(0))
+                .replace(/\{\s*price\s*\}/g, mode === 'cashback' ? '$' + cb : _mkMoneyOut(F));
+        }
+        // A button label without its amount: "Checkout | $56.64" → "Checkout".
+        function _mkStripPrice(s) {
+            const out = String(s)
+                .replace(/\s*[|•·:–—-]?\s*[$€£]?\s?\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?\s*(USD|CAD|EUR|GBP|AUD)?\s*$/i, '')
+                .replace(/^\s*[$€£]\s?\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?\s*[|•·:–—-]?\s*/, '');
+            return out.trim() ? out.replace(/\s+$/, '') : s;
+        }
+        // Run after _mkPrice on every render: parts switched off erase, parts with new text
+        // repaint (several lines merge into one block), and anything back on the mockup's own
+        // version is restored exactly.
+        function _mkApplyParts(pr) {
+            _mkEnsureParts();
+            const P = _mk.parts;
+            _mk.pages.forEach(pg => {
+                ['hdr', 'body', 'disc'].forEach(key => {
+                    const L = _mkPartTexts(pg, key), S = P[key];
+                    L.forEach(t => { if (t.pm) { if (t.g0) Object.assign(t, t.g0); delete t.g0; delete t.pm; delete t.html; if (!t.add) t.t = t.o; } });
+                    if (!L.length) return;
+                    if (S.on === false) { L.forEach(t => { if (!t.add) { t.t = ''; t.pm = 1; } }); return; }
+                    if (S.tpl == null) return;
+                    const out = _mkSubst(S.tpl, pr), first = L[0], rest = L.slice(1).filter(t => !t.add);
+                    first.pm = 1;
+                    first.html = _mkHasMarkup(S.tpl) ? _mkSanitize(out) : null;
+                    first.t = first.html != null ? _mkPlain(first.html) : out;
+                    const multi = rest.length || /\n|<br/i.test(S.tpl);
+                    if (multi && !first.add) {
+                        first.g0 = { x: first.x, y: first.y, w: first.w, h: first.h, b: first.b, wrap: first.wrap, lh: first.lh, al: first.al };
+                        const all = [first].concat(rest);
+                        const x0 = Math.min(...all.map(t => t.x)), y0 = Math.min(...all.map(t => t.y));
+                        const x1 = Math.max(...all.map(t => t.x + t.w)), y1 = Math.max(...all.map(t => t.y + t.h));
+                        const pitch = rest.length ? (rest[rest.length - 1].b - first.b) / rest.length : first.sz * 1.35;
+                        Object.assign(first, { x: x0, y: y0, w: x1 - x0, h: y1 - y0, wrap: true, lh: _mkR(pitch) });
+                        rest.forEach(t => { t.t = ''; t.pm = 1; });
+                    }
+                });
+                // Prices on the two checkout buttons.
+                [['b1', P.p1, () => pr.M != null && pr.F != null ? pr.M + pr.F : null], ['b2', P.p2, () => pr.M]].forEach(([key, want, val]) => {
+                    const L = _mkPartTexts(pg, key).filter(t => !t.add);
+                    // Back to the mockup's own label (priced texts were already re-priced by _mkPrice).
+                    L.forEach(t => { if (t.pm) { delete t.pm; if (t.g0) { Object.assign(t, t.g0); delete t.g0; } if (!t.role) t.t = t.o; } });
+                    if (!L.length || want == null) return;
+                    const has = L.some(t => _mkVal(t.o) != null);
+                    if (want === has) return;
+                    if (!want) {
+                        L.forEach(t => {
+                            if (_mkVal(t.o) == null) return;
+                            const label = _mkStripPrice(t.t);
+                            t.t = label === t.t || !/[a-z]/i.test(label) ? '' : label; t.pm = 1;
+                            if (t.t && !t.g0) { t.g0 = { al: t.al }; t.al = 'c'; }
+                        });
+                    } else {
+                        const lead = L.find(t => _mkVal(t.o) == null);
+                        if (lead && val() != null) { lead.t = lead.t + ' • ' + _mkMoneyOut(val()); lead.pm = 1; if (!lead.g0) { lead.g0 = { al: lead.al }; lead.al = 'c'; } }
+                    }
+                });
+            });
+        }
+        // Turning the disclaimer on where the mockup has none: a new line under the secondary button.
+        function _mkAddDisclaimer() {
+            let made = false;
+            _mk.pages.forEach(pg => {
+                if (_mkPartTexts(pg, 'disc').length) return;
+                const b1 = _mkPartTexts(pg, 'b1')[0], b2 = _mkPartTexts(pg, 'b2')[0];
+                if (!b2) return;
+                const pitch = b1 ? Math.max(b2.h * 2.4, (b2.y + b2.h / 2) - (b1.y + b1.h / 2)) : b2.h * 3;
+                const sz = _mkR(Math.max(9, b2.sz * 0.82)), cx = b2.x + b2.w / 2, top = b2.y + b2.h / 2 + pitch * 0.6;
+                const t = _mkT({ t: _mk.parts.disc.tpl || 'By continuing you agree to the terms.', x: _mkR(cx), y: _mkR(top), w: 0, h: _mkR(sz), b: _mkR(top + sz * 0.8), sz, add: true, c: '#6b7280', bg: 'transparent', al: 'c', fw: 400, part: 'disc' });
+                t.x = _mkR(cx - _mkMeasure(t, t.t) / 2);
+                pg.texts.push(t); made = true;
+            });
+            return made;
+        }
+        function mkPartOn(key, on) {
+            _mkEnsureParts();
+            if (key === 'p1' || key === 'p2') { _mk.parts[key] = !!on; mkRender(); return; }
+            _mk.parts[key].on = !!on;
+            const found = _mk.pages.some(pg => _mkPartTexts(pg, key).length);
+            if (on && !found) {
+                if (key === 'disc' && _mkAddDisclaimer()) { mkRender(); return; }
+                _mk.parts[key].on = true;
+                _mkStatus(`No ${MK_PARTS[key].toLowerCase()} found in this mockup. Click it in the preview and set “Widget part” to ${MK_PARTS[key]}.`, 'error');
+            }
+            if (!on && key === 'disc') _mk.pages.forEach(pg => { pg.texts = pg.texts.filter(t => !(t.add && t.part === 'disc')); });
+            mkRender();
+        }
+        function mkPartText(key, val) {
+            _mkEnsureParts();
+            const orig = _mkPartOrig(key);
+            _mk.parts[key].tpl = val === orig ? null : val;
+            if (key === 'disc' && val && !_mk.pages.some(pg => _mkPartTexts(pg, 'disc').length)) { _mk.parts.disc.on = true; _mkAddDisclaimer(); }
+            _mk.pages.forEach(pg => pg.texts.forEach(t => { if (t.add && t.part === key) t.t = _mk.parts[key].tpl || t.t; }));
+            mkRender();
+        }
+        // The mockup's own text for a part (first page that has it), lines joined.
+        function _mkPartOrig(key) {
+            for (const pg of _mk.pages) {
+                const L = _mkPartTexts(pg, key);
+                if (L.length) return L.map(t => t.add ? t.t : t.o).join(key === 'hdr' ? ' ' : '\n');
+            }
+            return '';
+        }
+        function _mkPartsPanel() {
+            const el = document.getElementById('mkParts'); if (!el) return;
+            if (_mkReadOnly || !_mk.pages.length) { el.innerHTML = ''; return; }
+            if (el.contains(document.activeElement) && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName) && document.activeElement.type !== 'checkbox') return;
+            _mkEnsureParts();
+            const P = _mk.parts, found = k => _mk.pages.some(pg => _mkPartTexts(pg, k).length);
+            const hasPrice = k => _mk.pages.some(pg => _mkPartTexts(pg, k).some(t => !t.add && _mkVal(t.o) != null));
+            const VARS = 'HTML tags are supported. Use {{price}} for the insurance price, {{cartTotal}} for the cart total without the fee, {{cartTotalWithFee}} for the cart total including the fee, and {{offset}} for the carbon offset amount (zero unless the widget offsets carbon).';
+            const tog = (key, label, help, on, dis) => `<label class="mk2-ptog${dis ? ' off' : ''}" title="${_escHtml(help)}"><input type="checkbox" ${on ? 'checked' : ''} onchange="mkPartOn('${key}', this.checked)"> ${label}</label>`;
+            const field = (key, multi) => {
+                const v = P[key].tpl != null ? P[key].tpl : _mkPartOrig(key);
+                return multi
+                    ? `<textarea rows="2" oninput="mkPartText('${key}', this.value)" placeholder="${key === 'disc' ? 'Disclaimer text' : ''}">${_escHtml(v)}</textarea>`
+                    : `<input type="text" value="${_escHtml(v)}" oninput="mkPartText('${key}', this.value)">`;
+            };
+            const row = (key, label, help, multi) => {
+                const f = found(key), on = f && P[key].on !== false;
+                return `<div class="mk2-prow">${tog(key, label, help, on, !f && key !== 'disc')}${(on || key === 'disc' && P.disc.on !== false && P.disc.tpl) ? field(key, multi) : ''}${!f && key !== 'disc' ? '<div class="mk2-pnote">Not found in this mockup: click it in the preview, then set Widget part.</div>' : ''}<div class="mk2-pnote">${_escHtml(help)}</div></div>`;
+            };
+            const p = (key, label, help) => {
+                const btn = key === 'p1' ? 'b1' : 'b2', f = found(btn), on = P[key] == null ? hasPrice(btn) : P[key];
+                return `<div class="mk2-prow">${tog(key, label, help, f && on, !f)}${!f ? '<div class="mk2-pnote">Button not found: click its label in the preview, then set Widget part.</div>' : ''}</div>`;
+            };
+            el.innerHTML = `<details class="mk2-parts" open><summary>Dual checkout widget</summary>
+                <div class="mk2-pnote" style="margin-bottom:6px;">Each setting starts from the mockup. Switch one off to remove it, or change its text; untouched parts stay exactly as designed.</div>
+                ${row('hdr', 'Header Text', 'Main heading for the widget. ' + VARS, false)}
+                ${row('body', 'Body Text', 'Explanatory text for the widget. ' + VARS + ' The existing {price} cashback variable remains supported.', true)}
+                ${p('p1', 'Show Price on Main Checkout Button', 'Display the price insurance on the main checkout button')}
+                ${p('p2', 'Show Price on Secondary Checkout Button', 'Display the price insurance on the secondary checkout button')}
+                ${row('disc', 'Disclaimer', 'Optional legal or informational text shown below the secondary checkout button. ' + VARS, true)}
+            </details>`;
+        }
+        // Old saves and fresh imports: find the icons, fit the repainted text, find the font.
+        let _mkPostBusy = false;
+        async function _mkAfterRender() {
+            if (_mkReadOnly || _mkPostBusy) return;
+            _mkPostBusy = true;
+            try {
+                let found = false;
+                for (const pg of _mk.pages) {
+                    if (!pg.texts.some(t => t.ic === undefined && !t.add)) continue;
+                    try { _mkFindIcons(pg, await _mkPageCanvas(pg)); found = true; } catch (e) {}
+                }
+                if (found) _mkPlaceIcons();
+                if (!_mk.fontBy && !_mk.font) await _mkDetectFont();
+                await _mkCalibrate();
+            } finally { _mkPostBusy = false; }
+        }
+
         // ── Import: image / screenshot (page units = image px, long side ≤ 2400) ──
         function _mkBlobUrl(blob) {
             return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(new Error('Could not read the file')); r.readAsDataURL(blob); });
@@ -3471,9 +4075,13 @@ Return ONLY JSON — no markdown, no code fences:
                 });
                 const fonts = {}; pg.texts.forEach(t => { if (t.fg) fonts[t.fg] = (fonts[t.fg] || 0) + 1; });
                 const top = Object.keys(fonts).sort((a, b) => fonts[b] - fonts[a])[0];
-                if (top && !_mk.font) { _mk.font = top; const fi = document.getElementById('mk-font'); if (fi) fi.value = top; }
+                if (top && !_mk.font) { _mk.font = top; _mk.fontBy = 'scan'; const fi = document.getElementById('mk-font'); if (fi) fi.value = top; }
                 _mkAutoRoles(pg);
                 _mkFeeConsensus(_mk.pages);
+                if (!_mk.parts) _mk.parts = _mkPartsFresh();
+                pg.texts.forEach(t => { delete t.part; });
+                _mkAutoParts(pg);
+                _mkFindIcons(pg, cv);
                 if (/^Page \d+$/.test(pg.name)) pg.name = _mkGuessName(pg, pi + 1);
                 _mkSel = null;
                 mkRender();
@@ -3572,7 +4180,7 @@ Return ONLY JSON — no markdown, no code fences:
                         t: wrap ? n.characters : n.characters.replace(/\s*\n\s*/g, ' '), x: _mkR(x), y: _mkR(y), w: _mkR(w), h: _mkR(h),
                         b: _mkR(y + (lh - sz) / 2 + sz * 0.845), sz, lh: wrap ? lh : 0, wrap, fw: st.fontWeight || 400, ff: st.fontFamily || '', it: !!st.italic,
                         c, bg: s.bg, al: { CENTER: 'c', RIGHT: 'r' }[st.textAlignHorizontal] || 'l', _al: true,
-                        tt: { UPPER: 'u', LOWER: 'l', TITLE: 't' }[st.textCase] || '', ls: st.letterSpacing || 0
+                        tt: { UPPER: 'u', LOWER: 'l', TITLE: 't' }[st.textCase] || '', ls: st.letterSpacing || 0, ex: true
                     }));
                     return;
                 }
@@ -3626,7 +4234,10 @@ Return ONLY JSON — no markdown, no code fences:
             if (!pages.length) throw new Error('nothing to import');
             pages.forEach(_mkAutoRoles);
             _mkFeeConsensus(pages);
-            _mk = { src: src || '', font: _mk.font || '', pages };
+            // A font the rep typed carries over; one found for the last mockup doesn't.
+            const keep = _mk.fontBy === 'user' || (_mk.font && !_mk.fontBy) ? _mk.font : '';
+            _mk = { src: src || '', font: keep, fontBy: keep ? 'user' : '', pages, parts: _mkPartsFresh() };
+            pages.forEach(pg => { _mkAutoParts(pg); _mkFindIcons(pg, _mkCanvas[pg.img]); });
             _mkSel = null;
             const fi = document.getElementById('mk-font'); if (fi) fi.value = _mk.font;
             if (_widgetType !== 'mockup') setWidgetType('mockup'); else mkRender();
@@ -3663,42 +4274,53 @@ Return ONLY JSON — no markdown, no code fences:
 
         // ── Render ──
         const _mkFontsLoaded = {};
+        // Resolves once the font's stylesheet is in (its faces can then be loaded and measured).
+        function _mkLoadFont(f) {
+            f = String(f || '').replace(/['";]/g, '').trim();
+            if (!f || MK_SYS_FONT.test(f)) return Promise.resolve();
+            if (_mkFontsLoaded[f]) return _mkFontsLoaded[f];
+            const l = document.createElement('link');
+            l.rel = 'stylesheet';
+            l.href = 'https://fonts.googleapis.com/css?family=' + encodeURIComponent(f).replace(/%20/g, '+') + ':300,400,500,600,700,800,400i,700i&display=swap';
+            _mkFontsLoaded[f] = new Promise(res => { l.onload = res; l.onerror = res; setTimeout(res, 8000); });
+            document.head.appendChild(l);
+            return _mkFontsLoaded[f];
+        }
         function _mkLoadFonts() {
-            const fams = new Set();
-            if (_mk.font) fams.add(_mk.font);
-            _mk.pages.forEach(p => p.texts.forEach(t => { if (t.ff) fams.add(t.ff); }));
-            fams.forEach(f => {
-                if (_mkFontsLoaded[f] || /^(arial|helvetica|helvetica neue|times|times new roman|georgia|verdana|system-ui|sans-serif|serif)$/i.test(f)) return;
-                _mkFontsLoaded[f] = 1;
-                const l = document.createElement('link');
-                l.rel = 'stylesheet';
-                l.href = 'https://fonts.googleapis.com/css?family=' + encodeURIComponent(f).replace(/%20/g, '+') + ':300,400,500,600,700,800,400i,700i&display=swap';
-                document.head.appendChild(l);
-            });
+            _mkLoadFont(_mk.font);
+            _mk.pages.forEach(p => p.texts.forEach(t => { _mkLoadFont(t.ff); _mkLoadFont(t.af); }));
         }
         const _mkShown = t => t.add || t.sty || t.t !== t.o;
         const _mkIsSel = (k, pi, id) => !!_mkSel && _mkSel.k === k && _mkSel.p === pi && _mkSel.id === id;
         function _mkTextStyle(t, pg) {
-            const P = MK_PAD, ff = (t.ff || _mk.font || '').replace(/['";]/g, '');
+            const P = MK_PAD, ff = _mkFam(t);
             let s = `font-size:${t.sz}px;font-weight:${t.fw};--c:${t.c};--bg:${t.add ? 'transparent' : t.bg};font-family:${ff ? `'${ff}',` : ''}'Helvetica Neue',Arial,sans-serif;`;
             if (t.it) s += 'font-style:italic;';
             if (t.ls) s += `letter-spacing:${t.ls}px;`;
+            if (t.wsp) s += `word-spacing:${t.wsp}px;`;
             if (t.tt) s += 'text-transform:' + { u: 'uppercase', l: 'lowercase', t: 'capitalize' }[t.tt] + ';';
             if (t.wrap) return s + `left:${t.x - P}px;top:${t.y - P}px;width:${t.w + 2 * P}px;min-height:${t.h + 2 * P}px;padding:${P}px;line-height:${t.lh}px;white-space:pre-wrap;text-align:${{ l: 'left', c: 'center', r: 'right' }[t.al]};`;
-            // One line: baseline sits where the original's did (≈0.845em down a 1em line box).
-            const top = Math.min(t.y - P, t.b - 0.845 * t.sz), bot = Math.max(t.y + t.h + P, t.b + 0.26 * t.sz);
-            s += `top:${_mkR(top)}px;height:${_mkR(bot - top)}px;padding-top:${_mkR(t.b - 0.845 * t.sz - top)}px;padding-left:${P}px;padding-right:${P}px;line-height:${t.sz}px;white-space:pre;min-width:${_mkR(t.w + 2 * P)}px;`;
-            if (t.al === 'r') s += `right:${_mkR(pg.w - (t.x + t.w) - P)}px;text-align:right;`;
-            else if (t.al === 'c') s += `left:${_mkR(t.x + t.w / 2)}px;transform:translateX(-50%);text-align:center;`;
-            else s += `left:${_mkR(t.x - P)}px;`;
+            // One line: baseline sits where the original's did. br = where this font puts its
+            // baseline in a 1em line box (measured when the text is fitted; ≈0.845em otherwise).
+            // dl / dr / dc: the fitted font's side bearings, so its letters land on the original's.
+            const br = t.br || 0.845, dl = t.dl || 0, dr = t.dr || 0, dc = t.dc || 0;
+            const top = Math.min(t.y - P, t.b - br * t.sz), bot = Math.max(t.y + t.h + P, t.b + (1 - br) * t.sz);
+            s += `top:${_mkR(top)}px;height:${_mkR(bot - top)}px;padding-top:${_mkR(t.b - br * t.sz - top)}px;padding-left:${P}px;padding-right:${P}px;line-height:${t.sz}px;white-space:pre;`;
+            if (t.al === 'r') s += `min-width:${_mkR(t.w + 2 * P + Math.max(0, dr))}px;right:${_mkR(pg.w - (t.x + t.w + dr) - P)}px;text-align:right;`;
+            else if (t.al === 'c') s += `min-width:${_mkR(t.w + 2 * P + 2 * Math.abs(dc))}px;left:${_mkR(t.x + t.w / 2 + dc)}px;transform:translateX(-50%);text-align:center;`;
+            else s += `min-width:${_mkR(t.w + 2 * P - Math.min(0, dl))}px;left:${_mkR(t.x + dl - P)}px;`;
             return s;
         }
+        // A widget part whose text holds markup or {{variables}} is edited in the panel, not here.
+        const _mkLocked = t => !!t.pm && (t.html != null || (['hdr', 'body', 'disc'].includes(t.part) && _mk.parts && _mkHasMarkup((_mk.parts[t.part] || {}).tpl)));
         function _mkTextHtml(t, pg, pi, ed) {
             const shown = _mkShown(t);
             if (!ed && !shown) return '';
-            const cls = 'mk2-t' + (shown ? ' shown' : '') + (t.role ? ' r-' + t.role : '') + (ed && _mkIsSel('t', pi, t.id) ? ' sel' : '');
-            const attrs = ed ? ` data-t="${t.id}" contenteditable="plaintext-only" spellcheck="false"${t.role ? ` data-tag="${MK_ROLE_TAG[t.role]}"` : ''}` : '';
-            return `<div class="${cls}"${attrs} style="${_mkTextStyle(t, pg)}">${_escHtml(t.t)}</div>`;
+            if (t.add && !t.t && !ed) return '';
+            const lock = _mkLocked(t);
+            const cls = 'mk2-t' + (shown ? ' shown' : '') + (t.role ? ' r-' + t.role : '') + (lock ? ' locked' : '') + (ed && _mkIsSel('t', pi, t.id) ? ' sel' : '');
+            const attrs = ed ? ` data-t="${t.id}"${lock ? '' : ' contenteditable="plaintext-only"'} spellcheck="false"${t.role ? ` data-tag="${MK_ROLE_TAG[t.role]}"` : t.part ? ` data-tag="${_escHtml(MK_PARTS[t.part] || '')}"` : ''}` : '';
+            return `<div class="${cls}"${attrs} style="${_mkTextStyle(t, pg)}">${t.pm && t.html != null ? t.html : _escHtml(t.t)}</div>`;
         }
         function _mkBoxHtml(b, pi, ed) {
             const sel = ed && _mkIsSel('b', pi, b.id);
@@ -3717,7 +4339,7 @@ Return ONLY JSON — no markdown, no code fences:
             const cls = 'mk2-page' + (ed && _mkTool !== 'select' ? ' tool-' + _mkTool : '') + (ed && _mkOn('mk-tags') ? ' tags' : '');
             return `<div class="mk-flabel"><span>${_escHtml(pg.name || 'Page ' + (pi + 1))}</span>${btns}</div>` +
                 `<div class="mk-fit${ed ? ' mk-edit' : ''}"><div class="${cls}" data-p="${pi}" style="width:${pg.w}px;height:${pg.h}px;">` +
-                `<img class="mk2-base" src="${pg.img}" alt="" draggable="false">${pg.boxes.map(_mkCoverHtml).join('')}${pg.boxes.map(b => _mkBoxHtml(b, pi, ed)).join('')}${pg.texts.map(t => _mkTextHtml(t, pg, pi, ed)).join('')}</div></div>`;
+                `<img class="mk2-base" src="${pg.img}" alt="" draggable="false">${pg.boxes.map(_mkCoverHtml).join('')}${pg.boxes.map(b => _mkBoxHtml(b, pi, ed)).join('')}${pg.texts.map(t => _mkTextHtml(t, pg, pi, ed)).join('')}<div class="mk2-icons">${pg.texts.map(t => _mkIconHtml(t, pg)).join('')}</div></div></div>`;
         }
         function mkRender() {
             const area = document.getElementById('widgetPreviewArea');
@@ -3731,12 +4353,15 @@ Return ONLY JSON — no markdown, no code fences:
             const ed = !_mkReadOnly;
             _mkLoadFonts();
             const pr = _mkPrice();
+            if (_mk.pages.length) _mkApplyParts(pr);
             area.innerHTML = _mk.pages.length ? _mk.pages.map((pg, pi) => _mkPageHtml(pg, pi, ed)).join('')
                 : (ed ? `<div class="mk2-empty"><b>Import this merchant's mockup to start.</b><br>Upload the Figma export (PDF, every page), an image or a store screenshot, pick it from the merchant's folder, or paste a Figma link.<br>Every text then becomes editable right here, and the ShipInsure price and totals follow the Pricing template.</div>` : '');
             mkFit(area);
             _mkFeeInfo(pr);
             _mkInspector();
+            _mkPartsPanel();
             const fi = document.getElementById('mk-font'); if (fi && document.activeElement !== fi) fi.value = _mk.font || '';
+            if (_mk.pages.length) _mkAfterRender();
         }
         function _mkFeeInfo(pr) {
             const el = document.getElementById('mkFeeInfo'); if (!el) return;
@@ -3785,6 +4410,10 @@ Return ONLY JSON — no markdown, no code fences:
                         <div class="wcs"><label>Anchor</label><select onchange="mkSetT('al', this.value)">${opt('l', o.al, 'Left')}${opt('c', o.al, 'Center')}${opt('r', o.al, 'Right')}</select></div>
                     </div>
                     <div class="wconfig-style-row">
+                        <div class="wcs"><label>Widget part</label><select onchange="mkSetT('part', this.value)">${Object.keys(MK_PARTS).map(k => opt(k, o.part || '', MK_PARTS[k])).join('')}</select></div>
+                    </div>
+                    ${_mkLocked(o) ? '<div class="mk2-pnote">This text comes from the Dual checkout widget settings above: change it there.</div>' : ''}
+                    <div class="wconfig-style-row">
                         <div class="wcs"><label>Font</label><input type="text" value="${_escHtml(o.ff)}" placeholder="${_escHtml(_mk.font || 'Mockup font')}" onchange="mkSetT('ff', this.value.trim())"></div>
                         <div class="wcs"><label>Size</label><input type="number" step="0.5" min="4" value="${o.sz}" onchange="mkSetT('sz', parseFloat(this.value) || ${o.sz})"></div>
                         <div class="wcs"><label>Weight</label><select onchange="mkSetT('fw', +this.value)">${[300, 400, 500, 600, 700, 800].map(w => opt(w, o.fw, w)).join('')}</select></div>
@@ -3830,8 +4459,17 @@ Return ONLY JSON — no markdown, no code fences:
             const c = _mkCur(); if (!c || _mkSel.k !== 't') return;
             const t = c.o;
             if (prop === 'role') { t.role = val; t.man = false; mkRender(); return; }
+            if (prop === 'part') {
+                // Retagging: the part's lines change, so its panel text starts again from the mockup.
+                _mkEnsureParts();
+                const was = t.part; t.part = val;
+                [was, val].forEach(k => { if (k === 'hdr' || k === 'body' || k === 'disc') _mk.parts[k].tpl = null; });
+                mkRender(); return;
+            }
+            // "All text in this same font" only restyles text that's already repainted; the rest
+            // keeps showing the mockup's own pixels until it's edited.
             const grp = (prop === 'ff' || prop === 'fw') && t.fg && (document.getElementById('mkGrp') || {}).checked;
-            const list = grp ? _mk.pages.flatMap(p => p.texts.filter(x => x.fg === t.fg && !x.add)) : [t];
+            const list = grp ? _mk.pages.flatMap(p => p.texts.filter(x => x.fg === t.fg && !x.add && (x === t || _mkShown(x)))) : [t];
             list.forEach(x => {
                 if (!x.os) x.os = { sz: x.sz, fw: x.fw, ff: x.ff, c: x.c, bg: x.bg, al: x.al };
                 x[prop] = val;
@@ -3844,10 +4482,13 @@ Return ONLY JSON — no markdown, no code fences:
             const t = c.o;
             if (t.os) { Object.assign(t, t.os); delete t.os; }
             t.t = t.o; t.man = false; t.sty = false;
+            if (_mk.parts && (t.part === 'hdr' || t.part === 'body' || t.part === 'disc') && !t.add) _mk.parts[t.part] = { on: true, tpl: null };
+            if (_mk.parts && (t.part === 'b1' || t.part === 'b2')) _mk.parts[t.part === 'b1' ? 'p1' : 'p2'] = null;
             mkRender();
         }
         function mkDeleteT() {
             const c = _mkCur(); if (!c || _mkSel.k !== 't') return;
+            if (_mk.parts && (c.o.part === 'hdr' || c.o.part === 'body' || c.o.part === 'disc')) { mkPartOn(c.o.part, false); return; }
             if (c.o.add) { c.pg.texts = c.pg.texts.filter(x => x !== c.o); _mkSel = null; }
             else { c.o.t = ''; c.o.man = true; }
             mkRender();
@@ -3902,7 +4543,7 @@ Return ONLY JSON — no markdown, no code fences:
                 if (t !== 'select') p.classList.add('tool-' + t);
             });
         }
-        function mkSetFont(v) { _mk.font = String(v || '').trim(); mkRender(); }
+        function mkSetFont(v) { _mk.font = String(v || '').trim(); _mk.fontBy = _mk.font ? 'user' : ''; mkRender(); }
         function mkRemovePage(pi) {
             if (!confirm(`Remove “${(_mk.pages[pi] || {}).name || 'this page'}” from the mockup?`)) return;
             _mk.pages.splice(pi, 1); _mkSel = null; mkRender();
@@ -3912,8 +4553,9 @@ Return ONLY JSON — no markdown, no code fences:
             _mk.pages.forEach(pg => {
                 pg.boxes = [];
                 pg.texts = pg.texts.filter(t => !t.add);
-                pg.texts.forEach(t => { if (t.os) { Object.assign(t, t.os); delete t.os; } t.t = t.o; t.man = false; t.sty = false; });
+                pg.texts.forEach(t => { if (t.g0) Object.assign(t, t.g0); delete t.g0; delete t.pm; if (t.os) { Object.assign(t, t.os); delete t.os; } t.t = t.o; t.man = false; t.sty = false; });
             });
+            _mk.parts = _mkPartsFresh();
             _mkSel = null; mkRender();
         }
         function mkClear() {
@@ -3931,12 +4573,19 @@ Return ONLY JSON — no markdown, no code fences:
         // Repaint every text (prices follow the edit) without rebuilding the page under the caret.
         function _mkRefresh(skipEl) {
             const pr = _mkPrice();
+            _mkApplyParts(pr);
             document.querySelectorAll('#widgetPreviewArea .mk2-t').forEach(el => {
                 const f = _mkFromEl(el); if (!f || !f.t) return;
                 el.classList.toggle('shown', _mkShown(f.t));
-                if (el !== skipEl && el.textContent !== f.t.t) el.textContent = f.t.t;
+                if (el !== skipEl) {
+                    if (f.t.pm && f.t.html != null) { if (el.innerHTML !== f.t.html) el.innerHTML = f.t.html; }
+                    else if (el.textContent !== f.t.t) el.textContent = f.t.t;
+                }
+                el.setAttribute('style', _mkTextStyle(f.t, f.pg));
             });
+            _mkPlaceIcons();
             _mkFeeInfo(pr);
+            _mkCalibrate();
         }
         function _mkSelect(sel) {
             _mkSel = sel;
@@ -3949,6 +4598,9 @@ Return ONLY JSON — no markdown, no code fences:
             const t = f.t;
             t.t = t.wrap ? f.te.innerText.replace(/\n$/, '') : f.te.textContent.replace(/\n/g, ' ');
             if (t.role === 'fee' || t.role === 'sub' || t.role === 'total') t.man = t.t !== t.o;
+            // Typing into a widget part's text is the same as typing it in the panel.
+            if (_mk.parts && ['hdr', 'body', 'disc'].includes(t.part) && (t.pm || _mk.parts[t.part].tpl != null || _mkPartTexts(f.pg, t.part).length === 1)) _mk.parts[t.part].tpl = t.t === t.o ? null : t.t;
+            if (_mk.parts && t.pm && (t.part === 'b1' || t.part === 'b2')) { _mk.parts[t.part === 'b1' ? 'p1' : 'p2'] = null; delete t.pm; delete t.g0; }
             _mkRefresh(f.te);
         });
         document.addEventListener('focusin', e => {
@@ -4059,6 +4711,8 @@ Return ONLY JSON — no markdown, no code fences:
                 });
                 return;
             }
+            // A widget part edited in the panel: clicking selects it (its text lives in the panel).
+            if (f.t && _mkLocked(f.t)) { _mkSelect({ p: pi, k: 't', id: f.t.id }); f.te.classList.add('sel'); return; }
             if (!f.t && _mkSel) { _mkSelect(null); }
         });
 
