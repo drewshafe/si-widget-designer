@@ -472,8 +472,8 @@
         .mk-edit .mk2-b:hover { outline: calc(1.5px / var(--z)) dashed rgba(70,86,199,0.75); }
         .mk-edit .mk2-b.sel { outline: calc(2px / var(--z)) solid #4656c7; }
         .mk2-rz { position: absolute; right: calc(-7px / var(--z)); bottom: calc(-7px / var(--z)); width: calc(14px / var(--z)); height: calc(14px / var(--z)); box-sizing: border-box; background: #4656c7; border: calc(2px / var(--z)) solid #fff; border-radius: 50%; cursor: nwse-resize; }
-        .mk2-page.tool-box, .mk2-page.tool-image, .mk2-page.tool-text, .mk2-page.tool-lift { cursor: crosshair; }
-        .mk2-page:is(.tool-box, .tool-image, .tool-text, .tool-lift) :is(.mk2-t, .mk2-b) { pointer-events: none; }
+        .mk2-page.tool-box, .mk2-page.tool-image, .mk2-page.tool-text, .mk2-page.tool-lift, .mk2-page.tool-tag { cursor: crosshair; }
+        .mk2-page:is(.tool-box, .tool-image, .tool-text, .tool-lift, .tool-tag) :is(.mk2-t, .mk2-b, .co-ins) { pointer-events: none; }
         .mk2-cover { position: absolute; z-index: 1; pointer-events: none; }
         .mk2-tint { position: absolute; inset: 0; display: block; pointer-events: none; }
         .mk2-draw { position: absolute; z-index: 5; box-sizing: border-box; border: calc(2px / var(--z)) dashed #4656c7; background: rgba(70,86,199,0.12); pointer-events: none; }
@@ -517,6 +517,133 @@
         .mk2-ptog.off { color: #9aa0b8; }
         .mk2-prow input[type="text"], .mk2-prow textarea { width: 100%; box-sizing: border-box; margin-top: 4px; padding: 6px 8px; border: 1px solid #d0d4e8; border-radius: 5px; font: inherit; font-size: 0.8em; resize: vertical; }
         .mk2-pnote { font-size: 0.7em; color: #8a8fa6; line-height: 1.4; margin-top: 3px; }
+        /* Checkout Editor (Shopify's checkout editor sidebar) */
+        .co-ed { container: coed / inline-size; border: 1px solid #e3e3e3; border-radius: 10px; background: #fff; margin: 10px 0; font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif; color: #303030; }
+        .co-ed > summary { padding: 10px 12px; font-size: 0.82em; font-weight: 650; cursor: pointer; border-bottom: 1px solid #ebebeb; }
+        .co-ed > summary span { font-weight: 450; color: #616161; font-size: 0.92em; margin-left: 6px; }
+        .co-top { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-bottom: 1px solid #ebebeb; font-size: 0.78em; }
+        .co-top select { font: inherit; font-weight: 650; padding: 4px 8px; border: 1px solid #c9c9c9; border-radius: 8px; background: #fff; }
+        .co-cols { display: flex; flex-wrap: wrap; min-height: 240px; }
+        .co-tree { flex: 1 0 240px; max-width: 300px; border-right: 1px solid #ebebeb; padding: 4px 0 10px; font-size: 0.78em; max-height: 640px; overflow: auto; }
+        .co-set { flex: 1 1 280px; min-width: 0; padding: 12px; font-size: 0.8em; }
+        /* Too narrow for side by side: settings go under the tree, both full width. */
+        @container coed (max-width: 560px) { .co-tree { max-width: none; border-right: 0; border-bottom: 1px solid #ebebeb; } }
+        .co-sec { padding: 6px 8px 2px; border-bottom: 1px solid #f1f1f1; }
+        .co-sh { font-weight: 650; padding: 4px 6px; }
+        .co-subk { padding-left: 14px; }
+        .co-it { display: flex; align-items: center; gap: 7px; padding: 4px 6px; border-radius: 7px; line-height: 1.3; }
+        .co-it i { font-style: normal; width: 16px; text-align: center; color: #8a8a8a; flex: 0 0 16px; font-size: 0.95em; }
+        .co-it span { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .co-it.fix { color: #303030; }
+        .co-it.subh { font-weight: 550; }
+        .co-it.blk { cursor: grab; background: #f7f7f7; margin: 1px 0; }
+        .co-it.blk:hover { background: #ebebeb; }
+        .co-it.blk.sel { background: #e3e3e3; box-shadow: inset 0 0 0 1.5px #303030; }
+        .co-it.blk.drag { opacity: 0.4; }
+        .co-it.blk i { color: #303030; }
+        .co-x { border: 0; background: none; color: #8a8a8a; cursor: pointer; font-size: 0.85em; padding: 0 2px; visibility: hidden; }
+        .co-it.blk:hover .co-x { visibility: visible; }
+        .co-x:hover { color: #c70a24; }
+        .co-slot { border-radius: 7px; }
+        .co-add { display: block; width: 100%; text-align: left; border: 0; background: none; color: #005bd3; font: inherit; padding: 3px 6px 3px 29px; cursor: pointer; border-radius: 7px; }
+        .co-add:hover { background: #f1f6fe; }
+        .co-slot.empty:not(.dyn) .co-add { height: 6px; padding: 0 6px 0 29px; overflow: hidden; color: transparent; }
+        .co-sec:hover .co-slot.empty:not(.dyn) .co-add, .co-slot.empty:not(.dyn) .co-add:focus { height: auto; padding: 3px 6px 3px 29px; color: #005bd3; }
+        .co-dragging .co-slot.ok { box-shadow: inset 0 0 0 1.5px #91b8f0; background: #f4f8fe; }
+        .co-dragging .co-slot.ok.over { box-shadow: inset 0 0 0 2px #005bd3; background: #e8f0fd; }
+        .co-dragging .co-slot.no { opacity: 0.45; }
+        .co-dragging .co-slot.empty .co-add { height: auto; padding: 3px 6px 3px 29px; color: #8a8a8a; }
+        .co-menu { margin: 2px 6px 6px 22px; border: 1px solid #e3e3e3; border-radius: 8px; padding: 4px; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .co-menu button { display: flex; gap: 7px; width: 100%; text-align: left; border: 0; background: none; font: inherit; padding: 5px 6px; border-radius: 6px; cursor: pointer; }
+        .co-menu button:hover { background: #f1f1f1; }
+        .co-menu button i { font-style: normal; }
+        .co-none { color: #616161; padding: 5px 6px; }
+        .co-tgt { color: #8a8a8a; font-family: ui-monospace, Menlo, monospace; font-size: 0.82em; padding: 4px 6px 2px; border-top: 1px solid #f1f1f1; margin-top: 3px; word-break: break-all; }
+        .co-seth { font-weight: 650; font-size: 1.05em; margin-bottom: 4px; }
+        .co-meta { color: #616161; font-size: 0.88em; margin-bottom: 10px; word-break: break-all; }
+        .co-meta code { font-size: 0.95em; }
+        .co-empty { color: #616161; line-height: 1.5; }
+        .co-f { display: block; margin: 0 0 10px; }
+        .co-f > span { display: block; font-weight: 550; margin-bottom: 4px; }
+        .co-f input, .co-f textarea, .co-f select { width: 100%; box-sizing: border-box; font: inherit; padding: 6px 8px; border: 1px solid #8a8a8a; border-radius: 8px; background: #fff; resize: vertical; }
+        .co-f input:focus, .co-f textarea:focus, .co-f select:focus { outline: 2px solid #005bd3; outline-offset: 1px; }
+        .co-f small { display: block; color: #616161; margin-top: 3px; }
+        .co-err { display: block; color: #c70a24; font-style: normal; margin-top: 3px; }
+        .co-err:empty { display: none; }
+        .co-sw { display: flex; align-items: center; gap: 8px; margin: 2px 0 12px; cursor: pointer; font-weight: 550; }
+        .co-sw input { position: absolute; opacity: 0; pointer-events: none; }
+        .co-sw i { width: 30px; height: 17px; border-radius: 9px; background: #b5b5b5; position: relative; flex: 0 0 30px; transition: background .15s; }
+        .co-sw i::after { content: ''; position: absolute; top: 2px; left: 2px; width: 13px; height: 13px; border-radius: 50%; background: #fff; transition: left .15s; }
+        .co-sw input:checked + i { background: #303030; }
+        .co-sw input:checked + i::after { left: 15px; }
+        .co-sw input:focus-visible + i { outline: 2px solid #005bd3; outline-offset: 2px; }
+        .co-note { color: #616161; background: #f7f7f7; border-radius: 8px; padding: 7px 9px; margin-bottom: 4px; }
+        .co-prevh { font-weight: 650; margin: 14px 0 6px; }
+        .co-prev { border: 1px dashed #d4d4d4; border-radius: 8px; padding: 10px; background: #fff; }
+        .co-lib { display: flex; align-items: center; gap: 8px; border: 1px solid #e3e3e3; border-radius: 8px; padding: 8px 10px; margin-top: 8px; cursor: grab; background: #fff; }
+        .co-lib.off { cursor: default; color: #8a8a8a; }
+        .co-lib i { font-style: normal; }
+        .co-lib span { flex: 1 1 auto; font-weight: 550; }
+        .co-lib em { font-style: normal; color: #8a8a8a; font-size: 0.92em; }
+        .co-lib button { border: 1px solid #c9c9c9; background: #fff; border-radius: 8px; font: inherit; font-weight: 550; padding: 3px 10px; cursor: pointer; }
+        .co-lib.drag { opacity: 0.4; }
+        /* The ShipInsure blocks, drawn only from Checkout Branding tokens (--co-p, --co-r, font). */
+        .co-w { border: 1px solid #dedede; border-radius: var(--co-r); padding: 12px 14px; background: #fff; color: #000; font-size: 14px; line-height: 1.4; text-align: left; }
+        .co-w-row { display: flex; align-items: center; gap: 12px; }
+        .co-w-cb { flex: 0 0 18px; width: 18px; height: 18px; border: 1px solid #919191; border-radius: min(var(--co-r), 5px); background: #fff; cursor: pointer; position: relative; box-sizing: border-box; }
+        .co-w-cb.on { background: var(--co-p); border-color: var(--co-p); }
+        .co-w-cb.on::after { content: ''; position: absolute; left: 5px; top: 1.5px; width: 5px; height: 9px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+        .co-w-cb.lock { cursor: default; opacity: 0.75; }
+        .co-w-img { width: 40px; height: 40px; border-radius: var(--co-r); object-fit: cover; flex: 0 0 40px; }
+        .co-w-txt { flex: 1 1 auto; min-width: 0; }
+        .co-w-h { font-weight: 600; }
+        .co-w-s { color: #707070; font-size: 12.5px; }
+        .co-w-lm { color: var(--co-p); text-decoration: underline; cursor: pointer; }
+        .co-w-pr { font-weight: 600; white-space: nowrap; }
+        .co-w-d { color: #707070; font-size: 11.5px; margin-top: 8px; }
+        .co-l { display: flex; align-items: center; gap: 14px; font-size: 14px; color: #000; text-align: left; }
+        .co-l-img { position: relative; flex: 0 0 64px; width: 64px; height: 64px; border: 1px solid #dedede; border-radius: var(--co-r); background: #fff; display: flex; align-items: center; justify-content: center; font-size: 26px; box-sizing: border-box; }
+        .co-l-img img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
+        .co-l-img b { position: absolute; top: -8px; right: -8px; min-width: 20px; height: 20px; border-radius: 10px; background: #666; color: #fff; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+        .co-l-n { flex: 1 1 auto; font-weight: 500; }
+        .co-l-p { font-weight: 500; white-space: nowrap; }
+        .co-tile { position: absolute; overflow: hidden; pointer-events: none; }
+        .co-tile img { position: absolute; max-width: none; display: block; }
+        .co-fill { position: absolute; pointer-events: none; }
+        .co-ins { position: absolute; z-index: 3; transform-origin: 0 0; }
+        .mk-edit .co-ins { cursor: pointer; }
+        .mk-edit .co-ins:hover, .mk-edit .co-ins.sel { outline: 2px solid #005bd3; outline-offset: 3px; }
+        .co-mark { position: absolute; z-index: 5; border: 2px dashed #c05717; background: rgba(255, 140, 50, 0.12); pointer-events: none; }
+        .co-it.blk.nomk span { color: #8a8a8a; }
+        .co-it.blk.nomk span::after { content: ' · not in mockup'; font-size: 0.88em; }
+        .co-foot { border-top: 1px solid #ebebeb; padding: 6px 12px 10px; font-size: 0.78em; }
+        .co-secs > summary { cursor: pointer; font-weight: 650; padding: 5px 0; }
+        .co-mut { color: #8a8a8a; font-weight: 450; }
+        .co-pgrow { margin: 6px 0; }
+        .co-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+        .co-chip { border: 1px dashed #c9c9c9; color: #8a8a8a; border-radius: 10px; padding: 1px 8px; }
+        .co-chip.on { border: 1px solid #b4d3b9; background: #eef8f0; color: #1f5c2b; }
+        .co-chip.hand { border-color: #e2b98f; background: #fff4e8; color: #8a4b12; }
+        .co-chip button { border: 0; background: none; color: inherit; cursor: pointer; padding: 0 0 0 2px; font-size: 0.9em; }
+        .co-tagbox { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; background: #fff4e8; border: 1px solid #e2b98f; border-radius: 8px; padding: 7px 9px; margin: 6px 0; }
+        .co-tagbox select, .co-tagbox button { font: inherit; padding: 3px 6px; border: 1px solid #c9c9c9; border-radius: 6px; background: #fff; }
+        .co-brow { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+        .co-brow label { display: flex; flex-direction: column; gap: 3px; font-weight: 550; }
+        .co-brow input, .co-brow select { font: inherit; padding: 4px 6px; border: 1px solid #8a8a8a; border-radius: 7px; box-sizing: border-box; width: 100%; }
+        .co-brow input[type="color"] { height: 30px; padding: 2px; }
+        .co-link { border: 0; background: none; color: #005bd3; font: inherit; padding: 6px 0 0; cursor: pointer; }
+        .co-top .co-sw { margin: 0 0 0 auto; }
+        .co-band { background: #fff4e8; color: #8a4b12; border-bottom: 1px solid #f0d9c0; padding: 7px 12px; font-size: 0.76em; }
+        .co-band.theme { background: #eef3fb; color: #24467a; border-bottom-color: #d4e0f3; }
+        .co-add.dis { display: block; color: #a8a8a8; cursor: not-allowed; padding: 3px 6px 3px 29px; }
+        .co-add.dis em { font-style: normal; font-size: 0.86em; border: 1px solid #d4d4d4; border-radius: 8px; padding: 0 5px; margin-left: 4px; }
+        .co-slot.plusx.empty:not(.dyn) .co-add.dis { display: none; }
+        .co-sec:hover .co-slot.plusx.empty:not(.dyn) .co-add.dis { display: block; }
+        .co-it.blk.plusx span { color: #c70a24; }
+        .co-it.blk.plusx span::after { content: ' · Plus only'; font-size: 0.88em; }
+        .co-imp { width: 100%; box-sizing: border-box; font: 0.95em ui-monospace, Menlo, monospace; padding: 6px 8px; border: 1px solid #8a8a8a; border-radius: 8px; resize: vertical; }
+        .co-rm { margin-top: 14px; border: 0; background: none; color: #c70a24; font: inherit; font-weight: 550; padding: 4px 0; cursor: pointer; }
+        .co-rm:hover { text-decoration: underline; }
         .mp-mock { width: 100%; }
         .mp-mock .mk-flabel { font-size: 0.78em; margin-top: 4px; }
 
@@ -1387,12 +1514,14 @@
                     <label class="mk2-chk"><input type="checkbox" id="mk-reprice" checked onchange="mkRender()"> Re-price ShipInsure from the Pricing template</label>
                     <label class="mk2-chk"><input type="checkbox" id="mk-tags" checked onchange="mkRender()"> Outline tagged prices in the preview (hover for the tag)</label>
                     <div id="mkParts"></div>
+                    <div id="coEditor"></div>
                     <div class="mk2-tools" id="mkTools">
                         <button type="button" data-tool="select" class="on" onclick="mkSetTool('select')" title="Click text to edit · click / drag boxes">↖ Select</button>
                         <button type="button" data-tool="box" onclick="mkSetTool('box')" title="Drag a box to cover or recolor an area (e.g. a button)">▭ Box</button>
                         <button type="button" data-tool="image" onclick="mkSetTool('image')" title="Drag where an image goes (logo, product photo), then pick the file">🖼 Image</button>
                         <button type="button" data-tool="lift" onclick="mkSetTool('lift')" title="Drag around an icon or any part of the mockup (e.g. the ⓘ) to move, resize, recolor or remove it">✥ Move area</button>
                         <button type="button" data-tool="text" onclick="mkSetTool('text')" title="Click where new text goes">T Text</button>
+                        <button type="button" data-tool="tag" onclick="mkSetTool('tag')" title="Checkout Editor: mark a checkout section it didn't find (click its heading), or drag around a ShipInsure widget / line already in the mockup">⚑ Tag section</button>
                     </div>
                     <div class="wconfig-style-row">
                         <div class="wcs"><label>Mockup font (found automatically)</label><input type="text" id="mk-font" placeholder="e.g. Poppins" onchange="mkSetFont(this.value)" title="Edited text is drawn in this font, fitted to the mockup's own letters. Type a different Google font to override."></div>
@@ -3081,8 +3210,9 @@ For uncertain values make your best visual estimate. Always use valid hex colors
         // it differs from the original. Prices tagged fee / item / sub / total re-price from
         // the Pricing template. Boxes cover, recolor or swap images (logo, products).
         // Edits live in _mk and ride along in _collectDesign → links + Merchant Folder saves.
-        const _mkFresh = () => ({ src: '', font: '', fontBy: '', pages: [], parts: null });
+        const _mkFresh = () => ({ src: '', font: '', fontBy: '', pages: [], parts: null, co: null });
         let _mk = _mkFresh();
+        let _mkLastPr = null;         // the last pricing pass (ShipInsure fee F, products M), for the checkout blocks
         let _mkReadOnly = false;      // merchant view: same pages, no edit affordances
         let _mkSel = null;            // { p, k: 't' | 'b', id }
         let _mkTool = 'select';       // select | box | image | text
@@ -3175,10 +3305,17 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 const di = dItem(pg);
                 const pfee = pg.texts.find(t => t.role === 'fee' && _mkVal(t.o) != null);
                 const pF0 = pfee ? _mkVal(pfee.o) : F0;
+                // Checkout Editor: on a checkout page the protection is in the order only while its
+                // block says so (the Package Protection checkbox). ShipInsure is a cart line there,
+                // so it counts in the subtotal as well as the total.
+                const coCk = !!_mk.co && _mk.co.plus !== false && _coIsCheckout(_coAnchors(pg)), protIn = coCk ? _coProtOn('checkout') : true;
+                const addF = protIn && F != null ? F : 0;
                 pg.texts.forEach(t => {
                     if (t.man || !t.role || t.role === 'item') return;
                     const v0 = _mkVal(t.o); if (v0 == null) return;
-                    const v = t.role === 'fee' ? F : t.role === 'sub' ? v0 + di : v0 + di + ((F != null && pF0 != null) ? F - pF0 : 0);
+                    const v = t.role === 'fee' ? F
+                        : coCk ? (t.role === 'sub' ? v0 + di + (pfee ? 0 : addF) : v0 + di - (pfee ? pF0 : 0) + addF)
+                        : t.role === 'sub' ? v0 + di : v0 + di + ((F != null && pF0 != null) ? F - pF0 : 0);
                     if (v == null) return;
                     t.t = Math.abs(v - v0) < 0.005 ? t.o : _mkFmt(t.o, v);
                 });
@@ -3482,7 +3619,8 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             const ic = t.ic;
             if (!ic || !_mkShown(t) || t.wrap) return '';
             const hex = c => /^#[0-9a-f]{3,8}$/i.test(String(c)) ? c : '#ffffff', num = v => +v || 0;
-            const cover = `<div class="mk2-cover" style="left:${num(ic.x)}px;top:${num(ic.y)}px;width:${num(ic.w)}px;height:${num(ic.h)}px;background:${hex(ic.bg || t.bg)};"></div>`;
+            const idy = _coDy(pg, num(ic.x), num(ic.y)); if (idy === null) return '';
+            const cover = `<div class="mk2-cover" style="left:${num(ic.x)}px;top:${num(ic.y) + idy}px;width:${num(ic.w)}px;height:${num(ic.h)}px;background:${hex(ic.bg || t.bg)};"></div>`;
             if (!_mkPlain(t.t).trim()) return cover;          // text removed: its icon goes too
             const os = t.os || t, w0 = _mkMeasure(t, t.o, os), w1 = _mkMeasure(t, t.t);
             if (!(w0 > 0)) return '';
@@ -3490,7 +3628,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             const right = t.al === 'r' ? t.x + t.w : t.al === 'c' ? t.x + t.w / 2 + nw / 2 : t.x + nw;
             const nx = _mkR(right + (ic.x - (t.x + t.w)));
             if (Math.abs(nx - ic.x) < 0.5) return '';
-            return cover + `<div class="mk2-ic" style="left:${nx}px;top:${num(ic.y)}px;width:${num(ic.w)}px;height:${num(ic.h)}px;background-image:url('${String(pg.img).replace(/['"<>\\]/g, encodeURIComponent)}');background-size:${pg.w}px ${pg.h}px;background-position:${-ic.x}px ${-ic.y}px;"></div>`;
+            return cover + `<div class="mk2-ic" style="left:${nx}px;top:${num(ic.y) + idy}px;width:${num(ic.w)}px;height:${num(ic.h)}px;background-image:url('${String(pg.img).replace(/['"<>\\]/g, encodeURIComponent)}');background-size:${pg.w}px ${pg.h}px;background-position:${-ic.x}px ${-ic.y}px;"></div>`;
         }
         function _mkPlaceIcons() {
             document.querySelectorAll('#widgetPreviewArea .mk2-page').forEach(pe => {
@@ -4076,6 +4214,7 @@ Return ONLY JSON — no markdown, no code fences:
                 const fonts = {}; pg.texts.forEach(t => { if (t.fg) fonts[t.fg] = (fonts[t.fg] || 0) + 1; });
                 const top = Object.keys(fonts).sort((a, b) => fonts[b] - fonts[a])[0];
                 if (top && !_mk.font) { _mk.font = top; _mk.fontBy = 'scan'; const fi = document.getElementById('mk-font'); if (fi) fi.value = top; }
+                if (pg.coA) pg.coA.v = 0;   // its section anchors are found again (hand tags kept)
                 _mkAutoRoles(pg);
                 _mkFeeConsensus(_mk.pages);
                 if (!_mk.parts) _mk.parts = _mkPartsFresh();
@@ -4236,7 +4375,10 @@ Return ONLY JSON — no markdown, no code fences:
             _mkFeeConsensus(pages);
             // A font the rep typed carries over; one found for the last mockup doesn't.
             const keep = _mk.fontBy === 'user' || (_mk.font && !_mk.fontBy) ? _mk.font : '';
-            _mk = { src: src || '', font: keep, fontBy: keep ? 'user' : '', pages, parts: _mkPartsFresh() };
+            // The checkout layout is the merchant's configuration, so it carries over to a new mockup.
+            _mk = { src: src || '', font: keep, fontBy: keep ? 'user' : '', pages, parts: _mkPartsFresh(), co: _mk.co || null };
+            if (_mk.co) { Object.values(_mk.co.tree).forEach(nodes => _coWalk(nodes, n => { if (n.k === 'slot') n.blocks.forEach(b => { delete b.orig; }); })); delete _mk.co.brandAuto; }
+            _coTmp = null; _coTagAt = null;
             pages.forEach(pg => { _mkAutoParts(pg); _mkFindIcons(pg, _mkCanvas[pg.img]); });
             _mkSel = null;
             const fi = document.getElementById('mk-font'); if (fi) fi.value = _mk.font;
@@ -4293,6 +4435,10 @@ Return ONLY JSON — no markdown, no code fences:
         const _mkShown = t => t.add || t.sty || t.t !== t.o;
         const _mkIsSel = (k, pi, id) => !!_mkSel && _mkSel.k === k && _mkSel.p === pi && _mkSel.id === id;
         function _mkTextStyle(t, pg) {
+            // In a reflowed checkout page the text moves with its column (or was cut away with a block).
+            const dy = _coDy(pg, t.x + t.w / 2, t.y + t.h / 2);
+            if (dy === null) return 'display:none;';
+            if (dy) t = Object.assign({}, t, { y: t.y + dy, b: t.b + dy });
             const P = MK_PAD, ff = _mkFam(t);
             let s = `font-size:${t.sz}px;font-weight:${t.fw};--c:${t.c};--bg:${t.add ? 'transparent' : t.bg};font-family:${ff ? `'${ff}',` : ''}'Helvetica Neue',Arial,sans-serif;`;
             if (t.it) s += 'font-style:italic;';
@@ -4329,17 +4475,22 @@ Return ONLY JSON — no markdown, no code fences:
             const pic = !b.img ? '' : b.tint
                 ? `<i class="mk2-tint" style="background:${b.tint};-webkit-mask:url('${b.img}') center/${size} no-repeat;mask:url('${b.img}') center/${size} no-repeat;"></i>`
                 : `<img src="${b.img}" alt="" draggable="false" style="object-fit:${b.fit || 'contain'};border-radius:${b.r || 0}px;">`;
-            return `<div class="mk2-b${sel ? ' sel' : ''}"${ed ? ` data-b="${b.id}"` : ''} style="left:${b.x}px;top:${b.y}px;width:${b.w}px;height:${b.h}px;background:${b.fill || 'transparent'};border-radius:${b.r || 0}px;">` +
+            const dy = _coDy(_mk.pages[pi], b.x + b.w / 2, b.y + b.h / 2);
+            if (dy === null) return '';
+            return `<div class="mk2-b${sel ? ' sel' : ''}"${ed ? ` data-b="${b.id}"` : ''} style="left:${b.x}px;top:${b.y + dy}px;width:${b.w}px;height:${b.h}px;background:${b.fill || 'transparent'};border-radius:${b.r || 0}px;">` +
                 pic + (sel ? '<i class="mk2-rz"></i>' : '') + '</div>';
         }
         // Where a moved piece used to be: painted over in the background it sat on.
-        const _mkCoverHtml = b => b.cover ? `<div class="mk2-cover" style="left:${b.cover.x}px;top:${b.cover.y}px;width:${b.cover.w}px;height:${b.cover.h}px;background:${b.cover.fill};"></div>` : '';
+        const _mkCoverHtml = (b, pg) => b.cover && _coDy(pg, b.cover.x + b.cover.w / 2, b.cover.y + b.cover.h / 2) !== null ? `<div class="mk2-cover" style="left:${b.cover.x}px;top:${b.cover.y + (_coDy(pg, b.cover.x + b.cover.w / 2, b.cover.y + b.cover.h / 2) || 0)}px;width:${b.cover.w}px;height:${b.cover.h}px;background:${b.cover.fill};"></div>` : '';
         function _mkPageHtml(pg, pi, ed) {
+            const L = _coLayout(pg);
+            if (L) _coLays.set(pg, L); else _coLays.delete(pg);
             const btns = ed ? `<span class="mk2-pbtns">${!pg.texts.length ? `<button type="button" onclick="mkFindText(${pi})" title="Find the text on this image so it can be edited (uses the scan model)">🔎 Find text</button>` : ''}<button type="button" onclick="mkFullscreen(this)" title="Edit full-size">⤢ Full screen</button><button type="button" onclick="mkRemovePage(${pi})" title="Remove this page">✕</button></span>` : '';
             const cls = 'mk2-page' + (ed && _mkTool !== 'select' ? ' tool-' + _mkTool : '') + (ed && _mkOn('mk-tags') ? ' tags' : '');
             return `<div class="mk-flabel"><span>${_escHtml(pg.name || 'Page ' + (pi + 1))}</span>${btns}</div>` +
-                `<div class="mk-fit${ed ? ' mk-edit' : ''}"><div class="${cls}" data-p="${pi}" style="width:${pg.w}px;height:${pg.h}px;">` +
-                `<img class="mk2-base" src="${pg.img}" alt="" draggable="false">${pg.boxes.map(_mkCoverHtml).join('')}${pg.boxes.map(b => _mkBoxHtml(b, pi, ed)).join('')}${pg.texts.map(t => _mkTextHtml(t, pg, pi, ed)).join('')}<div class="mk2-icons">${pg.texts.map(t => _mkIconHtml(t, pg)).join('')}</div></div></div>`;
+                `<div class="mk-fit${ed ? ' mk-edit' : ''}"><div class="${cls}" data-p="${pi}" style="width:${pg.w}px;height:${L ? L.H : pg.h}px;">` +
+                (L ? _coPageHtml(pg, L) : `<img class="mk2-base" src="${pg.img}" alt="" draggable="false">`) +
+                `${pg.boxes.map(b => _mkCoverHtml(b, pg)).join('')}${pg.boxes.map(b => _mkBoxHtml(b, pi, ed)).join('')}${pg.texts.map(t => _mkTextHtml(t, pg, pi, ed)).join('')}<div class="mk2-icons">${pg.texts.map(t => _mkIconHtml(t, pg)).join('')}</div>${L ? _coInsHtml(L) : ''}${ed && _coTagAt && _coTagAt.p === pi ? `<div class="co-mark" style="left:${_coTagAt.x}px;top:${_coTagAt.y + (_coDy(pg, _coTagAt.x, _coTagAt.y) || 0)}px;width:${Math.max(_coTagAt.w, 30)}px;height:${Math.max(_coTagAt.h, 4)}px;"></div>` : ''}</div></div>`;
         }
         function mkRender() {
             const area = document.getElementById('widgetPreviewArea');
@@ -4352,16 +4503,18 @@ Return ONLY JSON — no markdown, no code fences:
             area.style.background = ''; area.style.padding = ''; area.style.borderRadius = '';
             const ed = !_mkReadOnly;
             _mkLoadFonts();
-            const pr = _mkPrice();
+            const pr = _mkLastPr = _mkPrice();
             if (_mk.pages.length) _mkApplyParts(pr);
+            _coPlaced = new Set();
             area.innerHTML = _mk.pages.length ? _mk.pages.map((pg, pi) => _mkPageHtml(pg, pi, ed)).join('')
                 : (ed ? `<div class="mk2-empty"><b>Import this merchant's mockup to start.</b><br>Upload the Figma export (PDF, every page), an image or a store screenshot, pick it from the merchant's folder, or paste a Figma link.<br>Every text then becomes editable right here, and the ShipInsure price and totals follow the Pricing template.</div>` : '');
             mkFit(area);
             _mkFeeInfo(pr);
             _mkInspector();
             _mkPartsPanel();
+            coRender();
             const fi = document.getElementById('mk-font'); if (fi && document.activeElement !== fi) fi.value = _mk.font || '';
-            if (_mk.pages.length) _mkAfterRender();
+            if (_mk.pages.length) { _mkAfterRender(); _coDetectAll(); }
         }
         function _mkFeeInfo(pr) {
             const el = document.getElementById('mkFeeInfo'); if (!el) return;
@@ -4539,7 +4692,7 @@ Return ONLY JSON — no markdown, no code fences:
             _mkTool = t;
             document.querySelectorAll('#mkTools button').forEach(b => b.classList.toggle('on', b.dataset.tool === t));
             document.querySelectorAll('#widgetPreviewArea .mk2-page').forEach(p => {
-                p.classList.remove('tool-box', 'tool-image', 'tool-text', 'tool-lift');
+                p.classList.remove('tool-box', 'tool-image', 'tool-text', 'tool-lift', 'tool-tag');
                 if (t !== 'select') p.classList.add('tool-' + t);
             });
         }
@@ -4549,18 +4702,22 @@ Return ONLY JSON — no markdown, no code fences:
             _mk.pages.splice(pi, 1); _mkSel = null; mkRender();
         }
         function mkRevertAll() {
-            if (!_mk.pages.length || !confirm('Undo every text change, box and added text on this mockup?')) return;
+            if ((!_mk.pages.length && !_mk.co) || !confirm('Undo every text change, box and added text on this mockup, and reset the Checkout Editor layout?')) return;
             _mk.pages.forEach(pg => {
                 pg.boxes = [];
+                pg.coA = null;
                 pg.texts = pg.texts.filter(t => !t.add);
                 pg.texts.forEach(t => { if (t.g0) Object.assign(t, t.g0); delete t.g0; delete t.pm; if (t.os) { Object.assign(t, t.os); delete t.os; } t.t = t.o; t.man = false; t.sty = false; });
             });
             _mk.parts = _mkPartsFresh();
+            // The Checkout Editor goes back to Shopify's default layout (the Plus flag is the merchant's, so it stays).
+            _mk.co = _mk.co && _mk.co.plus === false ? _coFresh({ plus: false }) : null;
+            _coTmp = null; _coSel = null; _coMenu = null;
             _mkSel = null; mkRender();
         }
         function mkClear() {
             if (!_mk.pages.length || !confirm('Remove the imported mockup from this design?')) return;
-            _mk = _mkFresh(); _mkSel = null; _mkStatus(''); mkRender();
+            _mk = Object.assign(_mkFresh(), { co: _mk.co }); _mkSel = null; _mkStatus(''); mkRender();
         }
 
         // ── In-preview editing ──
@@ -4572,7 +4729,7 @@ Return ONLY JSON — no markdown, no code fences:
         }
         // Repaint every text (prices follow the edit) without rebuilding the page under the caret.
         function _mkRefresh(skipEl) {
-            const pr = _mkPrice();
+            const pr = _mkLastPr = _mkPrice();
             _mkApplyParts(pr);
             document.querySelectorAll('#widgetPreviewArea .mk2-t').forEach(el => {
                 const f = _mkFromEl(el); if (!f || !f.t) return;
@@ -4636,13 +4793,23 @@ Return ONLY JSON — no markdown, no code fences:
             if (_mkReadOnly || _widgetType !== 'mockup' || e.button !== 0) return;
             const f = _mkFromEl(e.target); if (!f) return;
             const { pe, pi, pg } = f;
+            // A Checkout Editor block in the page: clicking it selects it in the editor.
+            const ci = e.target.closest('.co-ins');
+            if (ci && _mkTool === 'select') {
+                if (!e.target.closest('.co-w-cb')) {
+                    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+                    _coSel = ci.dataset.coblk; _coMenu = null; _coOpen = true; coRender();
+                    document.querySelectorAll('#widgetPreviewArea .co-ins').forEach(x => x.classList.toggle('sel', x === ci));
+                }
+                return;
+            }
             const pt = ev => { const r = pe.getBoundingClientRect(); return { x: (ev.clientX - r.left) / r.width * pg.w, y: (ev.clientY - r.top) / r.height * pg.h }; };
             const drag = (onMove, onUp) => {
                 const mm = ev => onMove(ev), mu = ev => { document.removeEventListener('mousemove', mm); document.removeEventListener('mouseup', mu); onUp(ev); };
                 document.addEventListener('mousemove', mm); document.addEventListener('mouseup', mu);
             };
             const p0 = pt(e);
-            if (_mkTool === 'box' || _mkTool === 'image' || _mkTool === 'lift') {
+            if (_mkTool === 'box' || _mkTool === 'image' || _mkTool === 'lift' || _mkTool === 'tag') {
                 e.preventDefault();
                 const tool = _mkTool, d = document.createElement('div');
                 d.className = 'mk2-draw'; pe.appendChild(d);
@@ -4654,7 +4821,15 @@ Return ONLY JSON — no markdown, no code fences:
                 }, async () => {
                     d.remove();
                     mkSetTool('select');
+                    if (tool === 'tag') {   // Checkout Editor: a click marks a spot, a drag marks an area
+                        const pt0 = r.w < 4 || r.h < 4, y0 = _coUn(pg, pt0 ? p0.x : r.x + r.w / 2, pt0 ? p0.y : r.y);
+                        _coTagAt = { p: pi, x: _mkR(pt0 ? p0.x : r.x), y: _mkR(y0), w: pt0 ? 0 : _mkR(r.w), h: pt0 ? 0 : _mkR(_coUn(pg, r.x + r.w / 2, r.y + r.h) - y0) };
+                        _coOpen = true; mkRender();
+                        const tb = document.querySelector('#coEditor .co-tagbox'); if (tb) tb.scrollIntoView({ block: 'nearest' });
+                        return;
+                    }
                     if (r.w < 4 || r.h < 4) return;
+                    if (_coLays.get(pg)) r = { x: r.x, y: _coUn(pg, r.x + r.w / 2, r.y), w: r.w, h: r.h };
                     if (tool === 'lift') { _mkLift(pg, pi, r); return; }
                     let fill = 'transparent';
                     if (tool === 'box') { try { fill = _mkSample(await _mkPageCanvas(pg), r.x + r.w / 2 - 1, r.y + r.h / 2 - 1, 2, 2).bg; } catch (er) { fill = '#ffffff'; } }
@@ -4669,6 +4844,7 @@ Return ONLY JSON — no markdown, no code fences:
             if (_mkTool === 'text') {
                 e.preventDefault();
                 mkSetTool('select');
+                p0.y = _coUn(pg, p0.x, p0.y);
                 const sizes = pg.texts.filter(t => !t.add).map(t => t.sz).sort((a, b) => a - b);
                 const sz = sizes.length ? sizes[Math.floor(sizes.length / 2)] : 16;
                 const t = _mkT({ t: 'New text', x: _mkR(p0.x), y: _mkR(p0.y - sz * 0.7), w: 0, h: _mkR(sz * 0.95), b: _mkR(p0.y + sz * 0.2), sz, add: true, c: '#111111', bg: 'transparent' });
@@ -4689,7 +4865,7 @@ Return ONLY JSON — no markdown, no code fences:
                     const p = pt(ev), dx = p.x - p0.x, dy = p.y - p0.y;
                     if (rz) { b.w = _mkR(Math.max(4, start.w + dx)); b.h = _mkR(Math.max(4, start.h + dy)); }
                     else { b.x = _mkR(start.x + dx); b.y = _mkR(start.y + dy); }
-                    Object.assign(f.be.style, { left: b.x + 'px', top: b.y + 'px', width: b.w + 'px', height: b.h + 'px' });
+                    Object.assign(f.be.style, { left: b.x + 'px', top: (b.y + (_coDy(pg, b.x + b.w / 2, b.y + b.h / 2) || 0)) + 'px', width: b.w + 'px', height: b.h + 'px' });
                 }, () => mkRender());
                 return;
             }
@@ -4714,6 +4890,927 @@ Return ONLY JSON — no markdown, no code fences:
             // A widget part edited in the panel: clicking selects it (its text lives in the panel).
             if (f.t && _mkLocked(f.t)) { _mkSelect({ p: pi, k: 't', id: f.t.id }); f.te.classList.add('sel'); return; }
             if (!f.t && _mkSel) { _mkSelect(null); }
+        });
+
+        // ── Checkout Editor: the mockup as a preview of a real Shopify checkout configuration ──
+        // Mirrors Shopify Admin → Settings → Checkout → Customize: pages → sections → subsections
+        // → blocks. Blocks only sit in slots that are real checkout UI extension targets, so every
+        // layout a rep builds here is one the merchant can actually set up. Saved in _mk.co, so it
+        // rides along in Copy Link, merchant links and folder saves; _mk.co == null (old saves,
+        // never opened) means the mockup behaves exactly as before.
+        //
+        // Target names checked against shopify.dev, Checkout UI extensions + Customer account UI
+        // extensions, API version 2026-10. Placement can't be read from a store's admin here:
+        // // VERIFY whether the Admin API exposes checkout block placement before building on it.
+        const CO_T = {
+            block:  'purchase.checkout.block.render',                        // dynamic: any "Add block" spot
+            header: 'purchase.checkout.header.render-after',
+            contact:'purchase.checkout.contact.render-after',
+            addrB:  'purchase.checkout.delivery-address.render-before',
+            addrA:  'purchase.checkout.delivery-address.render-after',
+            shipB:  'purchase.checkout.shipping-option-list.render-before',
+            shipA:  'purchase.checkout.shipping-option-list.render-after',
+            payB:   'purchase.checkout.payment-method-list.render-before',
+            payA:   'purchase.checkout.payment-method-list.render-after',   // VERIFY: listed in 2026-10; one source said unsupported in 2026-04
+            act:    'purchase.checkout.actions.render-before',
+            lines:  'purchase.checkout.cart-line-list.render-after',
+            redB:   'purchase.checkout.reductions.render-before',
+            redA:   'purchase.checkout.reductions.render-after',
+            foot:   'purchase.checkout.footer.render-after',
+            tyBlock:'purchase.thank-you.block.render',
+            tyHdr:  'purchase.thank-you.header.render-after',
+            tyAnn:  'purchase.thank-you.announcement.render',
+            tyInfo: 'purchase.thank-you.customer-information.render-after',
+            tyLines:'purchase.thank-you.cart-line-list.render-after',
+            tyFoot: 'purchase.thank-you.footer.render-after',
+            osBlock:'customer-account.order-status.block.render',
+            osAnn:  'customer-account.order-status.announcement.render',
+            osFul:  'customer-account.order-status.fulfillment-details.render-after',
+            osInfo: 'customer-account.order-status.customer-information.render-after',
+            osPay:  'customer-account.order-status.payment-details.render-after',
+            osLines:'customer-account.order-status.cart-line-list.render-after',
+            tBlock: 'Theme app extension: app block (target: section)',
+            tEmbed: 'Theme app extension: app embed (target: body)'      // VERIFY: ShipInsure's embed target (head or body)
+        };
+        const CO_PAGES = { checkout: 'Checkout', thankyou: 'Thank you', orderstatus: 'Order status', cart: 'Cart page / drawer' };
+        // The cart is NOT part of the Checkout Editor: it's the theme editor (an app block in the
+        // cart template, an app embed for the drawer), kept as its own slot set.
+        // ShipInsure's blocks and the targets each may use.
+        // VERIFY: which targets the ShipInsure app actually registers in its extension TOML.
+        const CO_TYPES = {
+            'si-pp':   { name: 'ShipInsure Package Protection', icon: '🛡', pages: ['checkout'],
+                         t: ['block', 'contact', 'addrA', 'shipA', 'payB', 'payA', 'act', 'lines', 'redB', 'redA'] },
+            'si-line': { name: 'ShipInsure Cart Line Item', icon: '🧾', pages: ['checkout', 'thankyou', 'orderstatus'],
+                         t: ['lines', 'redB', 'tyLines', 'osLines'] },
+            'si-cart': { name: 'ShipInsure Cart Widget', icon: '🛒', pages: ['cart'], t: ['tBlock'], theme: 1 },
+            'si-embed':{ name: 'ShipInsure App Embed', icon: '🧩', pages: ['cart'], t: ['tEmbed'], theme: 1 }
+        };
+        // step: which part of checkout a slot belongs to (Plus-only steps are gated in the guardrails).
+        const _coSlot = (id, keys, step) => ({ k: 'slot', id, t: keys, step, blocks: [] });
+        const _coFix = (name, icon) => ({ k: 'fix', name, icon: icon || '▢' });
+        const _coSec = (name, kids, sub) => ({ k: sub ? 'sub' : 'sec', name, kids });
+        function _coSeed() {
+            return {
+                checkout: [
+                    _coSec('Header', [_coFix('Logo', '◎'), _coFix('Cart link', '🛍'), _coSlot('hdr', ['header', 'block'], 'header')]),
+                    _coSec('Main', [
+                        _coSlot('main.top', ['block'], 'info'),
+                        _coFix('Express checkout', '⚡'),
+                        _coFix('Contact', '✉'),
+                        _coSlot('contact', ['contact'], 'info'),
+                        _coSec('Delivery', [
+                            _coSlot('addr.before', ['addrB'], 'shipping'), _coFix('Delivery address', '⌂'), _coSlot('addr.after', ['addrA'], 'shipping'),
+                            _coFix('Shipping method', '🚚'), _coSlot('ship.before', ['shipB'], 'shipping'), _coFix('Shipping option list', '☰'), _coSlot('ship.after', ['shipA'], 'shipping')
+                        ], true),
+                        _coSec('Payment', [_coSlot('pay.before', ['payB'], 'payment'), _coFix('Payment option', '💳'), _coSlot('pay.after', ['payA'], 'payment'), _coFix('Remember me', '☑')], true),
+                        _coSec('Action', [_coSlot('act', ['act'], 'payment'), _coFix('Pay now', '▭'), _coSlot('act.end', ['block'], 'payment')], true)
+                    ]),
+                    _coSec('Order summary', [
+                        _coSec('Cart', [_coFix('Items in cart', '▤'), _coSlot('lines', ['lines'], 'summary')], true),
+                        _coSec('Discounts', [_coSlot('red.before', ['redB'], 'summary'), _coFix('Discount or gift card', '🏷'), _coSlot('red.after', ['redA'], 'summary')], true),
+                        _coFix('Total', 'Σ'),
+                        _coSlot('sum.end', ['block'], 'summary')
+                    ]),
+                    _coSec('Footer', [_coFix('Policies', '§'), _coSlot('foot', ['foot', 'block'], 'footer')])
+                ],
+                thankyou: [
+                    _coSec('Header', [_coFix('Logo', '◎'), _coSlot('ty.hdr', ['tyHdr', 'tyBlock'], 'post')]),
+                    _coSec('Main', [_coSlot('ty.ann', ['tyAnn'], 'post'), _coFix('Order confirmation', '✓'), _coFix('Customer information', '👤'), _coSlot('ty.info', ['tyInfo', 'tyBlock'], 'post'), _coSlot('ty.main.end', ['tyBlock'], 'post')]),
+                    _coSec('Order summary', [_coFix('Items in order', '▤'), _coSlot('ty.lines', ['tyLines'], 'post'), _coFix('Total', 'Σ')]),
+                    _coSec('Footer', [_coFix('Policies', '§'), _coSlot('ty.foot', ['tyFoot', 'tyBlock'], 'post')])
+                ],
+                orderstatus: [
+                    _coSec('Main', [_coSlot('os.ann', ['osAnn'], 'post'), _coFix('Order status', '📦'), _coSlot('os.ful', ['osFul'], 'post'), _coFix('Customer information', '👤'), _coSlot('os.info', ['osInfo'], 'post'), _coFix('Payment', '💳'), _coSlot('os.pay', ['osPay'], 'post'), _coSlot('os.end', ['osBlock'], 'post')]),
+                    _coSec('Order summary', [_coFix('Items in order', '▤'), _coSlot('os.lines', ['osLines'], 'post'), _coFix('Total', 'Σ')])
+                ]
+            };
+        }
+        function _coThemeSeed() {
+            return [
+                _coSec('Cart page · Theme editor › Templates › Cart', [_coFix('Cart items', '▤'), _coSlot('cart.block', ['tBlock'], 'theme'), _coFix('Subtotal', 'Σ'), _coFix('Checkout button', '▭')]),
+                _coSec('Cart drawer · Theme editor › App embeds', [_coSlot('cart.embed', ['tEmbed'], 'theme')])
+            ];
+        }
+        const _coFresh = o => Object.assign({ v: 1, plus: true, page: 'checkout', tree: _coSeed(), theme: { cart: _coThemeSeed() } }, o || {});
+        // The slot set for a page: the cart's lives apart from the checkout tree (older saves get it on first use).
+        function _coTree(page) {
+            const co = _coGet();
+            if (page === 'cart') { if (!co.theme) co.theme = { cart: _coThemeSeed() }; return co.theme.cart; }
+            return co.tree[page] || [];
+        }
+        // Shopify Plus: checkout UI extensions on the checkout page itself need Plus;
+        // Thank you and Order status (and the theme's cart) work on other plans too.
+        const _coBlocked = page => page === 'checkout' && _coGet().plus === false;
+        let _coTmp = null, _coSel = null, _coMenu = null, _coDrag = null, _coOpen = true;
+        // The layout to show; it's only stored in _mk.co once the rep changes something.
+        const _coGet = () => _mk.co || _coTmp || (_coTmp = _coFresh());
+        function _coEnsure() { if (!_mk.co) { _mk.co = _coGet(); _coTmp = null; } return _mk.co; }
+        function _coWalk(nodes, fn, path) {
+            (nodes || []).forEach(n => { fn(n, path || []); if (n.kids) _coWalk(n.kids, fn, (path || []).concat(n)); });
+        }
+        function _coSlots(page) { const out = []; _coWalk(_coTree(page), n => { if (n.k === 'slot') out.push(n); }); return out; }
+        function _coFind(id) {
+            for (const page of Object.keys(CO_PAGES)) for (const s of _coSlots(page)) {
+                const i = s.blocks.findIndex(b => b.id === id);
+                if (i >= 0) return { page, slot: s, blk: s.blocks[i], i };
+            }
+            return null;
+        }
+        // A block may go in a slot when the slot exposes one of the targets it registers.
+        function _coAllowed(blk, slot, page) {
+            if (_coBlocked(page)) return false;
+            if (blk.type === 'app') return !blk.page || blk.page === page;   // another app's block: its own page only
+            const ty = CO_TYPES[blk.type]; if (!ty || !ty.pages.includes(page)) return false;
+            return slot.t.some(k => ty.t.includes(k));
+        }
+        const _coTargets = slot => slot.t.map(k => CO_T[k]).join('\n');
+        // The target a block renders through in this slot (its first one the slot exposes).
+        function _coUsing(blk, slot) {
+            const ty = CO_TYPES[blk.type], k = ty ? slot.t.find(x => ty.t.includes(x)) : slot.t[0];
+            return CO_T[k || slot.t[0]] || '';
+        }
+        function _coBlock(type, extra) {
+            const set = type === 'si-pp' ? { disc: '', img: '', hdr: '', sub: '', hideLearn: false, state: 'checked' } : {};
+            return Object.assign({ id: _mkId('cb'), type, name: (CO_TYPES[type] || {}).name || 'App block', set, on: true }, extra || {});
+        }
+
+        function coPage(p) { if (!CO_PAGES[p]) return; _coGet().page = p; _coSel = null; _coMenu = null; coRender(); }
+        function coSel(id) { _coSel = _coSel === id ? null : id; _coMenu = null; coRender(); }
+        function coAddMenu(slotId) { _coMenu = _coMenu === slotId ? null : slotId; coRender(); }
+        const _coUsed = page => new Set(_coSlots(page).flatMap(x => x.blocks.map(b => b.type)));
+        function coAdd(slotId, type, beforeId) {
+            const co = _coEnsure(), slot = _coSlots(co.page).find(s => s.id === slotId); if (!slot) return;
+            const b = _coBlock(type);
+            if (!_coAllowed(b, slot, co.page) || _coUsed(co.page).has(type)) return;
+            const j = beforeId ? slot.blocks.findIndex(x => x.id === beforeId) : -1;
+            slot.blocks.splice(j >= 0 ? j : slot.blocks.length, 0, b);
+            _coSel = b.id; _coMenu = null;
+            mkRender();
+        }
+        function coRemove(id) {
+            const f = _coFind(id); if (!f) return;
+            _coEnsure();
+            f.slot.blocks.splice(f.i, 1);
+            if (_coSel === id) _coSel = null;
+            mkRender();
+        }
+        // Drop blk into slot (before another block, or at the end). Invalid targets are refused.
+        function coMove(id, slotId, beforeId) {
+            const co = _coEnsure(), f = _coFind(id); if (!f) return false;
+            const slot = _coSlots(f.page).find(s => s.id === slotId);
+            if (!slot || !_coAllowed(f.blk, slot, f.page)) return false;
+            f.slot.blocks.splice(f.i, 1);
+            const j = beforeId ? slot.blocks.findIndex(b => b.id === beforeId) : -1;
+            slot.blocks.splice(j >= 0 ? j : slot.blocks.length, 0, f.blk);
+            mkRender();
+            return true;
+        }
+
+        function _coBlkHtml(b, page) {
+            const ty = CO_TYPES[b.type];
+            const plusx = _coBlocked(page), th = ty && ty.theme;
+            const off = !plusx && !th && _mk.co && _mk.pages.length && !_coPlaced.has(b.id);
+            return `<div class="co-it blk${_coSel === b.id ? ' sel' : ''}${off ? ' nomk' : ''}${plusx ? ' plusx' : ''}" draggable="true" data-blk="${b.id}" onclick="coSel('${b.id}')" title="${plusx ? 'Plus only: checkout blocks need Shopify Plus. Move it to Thank you / Order status or remove it. ' : off ? 'Not shown in this mockup: it has no matching spot (see Mockup sections). ' : ''}Drag to move">` +
+                `<i>${ty ? ty.icon : '⧉'}</i><span>${_escHtml(b.name)}</span>` +
+                `<button type="button" class="co-x" title="Remove block" onclick="event.stopPropagation();coRemove('${b.id}')">✕</button></div>`;
+        }
+        function _coSlotHtml(s, page) {
+            const used = _coUsed(page);
+            const can = Object.keys(CO_TYPES).filter(ty => !used.has(ty) && _coAllowed({ type: ty }, s, page));
+            const dyn = s.t.some(k => /block$/i.test(k) || k === 'block');
+            const menu = _coMenu === s.id ? `<div class="co-menu">${can.length ? can.map(ty => `<button type="button" onclick="coAdd('${s.id}','${ty}')"><i>${CO_TYPES[ty].icon}</i>${CO_TYPES[ty].name}</button>`).join('') : '<div class="co-none">No ShipInsure block can go here.</div>'}<div class="co-tgt">${_escHtml(_coTargets(s)).replace(/\n/g, '<br>')}</div></div>` : '';
+            const plusx = _coBlocked(page);
+            return `<div class="co-slot${s.blocks.length ? '' : ' empty'}${dyn ? ' dyn' : ''}${plusx ? ' plusx' : ''}" data-slot="${s.id}"${plusx ? ' title="Plus only"' : ''}>` +
+                s.blocks.map(b => _coBlkHtml(b, page)).join('') +
+                (plusx ? `<span class="co-add dis" title="Plus only" aria-disabled="true">⊕ Add block <em>Plus only</em></span>`
+                    : `<button type="button" class="co-add" onclick="coAddMenu('${s.id}')" title="${_escHtml(_coTargets(s))}">⊕ Add block</button>${menu}`) + '</div>';
+        }
+        function _coNodeHtml(n, page) {
+            if (n.k === 'slot') return _coSlotHtml(n, page);
+            if (n.k === 'fix') return `<div class="co-it fix"><i>${n.icon || '▢'}</i><span>${_escHtml(n.name)}</span></div>`;
+            const kids = n.kids.map(c => _coNodeHtml(c, page)).join('');
+            return n.k === 'sec' ? `<div class="co-sec"><div class="co-sh">${_escHtml(n.name)}</div>${kids}</div>`
+                : `<div class="co-sub"><div class="co-it subh"><i>▾</i><span>${_escHtml(n.name)}</span></div><div class="co-subk">${kids}</div></div>`;
+        }
+        // ── Block library + settings (Part 2) ──
+        // Where "Add" from the library puts a block when nothing else is chosen.
+        const CO_HOME = { 'si-pp': { checkout: 'pay.after' }, 'si-line': { checkout: 'lines', thankyou: 'ty.lines', orderstatus: 'os.lines' }, 'si-cart': { cart: 'cart.block' }, 'si-embed': { cart: 'cart.embed' } };
+        // The real block's settings (ShipInsure Package Protection, as set in Shopify's checkout editor).
+        const CO_STATES = { checked: 'Checked', unchecked: 'Unchecked', always: 'Always shown (no opt-out)' };
+        const CO_PP_HDR = 'Package Protection', CO_PP_SUB = 'Protect your order from loss, damage and theft.';
+        // Checkout Branding tokens the blocks inherit (a real extension can't add its own CSS).
+        // Part 3 fills brandAuto from the mockup; brand holds the rep's overrides.
+        const CO_BRAND0 = { primary: '#1773b0', radius: 5, font: '', btn: 'solid' };
+        function _coBrand() { const co = _coGet(); return Object.assign({}, CO_BRAND0, co.brandAuto || {}, co.brand || {}); }
+        function _coBrandStyle() {
+            const b = _coBrand(), f = String(b.font || _mk.font || '').replace(/['";<>]/g, '');
+            const col = /^#[0-9a-f]{6}$/i.test(b.primary) ? b.primary : CO_BRAND0.primary;
+            return `--co-p:${col};--co-r:${Math.max(0, Math.min(24, +b.radius || 0))}px;font-family:${f ? `'${f}',` : ''}-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;`;
+        }
+        // The ShipInsure price the widget shows: the mockup's re-priced fee, else the Pricing template on AOV.
+        function _coFee() {
+            let F = null;
+            if (_mk.pages.length && _mkLastPr) F = _mkLastPr.F;
+            if (F == null) { const a = parseFloat(removeCommas((document.getElementById('avgOrderValue') || {}).value || '')); if (a > 0) F = Math.round(siPremiumFor(a) * 100 + 1e-6) / 100; }
+            return F;
+        }
+        const _coPP = page => _coSlots(page).flatMap(s => s.blocks).find(b => b.type === 'si-pp');
+        // Is protection in the order right now? (the Package Protection checkbox, else included)
+        function _coProtOn(page) {
+            page = page || _coGet().page;
+            const pp = _coPP(page);
+            if (pp) return pp.set.state === 'always' || pp.on !== false;
+            return _coSlots(page).some(s => s.blocks.some(b => b.type === 'si-line'));
+        }
+        function _coPPHtml(b) {
+            const st = b.set || {}, on = st.state === 'always' || b.on !== false, lock = st.state === 'always';
+            const fee = _coFee();
+            return `<div class="co-w" data-cw="${b.id}" style="${_coBrandStyle()}">` +
+                `<div class="co-w-row"><span class="co-w-cb${on ? ' on' : ''}${lock ? ' lock' : ''}" role="checkbox" aria-checked="${on}" ${lock ? 'aria-disabled="true"' : `onclick="coToggle('${b.id}')"`}></span>` +
+                (st.img ? `<img class="co-w-img" src="${_escHtml(st.img)}" alt="">` : '') +
+                `<div class="co-w-txt"><div class="co-w-h">${_escHtml(st.hdr || CO_PP_HDR)}</div><div class="co-w-s">${_escHtml(st.sub || CO_PP_SUB)}${st.hideLearn ? '' : ' <span class="co-w-lm">Learn more</span>'}</div></div>` +
+                `<div class="co-w-pr">${fee != null ? _mkMoneyStr(fee) : ''}</div></div>` +
+                (st.disc ? `<div class="co-w-d">${_escHtml(st.disc)}</div>` : '') + '</div>';
+        }
+        // The order-summary line: shown while protection is in the order.
+        function _coLineHtml(b, page) {
+            const pp = _coPP(page || _coGet().page), img = pp && pp.set.img, fee = _coFee();
+            return `<div class="co-l" data-cw="${b.id}" style="${_coBrandStyle()}"><span class="co-l-img">${img ? `<img src="${_escHtml(img)}" alt="">` : '🛡'}<b>1</b></span>` +
+                `<span class="co-l-n">${_escHtml(CO_PP_HDR)}</span><span class="co-l-p">${fee != null ? _mkMoneyStr(fee) : ''}</span></div>`;
+        }
+        function _coBlockHtml(b, page) {
+            if (b.type === 'si-pp') return _coPPHtml(b);
+            if (b.type === 'si-line') return _coProtOn(page) ? _coLineHtml(b, page) : '';
+            return '';
+        }
+        const _coImgErr = {};
+        function _coSetHtml(co) {
+            const f = _coSel && _coFind(_coSel);
+            if (!f) return _coLibHtml(co);
+            const b = f.blk, st = b.set || {}, id = b.id;
+            const opt = (v, cur, l) => `<option value="${v}"${v === cur ? ' selected' : ''}>${l}</option>`;
+            const fields = (CO_TYPES[b.type] || {}).theme ? '<div class="co-empty">Added in the theme editor (Online Store › Themes › Customize), not the Checkout Editor. How the cart widget looks in this mockup comes from the Dual checkout widget settings.</div>'
+                : b.type === 'app' ? '<div class="co-empty">Another app’s block, from the merchant’s Checkout Editor. It isn’t drawn in the mockup.</div>'
+                : b.type !== 'si-pp' ? '<div class="co-empty">This block has no settings. It shows the ShipInsure line in the order summary while protection is in the order.</div>' : `
+                <label class="co-f"><span>Disclaimer</span><textarea rows="3" oninput="coSetV('${id}','disc',this.value)">${_escHtml(st.disc || '')}</textarea></label>
+                <label class="co-f"><span>URL for widget image</span><input type="url" value="${_escHtml(st.imgIn != null ? st.imgIn : st.img || '')}" placeholder="https://…" onchange="coSetImg('${id}',this.value)"><small>Square image, at least 150px.</small><em class="co-err" data-imgerr="${id}">${_escHtml(_coImgErr[id] || '')}</em></label>
+                <label class="co-f"><span>Header Text</span><input type="text" value="${_escHtml(st.hdr || '')}" placeholder="${_escHtml(CO_PP_HDR)}" oninput="coSetV('${id}','hdr',this.value)"></label>
+                <label class="co-f"><span>Sub Header Text</span><input type="text" value="${_escHtml(st.sub || '')}" placeholder="${_escHtml(CO_PP_SUB)}" oninput="coSetV('${id}','sub',this.value)"></label>
+                <label class="co-sw"><input type="checkbox" ${st.hideLearn ? 'checked' : ''} onchange="coSetV('${id}','hideLearn',this.checked)"><i></i><span>Hide 'Learn More'</span></label>
+                <label class="co-f"><span>Default state</span><select onchange="coSetV('${id}','state',this.value)">${Object.keys(CO_STATES).map(k => opt(k, st.state || 'checked', CO_STATES[k])).join('')}</select></label>
+                <div class="co-note">Checkout behavior: ShipInsure Checkbox always appears.</div>`;
+            return `<div class="co-seth"><span>${_escHtml(b.name)}</span></div>
+                <div class="co-meta">${_escHtml(CO_PAGES[f.page])} · <code>${_escHtml(_coUsing(b, f.slot))}</code></div>
+                ${fields}
+                ${b.type === 'si-pp' || b.type === 'si-line' ? `<div class="co-prevh">Preview</div><div class="co-prev" id="coPrev">${_coBlockHtml(b, f.page) || '<div class="co-empty">Hidden while protection is off.</div>'}</div>` : ''}
+                ${_coBlocked(f.page) ? '<div class="co-err">Plus only: this merchant isn’t on Shopify Plus, so this block can’t be on the checkout page.</div>' : ''}
+                <button type="button" class="co-rm" onclick="coRemove('${id}')">Remove block</button>`;
+        }
+        function _coLibHtml(co) {
+            const page = CO_PAGES[co.page] ? co.page : 'checkout', used = _coUsed(page);
+            const card = ty => {
+                const T = CO_TYPES[ty], plusx = _coBlocked(page), on = used.has(ty), ok = !plusx && !on;
+                const st = plusx ? '<em title="Plus only">Plus only</em>' : on ? '<em>On this page</em>' : `<button type="button" onclick="coAddHome('${ty}')">Add</button>`;
+                return `<div class="co-lib${ok ? '' : ' off'}"${ok ? ` draggable="true" data-lib="${ty}" title="Drag into an Add block spot, or click Add"` : plusx ? ' title="Plus only"' : ''}><i>${T.icon}</i><span>${T.name}</span>${st}</div>`;
+            };
+            const types = Object.keys(CO_TYPES).filter(ty => CO_TYPES[ty].pages.includes(page));
+            return `<div class="co-seth"><span>ShipInsure blocks</span></div>
+                <div class="co-meta">${page === 'cart' ? 'Set up in the theme editor (Online Store › Themes › Customize), not the Checkout Editor.' : _coBlocked(page) ? 'This merchant isn’t on Shopify Plus, so the checkout page takes no app blocks. Thank you and Order status still do.' : 'Drag one into an Add block spot in the tree, or click Add. Select a block in the tree to edit its settings.'}</div>
+                ${types.map(card).join('')}`;
+        }
+        function coAddHome(type) {
+            const co = _coGet(), home = (CO_HOME[type] || {})[co.page];
+            const slot = _coSlots(co.page).find(s => s.id === home) || _coSlots(co.page).find(s => _coAllowed({ type }, s, co.page));
+            if (slot) coAdd(slot.id, type);
+        }
+        // A setting changed: store it and repaint the block wherever it shows.
+        function coSetV(id, key, val) {
+            const f = _coFind(id); if (!f) return;
+            _coEnsure();
+            f.blk.set[key] = val;
+            if (key === 'state') f.blk.on = val !== 'unchecked';
+            _coLive();
+        }
+        function coToggle(id) {
+            const f = _coFind(id); if (!f || f.blk.set.state === 'always') return;
+            _coEnsure();
+            f.blk.on = f.blk.on === false;
+            _coLive();
+        }
+        // Repaint every rendered copy of the blocks (settings preview now; the mockup in Part 3).
+        function _coLive() {
+            const page = _coGet().page;
+            _coSlots(page).forEach(s => s.blocks.forEach(b => {
+                document.querySelectorAll(`#coEditor [data-cw="${b.id}"]`).forEach(el => { el.outerHTML = _coBlockHtml(b, page) || '<div class="co-empty" data-cw="' + b.id + '">Hidden while protection is off.</div>'; });
+            }));
+            const pv = document.getElementById('coPrev'), f = _coSel && _coFind(_coSel);
+            if (pv && f && !pv.querySelector('[data-cw]')) pv.innerHTML = _coBlockHtml(f.blk, f.page) || '<div class="co-empty">Hidden while protection is off.</div>';
+            if (_mk.co && _mk.pages.length) _coSoon();
+        }
+        // Widget image: only a square image of at least 150px is accepted (Shopify's own rule for it).
+        function coSetImg(id, url) {
+            const f = _coFind(id); if (!f) return;
+            _coEnsure();
+            url = String(url || '').trim();
+            const say = m => { _coImgErr[id] = m; document.querySelectorAll(`[data-imgerr="${id}"]`).forEach(e => { e.textContent = m; }); };
+            f.blk.set.imgIn = url;
+            if (!url) { delete f.blk.set.imgIn; f.blk.set.img = ''; say(''); _coLive(); return; }
+            if (!/^https:\/\/[^\s"'<>]+$/i.test(url)) { say('Use an https:// image link.'); return; }
+            say('Checking the image…');
+            const im = new Image();
+            im.onload = () => {
+                if (f.blk.set.imgIn !== url) return;
+                const w = im.naturalWidth, h = im.naturalHeight;
+                if (w !== h) { say(`The image must be square (this one is ${w}×${h}px).`); return; }
+                if (w < 150) { say(`The image must be at least 150px (this one is ${w}×${h}px).`); return; }
+                f.blk.set.img = url; delete f.blk.set.imgIn; say(''); _coLive();
+            };
+            im.onerror = () => { if (f.blk.set.imgIn === url) say('Couldn’t load that image.'); };
+            im.src = url;
+        }
+        // ── Reflow (Part 3): blocks go INTO the mockup. The page splits at the slot's spot, the
+        // block renders in the gap and the column's content below moves down; a removed or moved
+        // block closes its gap. Nothing is painted over the mockup's pixels: each column is
+        // re-laid as strips of the original image. Only a stored configuration (_mk.co) changes
+        // the page, so old saves and untouched mockups render exactly as before. ──
+        const CO_AV = 3;   // anchor detection version: older pg.coA is found again (hand tags kept)
+        const CO_ANCH = {
+            express:    { l: 'Express checkout', re: /^express checkout$/i, main: 1 },
+            contact:    { l: 'Contact', re: /^contact( information)?$/i, main: 1 },
+            delivery:   { l: 'Delivery', re: /^(delivery|shipping address)$/i, main: 1 },
+            shipmethod: { l: 'Shipping method', re: /^shipping method$/i, main: 1 },
+            payment:    { l: 'Payment', re: /^payment$/i, main: 1 },
+            remember:   { l: 'Remember me', re: /^remember me$/i, main: 1 },
+            billing:    { l: 'Billing address', re: /^billing address$/i, main: 1 },
+            paynow:     { l: 'Pay now', re: /^(pay now|complete order|place order)$/i, main: 1 },
+            summary:    { l: 'Order summary', re: /^order summary$/i },
+            discount:   { l: 'Discount', re: /^(discount( code)?( or gift card)?|gift card or discount code)$/i },
+            subtotal:   { l: 'Subtotal', re: /^subtotal\b/i },
+            shipping:   { l: 'Shipping', re: /^shipping$/i },
+            total:      { l: 'Total', re: /^total$/i },
+            'si-widget':{ l: 'ShipInsure widget already in the mockup', region: 1 },
+            'si-line':  { l: 'ShipInsure line already in the mockup', region: 1 }
+        };
+        const CO_MAIN = ['express', 'contact', 'delivery', 'shipmethod', 'payment', 'remember', 'billing', 'paynow'];
+        const CO_SUMK = ['summary', 'discount', 'subtotal', 'shipping', 'total'];
+        // Where each slot sits: [edge, anchor] tried in order. top = the gap above the anchor,
+        // below = the gap under it (and under a heading's small subtitle line).
+        const CO_AT = {
+            'main.top': [['top', 'express'], ['top', 'contact']],
+            'contact': [['top', 'delivery']],
+            'addr.before': [['below', 'delivery']],
+            'addr.after': [['top', 'shipmethod']],
+            'ship.before': [['below', 'shipmethod']],
+            'ship.after': [['top', 'payment']],
+            'pay.before': [['below', 'payment']],
+            'pay.after': [['top', 'remember'], ['top', 'billing'], ['top', 'paynow'], ['below', 'payment']],
+            'act': [['top', 'paynow']],
+            'act.end': [['below', 'paynow']],
+            'lines': [['top', 'discount'], ['top', 'subtotal']],
+            'red.before': [['top', 'discount']],
+            'red.after': [['top', 'subtotal']],
+            'sum.end': [['below', 'total']]
+        };
+        const _coLays = new WeakMap();      // page → its current layout (never serialized)
+        let _coPlaced = new Set(), _coSoonT = 0, _coTagAt = null;
+        function _coSoon() { clearTimeout(_coSoonT); _coSoonT = setTimeout(() => { if (_widgetType === 'mockup') mkRender(); }, 60); }
+
+        // Section anchors from the page's own text (the same text that's editable), plus hand tags.
+        function _coAnchors(pg) {
+            if (pg.coA && pg.coA.v === CO_AV) return pg.coA;
+            const A = { v: CO_AV };
+            Object.keys(CO_ANCH).forEach(key => {
+                const d = CO_ANCH[key]; if (d.region) return;
+                const m = pg.texts.filter(t => !t.add && d.re.test(String(t.o).trim())).sort((a, b) => a.y - b.y)[0];
+                if (m) A[key] = { x: m.x, y: m.y, w: m.w, h: m.h };
+            });
+            if (pg.coA) Object.keys(pg.coA).forEach(k => { const a = pg.coA[k]; if (a && a.hand) A[k] = a; });
+            pg.coA = A;
+            return A;
+        }
+        const _coIsCheckout = A => CO_MAIN.filter(k => A[k]).length >= 2 || ['payment', 'paynow'].some(k => A[k] && A[k].hand);
+        function _coScale(pg) {
+            const s = pg.texts.filter(t => !t.add && t.sz >= 6 && t.sz <= 80).map(t => t.sz).sort((a, b) => a - b);
+            return s.length ? Math.max(0.6, Math.min(4, s[Math.floor(s.length / 2)] / 14)) : 1;
+        }
+        // Desktop checkout: main column left, order summary right. Phone: one column.
+        function _coCols(pg, A) {
+            const mains = CO_MAIN.filter(k => A[k]), sums = CO_SUMK.filter(k => A[k]);
+            let bx = A._bx || null;
+            if (!bx && mains.length && sums.length) {
+                const sL = Math.min(...sums.map(k => A[k].x)), mL = Math.min(...mains.map(k => A[k].x));
+                if (sL > pg.w * 0.4 && mL < sL - pg.w * 0.15) {
+                    const mr = Math.max(mL, ...pg.texts.filter(t => t.x + t.w < sL - 4).map(t => t.x + t.w));
+                    bx = Math.round((mr + sL) / 2);
+                }
+            }
+            const cont = (x0, x1, keys) => {
+                const ks = keys.filter(k => A[k] && A[k].x >= x0 && A[k].x < x1);
+                const ts = pg.texts.filter(t => !t.add && t.x + t.w / 2 >= x0 && t.x + t.w / 2 < x1);
+                const l = ks.length ? Math.min(...ks.map(k => A[k].x)) : (ts.length ? Math.min(...ts.map(t => t.x)) : x0 + 16);
+                let r;
+                const pn = A.paynow;
+                if (keys === CO_MAIN && pn && pn.box) r = pn.box.x + pn.box.w;
+                else if (keys === CO_MAIN && pn) r = 2 * (pn.x + pn.w / 2) - l;
+                else r = ts.length ? Math.max(...ts.map(t => t.x + t.w)) : x1 - 16;
+                if (!(r > l + 60)) r = x1 - (l - x0);
+                return { l: Math.round(l), r: Math.round(Math.min(r, x1 - 4)) };
+            };
+            if (bx) return [Object.assign({ x0: 0, x1: bx, main: 1 }, cont(0, bx, CO_MAIN)), Object.assign({ x0: bx, x1: pg.w, sum: 1 }, cont(bx, pg.w, CO_SUMK))];
+            return [Object.assign({ x0: 0, x1: pg.w, main: 1, sum: 1 }, cont(0, pg.w, CO_MAIN.concat(CO_SUMK)))];
+        }
+        const _coColAt = (cols, x) => cols.find(c => x >= c.x0 && x < c.x1) || cols[cols.length - 1];
+
+        // Pixel rows of a column: is each one empty (one flat color across the content)?
+        function _coRows(cv, x0, x1) {
+            if (!cv) return null;
+            cv._rows = cv._rows || {};
+            const key = Math.round(x0) + '|' + Math.round(x1);
+            if (cv._rows[key]) return cv._rows[key];
+            const k = cv.k, W = cv.ctx.canvas.width, H = cv.ctx.canvas.height;
+            const X0 = Math.max(0, Math.floor(x0 * k)), X1 = Math.min(W, Math.ceil(x1 * k)), w = X1 - X0;
+            if (w < 4) return null;
+            const d = cv.ctx.getImageData(X0, 0, w, H).data, blank = new Uint8Array(H), rgb = new Uint8Array(H * 3);
+            for (let y = 0; y < H; y++) {
+                const o = y * w * 4, r0 = d[o], g0 = d[o + 1], b0 = d[o + 2];
+                rgb[y * 3] = r0; rgb[y * 3 + 1] = g0; rgb[y * 3 + 2] = b0;
+                let ok = 1;
+                for (let x = 1; x < w; x++) { const p = o + x * 4; if (Math.abs(d[p] - r0) + Math.abs(d[p + 1] - g0) + Math.abs(d[p + 2] - b0) > 36) { ok = 0; break; } }
+                blank[y] = ok;
+            }
+            return (cv._rows[key] = { blank, rgb, k });
+        }
+        // The nearest empty band from y going dir (-1 up, +1 down); its middle, kept within `near` of y.
+        function _coSnap(cv, c, y, dir, near) {
+            const R = _coRows(cv, c.l - 6, c.r + 6); if (!R) return Math.round(y + dir * near * 0.5);
+            const k = R.k, n = R.blank.length, lim = Math.round(near * 3 * k);
+            let i = Math.round(y * k), s = 0;
+            while (i >= 0 && i < n && !R.blank[i] && s < lim) { i += dir; s++; }
+            if (i < 0 || i >= n || !R.blank[i]) return Math.round(y);
+            let a = i, b = i;
+            while (a > 0 && R.blank[a - 1]) a--;
+            while (b < n - 1 && R.blank[b + 1]) b++;
+            let m = (a + b) / 2;
+            const cap = near * k;
+            if (dir < 0) m = Math.max(m, b - cap); else m = Math.min(m, a + cap);
+            return Math.round(m / k);
+        }
+        function _coBgAt(cv, c, y) {
+            const R = _coRows(cv, c.l - 6, c.r + 6); if (!R) return '#ffffff';
+            const i = Math.max(0, Math.min(R.blank.length - 1, Math.round(y * R.k))) * 3;
+            return _mkHex(R.rgb[i], R.rgb[i + 1], R.rgb[i + 2]);
+        }
+        // An element found by its text (a button, a field): the flat-colored box around it.
+        function _coBoxOf(cv, a) {
+            if (!cv) return null;
+            const s = _mkSample(cv, a.x, a.y, a.w, a.h), c0 = [1, 3, 5].map(i => parseInt(s.bg.slice(i, i + 2), 16));
+            const k = cv.k, W = cv.ctx.canvas.width, H = cv.ctx.canvas.height;
+            const px = (x, y) => { const d = cv.ctx.getImageData(Math.max(0, Math.min(W - 1, x)), Math.max(0, Math.min(H - 1, y)), 1, 1).data; return Math.abs(d[0] - c0[0]) + Math.abs(d[1] - c0[1]) + Math.abs(d[2] - c0[2]) > 40; };
+            const cy = Math.round((a.y + a.h / 2) * k), lim = Math.round(a.h * 30 * k);
+            let xl = Math.round((a.x - 2) * k), xr = Math.round((a.x + a.w + 2) * k), s1 = 0;
+            while (!px(xl, cy) && xl > 0 && s1++ < lim) xl--;
+            s1 = 0; while (!px(xr, cy) && xr < W - 1 && s1++ < lim) xr++;
+            const ix = Math.round((a.x - 3) * k) > xl + 2 ? Math.round((a.x - 3) * k) : xl + 2;
+            let yt = Math.round((a.y - 2) * k), yb = Math.round((a.y + a.h + 2) * k); s1 = 0;
+            while (!px(ix, yt) && yt > 0 && s1++ < lim) yt--;
+            s1 = 0; while (!px(ix, yb) && yb < H - 1 && s1++ < lim) yb++;
+            const box = { x: xl / k, y: yt / k, w: (xr - xl) / k, h: (yb - yt) / k };
+            if (box.w < a.w + 10 || box.h < a.h * 1.3 || box.h > a.h * 6) return null;
+            let i = 0; while (i < 40 && px(xl + i, yt + i)) i++;   // corner: where the fill starts on the diagonal
+            box.r = Math.max(0, (i - 1) / 0.293) / k;
+            box.c = s.bg; box.ink = s.c;
+            return box;
+        }
+        // The rows an element occupies, cut from the middle of the empty band above it to the
+        // middle of the one below (so closing it leaves one normal gap).
+        function _coRegion(cv, c, y, h) {
+            const R = _coRows(cv, c.l - 6, c.r + 6); if (!R) return null;
+            const k = R.k, n = R.blank.length, need = Math.max(4, Math.round(0.45 * h * k)), lim = Math.round(320 * k);
+            const band = (start, dir) => {
+                let i = start, run = 0, s = 0;
+                while (i > 0 && i < n - 1 && s++ < lim) { if (R.blank[i]) { if (++run >= need) break; } else run = 0; i += dir; }
+                if (run < need) return null;
+                const inner = i - dir * (run - 1);          // first empty row next to the element
+                let outer = i; s = 0;
+                while (outer > 0 && outer < n - 1 && R.blank[outer + dir] && s++ < lim) outer += dir;
+                return (inner + outer) / 2;
+            };
+            const Y = Math.round(y * k), top = band(Y, -1), bot = band(Y, +1);
+            if (top == null || bot == null) return null;
+            return { x: c.l, y: Math.round(top / k), w: c.r - c.l, h: Math.round((bot - top) / k) };
+        }
+
+        // Pixel pass (needs the page image): button and field boxes, the column divider, the
+        // ShipInsure widget / line already in the mockup, and the checkout branding.
+        async function _coRefine(pg) {
+            const A = _coAnchors(pg);
+            if (A._px || !_coIsCheckout(A)) return false;
+            let cv; try { cv = await _mkPageCanvas(pg); } catch (e) { return false; }
+            ['paynow', 'discount'].forEach(k => { if (A[k] && !A[k].hand) A[k].box = _coBoxOf(cv, A[k]); });
+            const cols = _coCols(pg, A);
+            if (cols.length === 2) {   // the summary's own background starts at the divider
+                const c = cols[1], y = Math.round(((A.subtotal || A.total || A.discount || {}).y || pg.h / 2) * cv.k);
+                const d = cv.ctx.getImageData(0, Math.max(0, y - 30), cv.ctx.canvas.width, 1).data, bgR = [d[(Math.round(c.l * cv.k) - 4) * 4], d[(Math.round(c.l * cv.k) - 4) * 4 + 1], d[(Math.round(c.l * cv.k) - 4) * 4 + 2]];
+                let x = Math.round(c.l * cv.k) - 4;
+                const lo = Math.round(cols[0].r * cv.k);
+                while (x > lo) { const o = (x - 1) * 4; if (Math.abs(d[o] - bgR[0]) + Math.abs(d[o + 1] - bgR[1]) + Math.abs(d[o + 2] - bgR[2]) > 18) break; x--; }
+                if (x > lo + 2) A._bx = Math.round(x / cv.k);
+            }
+            // ShipInsure already designed in: the protection price in the main column is the
+            // widget, in the order summary it's the line.
+            const cols2 = _coCols(pg, A);
+            pg.texts.filter(t => t.role === 'fee' && !t.add).sort((a, b) => a.y - b.y).forEach(t => {
+                const c = _coColAt(cols2, t.x + t.w / 2);
+                const inSum = cols2.length === 2 ? !!c.sum : (A.subtotal && t.y < A.subtotal.y && t.y > A.subtotal.y - t.h * 14) || pg.texts.some(u => u.role === 'item' && Math.abs(u.y - t.y) < t.h * 2.5);
+                const key = inSum ? 'si-line' : 'si-widget';
+                if (A[key] && (A[key].hand || (t.y >= A[key].y && t.y <= A[key].y + A[key].h))) return;
+                const r = _coRegion(cv, c, t.y + t.h / 2, t.h);
+                if (r && r.h < t.h * 14) A[key] = r;
+            });
+            if (A.paynow && A.paynow.box) {
+                const b = A.paynow.box, page = _coRows(cv, cols2[0].l - 6, cols2[0].r + 6), bgp = page ? _coBgAt(cv, cols2[0], b.y - 4) : '#ffffff';
+                const near = (p, q) => { const P = [1, 3, 5].map(i => parseInt(p.slice(i, i + 2), 16)), Q = [1, 3, 5].map(i => parseInt(q.slice(i, i + 2), 16)); return Math.abs(P[0] - Q[0]) + Math.abs(P[1] - Q[1]) + Math.abs(P[2] - Q[2]) < 30; };
+                const outline = near(b.c, bgp);
+                A._brand = { primary: outline ? b.ink : b.c, radius: Math.round(b.r / _coScale(pg)), btn: outline ? 'outline' : 'solid' };
+            }
+            A._px = 1;
+            return true;
+        }
+        // The slot a block already in the mockup sits in: the allowed slot nearest its rows.
+        function _coSlotFor(pg, A, cols, type, r) {
+            let best = null;
+            _coSlots('checkout').forEach(s => {
+                if (!_coAllowed({ type }, s, 'checkout')) return;
+                const at = _coSlotAt(pg, A, cols, s.id, null); if (!at) return;
+                const d = Math.min(Math.abs(at.y - r.y), Math.abs(at.y - (r.y + r.h)));
+                if (!best || d < best.d) best = { d, id: s.id };
+            });
+            return best && best.id;
+        }
+        // After the pixel pass: a ShipInsure widget / line drawn in the mockup becomes a block in
+        // the tree, in the slot it's in, with its own wording. Once per mockup; removing it sticks.
+        function _coSeedOrig() {
+            const co = _coGet(), src = _mk.src || 'mockup';
+            co.seeded = co.seeded || {};
+            let changed = false;
+            [['si-widget', 'si-pp'], ['si-line', 'si-line']].forEach(([key, type]) => {
+                if (co.seeded[type] === src) return;
+                const hit = _mk.pages.map(pg => ({ pg, A: _coAnchors(pg) })).find(x => x.A[key]);
+                if (!hit) return;
+                co.seeded[type] = src;
+                const r = hit.A[key], cols = _coCols(hit.pg, hit.A), slotId = _coSlotFor(hit.pg, hit.A, cols, type, r);
+                const slot = _coSlots('checkout').find(s => s.id === slotId); if (!slot) return;
+                // A block of this type already in the layout (carried over from the last mockup):
+                // in that same slot, with nothing set on it, it IS the one the mockup shows.
+                const have = _coSlots('checkout').flatMap(s => s.blocks.map(b => ({ b, s }))).find(x => x.b.type === type);
+                const blank = JSON.stringify(_coBlock(type).set);
+                if (have && (have.s !== slot || (type === 'si-pp' && JSON.stringify(have.b.set) !== blank))) return;
+                const b = have ? have.b : _coBlock(type);
+                if (type === 'si-pp') {
+                    const ts = hit.pg.texts.filter(t => !t.add && t.role !== 'fee' && t.y + t.h / 2 > r.y && t.y + t.h / 2 < r.y + r.h && t.x + t.w / 2 > r.x && t.x + t.w / 2 < r.x + r.w).sort((a, b) => a.y - b.y || a.x - b.x);
+                    const words = ts.filter(t => !/learn more/i.test(t.o));
+                    if (words[0]) b.set.hdr = String(words[0].o).trim();
+                    if (words.length > 1) b.set.sub = words.slice(1).map(t => String(t.o).trim()).join(' ');
+                    b.set.hideLearn = !ts.some(t => /learn more/i.test(t.o));
+                }
+                b.orig = { slot: slotId, set0: JSON.stringify(b.set) };
+                if (!have) slot.blocks.push(b);
+                changed = true;
+            });
+            return changed;
+        }
+        let _coRefining = false;
+        async function _coDetectAll() {
+            if (_coRefining || _mkReadOnly && !_mk.co) return;
+            _coRefining = true;
+            let changed = false;
+            try {
+                for (const pg of _mk.pages) changed = (await _coRefine(pg)) || changed;
+                const A = _mk.pages.map(_coAnchors).find(a => a._brand);
+                const co = _coGet();
+                if (A && JSON.stringify(co.brandAuto || null) !== JSON.stringify(A._brand)) { co.brandAuto = A._brand; changed = true; }
+                if (!_mkReadOnly && _coSeedOrig()) changed = true;
+            } finally { _coRefining = false; }
+            if (changed) _coSoon();
+        }
+
+        // Where a slot is on this page: { y, col } or null when the mockup doesn't show that spot.
+        function _coSlotAt(pg, A, cols, slotId, cv) {
+            for (const [edge, key] of (CO_AT[slotId] || [])) {
+                const a = A[key]; if (!a) continue;
+                const col = _coColAt(cols, a.x + Math.min(a.w, 40) / 2);
+                const b = a.box || a;
+                if (edge === 'top') return { col, y: _coSnap(cv, col, b.y - 1, -1, Math.max(8, a.h * 1.4)) };
+                let bot = b.y + b.h;
+                const subt = pg.texts.find(u => !u.add && u !== a && u.y >= a.y + a.h * 0.6 && u.y - bot < a.h * 1.2 && Math.abs(u.x - a.x) < a.h * 3 && u.sz <= (a.h * 1.2) && !CO_MAIN.concat(CO_SUMK).some(k => A[k] && A[k].y === u.y));
+                if (subt && !a.box) bot = Math.max(bot, subt.y + subt.h);
+                return { col, y: _coSnap(cv, col, bot + 1, +1, Math.max(8, a.h * 1.4)) };
+            }
+            return null;
+        }
+        function _coOrigShown(b, s) {
+            if (!b.orig || s.id !== b.orig.slot) return false;
+            if (b.type === 'si-pp') return JSON.stringify(b.set) === b.orig.set0 && b.on !== false;
+            return _coProtOn('checkout');
+        }
+        const _coMeasureEl = () => {
+            let m = document.getElementById('coMeasure');
+            if (!m) { m = document.createElement('div'); m.id = 'coMeasure'; m.style.cssText = 'position:absolute;left:-10000px;top:0;visibility:hidden;pointer-events:none;'; document.body.appendChild(m); }
+            return m;
+        };
+        function _coMeasure(html, w) { const m = _coMeasureEl(); m.style.width = w + 'px'; m.innerHTML = html; const h = m.offsetHeight; m.innerHTML = ''; return h; }
+
+        // The page's layout with the configured blocks in it, or null when nothing changes.
+        function _coLayout(pg) {
+            if (!_mk.co || !_mk.pages.length || _mk.co.plus === false) return null;
+            const A = _coAnchors(pg); if (!_coIsCheckout(A)) return null;
+            const cv = _mkCanvas[pg.img] || null;
+            if (!cv) _mkPageCanvas(pg).then(_coSoon, () => {});
+            const cols = _coCols(pg, A), k = _coScale(pg), M = 10, ops = [];
+            const all = _coSlots('checkout').flatMap(s => s.blocks.map(b => ({ b, s })));
+            [['si-widget', 'si-pp'], ['si-line', 'si-line']].forEach(([key, type]) => {
+                const r = A[key]; if (!r) return;
+                const e = all.find(x => x.b.type === type && x.b.orig);
+                if (e && _coOrigShown(e.b, e.s)) { _coPlaced.add(e.b.id); return; }
+                ops.push({ cut: 1, col: _coColAt(cols, r.x + r.w / 2), y: r.y, y1: r.y + r.h });
+            });
+            all.forEach(({ b, s }) => {
+                if (b.orig && _coOrigShown(b, s) && A[b.type === 'si-pp' ? 'si-widget' : 'si-line']) return;
+                const html = _coBlockHtml(b, 'checkout');
+                const at = _coSlotAt(pg, A, cols, s.id, cv); if (!at) return;
+                _coPlaced.add(b.id);
+                if (!html) return;
+                const w = at.col.r - at.col.l, h = Math.round((_coMeasure(html, w / k) + 2 * M) * k);
+                ops.push({ col: at.col, y: Math.round(at.y), h, html, bid: b.id, x: at.col.l, w, k, M, bg: _coBgAt(cv, at.col, at.y) });
+            });
+            if (!ops.length) return null;
+            cols.forEach(c => {
+                const ev = ops.filter(o => o.col === c).sort((a, b) => a.y - b.y);
+                let oy = 0, dy = 0;
+                c.segs = []; c.ins = [];
+                ev.forEach(o => {
+                    if (o.cut) {
+                        const y0 = Math.max(Math.round(o.y), oy), y1 = Math.round(o.y1);
+                        if (y0 > oy) c.segs.push({ o0: oy, o1: y0, dy });
+                        if (y1 > y0) { c.segs.push({ o0: y0, o1: y1, cut: 1 }); dy -= y1 - y0; oy = y1; } else oy = y0;
+                    } else {
+                        const y = Math.max(o.y, oy);
+                        if (y > oy) c.segs.push({ o0: oy, o1: y, dy });
+                        oy = y;
+                        c.ins.push(Object.assign({}, o, { top: y + dy }));
+                        dy += o.h;
+                    }
+                });
+                c.segs.push({ o0: oy, o1: Math.ceil(pg.h), dy });
+                c.end = Math.ceil(pg.h) + dy;
+                c.bgEnd = _coBgAt(cv, c, pg.h - 2);
+            });
+            return { cols, H: Math.max(...cols.map(c => c.end)) };
+        }
+        // Display offset for a point of the original page: dy, or null when it was cut away.
+        function _coDy(pg, x, y) {
+            const L = _coLays.get(pg); if (!L) return 0;
+            const c = _coColAt(L.cols, x);
+            for (const s of c.segs) if (y >= s.o0 && y < s.o1) return s.cut ? null : s.dy;
+            return c.segs.length ? (c.segs[c.segs.length - 1].dy || 0) : 0;
+        }
+        // A point on the displayed page back to the original page's coordinates.
+        function _coUn(pg, x, y) {
+            const L = _coLays.get(pg); if (!L) return y;
+            const c = _coColAt(L.cols, x);
+            for (const s of c.segs) if (!s.cut && y >= s.o0 + s.dy && y < s.o1 + s.dy) return y - s.dy;
+            const g = c.ins.find(i => y >= i.top && y < i.top + i.h);
+            if (g) return g.y;
+            const last = c.segs.filter(s => !s.cut).pop();
+            return last ? y - last.dy : y;
+        }
+        function _coPageHtml(pg, L) {
+            const img = _escHtml(pg.img);
+            let h = '';
+            L.cols.forEach(c => {
+                const w = c.x1 - c.x0;
+                c.segs.forEach(s => { if (!s.cut && s.o1 > s.o0) h += `<div class="co-tile" style="left:${c.x0}px;top:${s.o0 + s.dy}px;width:${w}px;height:${s.o1 - s.o0}px;"><img src="${img}" alt="" draggable="false" style="left:${-c.x0}px;top:${-s.o0}px;width:${pg.w}px;height:${pg.h}px;"></div>`; });
+                if (c.end < L.H) h += `<div class="co-fill" style="left:${c.x0}px;top:${c.end}px;width:${w}px;height:${L.H - c.end}px;background:${c.bgEnd};"></div>`;
+                c.ins.forEach(i => { h += `<div class="co-fill" style="left:${c.x0}px;top:${i.top}px;width:${w}px;height:${i.h}px;background:${i.bg};"></div>`; });
+            });
+            return h;
+        }
+        function _coInsHtml(L) {
+            return L.cols.flatMap(c => c.ins.map(i => `<div class="co-ins${_coSel === i.bid ? ' sel' : ''}" data-coblk="${i.bid}" style="left:${i.x}px;top:${i.top + i.M * i.k}px;width:${_mkR(i.w / i.k)}px;transform:scale(${i.k});">${i.html}</div>`)).join('');
+        }
+
+        // ── Hand tags: the rep marks a spot (click) or an area (drag) and says what it is ──
+        function coTagSave(key) {
+            const tg = _coTagAt; if (!tg || !CO_ANCH[key]) return;
+            const pg = _mk.pages[tg.p]; if (!pg) return;
+            const A = _coAnchors(pg);
+            const k = _coScale(pg);
+            A[key] = CO_ANCH[key].region || tg.h > 4
+                ? { x: tg.x, y: tg.y, w: Math.max(tg.w, 20), h: Math.max(tg.h, 14 * k), hand: true }
+                : { x: tg.x, y: tg.y, w: 120 * k, h: 14 * k, hand: true };
+            delete A._px;   // re-check the pixels around it
+            _coEnsure();
+            if (CO_ANCH[key].region) { const co = _coGet(); co.seeded = co.seeded || {}; delete co.seeded[key === 'si-widget' ? 'si-pp' : 'si-line']; }
+            _coTagAt = null;
+            mkRender();
+        }
+        function coTagClear(pi, key) {
+            const pg = _mk.pages[pi]; if (!pg || !pg.coA) return;
+            delete pg.coA[key]; pg.coA.v = 0; _coEnsure();
+            mkRender();
+        }
+        function coTagCancel() { _coTagAt = null; mkRender(); }
+        function _coSectionsHtml() {
+            if (!_mk.pages.length) return '';
+            const rows = _mk.pages.map((pg, pi) => {
+                const A = _coAnchors(pg), ck = _coIsCheckout(A);
+                const keys = Object.keys(CO_ANCH).filter(k => A[k] || !CO_ANCH[k].region);
+                if (!ck && !keys.some(k => A[k])) return `<div class="co-pgrow"><b>${_escHtml(pg.name || 'Page ' + (pi + 1))}</b> <span class="co-mut">not a checkout page</span></div>`;
+                return `<div class="co-pgrow"><b>${_escHtml(pg.name || 'Page ' + (pi + 1))}</b>${ck ? '' : ' <span class="co-mut">(tag Payment or Pay now to use it as checkout)</span>'}<div class="co-chips">` +
+                    keys.map(k => A[k] ? `<span class="co-chip on${A[k].hand ? ' hand' : ''}" title="${A[k].hand ? 'Tagged by hand' : 'Found in the mockup'}">${_escHtml(CO_ANCH[k].l)}${A[k].hand ? ` <button type="button" onclick="coTagClear(${pi},'${k}')" title="Remove this tag">✕</button>` : ''}</span>` : `<span class="co-chip">${_escHtml(CO_ANCH[k].l)}</span>`).join('') + '</div></div>';
+            }).join('');
+            const tag = _coTagAt ? `<div class="co-tagbox"><b>What did you mark on “${_escHtml((_mk.pages[_coTagAt.p] || {}).name || '')}”?</b>
+                <select onchange="if(this.value) coTagSave(this.value)"><option value="">Choose…</option>${Object.keys(CO_ANCH).map(k => `<option value="${k}">${_escHtml(CO_ANCH[k].l)}${CO_ANCH[k].region ? '' : ' (heading / spot)'}</option>`).join('')}</select>
+                <button type="button" onclick="coTagCancel()">Cancel</button></div>` : '';
+            return `<details class="co-secs"${_coTagAt ? ' open' : ''}><summary>Mockup sections</summary>
+                <div class="co-mut" style="margin:4px 0 6px;">Blocks go in at these spots. If one wasn't found, pick <b>⚑ Tag section</b> under the preview tools, click its heading in the preview (or drag around a ShipInsure widget / line already in the mockup), then say what it is.</div>${tag}${rows}</details>`;
+        }
+        function _coBrandHtml(co) {
+            const b = _coBrand(), a = Object.assign({}, CO_BRAND0, co.brandAuto || {}), o = co.brand || {};
+            const ph = v => _escHtml(String(v == null ? '' : v));
+            return `<details class="co-secs"><summary>Checkout branding <span class="co-mut">${o && Object.keys(o).length ? 'overridden' : co.brandAuto ? 'found in the mockup' : 'Shopify defaults'}</span></summary>
+                <div class="co-mut" style="margin:4px 0 6px;">Checkout blocks can't use their own styles; they take the store's Checkout Branding. Found in the mockup where possible; change any of them here.</div>
+                <div class="co-brow">
+                    <label>Primary color<input type="color" value="${ph(/^#[0-9a-f]{6}$/i.test(b.primary) ? b.primary : CO_BRAND0.primary)}" onchange="coBrand('primary',this.value)"></label>
+                    <label>Corner radius<input type="number" min="0" max="24" value="${ph(b.radius)}" onchange="coBrand('radius',+this.value||0)"></label>
+                    <label>Font<input type="text" value="${ph(o.font || '')}" placeholder="${ph(a.font || _mk.font || 'System font')}" onchange="coBrand('font',this.value.trim())"></label>
+                    <label>Button style<select onchange="coBrand('btn',this.value)">${['solid', 'outline'].map(v => `<option value="${v}"${b.btn === v ? ' selected' : ''}>${v === 'solid' ? 'Solid' : 'Outline'}</option>`).join('')}</select></label>
+                </div>
+                ${Object.keys(o).length ? '<button type="button" class="co-link" onclick="coBrand()">Use what was found in the mockup</button>' : ''}</details>`;
+        }
+        function coBrand(key, val) {
+            const co = _coEnsure();
+            if (!key) delete co.brand; else { co.brand = co.brand || {}; if (val === '' || val == null) delete co.brand[key]; else co.brand[key] = val; }
+            if (key === 'font' && val) _mkLoadFont(val);
+            _coOpenSec = true; mkRender();
+        }
+        let _coOpenSec = false;
+        function coPlus(on) { const co = _coEnsure(); co.plus = !!on; _coMenu = null; mkRender(); }
+
+        // ── Import from Checkout Editor: the sidebar outline a rep copies from Shopify admin.
+        // Either "Main: Express checkout, Contact, Delivery (Delivery address, …), …" lines, or one
+        // item per line. Built-in items place the cursor; anything else is a block, put in the next
+        // slot after it (the spot it sits in on the merchant's checkout). ──
+        const CO_PH = /^(add (app )?block|\[?add block\]?)$/i;
+        let _coImportMsg = '', _coImportOpen = false;
+        function _coSplitTop(str) {   // "a, b (c, d), e" → ["a", "b (c, d)", "e"]
+            const out = []; let depth = 0, cur = '';
+            for (const ch of str) {
+                if (ch === '(') depth++;
+                if (ch === ')') depth = Math.max(0, depth - 1);
+                if (ch === ',' && !depth) { out.push(cur); cur = ''; } else cur += ch;
+            }
+            out.push(cur);
+            return out.map(x => x.trim()).filter(Boolean);
+        }
+        // → [{ name, kids: [ "item" | { name, kids } ] }]
+        function _coParseOutline(text, seed) {
+            const clean = l => l.replace(/^[\s\-–—•*·>]+/, '').replace(/\s+$/, '');
+            const lines = String(text || '').split(/\r?\n/).map(clean).filter(Boolean);
+            const item = x => { const m = x.match(/^([^()]+?)\s*\((.*)\)\s*$/); return m ? { name: m[1].trim(), kids: _coSplitTop(m[2]).map(item) } : x; };
+            if (lines.some(l => /^[^:()]{2,40}:\s*\S/.test(l))) {
+                return lines.filter(l => l.includes(':')).map(l => { const i = l.indexOf(':'); return { name: l.slice(0, i).trim(), kids: _coSplitTop(l.slice(i + 1)).map(item) }; });
+            }
+            // One per line: section and subsection names come from Shopify's own layout.
+            const secs = seed.filter(n => n.k === 'sec').map(n => n.name.toLowerCase());
+            const subOf = {}; seed.forEach(n => (n.kids || []).forEach(c => { if (c.k === 'sub') subOf[c.name.toLowerCase()] = { sec: n, sub: c }; }));
+            const fixOf = node => new Set((node.kids || []).filter(c => c.k === 'fix').map(c => c.name.toLowerCase()));
+            const out = []; let sec = null, sub = null, secNode = null;
+            lines.forEach(l => {
+                const low = l.toLowerCase();
+                if (secs.includes(low)) { secNode = seed.find(n => n.k === 'sec' && n.name.toLowerCase() === low); sec = { name: l, kids: [] }; out.push(sec); sub = null; return; }
+                if (!sec) return;
+                if (subOf[low] && subOf[low].sec === secNode) { sub = { name: l, kids: [] }; sec.kids.push(sub); return; }
+                if (sub && fixOf(secNode).has(low)) sub = null;   // a parent item ends the subsection
+                (sub || sec).kids.push(l);
+            });
+            return out;
+        }
+        function coImportOutline() {
+            const ta = document.querySelector('#coEditor textarea.co-imp'); if (!ta) return;
+            const co = _coEnsure(), page = co.page === 'cart' ? 'checkout' : co.page;
+            const seed = _coSeed()[page];
+            const parsed = _coParseOutline(ta.value, seed);
+            if (!parsed.length) { _coImportMsg = 'Nothing to import: paste the outline from Shopify’s Checkout Editor sidebar.'; _coImportOpen = true; coRender(); return; }
+            const placed = [], skipped = [], used = new Set();
+            const slotsIn = node => { const o = []; _coWalk(node.kids, n => { if (n.k === 'slot') o.push(n); }); return o; };
+            const allSlots = (() => { const o = []; _coWalk(seed, n => { if (n.k === 'slot') o.push(n); }); return o; })();
+            const typeOf = name => /shipinsure.*(package )?protection|package protection/i.test(name) && !/line/i.test(name) ? 'si-pp' : /shipinsure.*(cart )?line/i.test(name) ? 'si-line' : 'app';
+            const walk = (pNode, node) => {
+                let cur = 0;   // index in node.kids: blocks go in the first slot at or after it
+                pNode.kids.forEach(it => {
+                    const name = typeof it === 'string' ? it : it.name, low = name.toLowerCase();
+                    const i = node.kids.findIndex((c, j) => j >= cur && c.k !== 'slot' && c.name.toLowerCase() === low);
+                    const iAny = i >= 0 ? i : node.kids.findIndex(c => c.k !== 'slot' && c.name.toLowerCase() === low);
+                    if (iAny >= 0) {
+                        const n = node.kids[iAny];
+                        if (typeof it !== 'string' && (n.k === 'sub' || n.k === 'sec')) walk(it, n);
+                        cur = iAny + 1;
+                        return;
+                    }
+                    if (typeof it !== 'string') { it.kids.forEach(k => walk({ kids: [k] }, node)); return; }
+                    if (CO_PH.test(name)) return;
+                    const bracket = /^\[.*\]$/.test(name);
+                    const type = bracket ? 'app' : typeOf(name);
+                    const b = type === 'app' ? _coBlock('app', { name: bracket ? name.slice(1, -1).replace(/^./, c => c.toUpperCase()) : name, page }) : _coBlock(type);
+                    if (type !== 'app' && used.has(type)) { skipped.push(name + ' (twice)'); return; }
+                    const fits = s => type === 'app' || CO_TYPES[type].t.some(k => s.t.includes(k));
+                    const here = node.kids.slice(cur).find(c => c.k === 'slot' && fits(c)) || slotsIn(node).find(fits) || allSlots.find(fits);
+                    if (!here) { skipped.push(name); return; }
+                    here.blocks.push(b); used.add(type);
+                    placed.push(name);
+                });
+            };
+            parsed.forEach(sec => {
+                const node = seed.find(n => n.k === 'sec' && n.name.toLowerCase() === sec.name.toLowerCase());
+                if (node) walk(sec, node); else skipped.push(sec.name + ' (unknown section)');
+            });
+            co.tree[page] = seed;
+            const plusWas = co.plus;
+            if (page === 'checkout' && placed.length) co.plus = true;   // a real checkout with app blocks is on Plus
+            _coSel = null; _coMenu = null; _coImportOpen = true;
+            _coImportMsg = `Rebuilt ${CO_PAGES[page]} with ${placed.length} block${placed.length === 1 ? '' : 's'}${placed.length ? ': ' + placed.join(', ') : ''}.` +
+                (skipped.length ? ` Skipped: ${skipped.join(', ')}.` : '') + (plusWas === false && co.plus ? ' Shopify Plus was switched on, since the outline has checkout blocks.' : '');
+            co.page = page;
+            mkRender();
+        }
+        function _coImportHtml(page) {
+            return `<details class="co-secs"${_coImportOpen ? ' open' : ''} ontoggle="_coImportOpen=this.open"><summary>Import from Checkout Editor</summary>
+                <div class="co-mut" style="margin:4px 0 6px;">In Shopify Admin › Settings › Checkout › Customize, copy the sidebar outline and paste it here. It rebuilds the ${_escHtml(CO_PAGES[page === 'cart' ? 'checkout' : page])} tree.</div>
+                <textarea class="co-imp" aria-label="Checkout Editor outline" rows="6" placeholder="Header: Logo, Cart link, Add block&#10;Main: Express checkout, Contact, Delivery (Delivery address, Shipping method, Shipping option list), Payment (Payment option, ShipInsure Package Protection, Remember me), Action (Pay now, Add block)&#10;Order summary: Cart (Items in cart, ShipInsure Cart Line Item), Discounts (Discount or gift card), Total, Add block&#10;Footer: Policies, Add block"></textarea>
+                <div class="mk2-row"><button type="button" onclick="coImportOutline()">Rebuild tree</button></div>
+                ${_coImportMsg ? `<div class="co-mut" style="margin-top:6px;">${_escHtml(_coImportMsg)}</div>` : ''}</details>`;
+        }
+        function coRender() {
+            const el = document.getElementById('coEditor'); if (!el) return;
+            if (_mkReadOnly) { el.innerHTML = ''; return; }
+            if (_coDrag) return;   // never rebuild under a drag
+            if (el.contains(document.activeElement) && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName) && document.activeElement.type !== 'checkbox') return;
+            const co = _coGet(), page = CO_PAGES[co.page] ? co.page : 'checkout';
+            el.innerHTML = `<details class="co-ed"${_coOpen ? ' open' : ''} ontoggle="_coOpen=this.open"><summary>Checkout Editor <span>matches Shopify Admin → Settings → Checkout → Customize</span></summary>
+                <div class="co-top"><select onchange="coPage(this.value)" aria-label="Page">
+                    <optgroup label="Checkout Editor">${['checkout', 'thankyou', 'orderstatus'].map(p => `<option value="${p}"${p === page ? ' selected' : ''}>${CO_PAGES[p]}</option>`).join('')}</optgroup>
+                    <optgroup label="Theme editor"><option value="cart"${page === 'cart' ? ' selected' : ''}>${CO_PAGES.cart}</option></optgroup></select>
+                    <label class="co-sw" title="Checkout page blocks (Information, Shipping, Payment, Order summary) need Shopify Plus. Thank you and Order status don't."><input type="checkbox" ${co.plus !== false ? 'checked' : ''} onchange="coPlus(this.checked)"><i></i><span>Shopify Plus</span></label></div>
+                ${page === 'cart' ? '<div class="co-band theme">Theme editor: app embed / app block. Not controlled by the Checkout Editor.</div>' : _coBlocked(page) ? '<div class="co-band">Not on Shopify Plus: checkout page blocks are Plus only. The mockup shows the checkout as designed.</div>' : ''}
+                <div class="co-cols"><div class="co-tree" data-page="${page}">${_coTree(page).map(n => _coNodeHtml(n, page)).join('')}</div>
+                <div class="co-set">${_coSetHtml(co)}</div></div>
+                <div class="co-foot">${_coBrandHtml(co)}${_coSectionsHtml()}${_coImportHtml(page)}</div></details>`;
+        }
+        // Drag a block between slots. Only valid slots accept it; anything else snaps back.
+        document.addEventListener('dragstart', e => {
+            const r = e.target.closest && e.target.closest('#coEditor .co-it.blk, #coEditor [data-lib]'); if (!r) return;
+            const page = _coGet().page;
+            let ok;
+            if (r.dataset.lib) {
+                const ty = r.dataset.lib;
+                if (_coUsed(page).has(ty)) { e.preventDefault(); return; }
+                _coDrag = 'lib:' + ty; ok = s => _coAllowed({ type: ty }, s, page);
+            } else {
+                _coDrag = r.dataset.blk;
+                const f = _coFind(_coDrag); ok = s => !!f && _coAllowed(f.blk, s, f.page);
+            }
+            _coMenu = null;
+            e.dataTransfer.effectAllowed = 'move';
+            try { e.dataTransfer.setData('text/plain', _coDrag); } catch (er) {}
+            r.classList.add('drag');
+            const tree = document.querySelector('#coEditor .co-tree');
+            if (tree) tree.querySelectorAll('.co-slot').forEach(sEl => {
+                const s = _coSlots(page).find(x => x.id === sEl.dataset.slot);
+                sEl.classList.add(s && ok(s) ? 'ok' : 'no');
+            });
+            document.getElementById('coEditor').classList.add('co-dragging');
+        });
+        document.addEventListener('dragover', e => {
+            if (!_coDrag) return;
+            const sEl = e.target.closest && e.target.closest('#coEditor .co-slot');
+            document.querySelectorAll('#coEditor .co-slot.over').forEach(x => x !== sEl && x.classList.remove('over'));
+            if (!sEl || !sEl.classList.contains('ok')) return;   // no preventDefault → "can't drop here"
+            e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+            sEl.classList.add('over');
+        });
+        document.addEventListener('drop', e => {
+            if (!_coDrag) return;
+            const sEl = e.target.closest && e.target.closest('#coEditor .co-slot.ok'); if (!sEl) return;
+            e.preventDefault();
+            const before = e.target.closest('.co-it.blk'), id = _coDrag;
+            _coDrag = null;
+            if (id.startsWith('lib:')) { coAdd(sEl.dataset.slot, id.slice(4), before ? before.dataset.blk : null); return; }
+            if (!coMove(id, sEl.dataset.slot, before && before.dataset.blk !== id ? before.dataset.blk : null)) coRender();
+        });
+        document.addEventListener('dragend', () => {
+            if (!_coDrag) return;   // dropped (and re-rendered) already
+            _coDrag = null; coRender();
         });
 
         // ── Copy Link: serialize the whole design into a shareable URL ──────
@@ -4785,6 +5882,7 @@ Return ONLY JSON — no markdown, no code fences:
             if (data.togLogo  !== undefined) _toggleLogoSrc = data.togLogo;
             if (data.extLogo  !== undefined) _extLogoSrc    = data.extLogo;
             _mk = Object.assign(_mkFresh(), data.mk || {});
+            _coTmp = null; _coSel = null;
             Object.entries(data.fields || {}).forEach(([id, val]) => {
                 const el = document.getElementById(id);
                 if (!el) return;
@@ -4879,6 +5977,7 @@ Return ONLY JSON — no markdown, no code fences:
             _toggleLogoSrc = d.togLogo  !== undefined ? d.togLogo  : null;
             _extLogoSrc    = d.extLogo  !== undefined ? d.extLogo  : null;
             _mk = Object.assign(_mkFresh(), d.mk || {});
+            _coTmp = null; _coSel = null;
             Object.entries(d.fields || {}).forEach(([id, val]) => {
                 const el = document.getElementById(id);
                 if (!el) return;
