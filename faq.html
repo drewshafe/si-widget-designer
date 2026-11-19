@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAQ · ShipInsure Designer</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/drewshafe/si-roi-calculator/main/si_lock.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link id="gf" rel="stylesheet" href="">
+<script src="https://drewshafe.github.io/si-roi-calculator/sb.js"></script>
+<script src="https://drewshafe.github.io/si-rep-hub/folder-bar.js"></script>
+<style>
+  /* FAQ designer: the merchant's FAQ page with ShipInsure's shipping-protection Q&A added, styled like
+     the merchant's own page. The rep pastes the FAQ page link (Claude reads its questions, and a
+     screenshot if given for the look), fills the template's blanks, and copies the HTML for the
+     merchant's Shopify page or shares a preview link. Template copy: "ShipInsure Documentation
+     Examples for FAQ" (Package Protection / Protection + Returns / Holiday Protection, + Skip The Line). */
+  * { margin:0; padding:0; box-sizing:border-box; }
+  [hidden] { display:none !important; }
+  :root { --page:#f4f5fb; --card:#fff; --ink:#1d2240; --muted:#6b7090; --line:#e3e5f2; --accent:#4a5fc1; --accent-soft:#eef0ff; --stage:#e8eaf4; --warn:#a2470a; --warn-soft:#fff3e2; --field:#f7f8fc; }
+  body.pm { --page:#07070a; --card:#111116; --ink:#ece6d6; --muted:#9a927f; --line:#26262f; --accent:#d4af37; --accent-soft:#1f1b10; --stage:#0b0b10; --warn:#f0b35a; --warn-soft:#231a0b; --field:#16161c; }
+  html, body { height:100%; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:var(--page); color:var(--ink); font-size:14px; display:flex; flex-direction:column; overflow:hidden; }
+  button, input, select, textarea { font:inherit; color:inherit; }
+
+  .fq-app { flex:1; min-height:0; display:grid; grid-template-columns:340px minmax(0, 1fr); }
+  .fq-side { background:var(--card); border-right:1px solid var(--line); overflow-y:auto; padding:18px 18px 28px; display:flex; flex-direction:column; gap:18px; }
+  .fq-stage { background:var(--stage); overflow:auto; padding:22px 24px 40px; display:flex; flex-direction:column; align-items:center; gap:12px; }
+  .fq-h1 { font-size:18px; font-weight:800; letter-spacing:-.01em; }
+  .fq-h2 { font-size:12.5px; line-height:1.45; color:var(--muted); margin-top:4px; }
+  .grp { display:flex; flex-direction:column; gap:8px; }
+  .lbl { font-size:10.5px; font-weight:800; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); }
+  .fld { display:flex; flex-direction:column; gap:4px; min-width:0; }
+  .fld > label { font-size:11.5px; font-weight:600; color:var(--muted); }
+  .fld input:not([type=checkbox]):not([type=color]), .fld select, .fld textarea { width:100%; border:1px solid var(--line); background:var(--field); border-radius:8px; padding:8px 10px; font-size:13px; }
+  .fld textarea { min-height:58px; resize:vertical; line-height:1.4; }
+  .fld input:focus, .fld select:focus, .fld textarea:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+  .fld.empty input, .fld.empty textarea { border-color:#f0c48a; background:var(--warn-soft); }
+  .row2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .hint { font-size:11.5px; line-height:1.45; color:var(--muted); }
+  .seg { display:flex; background:var(--field); border:1px solid var(--line); border-radius:9px; padding:3px; gap:3px; }
+  .seg button { flex:1; border:0; background:none; border-radius:7px; padding:6px 4px; font-size:12px; font-weight:600; color:var(--muted); cursor:pointer; }
+  .seg button.on { background:var(--card); color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.12); }
+  .chk { display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; cursor:pointer; }
+  .btn { border:1px solid var(--line); background:var(--card); border-radius:9px; padding:8px 12px; font-size:12.5px; font-weight:700; cursor:pointer; }
+  .btn.p { background:var(--accent); border-color:var(--accent); color:#fff; }
+  body.pm .btn.p { background:linear-gradient(135deg,#b8902d,#e3c56a); border-color:transparent; color:#0a0a0a; }
+  .btn:disabled { opacity:.55; cursor:progress; }
+  .btns { display:flex; gap:8px; flex-wrap:wrap; }
+  .msg { font-size:12px; line-height:1.45; color:var(--muted); }
+  .msg:empty { display:none; }
+  .msg.warn { color:var(--warn); }
+  .shot { border:1px dashed var(--line); border-radius:9px; padding:10px; font-size:12px; color:var(--muted); text-align:center; cursor:pointer; background:var(--field); }
+  .shot img { max-width:100%; max-height:120px; display:block; margin:0 auto 6px; border-radius:6px; }
+  .items { display:flex; flex-direction:column; gap:4px; }
+  .items label { display:flex; align-items:flex-start; gap:8px; font-size:12.5px; line-height:1.35; cursor:pointer; }
+  .items label input { margin-top:2px; }
+  .items .sub { font-size:10.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-top:6px; }
+  .sw { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; }
+  .sw .fld input[type=color] { width:100%; height:32px; border:1px solid var(--line); border-radius:8px; padding:2px; background:var(--field); cursor:pointer; }
+  .todo { background:var(--warn-soft); color:var(--warn); border-radius:9px; padding:8px 10px; font-size:12px; line-height:1.45; }
+  .todo:empty { display:none; }
+
+  /* Stage toolbar */
+  .st-bar { width:100%; max-width:1100px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+  .st-bar .seg { background:var(--card); }
+  .st-note { font-size:12px; color:var(--muted); }
+
+  /* ── The merchant's site (preview) ── */
+  .browser { width:100%; max-width:1100px; background:#fff; border-radius:12px; box-shadow:0 10px 40px rgba(20,24,60,.14); overflow:hidden; transition:max-width .2s; }
+  .browser.mobile { max-width:390px; border:12px solid #17171c; border-radius:44px; }
+  .b-bar { display:flex; align-items:center; gap:8px; background:#eceef3; padding:9px 12px; font-size:12px; color:#555; }
+  .b-bar i { width:10px; height:10px; border-radius:50%; background:#d5d7de; display:inline-block; }
+  .b-url { flex:1; background:#fff; border-radius:7px; padding:5px 10px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+  .browser.mobile .b-bar i { display:none; }
+  .site { --f-head:inherit; --f-body:inherit; --c-text:#333; --c-head:#111; --c-accent:#111; --c-bg:#fff; --c-line:#e5e5e5; --q-size:17px; --q-weight:600; --r:0px;
+          background:var(--c-bg); color:var(--c-text); font-family:var(--f-body); font-size:15px; line-height:1.6; min-height:640px; }
+  .site-hd { display:flex; align-items:center; justify-content:center; padding:18px 24px; border-bottom:1px solid var(--c-line); }
+  .site-hd img { max-height:40px; max-width:200px; display:block; }
+  .site-hd b { font-family:var(--f-head); color:var(--c-head); font-size:22px; letter-spacing:.02em; }
+  .site-main { max-width:820px; margin:0 auto; padding:44px 28px 70px; }
+  .browser.mobile .site-main { padding:28px 18px 50px; }
+  .site h1 { font-family:var(--f-head); color:var(--c-head); font-size:36px; line-height:1.2; text-align:var(--h-align, center); margin-bottom:14px; text-transform:var(--h-case, none); }
+  .browser.mobile .site h1 { font-size:28px; }
+  .site .lede { text-align:var(--h-align, center); margin:0 auto 34px; max-width:640px; }
+  .site h2 { font-family:var(--f-head); color:var(--c-head); font-size:24px; line-height:1.3; margin:40px 0 14px; text-transform:var(--h-case, none); }
+  .site h3 { font-family:var(--f-head); color:var(--c-head); font-size:18px; margin:18px 0 8px; }
+  .site p { margin:0 0 12px; }
+  .site a { color:var(--c-accent); text-decoration:underline; }
+  .site ol, .site ul { margin:0 0 12px 22px; }
+  .site li { margin-bottom:4px; }
+  .site .si-intro { margin-bottom:18px; }
+  .qa { border-bottom:1px solid var(--c-line); }
+  .site.boxed .qa { border:1px solid var(--c-line); border-radius:var(--r); margin-bottom:10px; padding:0 16px; }
+  .site.lines .qa:first-of-type { border-top:1px solid var(--c-line); }
+  .site.plain .qa { border:0; }
+  .q { display:flex; align-items:center; justify-content:space-between; gap:16px; width:100%; text-align:left; border:0; background:none; cursor:pointer;
+       padding:16px 0; font-family:var(--f-q, var(--f-body)); font-size:var(--q-size); font-weight:var(--q-weight); color:var(--c-head); line-height:1.4; }
+  .q .ic { flex:0 0 auto; width:18px; height:18px; position:relative; color:var(--c-head); }
+  .site.ic-plus .q .ic::before, .site.ic-plus .q .ic::after { content:''; position:absolute; left:2px; right:2px; top:8px; height:2px; background:currentColor; transition:transform .2s; }
+  .site.ic-plus .q .ic::after { transform:rotate(90deg); }
+  .site.ic-plus .qa.open .q .ic::after { transform:rotate(0); }
+  .site.ic-chevron .q .ic::before { content:''; position:absolute; left:4px; top:3px; width:8px; height:8px; border-right:2px solid currentColor; border-bottom:2px solid currentColor; transform:rotate(45deg); transition:transform .2s; }
+  .site.ic-chevron .qa.open .q .ic::before { transform:translateY(4px) rotate(225deg); }
+  .site.ic-none .q { cursor:default; }
+  .a { display:none; padding:0 0 16px; }
+  .qa.open .a, .site.ic-none .a { display:block; }
+  .a > :last-child { margin-bottom:0; }
+  .si-block { position:relative; }
+  .si-block.mark::before { content:'ShipInsure'; position:absolute; left:-14px; top:40px; bottom:0; width:3px; background:#6675ff; border-radius:3px; font-size:0; }
+  .browser.mobile .si-block.mark::before { left:-8px; }
+  .ph { background:#fff1c9; color:#8a5a00; border-radius:4px; padding:0 4px; font-weight:600; font-style:normal; }
+  .tk { }
+  .edit .si-block [contenteditable="true"], .edit .si-block .q [data-e] { outline:1px dashed transparent; border-radius:4px; }
+  .edit .si-block [contenteditable="true"]:hover, .edit .si-block .q [data-e]:hover { outline-color:#9aa5ff; }
+  .edit .si-block [contenteditable="true"]:focus { outline:2px solid #6675ff; outline-offset:2px; }
+  .site-main > .m-sec:nth-child(3) > h2:first-child, .site-main > h1 + .m-sec > h2:first-child { margin-top:0; }
+  .site-ft { border-top:1px solid var(--c-line); padding:22px; text-align:center; font-size:12px; opacity:.6; }
+
+  /* View-only (share link): just the site */
+  body.view .fq-app { grid-template-columns:1fr; }
+  body.view .fq-side, body.view .st-bar { display:none; }
+  body.view .fq-stage { padding:0; background:#fff; }
+  body.view .browser { max-width:none; border-radius:0; box-shadow:none; }
+  body.view .browser.mobile { max-width:390px; margin:18px auto; border-radius:44px; }
+  body.view .b-bar { display:none; }
+
+  .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(30px); opacity:0; background:#1d2240; color:#fff; padding:10px 16px; border-radius:10px; font-size:13px; font-weight:600; transition:.25s; pointer-events:none; z-index:90; }
+  .toast.show { opacity:1; transform:translateX(-50%); }
+  @media (max-width: 900px) { .fq-app { grid-template-columns:1fr; overflow:auto; } body { overflow:auto; } .fq-side { border-right:0; border-bottom:1px solid var(--line); } }
+</style>
+</head>
+<body>
+<div class="fq-app" id="app">
+  <aside class="fq-side">
+    <div>
+      <div class="fq-h1">FAQ with ShipInsure</div>
+      <div class="fq-h2">Paste the merchant's FAQ page. The preview shows their FAQ with ShipInsure's shipping-protection Q&amp;A added, in their look. Copy the HTML for their Shopify page or share the preview.</div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">Merchant FAQ page</div>
+      <div class="fld"><label for="faqUrl">FAQ page link</label><input id="faqUrl" placeholder="allbirds.com/pages/faq" spellcheck="false"></div>
+      <div class="shot" id="shot" tabindex="0" title="Paste (⌘V) or click to pick a screenshot of the FAQ page">📸 Optional: paste or pick a screenshot of the FAQ page so the scan matches its fonts and colors too</div>
+      <input type="file" id="shotIn" accept="image/*" hidden>
+      <div class="btns"><button class="btn p" type="button" id="scanBtn">🔍 Scan FAQ page</button><button class="btn" type="button" id="brandBtn" hidden>📁 Use folder branding</button></div>
+      <div class="msg" id="scanMsg"></div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">ShipInsure section</div>
+      <div class="fld"><label for="tpl">Template</label>
+        <select id="tpl"><option value="pp">Package Protection</option><option value="returns">Protection + Returns</option><option value="q4">Holiday (Q4) Delivery Protection</option></select></div>
+      <label class="chk"><input type="checkbox" id="stl"> Include Skip The Line</label>
+      <div class="fld"><label>Where it goes</label>
+        <div class="seg" id="place"><button type="button" data-v="top">Top of FAQ</button><button type="button" data-v="bottom">Bottom</button><button type="button" data-v="only">Own page</button></div></div>
+      <div class="hint" id="placeHint"></div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">Fill in the blanks</div>
+      <div id="fields"></div>
+      <div class="todo" id="todo"></div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">Questions</div>
+      <div class="items" id="items"></div>
+      <div class="hint">Click ShipInsure text in the preview to edit it (double-click a question). <a href="#" id="resetEdits">Undo text edits</a></div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">Look (matches the merchant's page)</div>
+      <div class="row2">
+        <div class="fld"><label for="fHead">Heading font</label><select id="fHead"></select></div>
+        <div class="fld"><label for="fBody">Body font</label><select id="fBody"></select></div>
+      </div>
+      <div class="sw">
+        <div class="fld"><label for="cHead">Headings</label><input type="color" id="cHead"></div>
+        <div class="fld"><label for="cText">Text</label><input type="color" id="cText"></div>
+        <div class="fld"><label for="cAccent">Links</label><input type="color" id="cAccent"></div>
+        <div class="fld"><label for="cBg">Background</label><input type="color" id="cBg"></div>
+        <div class="fld"><label for="cLine">Dividers</label><input type="color" id="cLine"></div>
+        <div class="fld"><label for="qWeight">Question</label><select id="qWeight"><option value="400">Regular</option><option value="500">Medium</option><option value="600">Semibold</option><option value="700">Bold</option></select></div>
+      </div>
+      <div class="row2">
+        <div class="fld"><label for="layout">Questions</label><select id="layout"><option value="lines">Lines between</option><option value="boxed">Boxed</option><option value="plain">No lines</option></select></div>
+        <div class="fld"><label for="icon">Open / close</label><select id="icon"><option value="plus">＋ / −</option><option value="chevron">Chevron</option><option value="none">Always open</option></select></div>
+      </div>
+      <div class="row2">
+        <div class="fld"><label for="hAlign">Title</label><select id="hAlign"><option value="center">Centered</option><option value="left">Left</option></select></div>
+        <div class="fld"><label for="hCase">Heading case</label><select id="hCase"><option value="none">As written</option><option value="uppercase">UPPERCASE</option></select></div>
+      </div>
+      <div class="btns"><button class="btn" type="button" id="logoBtn">🖼 Logo</button><button class="btn" type="button" id="logoClear" hidden>Remove logo</button></div>
+      <input type="file" id="logoIn" accept="image/*" hidden>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">Share</div>
+      <div class="btns">
+        <button class="btn p" type="button" id="copyHtml" title="The ShipInsure section as HTML for the merchant's Shopify page (it takes their theme's fonts and colors there)">📋 Copy HTML for Shopify</button>
+        <button class="btn" type="button" id="copyText">Copy as text</button>
+        <button class="btn" type="button" id="copyLink">🔗 Preview link</button>
+        <button class="btn" type="button" id="resetAll">Reset</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="fq-stage">
+    <div class="st-bar">
+      <div class="seg" id="dev"><button type="button" data-v="desktop">🖥 Desktop</button><button type="button" data-v="mobile">📱 Mobile</button></div>
+      <span class="st-note" id="stNote"></span>
+      <label class="chk"><input type="checkbox" id="markSi"> Mark the ShipInsure section</label>
+    </div>
+    <div class="browser" id="browser">
+      <div class="b-bar"><i></i><i></i><i></i><span class="b-url" id="bUrl"></span></div>
+      <div class="site edit" id="site"></div>
+    </div>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const clone = o => JSON.parse(JSON.stringify(o));
+  const VIEW = new URLSearchParams(location.search).get('view') === '1';
+  function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2200); }
+
+  // ── Template copy ("ShipInsure Documentation Examples for FAQ") ──
+  // {{key}} = a blank the rep fills in (FIELDS). Answers are trusted template HTML.
+  const FIELDS = {
+    store:        { label: 'Store name', ph: 'Acme Outdoors' },
+    where:        { label: 'Where the widget is', type: 'select', opts: ['cart', 'checkout'], def: 'checkout' },
+    claims:       { label: 'Claims link', ph: 'https://go.shipinsure.net/claims', def: 'https://go.shipinsure.net/claims', url: true, hint: 'go.shipinsure.net/claims or the merchant’s claims subdomain' },
+    returns:      { label: 'Returns portal link', ph: 'https://returns.store.com', url: true },
+    unprotected:  { label: 'If an order isn’t protected…', area: true, ph: 'please contact support@store.com and we’ll help you file a claim with the carrier.', hint: 'Finishes: “If your order does not have ShipInsure Package Protection, …”' },
+    firstDay:     { label: 'First business day of the week', ph: 'Monday', def: 'Monday' },
+    noShipDays:   { label: 'Days you don’t fulfill', ph: 'weekends', def: 'weekends' },
+    coverage:     { label: 'Coverage exclusions (optional)', area: true, optional: true, ph: 'Address errors entered at checkout aren’t covered.' },
+    gift:         { label: 'Gift orders (optional)', area: true, optional: true, ph: 'Reships can go to the recipient’s address.' },
+    reshipCutoff: { label: 'Holiday reship cutoff (optional)', optional: true, ph: 'Claims approved by Dec 18 reship in time for Dec 25 delivery in the contiguous US.' },
+    window:       { label: 'Holiday claim window (optional)', optional: true, ph: 'Holiday orders can be filed through Jan 15.' },
+    shipPage:     { label: 'Holiday shipping deadlines page', url: true, ph: 'https://store.com/pages/holiday-shipping' }
+  };
+  const HELP = 'Not finding your question? Check our <a href="https://www.shipinsure.io/merchant-faq">FAQ</a> and <a href="https://help.shipinsure.io/">Help Center</a> resources for more.';
+  const HOW_FILE = `<p>If you have purchased ShipInsure Package Protection, you'll receive an email from ShipInsure after your order is complete. This email will contain instructions on how to file a claim, along with your unique ShipInsure ID number (starting with SI).</p>
+    <p>In case you did not receive an email from ShipInsure, here's how you can file a claim:</p>
+    <ol><li>Navigate to the <a href="{{claims}}"><strong>File a Claim</strong></a> page.</li><li>Provide ShipInsure with your <strong>Email</strong> and <strong>Order Number</strong>.</li><li>Select the relevant items, <strong>Issue</strong>, and your <strong>Requested Resolution</strong> for the claim.</li><li>Finally, provide us with information about your claim in the <strong>Tell us what happened</strong> section.</li></ol>
+    <p>The ShipInsure team will review your claim and get back to you within 24 hours.</p>`;
+  const RESOLVE = `<p>ShipInsure offers two methods of resolution for approved claims: <strong>Reship</strong> and <strong>Refund</strong>.</p>
+    <p>If you choose <strong>Refund</strong> as your preferred resolution and your claim is approved, please note that refunds are typically processed within 2 business days. However, the exact timeframe may vary depending on your payment method. The refund will be processed back to your original payment method.</p>
+    <p>If you choose <strong>Reship</strong> as your preferred resolution and your claim is approved, ShipInsure will take care of processing a reorder for you. You will receive an order confirmation email once the reorder is placed on your behalf.</p>`;
+  const WINDOW = `<p>Claims must be submitted within 14 days of the package's date of delivery per the tracking details.</p><p>${HELP}</p>`;
+  const NOTE = `<p><strong>Note:</strong> If your {{store}} order does not have ShipInsure Package Protection, {{unprotected}}</p>`;
+  const STL = [
+    { id: 'stl-what', q: 'What does Skip The Line mean?', a: `<p>Skip The Line is priority order processing. Instead of moving through {{store}}’s fulfillment queue in the order it was placed, your order jumps to the front — it’s picked, packed, and shipped ahead of standard orders.</p>
+      <p>There’s nothing you need to do. Once Skip The Line is applied at checkout, the priority is automatic — your order is flagged and moves to the front of the queue on its own.</p>
+      <p><strong>Note:</strong> {{store}} doesn’t fulfill orders on weekends, so Skip The Line doesn’t change that — a weekend order won’t ship Saturday or Sunday. It does keep its place at the front of the line: any Skip The Line order placed over the weekend is the first one fulfilled when processing resumes on {{firstDay}}.</p>` }
+  ];
+  const TEMPLATES = {
+    pp: {
+      name: 'Package Protection', title: 'Package Protection', sub: 'ShipInsure: Protect Your Packages with Confidence!',
+      intro: `<p>ShipInsure is a premium package protection provider for {{store}}. When you choose to add ShipInsure to your order in the {{where}}, you gain the benefit of filing claims with ease in case of lost, stolen, or damaged shipments.</p>
+        <p>Should you encounter any unfortunate incidents, simply file a claim with ShipInsure.</p>
+        <p>ShipInsure’s dedicated Support team will promptly review your claim and respond within 24 hours. If you have purchased ShipInsure Package Protection, you will receive a confirmation email from them with instructions on how to file a claim if needed.</p>
+        <p>Protect your packages with ShipInsure today and have the confidence that your orders are safeguarded.</p>
+        <p>You can quickly file a claim by clicking <a href="{{claims}}">here</a>.</p>${NOTE}`,
+      faqs: [
+        { id: 'how-file', q: 'How do I file a claim with ShipInsure?', a: HOW_FILE },
+        { id: 'resolve', q: 'How does ShipInsure resolve a claim?', a: RESOLVE },
+        { id: 'window', q: 'How long do I have to file a claim?', a: WINDOW }
+      ],
+      stl: STL, stlTitle: 'Skip The Line',
+      fields: ['store', 'where', 'claims', 'unprotected']
+    },
+    returns: {
+      name: 'Protection + Returns', title: 'Package Protection + Returns', sub: 'ShipInsure: Protect Your Packages with Confidence!',
+      intro: `<p>ShipInsure is a premium package protection provider for {{store}}. When you choose to add ShipInsure to your order in the {{where}}, you gain the benefit of filing claims with ease in case of lost, stolen, or damaged shipments, or a free return label if you need to submit a return.</p>
+        <p>Should you encounter any unfortunate incidents, simply file a claim with ShipInsure.</p>
+        <p>ShipInsure’s dedicated Support team will promptly review your claim and respond within 24 hours. If you have purchased ShipInsure Package Protection, you will receive a confirmation email from them with instructions on how to file a claim if needed.</p>
+        <p>Protect your packages with ShipInsure today and have the confidence that your orders are safeguarded.</p>
+        <p>You can quickly file a claim by clicking <a href="{{claims}}">File a Claim</a>.</p>
+        <p>If you experience an order issue that does not fall under loss, damage, or theft, you can still start a free return by clicking <a href="{{returns}}">Submit a Return</a>.</p>${NOTE}`,
+      faqs: [
+        { id: 'how-file', q: 'How do I file a claim with ShipInsure?', a: HOW_FILE },
+        { id: 'resolve', q: 'How does ShipInsure resolve a claim?', a: RESOLVE },
+        { id: 'window', q: 'How long do I have to file a claim?', a: WINDOW },
+        { id: 'return', q: 'How do I start a return?', a: `<p>If you added protection to your order, you’ll receive an email after checkout with instructions to start a return. Or visit our <a href="{{returns}}">Return Portal</a> and enter your order details. Your return shipping label is covered — no cost to you. Follow the prompts to select your return reason and preferred resolution.</p>` }
+      ],
+      stl: STL, stlTitle: 'Skip The Line',
+      fields: ['store', 'where', 'claims', 'returns', 'unprotected']
+    },
+    q4: {
+      name: 'Holiday Protection', title: 'Holiday Delivery Protection from {{store}}', sub: '',
+      intro: `<p>The holidays are our busiest season, and carriers' too. More packages, more gifts shipping to new addresses, more stops on every route. We stand behind every order, and that won't change.</p>
+        <p>For the season, we're offering optional Holiday Delivery Protection. If an order arrives damaged, goes missing, or is marked delivered but never arrives, you can file in a couple of minutes and get a reship or refund, with no back-and-forth and no waiting on a carrier investigation.</p>
+        <p>Add it if you want the fastest possible resolution on a gift that has to show up.</p>
+        <p>You can quickly file a claim by clicking <a href="{{claims}}">here</a>.</p>${NOTE}`,
+      faqs: [
+        { id: 'q4-new', q: 'Is this new? Does it mean something changed with your service?', a: `<p>Nothing about our service or our commitment has changed. Holiday Delivery Protection is an optional add-on for the season. It gives you a self-serve path that skips the usual holiday queues: file online, get an answer within 24 hours, and choose a reship or refund.</p>` },
+        { id: 'q4-without', q: 'If I don’t add it, will you still help me?', a: `<p>Yes. If your order doesn’t have protection, {{unprotected}}</p>` },
+        { id: 'q4-why', q: 'Why offer it during the holidays?', a: `<p>Holiday volume puts strain on every carrier, and more orders ship as gifts to addresses other than the buyer's. Protection means a problem gets fixed fast, without you having to chase a carrier or wait on a support queue during the busiest weeks of the year.</p>` },
+        { id: 'q4-covered', q: 'What’s covered?', a: `<p>Packages that arrive damaged, are lost in transit, or are marked delivered but never received. {{coverage}}</p>` },
+        { id: 'q4-gift', q: 'I’m sending this as a gift. How does that work?', a: `<p>Protection travels with the order. The claim is filed with the order number and the email used at checkout, so the purchaser files. {{gift}}</p>` },
+        { id: 'q4-file', q: 'How do I file a claim?', a: `<p>After checkout, you'll get a confirmation email with your protection ID (starting with SI) and a link to file. Or:</p>
+          <ol><li>Go to <a href="{{claims}}">File a Claim</a>.</li><li>Enter the <strong>email</strong> and <strong>order number</strong> from your purchase.</li><li>Select the affected items, the <strong>issue</strong>, and your <strong>preferred resolution</strong>.</li><li>Tell us what happened.</li></ol>
+          <p>We review every claim within 24 hours.</p>` },
+        { id: 'q4-resolve', q: 'How is a claim resolved?', a: `<p>You choose:</p><ul><li><strong>Reship:</strong> We place a replacement order for you and send a confirmation once it's placed. {{reshipCutoff}}</li><li><strong>Refund:</strong> Processed to your original payment method, typically within 2 business days. Timing can vary by payment method.</li></ul>` },
+        { id: 'q4-window', q: 'How long do I have to file?', a: `<p>Within 14 days of the delivery date shown on tracking. For gifts, check the package when it arrives rather than when it's opened. {{window}}</p><p>Still have questions? Visit our <a href="https://www.shipinsure.io/merchant-faq">FAQ</a> or <a href="https://help.shipinsure.io/">Help Center</a>.</p>` }
+      ],
+      stl: [
+        { id: 'q4-stl-what', q: 'What does Skip The Line mean?', a: `<p>Priority processing for the season. Your order moves to the front of our fulfillment queue and is picked, packed, and shipped ahead of standard orders. It's the best option when a gift is on a deadline.</p><p>There's nothing else to do. Once it's added at checkout, your order is flagged automatically.</p>` },
+        { id: 'q4-stl-date', q: 'Does it guarantee delivery by a certain date?', a: `<p>It gets your order out of our building first. Once it's with the carrier, standard transit times apply. See our <a href="{{shipPage}}">holiday shipping deadlines</a> to plan.</p>` },
+        { id: 'q4-stl-days', q: 'What about weekends and holidays?', a: `<p>{{store}} doesn't fulfill orders on {{noShipDays}}. A Skip The Line order placed during that time is first in line when we resume on {{firstDay}}.</p>` }
+      ],
+      stlTitle: 'Skip The Line',
+      fields: ['store', 'claims', 'unprotected', 'coverage', 'gift', 'reshipCutoff', 'window']
+    }
+  };
+  const STL_FIELDS = { pp: ['firstDay'], returns: ['firstDay'], q4: ['noShipDays', 'firstDay', 'shipPage'] };
+
+  const FONTS = ['Inherit (system)', 'Montserrat', 'Open Sans', 'Lato', 'Inter', 'Poppins', 'Roboto', 'Nunito Sans', 'Work Sans', 'DM Sans', 'Karla', 'Raleway', 'Source Sans 3', 'Jost', 'Archivo', 'Oswald', 'Playfair Display', 'Cormorant Garamond', 'Libre Baskerville', 'Lora', 'Merriweather', 'EB Garamond', 'Crimson Text', 'Space Grotesk', 'Barlow'];
+  const DEFAULTS = {
+    v: 1, faqUrl: '', tpl: 'pp', stl: false, place: 'top', device: 'mobile', markSi: true,
+    f: { store: '', where: 'checkout', claims: 'https://go.shipinsure.net/claims', firstDay: 'Monday', noShipDays: 'weekends' },
+    hide: {}, edits: {},
+    merchant: null,   // { title, intro, sections:[{ heading, items:[{q,a}] }] } from the scan
+    style: { fHead: 'Inherit (system)', fBody: 'Inherit (system)', cHead: '#111111', cText: '#333333', cAccent: '#111111', cBg: '#ffffff', cLine: '#e5e5e5', qWeight: '600', layout: 'lines', icon: 'plus', hAlign: 'center', hCase: 'none' },
+    logo: ''
+  };
+  let S = clone(DEFAULTS);
+  const open = new Set(['how-file', 'q4-new']);   // preview-only: which questions are expanded
+
+  // ── Placeholders ──
+  const isFilled = k => String((S.f || {})[k] || '').trim() !== '';
+  const goodUrl = u => /^(https?:\/\/|mailto:)/i.test(String(u || '').trim());
+  function fill(html, mode) {
+    // mode 'preview': blanks highlighted, values wrapped so text edits keep the {{key}}; 'export': plain values, blanks as [Label]
+    html = html.replace(/href="\{\{(\w+)\}\}"/g, (_, k) => 'href="' + esc(goodUrl(S.f[k]) ? S.f[k].trim() : (FIELDS[k] && FIELDS[k].def) || '#') + '"');
+    return html.replace(/\{\{(\w+)\}\}/g, (_, k) => {
+      const F = FIELDS[k] || { label: k };
+      if (isFilled(k)) return mode === 'preview' ? `<span class="tk" data-k="${k}" contenteditable="false">${esc(S.f[k].trim())}</span>` : esc(S.f[k].trim());
+      if (F.optional) return mode === 'preview' ? `<mark class="ph" data-k="${k}" contenteditable="false" title="Optional: fill in or leave out">[${esc(F.label.replace(/ \(optional\)/, ''))}]</mark>` : '';
+      return mode === 'preview' ? `<mark class="ph" data-k="${k}" contenteditable="false" title="Fill in: ${esc(F.label)}">[${esc(F.label)}]</mark>` : '[' + esc(F.label) + ']';
+    });
+  }
+  // A text edit in the preview goes back to {{key}} form so later field changes still apply.
+  function unfill(html) {
+    return html.replace(/<(span|mark)\b[^>]*\bdata-k="(\w+)"[^>]*>[\s\S]*?<\/\1>/g, (_, t, k) => '{{' + k + '}}');
+  }
+  // Text edits (and anything from a shared link) are cleaned to a few safe tags before they're shown.
+  function clean(html) {
+    const t = document.createElement('template'); t.innerHTML = String(html || '');
+    const OK = { P: 1, BR: 1, STRONG: 1, B: 1, EM: 1, I: 1, U: 1, A: 1, OL: 1, UL: 1, LI: 1, SPAN: 1, MARK: 1, DIV: 1 };
+    (function walk(n) {
+      [...n.childNodes].forEach(c => {
+        if (c.nodeType === 3) return;
+        if (c.nodeType !== 1 || !OK[c.tagName]) { if (c.nodeType === 1 && !/^(SCRIPT|STYLE|IFRAME|OBJECT|EMBED|SVG|MATH)$/.test(c.tagName)) { walk(c); c.replaceWith(...c.childNodes); } else c.remove(); return; }
+        [...c.attributes].forEach(a => { if (!(c.tagName === 'A' && a.name === 'href' && /^(https?:|mailto:|\{\{\w+\}\}$)/i.test(a.value.trim()))) c.removeAttribute(a.name); });
+        if (c.tagName === 'DIV') { const p = document.createElement('p'); p.append(...c.childNodes); c.replaceWith(p); walk(p); return; }
+        walk(c);
+      });
+    })(t.content);
+    return t.innerHTML;
+  }
+
+  // ── Which items show ──
+  const T = () => TEMPLATES[S.tpl];
+  function siItems() {
+    const t = T(), out = [{ group: 'intro' }];
+    t.faqs.forEach(x => out.push(x));
+    if (S.stl) t.stl.forEach(x => out.push(Object.assign({ stl: true }, x)));
+    return out;
+  }
+  const shown = id => !S.hide[S.tpl + ':' + id];
+  const qOf = x => (S.edits[S.tpl + ':' + x.id] || {}).q ?? x.q;
+  const aOf = x => (S.edits[S.tpl + ':' + x.id] || {}).a ?? x.a;
+  const introOf = () => (S.edits[S.tpl + ':intro'] || {}).a ?? T().intro;
+  const subOf = () => (S.edits[S.tpl + ':sub'] || {}).a ?? T().sub;
+  const titleOf = () => (S.edits[S.tpl + ':title'] || {}).a ?? T().title;
+  function neededFields() {
+    const ks = T().fields.slice();
+    if (S.stl) STL_FIELDS[S.tpl].forEach(k => { if (!ks.includes(k)) ks.push(k); });
+    return ks;
+  }
+
+  // ── Render: the ShipInsure section ──
+  function siSection(mode) {
+    const t = T(), P = mode === 'preview', ed = P && !VIEW ? ' contenteditable="true"' : '';
+    const q = (x, i) => {
+      const id = x.id, isOpen = open.has(id) || S.style.icon === 'none';
+      if (!P) return `<details><summary><strong>${fill(qOf(x), 'export')}</strong></summary>\n${fill(aOf(x), 'export')}\n</details>`;
+      return `<div class="qa ${isOpen ? 'open' : ''}" data-q="${id}"><div class="q" role="button" tabindex="0"><span data-e="q:${id}"${P && !VIEW ? ' title="Double-click to edit"' : ''}>${fill(qOf(x), 'preview')}</span><span class="ic"></span></div><div class="a" data-e="a:${id}"${ed}>${fill(clean(aOf(x)), 'preview')}</div></div>`;
+    };
+    const head = S.place === 'only' ? 'h1' : 'h2';
+    let h = P ? `<${head} data-e="a:title"${ed}>${fill(titleOf(), 'preview')}</${head}>` : `<${head}>${fill(titleOf(), 'export')}</${head}>`;
+    if (subOf()) h += P ? `<h3 data-e="a:sub"${ed}>${fill(subOf(), 'preview')}</h3>` : `<h3>${fill(subOf(), 'export')}</h3>`;
+    if (shown('intro')) h += P ? `<div class="si-intro" data-e="a:intro"${ed}>${fill(clean(introOf()), 'preview')}</div>` : fill(introOf(), 'export');
+    const faqs = t.faqs.filter(x => shown(x.id));
+    if (faqs.length) h += (P ? `<h3>FAQs</h3>` : `<h3>FAQs</h3>\n`) + faqs.map(q).join('\n');
+    if (S.stl) {
+      const st = t.stl.filter(x => shown(x.id));
+      if (st.length) h += (P ? `<h2>${esc(t.stlTitle)}</h2>` : `\n<h2>${esc(t.stlTitle)}</h2>\n`) + st.map(q).join('\n');
+    }
+    return h;
+  }
+  function merchantSections() {
+    const m = S.merchant; if (!m || !(m.sections || []).length) return '';
+    return m.sections.map((sec, si) => `<section class="m-sec">${sec.heading ? `<h2>${esc(sec.heading)}</h2>` : ''}${(sec.items || []).map((it, ii) => {
+      const id = 'm' + si + '-' + ii, isOpen = open.has(id) || S.style.icon === 'none';
+      return `<div class="qa ${isOpen ? 'open' : ''}" data-q="${id}"><div class="q" role="button" tabindex="0"><span>${esc(it.q)}</span><span class="ic"></span></div><div class="a">${esc(it.a).replace(/\n{2,}/g, '</p><p>').replace(/\n/g, '<br>').replace(/^/, '<p>').replace(/$/, '</p>')}</div></div>`;
+    }).join('')}</section>`).join('');
+  }
+  function loadFonts() {
+    const fams = [S.style.fHead, S.style.fBody].filter(f => f && !/^Inherit/.test(f));
+    const href = fams.length ? 'https://fonts.googleapis.com/css2?' + [...new Set(fams)].map(f => 'family=' + encodeURIComponent(f).replace(/%20/g, '+') + ':wght@400;500;600;700').join('&') + '&display=swap' : '';
+    if ($('gf').getAttribute('href') !== href) $('gf').setAttribute('href', href);
+  }
+  const fontCss = f => !f || /^Inherit/.test(f) ? "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" : `'${f}', ${/Playfair|Cormorant|Baskerville|Lora|Merriweather|Garamond|Crimson/.test(f) ? 'Georgia, serif' : 'sans-serif'}`;
+  function render() {
+    loadFonts();
+    const st = S.style, site = $('site');
+    Object.entries({ '--f-head': fontCss(st.fHead), '--f-body': fontCss(st.fBody), '--c-head': st.cHead, '--c-text': st.cText, '--c-accent': st.cAccent, '--c-bg': st.cBg, '--c-line': st.cLine, '--q-weight': st.qWeight, '--h-align': st.hAlign, '--h-case': st.hCase, '--r': '10px' })
+      .forEach(([k, v]) => site.style.setProperty(k, v));
+    site.className = 'site ' + (VIEW ? '' : 'edit ') + st.layout + ' ic-' + st.icon;
+    const store = S.f.store || (S.merchant && S.merchant.store) || '';
+    const m = S.merchant || {};
+    const si = `<div class="si-block ${S.markSi && !VIEW ? 'mark' : ''}">${siSection('preview')}</div>`;
+    let main;
+    if (S.place === 'only') main = si;
+    else main = `<h1>${esc(m.title || 'Frequently Asked Questions')}</h1>${m.intro ? `<p class="lede">${esc(m.intro)}</p>` : ''}` +
+      (S.place === 'top' ? si + merchantSections() : merchantSections() + si) +
+      (!S.merchant && !VIEW ? `<p class="lede" style="opacity:.55;margin-top:30px;font-size:13px">The merchant’s own questions show here after 🔍 Scan FAQ page.</p>` : '');
+    site.innerHTML = `<header class="site-hd">${S.logo ? `<img src="${esc(S.logo)}" alt="${esc(store)}">` : `<b>${esc(store || 'Your Store')}</b>`}</header><div class="site-main">${main}</div><footer class="site-ft">© ${new Date().getFullYear()} ${esc(store || 'Your Store')}</footer>`;
+    $('bUrl').textContent = (S.faqUrl || (store ? store.toLowerCase().replace(/[^a-z0-9]+/g, '') + '.com/pages/faq' : 'store.com/pages/faq')).replace(/^https?:\/\//, '');
+    $('browser').classList.toggle('mobile', S.device === 'mobile');
+    document.querySelectorAll('#dev button').forEach(b => b.classList.toggle('on', b.dataset.v === S.device));
+    if (!VIEW) renderSide();
+    save();
+  }
+
+  // ── Side panel ──
+  function renderSide() {
+    $('tpl').value = S.tpl; $('stl').checked = !!S.stl; $('faqUrl').value = S.faqUrl || ''; $('markSi').checked = !!S.markSi;
+    document.querySelectorAll('#place button').forEach(b => b.classList.toggle('on', b.dataset.v === S.place));
+    $('placeHint').textContent = S.place === 'only' ? 'A standalone Package Protection page; the merchant links to it from their FAQ.' : 'Added ' + (S.place === 'top' ? 'above' : 'below') + ' the merchant’s own questions.';
+    const ks = neededFields();
+    const fl = document.activeElement && document.activeElement.dataset && document.activeElement.dataset.f;
+    if ($('fields').dataset.keys !== ks.join()) {
+      $('fields').dataset.keys = ks.join();
+      $('fields').innerHTML = ks.map(k => {
+        const F = FIELDS[k], v = S.f[k] || '';
+        const inp = F.type === 'select' ? `<select data-f="${k}">${F.opts.map(o => `<option ${o === v ? 'selected' : ''}>${o}</option>`).join('')}</select>`
+          : F.area ? `<textarea data-f="${k}" placeholder="${esc(F.ph || '')}">${esc(v)}</textarea>`
+          : `<input data-f="${k}" value="${esc(v)}" placeholder="${esc(F.ph || '')}" spellcheck="${F.url ? 'false' : 'true'}">`;
+        return `<div class="fld" data-fw="${k}"><label>${esc(F.label)}</label>${inp}${F.hint ? `<div class="hint">${esc(F.hint)}</div>` : ''}</div>`;
+      }).join('');
+    }
+    ks.forEach(k => { const w = document.querySelector(`[data-fw="${k}"]`); if (w) w.classList.toggle('empty', !FIELDS[k].optional && !isFilled(k)); });
+    const miss = ks.filter(k => !FIELDS[k].optional && !isFilled(k));
+    const badUrl = ks.filter(k => FIELDS[k].url && isFilled(k) && !goodUrl(S.f[k]));
+    $('todo').innerHTML = (miss.length ? '✏️ Still blank: ' + miss.map(k => esc(FIELDS[k].label)).join(', ') + '.' : '') + (badUrl.length ? ' Links need https:// — ' + badUrl.map(k => esc(FIELDS[k].label)).join(', ') + '.' : '');
+    const t = T();
+    const row = (id, label) => `<label><input type="checkbox" data-hide="${id}" ${shown(id) ? 'checked' : ''}> <span>${label}</span></label>`;
+    $('items').innerHTML = row('intro', 'Intro (what ShipInsure is, claim link, note)') + t.faqs.map(x => row(x.id, esc(qOf(x).replace(/<[^>]+>/g, '')))).join('') +
+      (S.stl ? `<div class="sub">${esc(t.stlTitle)}</div>` + t.stl.map(x => row(x.id, esc(qOf(x).replace(/<[^>]+>/g, '')))).join('') : '') +
+      (S.merchant ? `<div class="sub">Merchant’s questions (${(S.merchant.sections || []).reduce((n, s) => n + (s.items || []).length, 0)}, from the scan)</div>` : '');
+    const st = S.style;
+    ['fHead', 'fBody', 'cHead', 'cText', 'cAccent', 'cBg', 'cLine', 'qWeight', 'layout', 'icon', 'hAlign', 'hCase'].forEach(k => { if ($(k).value !== st[k]) $(k).value = st[k]; });
+    $('logoClear').hidden = !S.logo;
+    $('stNote').textContent = S.merchant ? 'Merchant questions from ' + (S.faqUrl || 'the scan').replace(/^https?:\/\//, '') : '';
+  }
+  ['fHead', 'fBody'].forEach(id => { $(id).innerHTML = FONTS.map(f => `<option>${f}</option>`).join(''); });
+
+  // ── Persistence: draft in this browser, #d= share link, merchant folder saves ──
+  const DRAFT = 'si_faq_draft';
+  let _saveT = 0;
+  function save() { if (VIEW) return; clearTimeout(_saveT); _saveT = setTimeout(() => { try { localStorage.setItem(DRAFT, JSON.stringify(S)); } catch (e) {} }, 300); }
+  function adopt(d) {
+    const n = Object.assign(clone(DEFAULTS), d || {});
+    n.f = Object.assign(clone(DEFAULTS.f), (d || {}).f || {});
+    n.style = Object.assign(clone(DEFAULTS.style), (d || {}).style || {});
+    if (!TEMPLATES[n.tpl]) n.tpl = 'pp';
+    if (!['top', 'bottom', 'only'].includes(n.place)) n.place = 'top';
+    if (!FONTS.includes(n.style.fHead)) n.style.fHead = FONTS[0];
+    if (!FONTS.includes(n.style.fBody)) n.style.fBody = FONTS[0];
+    Object.keys(n.edits || {}).forEach(k => { const e = n.edits[k] || {}; if (e.a != null) e.a = clean(e.a); if (e.q != null) e.q = clean(e.q).replace(/<(?!\/?(strong|b|em|i|span|mark)\b)[^>]+>/g, ''); });
+    if (n.logo && !/^(https:\/\/|data:image\/(png|jpe?g|gif|webp|svg\+xml);)/i.test(n.logo)) n.logo = '';
+    if (n.merchant && !Array.isArray(n.merchant.sections)) n.merchant = null;
+    return n;
+  }
+  const enc = o => btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+  const dec = s => JSON.parse(decodeURIComponent(escape(atob(s))));
+  function shareState() { const o = clone(S); return o; }
+  (function init() {
+    const m = location.hash.match(/[#&]d=([^&]+)/);
+    let d = null;
+    if (m) { try { d = dec(m[1]); } catch (e) {} }
+    if (!d && !VIEW) { try { d = JSON.parse(localStorage.getItem(DRAFT) || 'null'); } catch (e) {} }
+    S = adopt(d);
+    const q = new URLSearchParams(location.search);
+    if (q.get('store') && !S.f.store) S.f.store = q.get('store');
+    if (q.get('faq') && !S.faqUrl) S.faqUrl = q.get('faq');
+    if (VIEW) document.body.classList.add('view');
+  })();
+
+  // ── Side panel events ──
+  $('tpl').addEventListener('change', e => { S.tpl = e.target.value; render(); });
+  $('stl').addEventListener('change', e => { S.stl = e.target.checked; render(); });
+  $('markSi').addEventListener('change', e => { S.markSi = e.target.checked; render(); });
+  $('place').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (b) { S.place = b.dataset.v; render(); } });
+  $('dev').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (b) { S.device = b.dataset.v; render(); } });
+  $('faqUrl').addEventListener('input', e => { S.faqUrl = e.target.value.trim(); save(); });
+  $('fields').addEventListener('input', e => { const k = e.target.dataset.f; if (!k) return; S.f[k] = e.target.value; render(); });
+  $('fields').addEventListener('change', e => { const k = e.target.dataset.f; if (!k) return; S.f[k] = e.target.value; render(); });
+  $('items').addEventListener('change', e => { const id = e.target.dataset.hide; if (!id) return; const key = S.tpl + ':' + id; if (e.target.checked) delete S.hide[key]; else S.hide[key] = true; render(); });
+  ['fHead', 'fBody', 'cHead', 'cText', 'cAccent', 'cBg', 'cLine', 'qWeight', 'layout', 'icon', 'hAlign', 'hCase'].forEach(k => $(k).addEventListener('input', e => { S.style[k] = e.target.value; render(); }));
+  $('resetEdits').addEventListener('click', e => { e.preventDefault(); Object.keys(S.edits).filter(k => k.startsWith(S.tpl + ':')).forEach(k => delete S.edits[k]); render(); toast('Template text restored'); });
+  $('resetAll').addEventListener('click', () => { if (!confirm('Start over? This clears the scan, blanks, edits and look.')) return; S = clone(DEFAULTS); render(); });
+
+  // ── Preview: open/close and in-place text edits ──
+  $('site').addEventListener('click', e => {
+    if (e.target.closest('a') && !VIEW) { e.preventDefault(); return; }
+    if (e.target.closest('[contenteditable="true"]')) return;   // editing text, not opening a question
+    const q = e.target.closest('.q'); if (!q || S.style.icon === 'none') return;
+    const qa = q.closest('.qa'), id = qa.dataset.q;
+    open.has(id) ? open.delete(id) : open.add(id); qa.classList.toggle('open');
+  });
+  $('site').addEventListener('keydown', e => {
+    const q = e.target.closest && e.target.closest('.q');
+    if (q && e.target === q && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); q.click(); }
+  });
+  // A question's text is edited on double-click, so a single click still opens and closes it.
+  $('site').addEventListener('dblclick', e => {
+    const el = !VIEW && e.target.closest && e.target.closest('.si-block .q [data-e]'); if (!el) return;
+    el.setAttribute('contenteditable', 'true'); el.focus();
+    const r = document.createRange(); r.selectNodeContents(el); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+  });
+  $('site').addEventListener('focusout', e => {
+    const el = e.target.closest && e.target.closest('[data-e]'); if (!el || VIEW) return;
+    const [part, id] = el.dataset.e.split(':'), key = S.tpl + ':' + id;
+    if (part === 'q') el.removeAttribute('contenteditable');
+    const html = clean(unfill(el.innerHTML)).trim();
+    const item = [...T().faqs, ...T().stl].find(x => x.id === id);
+    const orig = part === 'q' ? item && item.q : id === 'intro' ? T().intro : id === 'sub' ? T().sub : id === 'title' ? T().title : item && item.a;
+    const norm = s => String(s || '').replace(/\s+/g, ' ').replace(/> </g, '><').trim();
+    const cur = S.edits[key] || {};
+    if (norm(html) === norm(part === 'q' ? qOf(item || {}) : (cur.a ?? orig))) return;
+    if (part === 'q') cur.q = html.replace(/<[^>]+>/g, m => /^<\/?(strong|b|em|i)>$/i.test(m) ? m : ''); else cur.a = html;
+    if (norm(cur.q ?? (item && item.q)) === norm(item && item.q)) delete cur.q;
+    if (cur.a != null && norm(cur.a) === norm(orig)) delete cur.a;
+    if (cur.q == null && cur.a == null) delete S.edits[key]; else S.edits[key] = cur;
+    save(); renderSide();
+  });
+  $('site').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.closest && e.target.closest('.q [data-e]')) { e.preventDefault(); e.target.blur(); } });
+
+  // ── Logo ──
+  function readImage(file, maxW, cb) {
+    const r = new FileReader();
+    r.onload = ev => { const img = new Image(); img.onload = () => {
+      const k = Math.min(1, maxW / img.width), c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); cb(c.toDataURL(file.type === 'image/jpeg' ? 'image/jpeg' : 'image/png', 0.85), c);
+    }; img.src = ev.target.result; };
+    r.readAsDataURL(file);
+  }
+  $('logoBtn').addEventListener('click', () => $('logoIn').click());
+  $('logoIn').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (f) readImage(f, 400, url => { S.logo = url; render(); }); });
+  $('logoClear').addEventListener('click', () => { S.logo = ''; render(); });
+
+  // ── Screenshot for the style scan ──
+  let _shot = null;   // { b64, type } — memory only
+  function setShot(file) {
+    readImage(file, 1400, (url) => { _shot = { type: url.slice(5, url.indexOf(';')), b64: url.split(',')[1] }; $('shot').innerHTML = `<img src="${url}" alt="">Screenshot ready · <a href="#" id="shotX">remove</a>`; });
+  }
+  $('shot').addEventListener('click', e => { if (e.target.id === 'shotX') { e.preventDefault(); _shot = null; $('shot').textContent = '📸 Optional: paste or pick a screenshot of the FAQ page so the scan matches its fonts and colors too'; return; } $('shotIn').click(); });
+  $('shotIn').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (f) setShot(f); });
+  document.addEventListener('paste', e => {
+    if (VIEW || (e.target.closest && e.target.closest('[contenteditable="true"], input, textarea'))) return;
+    const it = [...(e.clipboardData || {}).items || []].find(i => i.type.startsWith('image/'));
+    if (it) { e.preventDefault(); setShot(it.getAsFile()); }
+  });
+
+  // ── Claude: read the FAQ page (server-side web fetch) and, with a screenshot, its look ──
+  const SB_FN = 'https://oiljklutlmtztascnkpm.supabase.co/functions/v1/';
+  let _claudeTok = null;
+  async function claudeHeaders() {
+    if (!window.SIsb) throw new Error('Sign-in isn’t available on this page.');
+    const c = await SIsb.client();
+    let s = ((await c.auth.getSession()).data || {}).session;
+    if (!s) throw new Error('Sign in from the folder bar at the top to scan.');
+    if (!(_claudeTok && _claudeTok.user === s.user.id && _claudeTok.exp > Date.now() + 60000)) {
+      const ask = jwt => fetch(SB_FN + 'anthropic-token', { method: 'POST', headers: { authorization: 'Bearer ' + jwt } }).then(async r => ({ ok: r.ok, status: r.status, j: await r.json().catch(() => ({})) }));
+      let r = await ask(s.access_token);
+      if (!r.ok && r.status === 401) { s = ((await c.auth.refreshSession()).data || {}).session; if (s) r = await ask(s.access_token); }
+      if (!r.ok || !r.j.access_token) throw new Error('Your sign-in couldn’t get Claude access (' + (r.j.error || 'HTTP ' + r.status) + ').');
+      _claudeTok = { token: r.j.access_token, exp: Date.now() + (r.j.expires_in || 600) * 1000, user: s.user.id };
+    }
+    return { 'anthropic-version': '2023-06-01', 'content-type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true', authorization: 'Bearer ' + _claudeTok.token };
+  }
+  function scanSay(m, warn) { $('scanMsg').textContent = m || ''; $('scanMsg').classList.toggle('warn', !!warn); }
+  function pageUrl(v) {
+    v = String(v || '').trim(); if (!v) return '';
+    if (!/^https?:\/\//i.test(v)) v = 'https://' + v;
+    try { const u = new URL(v); return /\./.test(u.hostname) ? u.toString() : ''; } catch (e) { return ''; }
+  }
+  async function scan() {
+    const url = pageUrl($('faqUrl').value);
+    if (!url) { scanSay('Paste the merchant’s FAQ page link first.', true); $('faqUrl').focus(); return; }
+    S.faqUrl = url; $('faqUrl').value = url;
+    const btn = $('scanBtn'); btn.disabled = true; btn.textContent = 'Scanning…';
+    scanSay('Claude is reading ' + url.replace(/^https?:\/\//, '') + (_shot ? ' and the screenshot' : '') + '… (about 20–40 seconds)');
+    try {
+      const host = new URL(url).hostname.replace(/^www\./, '');
+      const styleAsk = _shot
+        ? '\n\nThe screenshot shows how the FAQ page looks. From it, also return "style": {"headingFont": closest of [' + FONTS.slice(1).join(', ') + '] or "Inherit (system)", "bodyFont": same list, "headingColor": "#hex", "textColor": "#hex", "linkColor": "#hex", "background": "#hex", "dividerColor": "#hex", "questionWeight": 400|500|600|700, "layout": "lines"|"boxed"|"plain", "icon": "plus"|"chevron"|"none" (none = answers always shown), "titleAlign": "center"|"left", "headingCase": "none"|"uppercase"}.'
+        : '';
+      const text = 'Fetch ' + url + ' — an online store’s FAQ page. A ShipInsure sales rep is mocking up how the store’s FAQ would look with ShipInsure shipping-protection questions added.' +
+        '\n\nReturn ONLY JSON, no markdown: {"store":"store name","title":"the page’s main heading","intro":"the short intro under the heading, or empty","sections":[{"heading":"section heading or empty","items":[{"q":"question","a":"answer as plain text"}]}],"unprotected":"what the page says customers should do about a lost, stolen or damaged order (who to contact, carrier claims), as one short clause that could follow “If your order does not have package protection, ”, or empty","protection":"any shipping/package protection provider the page already mentions, or empty"}' +
+        '\n\nKeep the page’s sections and question order. Copy questions exactly; keep answers faithful but trim each to at most 450 characters. At most 8 sections and 40 questions in all. If the page has no FAQ content, return empty sections.' + styleAsk;
+      const content = _shot ? [{ type: 'image', source: { type: 'base64', media_type: _shot.type, data: _shot.b64 } }, { type: 'text', text }] : text;
+      const body = { model: 'claude-sonnet-5-5', max_tokens: 12000, tools: [{ type: 'web_fetch_20260209', name: 'web_fetch', max_uses: 2, allowed_domains: [host] }], messages: [{ role: 'user', content }] };
+      let data;
+      for (let turn = 0; turn < 4; turn++) {   // a long server-tool turn can pause; send it back to continue
+        const r = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: await claudeHeaders(), body: JSON.stringify(body) });
+        if (!r.ok) { const e = await r.json().catch(() => ({})); if (r.status === 401) _claudeTok = null; throw new Error((e.error && e.error.message) || 'HTTP ' + r.status); }
+        data = await r.json();
+        if (data.stop_reason !== 'pause_turn') break;
+        body.messages = body.messages.concat([{ role: 'assistant', content: data.content }]);
+      }
+      if (data.stop_reason === 'refusal') throw new Error('Claude declined to read that page.');
+      const fetchErr = (data.content || []).find(b => b.type === 'web_fetch_tool_result' && b.content && b.content.error_code);
+      const raw = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+      let j; try { j = JSON.parse(raw.slice(raw.indexOf('{'), raw.lastIndexOf('}') + 1)); } catch (e) { j = null; }
+      if (!j) throw new Error(fetchErr ? 'the site blocked the page fetch (' + fetchErr.content.error_code + ')' : 'Claude’s answer wasn’t readable');
+      const str = (v, n) => String(v || '').trim().slice(0, n);
+      const sections = (Array.isArray(j.sections) ? j.sections : []).slice(0, 8).map(s => ({ heading: str(s.heading, 120), items: (Array.isArray(s.items) ? s.items : []).map(i => ({ q: str(i.q, 300), a: str(i.a, 900) })).filter(i => i.q) })).filter(s => s.items.length);
+      S.merchant = { store: str(j.store, 80), title: str(j.title, 140), intro: str(j.intro, 400), sections };
+      if (!S.f.store && S.merchant.store) S.f.store = S.merchant.store;
+      if (!S.f.unprotected && j.unprotected) S.f.unprotected = str(j.unprotected, 400).replace(/^[,\s]+/, '');
+      const sty = j.style || {}, hex = v => /^#[0-9a-f]{6}$/i.test(v || '') ? v : null, pickF = f => FONTS.includes(f) ? f : null;
+      if (_shot && j.style) Object.assign(S.style, Object.fromEntries(Object.entries({
+        fHead: pickF(sty.headingFont), fBody: pickF(sty.bodyFont), cHead: hex(sty.headingColor), cText: hex(sty.textColor), cAccent: hex(sty.linkColor), cBg: hex(sty.background), cLine: hex(sty.dividerColor),
+        qWeight: [400, 500, 600, 700].includes(+sty.questionWeight) ? String(+sty.questionWeight) : null,
+        layout: ['lines', 'boxed', 'plain'].includes(sty.layout) ? sty.layout : null, icon: ['plus', 'chevron', 'none'].includes(sty.icon) ? sty.icon : null,
+        hAlign: ['center', 'left'].includes(sty.titleAlign) ? sty.titleAlign : null, hCase: ['none', 'uppercase'].includes(sty.headingCase) ? sty.headingCase : null
+      }).filter(([, v]) => v)));
+      const n = sections.reduce((a, s) => a + s.items.length, 0);
+      render();
+      scanSay(n ? 'Found ' + n + ' questions in ' + sections.length + ' section' + (sections.length > 1 ? 's' : '') + '.' + (_shot && j.style ? ' Look matched from the screenshot.' : ' Add a screenshot to match fonts and colors too.') + (j.protection ? ' Heads up: the page already mentions “' + str(j.protection, 60) + '”.' : '')
+        : 'No FAQ questions found on that page. Check the link (it should be the FAQ page itself).', !n || !!j.protection);
+    } catch (e) {
+      scanSay('Couldn’t scan: ' + (e.message || e), true);
+    } finally { btn.disabled = false; btn.textContent = '🔍 Scan FAQ page'; }
+  }
+  $('scanBtn').addEventListener('click', scan);
+  $('faqUrl').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); scan(); } });
+
+  // ── Copy out ──
+  function exportHtml() {
+    const blanks = neededFields().filter(k => !FIELDS[k].optional && !isFilled(k));
+    const html = '<div class="shipinsure-faq">\n' + siSection('export').replace(/\n\s+/g, '\n') + '\n</div>';
+    return { html, blanks };
+  }
+  $('copyHtml').addEventListener('click', async () => {
+    const { html, blanks } = exportHtml();
+    if (blanks.length && !confirm('Still blank: ' + blanks.map(k => FIELDS[k].label).join(', ') + '.\nCopy anyway? Blanks show as [Label].')) return;
+    try {
+      if (window.ClipboardItem) await navigator.clipboard.write([new ClipboardItem({ 'text/plain': new Blob([html], { type: 'text/plain' }) })]);
+      else await navigator.clipboard.writeText(html);
+      toast('HTML copied. In Shopify: Pages → FAQ → Show HTML (</>) and paste.');
+    } catch (e) { toast('Couldn’t copy'); }
+  });
+  $('copyText').addEventListener('click', async () => {
+    const { html } = exportHtml();
+    const t = document.createElement('div'); t.innerHTML = html.replace(/<\/(p|h\d|li|summary|details)>/g, '$&\n').replace(/<li>/g, '<li>• ');
+    try {
+      const plain = t.innerText.replace(/\n{3,}/g, '\n\n').trim();
+      if (window.ClipboardItem) await navigator.clipboard.write([new ClipboardItem({ 'text/html': new Blob([html], { type: 'text/html' }), 'text/plain': new Blob([plain], { type: 'text/plain' }) })]);
+      else await navigator.clipboard.writeText(plain);
+      toast('Copied (paste into a doc or email keeps the formatting)');
+    } catch (e) { toast('Couldn’t copy'); }
+  });
+  window.faqPreviewLink = () => { const u = new URL(location.href); u.search = ''; u.searchParams.set('view', '1'); u.hash = 'd=' + enc(shareState()); return u.toString(); };
+  $('copyLink').addEventListener('click', () => {
+    const url = faqPreviewLink();
+    navigator.clipboard.writeText(url).then(() => toast(url.length > 200000 ? 'Preview link copied (large: includes the logo image)' : 'Preview link copied'), () => toast('Couldn’t copy'));
+  });
+
+  // ── Merchant folder: branding + store URL, and saves ──
+  function folderBrand(m) {
+    const cb = (m.cb || {}).branding || {}, b = (m.bld || {}).branding || {};
+    const hex = v => /^#?[0-9a-f]{6}$/i.test(String(v || '').trim()) ? '#' + String(v).trim().replace('#', '') : '';
+    return { name: m.name || '', logo: m.logo_path || b.logoUrl || cb.logoUrl || '', accent: hex(b.accent || cb.accentHex), font: b.hdrFont || b.font || cb.hdrFont || cb.font || '', domain: m.domain || '' };
+  }
+  async function folderSync() {
+    const a = !VIEW && window.SIsb && SIsb.getActiveFolder();
+    $('brandBtn').hidden = !a;
+    if (!a) return;
+    $('brandBtn').textContent = '📁 Use ' + a.name + ' branding';
+    try {
+      const m = await SIsb.getMerchant(a.id), f = folderBrand(m || {});
+      let changed = false;
+      if (!S.f.store && f.name) { S.f.store = f.name; changed = true; }
+      if (!S.faqUrl && f.domain) { S.faqUrl = 'https://' + String(f.domain).replace(/^https?:\/\//, '').replace(/\/.*$/, '') + '/pages/faq'; changed = true; }
+      if (changed) render();
+    } catch (e) {}
+  }
+  $('brandBtn').addEventListener('click', async () => {
+    const a = SIsb.getActiveFolder(); if (!a) return;
+    try {
+      const f = folderBrand(await SIsb.getMerchant(a.id) || {});
+      const got = [];
+      if (f.logo) { S.logo = f.logo; got.push('logo'); }
+      if (f.accent) { S.style.cAccent = f.accent; got.push('link color'); }
+      if (f.font && FONTS.includes(f.font)) { S.style.fHead = f.font; got.push('heading font'); }
+      if (f.name) { S.f.store = f.name; got.push('store name'); }
+      render(); toast(got.length ? 'Used ' + got.join(', ') : 'No branding saved in that folder yet');
+    } catch (e) { toast('Couldn’t load: ' + (e.message || e)); }
+  });
+  if (window.SIsb && !VIEW) {
+    // Saves file under merchant_assets kind 'faq' (needs si-rep-hub/faq-kind.sql on the database;
+    // sb.js gets the kind here until its own list has it).
+    if (Array.isArray(SIsb.ASSET_KINDS) && SIsb.ASSET_KINDS.indexOf('faq') < 0) SIsb.ASSET_KINDS.push('faq');
+    SIsb.onActiveFolder(folderSync); folderSync();
+  }
+  if (!VIEW && window.SIFolderBar) SIFolderBar.mount({
+    kind: 'faq', tool: 'FAQ', before: $('app'),
+    getData: () => clone(S),
+    applyData: d => { S = adopt(d); open.clear(); render(); },
+    defaultTitle: () => 'FAQ – ' + (S.f.store || 'Merchant')
+  });
+
+  // ── Rep Hub theme hand-off ──
+  const setTheme = t => document.body.classList.toggle('pm', t === 'midnight');
+  setTheme(new URLSearchParams(location.search).get('theme'));
+  window.addEventListener('message', e => { const d = e.data || {}; if (d.siHub === 'apply' && d.theme) setTheme(d.theme); });
+
+  render();
+</script>
+</body>
+</html>
