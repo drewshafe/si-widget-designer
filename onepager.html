@@ -13,8 +13,8 @@
 <script src="https://drewshafe.github.io/si-rep-hub/folder-bar.js"></script>
 <style>
   /* One-Pager ("Deal Doc") — the Post-Meeting One-Pager canvas as fill-in pages.
-     Two templates: the Meeting recap master (8 audiences, header / imagery / section tweaks) and the
-     Draft-order guide (Sales team / Store leads / Support team). One US Letter page (816×1056 px),
+     Three templates: the Meeting recap master (8 audiences, header / imagery / section tweaks), the
+     Draft-order guide (Sales team / Store leads / Support team) and Gifted coverage (concierge and repair drafts). One US Letter page (816×1056 px),
      every text editable in place, exported with print → Save as PDF (exactly one page). */
   * { margin:0; padding:0; box-sizing:border-box; }
   [hidden] { display:none !important; }
@@ -144,6 +144,25 @@
   .t-guide footer { margin:0 56px; padding:18px 0 32px; border-top:1px solid #E1E1EC; display:flex; justify-content:space-between; align-items:center; gap:16px; font-size:13px; color:#4A4960; }
   .pg-rep { font-weight:700; color:#17152B; }
   .pg-site { font-weight:700; color:var(--ac); white-space:nowrap; }
+  /* Gifted coverage (JacquesMarieMage-DraftOrders.dc.html): the guide's frame, a little roomier */
+  .t-gift header { padding:38px 56px 34px; gap:18px; }
+  .t-gift .pg-tt { gap:10px; }
+  .t-gift .pg-tt h1 { line-height:1.2; }
+  .t-gift .pg-tt p { font-size:17px; line-height:1.5; }
+  .t-gift main { gap:30px; padding:36px 56px 0; min-height:0; }
+  .gf-next { display:flex; flex-direction:column; gap:5px; background:#F3F3FC; border-radius:10px; padding:18px 22px; border-left:4px solid var(--ac); }
+  .gf-next .gf-nt { font-size:14.5px; line-height:1.5; color:#30304A; }
+  .t-gift .pg-tp { gap:16px; }
+  .t-gift .pg-lead { line-height:1.4; }
+  .t-gift .pg-cards { gap:14px; }
+  .t-gift .pg-card { padding:16px 18px; gap:7px; }
+  .t-gift .pg-ct { font-size:15px; }
+  .t-gift .pg-cb { line-height:1.5; }
+  .t-gift .pg-st { line-height:1.4; }
+  .t-gift aside { padding:22px; gap:4px; }
+  .t-gift aside > .pg-lbl { padding-bottom:10px; }
+  .t-gift .pg-rule { padding-top:13px; }
+  .t-gift footer { padding:18px 0 28px; }
 
   /* ── Meeting recap (Recap.dc.html master) ── */
   /* Spacing a few px tighter than the master (32/30 header, 28/32 main, 16/18/12 aside): at the master's values its
@@ -162,6 +181,10 @@
   .rc-pill { font-size:12px; font-weight:600; padding:5px 11px; border:1px solid var(--hdv); border-radius:999px; color:var(--hs); white-space:nowrap; }
   .rc-hero { display:block; flex:none; height:auto; }
   .rc-banner { display:block; width:100%; object-fit:cover; flex:none; }
+  /* Banner behind the header (the master's layout): the image fills the header, text turns white over it */
+  .t-recap header.bg { position:relative; overflow:hidden; --ht:#FFFFFF; --hs:#FFFFFF; --hdv:rgba(255,255,255,.55); }
+  .t-recap header.bg > :not(.rc-bgimg) { position:relative; }
+  .rc-bgimg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
   .t-recap main { flex:1; min-height:0; display:grid; grid-template-columns:minmax(0, 1fr) 236px; gap:28px; align-items:start; padding:24px 56px 24px; }
   .rc-col { display:flex; flex-direction:column; gap:26px; min-width:0; }
   .rc-sec { display:flex; flex-direction:column; gap:12px; }
@@ -343,6 +366,7 @@
       <div class="seg big" id="tplSeg">
         <button type="button" data-tpl="recap">Meeting recap</button>
         <button type="button" data-tpl="guide">Draft-order guide</button>
+        <button type="button" data-tpl="gift">Gifted coverage</button>
       </div>
     </div>
 
@@ -354,6 +378,12 @@
         <div class="fld"><label for="rType">Meeting</label><select id="rType" data-r="meetingType"></select></div>
         <div class="fld"><label for="rDate">Date</label><input id="rDate" type="date"></div>
       </div>
+    </div>
+
+    <!-- Gifted coverage: who it's for -->
+    <div class="grp" data-only="gift">
+      <span class="lbl">Version</span>
+      <div class="fld"><label for="f-contactName">Who it's for</label><input id="f-contactName" data-b="contactName" placeholder="Name, title" autocomplete="off"></div>
     </div>
 
     <!-- Draft-order guide: audience -->
@@ -407,6 +437,7 @@
         <div class="fld" data-if="hero"><label for="rHeroSize">Hero size <b data-v="heroSize"></b></label><input id="rHeroSize" type="range" min="40" max="200" step="4" data-r="heroSize"></div>
         <div class="fld"><label for="rBanner">Banner</label><select id="rBanner" data-r="banner"></select></div>
         <div data-if="banner" style="display:flex;flex-direction:column;gap:10px">
+          <div class="fld"><label for="rBannerAt">Placement</label><select id="rBannerAt" data-r="bannerAt"><option>Behind header</option><option>Below header</option></select></div>
           <div class="fld"><label for="rBannerH">Banner height <b data-v="bannerH"></b></label><input id="rBannerH" type="range" min="80" max="320" step="4" data-r="bannerH"></div>
           <div class="row">
             <div class="fld"><label for="rFocus">Focus</label><select id="rFocus" data-r="bannerFocus"><option>Top</option><option>Center</option><option>Bottom</option></select></div>
@@ -474,7 +505,7 @@
       <div class="fld"><label for="f-escalation">Escalation contact</label><input id="f-escalation" data-b="escalation" placeholder="Name or email for unconverted drafts" autocomplete="off"></div>
     </div>
 
-    <div class="grp" id="logoGrp" data-only="guide" hidden>
+    <div class="grp" id="logoGrp" data-only="guide gift" hidden>
       <label class="chk"><input type="checkbox" id="showLogo"> Merchant logo in the header</label>
     </div>
 
@@ -504,8 +535,9 @@
   if (window.SIsb && Array.isArray(SIsb.ASSET_KINDS) && SIsb.ASSET_KINDS.indexOf('onepager') < 0) SIsb.ASSET_KINDS.push('onepager');
 
   const ASSET = 'onepager-assets/';
-  const DEF_ACCENT = { recap: '#4652E6', guide: '#4F46E5' };
-  const SWATCHES = { recap: ['#4652E6', '#15123B', '#0F766E', '#B45309'], guide: ['#4F46E5', '#2563EB', '#0F766E', '#15123B'] };
+  const DEF_ACCENT = { recap: '#4652E6', guide: '#4F46E5', gift: '#4F46E5' };
+  const SWATCHES = { recap: ['#4652E6', '#15123B', '#0F766E', '#B45309'], guide: ['#4F46E5', '#2563EB', '#0F766E', '#15123B'], gift: ['#4F46E5', '#2563EB', '#0F766E', '#15123B'] };
+  const TPL_NAME = { recap: 'Meeting recap', guide: 'Draft-order guide', gift: 'Gifted coverage' };
   const AUD = { sales: 'Sales team', leads: 'Store leads', support: 'Support team' };
   const EX_SKU = { code: 'SI_LEVEL_0-100', label: '$0–$100 orders' };
 
@@ -515,19 +547,32 @@
     siHBW: ASSET + 'si-horizontal-blue-white.png', siHB: ASSET + 'si-horizontal-blue.png', siHK: ASSET + 'si-horizontal-black.png',
     siVBW: ASSET + 'si-vertical-blue-white.png', siVB: ASSET + 'si-vertical-blue.png',
     mBlue: ASSET + 'si-mark-blue.png', mBlack: ASSET + 'si-mark-black.png', mLight: ASSET + 'si-mark-light.png', mTile: ASSET + 'si-mark-blue-tile.png',
-    bBlue: ASSET + 'si-banner-blue.jpg', bBlack: ASSET + 'si-banner-black.jpg'
+    bBlue: ASSET + 'si-banner-blue.jpg', bBlack: ASSET + 'si-banner-black.jpg',
+    // Brand folder uploads on the design canvas (Logos / Hero Images / Banner Images)
+    nHB: ASSET + 'si2-logo-h-blue.png', nHBW: ASSET + 'si2-logo-h-blue-white.png', nHG: ASSET + 'si2-logo-h-grey.png',
+    nHD: ASSET + 'si2-logo-h-dark.png', nHK: ASSET + 'si2-logo-h-black.png',
+    nVB: ASSET + 'si2-logo-v-blue.png', nVBW: ASSET + 'si2-logo-v-blue-white.png', nVG: ASSET + 'si2-logo-v-grey.png', nVD: ASSET + 'si2-logo-v-dark.png',
+    nHero1: ASSET + 'si2-hero-1.png', nHero11: ASSET + 'si2-hero-1-1.png', nHeroBlack: ASSET + 'si2-hero-black.png', nHeroGrey: ASSET + 'si2-hero-grey.png',
+    nBanner1: ASSET + 'si2-banner-1.jpg', nBanner2: ASSET + 'si2-banner-2.jpg'
   };
   const THEMES = {
     Dark:  { bg: '#15123B', text: '#FFFFFF', sub: '#D5D6F5', border: '#15123B', divider: '#5B58A8', logo: IMG.siHBW, plate: true, dark: true },
     Black: { bg: '#0B0B10', text: '#FFFFFF', sub: '#D4D4DE', border: '#0B0B10', divider: '#4A4A58', logo: IMG.siHBW, plate: true, dark: true },
     Light: { bg: '#FFFFFF', text: '#17152B', sub: '#4A4960', border: '#E1E1EC', divider: '#C9C9DA', logo: IMG.siHB, plate: false, dark: false }
   };
+  // Pickers follow the master (Recap.dc.html). Older names still resolve for saved pages and show in the
+  // picker only while a page uses one (LEGACY_*).
   const LOGOS = {
-    'Auto': null, 'Horizontal · blue/white': IMG.siHBW, 'Horizontal · blue': IMG.siHB, 'Horizontal · black': IMG.siHK,
-    'Vertical · blue/white': IMG.siVBW, 'Vertical · blue': IMG.siVB, 'Mark · blue': IMG.mBlue, 'Mark · black': IMG.mBlack, 'Mark · light': IMG.mLight
+    'Auto': null, 'Horizontal · blue': IMG.nHB, 'Horizontal · blue/white': IMG.nHBW, 'Horizontal · light grey': IMG.nHG,
+    'Horizontal · dark': IMG.nHD, 'Horizontal · black': IMG.nHK,
+    'Vertical · blue': IMG.nVB, 'Vertical · blue/white': IMG.nVBW, 'Vertical · light grey': IMG.nVG, 'Vertical · dark': IMG.nVD
   };
-  const HEROES = { 'None': null, 'Box · blue': IMG.mBlue, 'Box · black': IMG.mBlack, 'Box · light': IMG.mLight, 'Box · blue tile': IMG.mTile };
-  const BANNERS = { 'None': null, 'ShipInsure · blue': IMG.bBlue, 'ShipInsure · black': IMG.bBlack, 'Merchant banner': 'merchant' };
+  const LEGACY_LOGOS = { 'Mark · blue': IMG.mBlue, 'Mark · black': IMG.mBlack, 'Mark · light': IMG.mLight };
+  const HEROES = { 'None': null, 'Blue (hero_1)': IMG.nHero1, 'Tile (hero_1.1)': IMG.nHero11, 'Black (hero_black)': IMG.nHeroBlack, 'Light grey (hero_lightgrey)': IMG.nHeroGrey };
+  const LEGACY_HEROES = { 'Box · blue': IMG.mBlue, 'Box · black': IMG.mBlack, 'Box · light': IMG.mLight, 'Box · blue tile': IMG.mTile };
+  const BANNERS = { 'None': null, 'banner_1': IMG.nBanner1, 'banner_2': IMG.nBanner2, 'ShipInsure · blue': IMG.bBlue, 'ShipInsure · black': IMG.bBlack, 'Merchant banner': 'merchant' };
+  const pick = (map, legacy, v) => map[v] !== undefined ? map[v] : legacy[v];
+  const pickList = (map, legacy, v) => Object.keys(map).concat(legacy[v] ? [v] : []);
   const FOCUS = { Top: 'center top', Center: 'center center', Bottom: 'center bottom' };
   // Section blocks (header + banner are not blocks: they have their own panels)
   const BLK = {
@@ -636,6 +681,27 @@
     }
   };
 
+  // ═════ Gifted coverage (JacquesMarieMage-DraftOrders.dc.html) ═════
+  // "[…]" = a blank the rep fills in from the call (orange chip, prints empty).
+  COPY.gift = {
+    eye: 'ShipInsure ×', pill: 'For:',
+    title: 'Gifted coverage: concierge & repairs', sub: 'Zero cost. Zero customer friction.',
+    nextLabel: 'Next step', next: '[What happens next, and when you reconnect]',
+    covLabel: 'What this covers', lead: 'Add it to any draft order. Customer pays nothing.',
+    c1t: 'Gifted coverage', c1b: 'Same claims flow. Just gifted wording — no payment made.',
+    c2t: 'Proactive reships', c2b: 'Reships auto-reprotect. Address mismatches get flagged first.',
+    c3t: '90-day guarantee', c3b: 'Damage, defects, wrong items — stacks on your warranty.',
+    stepsLabel: 'How it works', stepsCount: '4 steps',
+    s1: 'Build the draft — concierge sale or repair.', s2: 'Add ShipInsure as a $0 gifted line.',
+    s3: 'Convert the draft — gifted email sends itself.', s4: 'Nothing’s live until you sign off on preview.',
+    stackLabel: 'Your stack, today',
+    k1t: '[Ecommerce platform]', k1b: '[Plan or upcoming change from the call]',
+    k2t: '[Helpdesk]', k2b: '[Tool and timing from the call]',
+    k3t: '[Email / SMS]', k3b: 'Claim links auto-auth, no ShipInsure email needed.',
+    k4t: '[Returns]', k4b: '[Today, and what’s next]',
+    footQ: 'Questions? Message', site: 'shipinsure.io'
+  };
+
   // ROI calculator presets (si-roi-calculator index.html pricingTemplates) for SKU bands + pricing text.
   const CALC_TIERS = {
     f_150: [{ min: 0, max: 1000, premium: 1.50 }], f_175: [{ min: 0, max: 2000, premium: 1.75 }], f_195: [{ min: 0, max: 2000, premium: 1.95 }],
@@ -668,10 +734,10 @@
   // ── State ──
   const blankR = () => ({
     audience: 'Founder / Exec', meetingType: 'Discovery call', headerStyle: 'Dark', siLogo: 'Auto', siLogoH: 30,
-    showMerchantLogo: true, merchantLogoH: 34, plate: 'Auto', hero: 'Box · blue', heroSize: 96,
+    showMerchantLogo: true, merchantLogoH: 34, plate: 'Auto', hero: 'Blue (hero_1)', heroSize: 96,
     // No banner by default (a rep can still pick one under Imagery). When one is on: 120px, the live recaps'
     // height (at the master's 150px the right column runs 19px past the page).
-    banner: 'None', bannerH: 120, bannerFocus: 'Center', merchantBanner: '',
+    banner: 'None', bannerH: 120, bannerFocus: 'Center', merchantBanner: '', bannerAt: 'Behind header',
     sections: { heard: null, lens: true, econ: false, fit: false, steps: true, program: true, details: true, contact: true }, heardN: 3, stepsN: 3,
     // Blocks: which column each sits in (top to bottom), and each one's style / Liquid glass
     order: { left: BCOL.left.slice(), right: BCOL.right.slice() }, blk: {}
@@ -688,15 +754,18 @@
     merchant: '', repName: '', repEmail: '', logo: '', showLogo: true, meetingDate: todayStr(),
     accent: DEF_ACCENT.recap, accentSet: false, brandAccent: '',
     skuCode: EX_SKU.code, skuLabel: EX_SKU.label, band: 'ex', bands: [], pricing: null, econ: null,
-    claimsLink: '', escalation: '',
-    copy: { sales: {}, leads: {}, support: {}, shared: {}, recap: {} }, src: {}, r: blankR()
+    claimsLink: '', escalation: '', contactName: '',
+    copy: { sales: {}, leads: {}, support: {}, shared: {}, recap: {}, gift: {} }, src: {}, r: blankR()
   });
   function hydrate(d) {
     const S = Object.assign(blank(), d || {});
     // Saves and drafts from before the recap template are draft-order guides.
     if (d && !d.template) { S.template = 'guide'; if (!d.meetingDate) S.meetingDate = todayStr(); }
-    S.copy = Object.assign({ sales: {}, leads: {}, support: {}, shared: {}, recap: {} }, (d && d.copy) || {});
+    if (!DEF_ACCENT[S.template]) S.template = 'recap';
+    S.copy = Object.assign({ sales: {}, leads: {}, support: {}, shared: {}, recap: {}, gift: {} }, (d && d.copy) || {});
     S.r = Object.assign(blankR(), (d && d.r) || {});
+    // Pages saved before the banner could sit behind the header keep it below.
+    if (d && d.r && d.r.bannerAt == null) S.r.bannerAt = 'Below header';
     S.r.sections = Object.assign(blankR().sections, ((d && d.r) || {}).sections || {});
     S.r.order = normOrder(S.r.order);
     S.r.blk = (S.r.blk && typeof S.r.blk === 'object') ? S.r.blk : {};
@@ -909,6 +978,30 @@
       '<footer><div>' + E('shared', 'footQ') + '&nbsp;' + B('repName', 'pg-rep', 'Your name') + ' · ' + B('repEmail', '', 'you@shipinsure.io') + '</div>' + E('shared', 'site', 'div', 'pg-site') + '</footer>';
   }
 
+  function renderGift() {
+    const g = 'gift';
+    const card = i => '<div class="pg-card">' + E(g, 'c' + i + 't', 'div', 'pg-ct') + E(g, 'c' + i + 'b', 'div', 'pg-cb') + '</div>';
+    const step = n => '<li><div class="pg-n">' + n + '</div><div class="pg-sb">' + E(g, 's' + n, 'div', 'pg-st') + '</div></li>';
+    const row = i => '<div class="pg-rule">' + E(g, 'k' + i + 't', 'div', 'pg-rt') + E(g, 'k' + i + 'b', 'div', 'pg-rb') + '</div>';
+    const logo = S.logo && S.showLogo ? '<div class="pg-logo"><img alt="" src="' + esc(S.logo) + '"></div>' : '';
+    page.className = 'op-page t-guide t-gift';
+    page.innerHTML =
+      '<header class="dk">' +
+        '<div class="pg-top"><div class="pg-brand">' + logo + '<div class="pg-eye">' + E(g, 'eye') + ' ' + B('merchant', '', 'Merchant') + '</div></div>' +
+          '<div class="pg-pill">' + E(g, 'pill') + ' ' + B('contactName', '', 'Name, title') + '</div></div>' +
+        '<div class="pg-tt">' + E(g, 'title', 'h1') + E(g, 'sub', 'p') + '</div>' +
+      '</header>' +
+      '<main>' +
+        '<div class="gf-next">' + E(g, 'nextLabel', 'div', 'pg-lbl') + E(g, 'next', 'div', 'gf-nt') + '</div>' +
+        '<section class="pg-tp">' + E(g, 'covLabel', 'div', 'pg-lbl') + E(g, 'lead', 'p', 'pg-lead') + '<div class="pg-cards">' + card(1) + card(2) + card(3) + '</div></section>' +
+        '<div class="pg-grid">' +
+          '<section class="pg-steps"><div class="pg-sh">' + E(g, 'stepsLabel', 'div', 'pg-lbl') + E(g, 'stepsCount', 'div', 'pg-cnt') + '</div><ol>' + step(1) + step(2) + step(3) + step(4) + '</ol></section>' +
+          '<aside>' + E(g, 'stackLabel', 'div', 'pg-lbl') + row(1) + row(2) + row(3) + row(4) + '</aside>' +
+        '</div>' +
+      '</main>' +
+      '<footer><div>' + E(g, 'footQ') + '&nbsp;' + B('repName', 'pg-rep', 'Your name') + ', ShipInsure · ' + B('repEmail', '', 'you@shipinsure.io') + '</div>' + E(g, 'site', 'div', 'pg-site') + '</footer>';
+  }
+
   const secOn = k => k === 'heard' ? (S.r.sections.heard == null ? S.r.audience !== 'Executive summary' : !!S.r.sections.heard) : S.r.sections[k] !== false && (S.r.sections[k] != null || k === 'details' || k === 'contact');
 
   // ── Blocks: one section of the recap, wrapped with its style (inline) and Liquid glass ──
@@ -948,13 +1041,15 @@
   function renderRecap() {
     const R = S.r, t = THEMES[R.headerStyle] || THEMES.Dark, L = LENSES[R.audience], lg = lensG(), sup = R.audience === 'Support team';
     const plate = R.plate === 'On' || (R.plate === 'Auto' && t.plate);
-    const siSrc = LOGOS[R.siLogo] || t.logo, hero = HEROES[R.hero], bk = BANNERS[R.banner];
+    const siSrc = pick(LOGOS, LEGACY_LOGOS, R.siLogo) || t.logo, hero = pick(HEROES, LEGACY_HEROES, R.hero), bk = BANNERS[R.banner];
+    // Behind the header: an uploaded merchant banner or a ShipInsure banner (a missing merchant banner keeps its placeholder below).
+    const bgSrc = R.bannerAt === 'Behind header' && bk ? (bk === 'merchant' ? R.merchantBanner : bk) : '';
     const mLogo = R.showMerchantLogo
       ? '<div class="rc-div" style="height:' + (Math.max(R.siLogoH, R.merchantLogoH) + 8) + 'px"' + (S.logo ? '' : ' data-ph-only') + '></div>' +
         (S.logo ? '<div class="rc-plate" style="padding:' + (plate ? '8px 12px' : '0') + ';background:' + (plate ? '#FFFFFF' : 'transparent') + '"><img alt="" src="' + esc(S.logo) + '" style="height:' + R.merchantLogoH + 'px"></div>'
                 : '<div class="ph-box" data-up="logo" title="Upload the merchant logo" style="height:' + R.merchantLogoH + 'px;padding:0 14px">Merchant logo</div>')
       : '';
-    const banner = !bk ? ''
+    const banner = !bk || bgSrc ? ''
       : bk === 'merchant'
         ? (R.merchantBanner ? '<img class="rc-banner" alt="" src="' + esc(R.merchantBanner) + '" style="height:' + R.bannerH + 'px;object-position:' + FOCUS[R.bannerFocus] + '">'
                             : '<div class="ph-box" data-up="banner" title="Upload a merchant banner" style="height:' + R.bannerH + 'px;border-radius:0;flex:none">Merchant banner · click to upload</div>')
@@ -990,7 +1085,9 @@
     page.style.setProperty('--hb', t.bg); page.style.setProperty('--ht', t.text); page.style.setProperty('--hs', t.sub);
     page.style.setProperty('--hbd', t.border); page.style.setProperty('--hdv', t.divider);
     page.innerHTML =
-      '<header class="' + (t.dark ? 'dk' : '') + '"><div class="rc-hl">' +
+      '<header class="' + (t.dark || bgSrc ? 'dk' : '') + (bgSrc ? ' bg' : '') + '"' + (bgSrc ? ' style="min-height:' + R.bannerH + 'px"' : '') + '>' +
+        (bgSrc ? '<img class="rc-bgimg" alt="" aria-hidden="true" src="' + esc(bgSrc) + '" style="object-position:' + FOCUS[R.bannerFocus] + '">' : '') +
+        '<div class="rc-hl">' +
         '<div class="rc-logos"><img alt="ShipInsure" src="' + siSrc + '" style="height:' + R.siLogoH + 'px">' + mLogo + '</div>' +
         '<div class="rc-tt">' + E('recap', 'title', 'h1') +
           '<div class="rc-subrow"><div class="rc-sub">' + B('merchant', '', 'Merchant') + ' ' + E('recap', 'subMid') + ' ' + B('meetingDate', '', 'Meeting date') + '</div>' + E(lg, 'pill', 'div', 'rc-pill') + '</div>' +
@@ -1005,7 +1102,7 @@
   function render() {
     page.removeAttribute('style');
     if (fit.s && fit.s !== 1) page.style.transform = 'scale(' + fit.s + ')';
-    recap() ? renderRecap() : renderGuide();
+    recap() ? renderRecap() : S.template === 'gift' ? renderGift() : renderGuide();
     if (document.body.classList.contains('view')) page.querySelectorAll('[contenteditable]').forEach(el => el.setAttribute('contenteditable', 'false'));
     const ac = legible(S.accent), acA = hexRgb(ac);
     page.style.setProperty('--ac', ac);
@@ -1244,15 +1341,15 @@
   }
 
   // ── Side panel ──
-  const fillSelect = (sel, opts) => { if (sel.options.length !== opts.length) sel.innerHTML = opts.map(o => '<option>' + esc(o) + '</option>').join(''); };
+  const fillSelect = (sel, opts) => { const k = opts.join('|'); if (sel._k !== k) { sel._k = k; sel.innerHTML = opts.map(o => '<option>' + esc(o) + '</option>').join(''); } };
   function paintSide() {
     document.querySelectorAll('#tplSeg [data-tpl]').forEach(b => b.classList.toggle('on', b.dataset.tpl === S.template));
-    document.querySelectorAll('[data-only]').forEach(el => { el.hidden = el.dataset.only !== S.template || (el.id === 'logoGrp' && !S.logo); });
+    document.querySelectorAll('[data-only]').forEach(el => { el.hidden = el.dataset.only.split(' ').indexOf(S.template) < 0 || (el.id === 'logoGrp' && !S.logo); });
     document.querySelectorAll('#aud [data-aud]').forEach(b => { const on = b.dataset.aud === S.audience; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
     document.querySelectorAll('.op-side input[data-b]').forEach(i => { if (document.activeElement !== i) i.value = S[i.dataset.b] || ''; });
     // Recap controls
-    fillSelect($('rAud'), RAUDS); fillSelect($('rType'), RTYPES); fillSelect($('rSiLogo'), Object.keys(LOGOS));
-    fillSelect($('rHero'), Object.keys(HEROES)); fillSelect($('rBanner'), Object.keys(BANNERS));
+    fillSelect($('rAud'), RAUDS); fillSelect($('rType'), RTYPES); fillSelect($('rSiLogo'), pickList(LOGOS, LEGACY_LOGOS, S.r.siLogo));
+    fillSelect($('rHero'), pickList(HEROES, LEGACY_HEROES, S.r.hero)); fillSelect($('rBanner'), Object.keys(BANNERS));
     document.querySelectorAll('.op-side [data-r]').forEach(el => {
       const v = S.r[el.dataset.r];
       if (el.type === 'checkbox') el.checked = !!v; else if (document.activeElement !== el) el.value = v;
@@ -1267,9 +1364,9 @@
     const iso = (() => { const d = new Date(S.meetingDate); return isNaN(d) ? '' : d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })();
     if (document.activeElement !== $('rDate')) $('rDate').value = iso;
     // Support fields
-    const sup = recap() ? S.r.audience === 'Support team' : true;
+    const sup = recap() ? S.r.audience === 'Support team' : S.template === 'guide';
     $('supGrp').hidden = !sup;
-    const needSup = recap() ? S.r.audience === 'Support team' : S.audience === 'support';
+    const needSup = recap() ? S.r.audience === 'Support team' : S.template === 'guide' && S.audience === 'support';
     ['claimsLink', 'escalation'].forEach(k => $('f-' + k).classList.toggle('need', needSup && !S[k]));
     ['merchant', 'repName', 'repEmail'].forEach(k => $('f-' + k).classList.toggle('need', !S[k]));
     // Where the deal data came from
@@ -1284,7 +1381,7 @@
       if (recap()) {
         src += S.pricing && S.pricing.text ? li('💲', 'Pricing from <b>' + esc(S.pricing.scenario) + '</b>') : li('💲', 'No ROI scenario with pricing in this folder');
         src += S.econ ? li('📈', 'Economics from <b>' + esc(S.econ.scenario) + '</b> (turn on Modeled economics under Sections)') : '';
-      } else {
+      } else if (S.template === 'guide') {
         src += S.pricing ? li('💲', 'SKU bands from <b>' + esc(S.pricing.scenario) + '</b> (' + esc(S.pricing.label) + (S.pricing.exact ? '' : ', first band estimated') + ')')
                          : li('💲', 'No ROI scenario with pricing in this folder, so the template’s example SKU');
       }
@@ -1321,7 +1418,7 @@
     if (inp && inp !== from && inp.value !== S[b]) inp.value = S[b];
     if (b === 'skuCode' || b === 'skuLabel') { S.band = 'custom'; $('bandSel').value = 'custom'; }
     if (b === 'merchant' && recap()) { const el = page.querySelector('[data-g="recap"][data-k="e4l"]'); if (el && S.copy.recap.e4l == null) el.textContent = def('recap', 'e4l'); }
-    const needSup = recap() ? S.r.audience === 'Support team' : S.audience === 'support';
+    const needSup = recap() ? S.r.audience === 'Support team' : S.template === 'guide' && S.audience === 'support';
     if (b === 'claimsLink' || b === 'escalation') $('f-' + b).classList.toggle('need', needSup && !S[b]);
     if (b === 'merchant' || b === 'repName' || b === 'repEmail') $('f-' + b).classList.toggle('need', !S[b]);
     if (b === 'meetingDate') paintSide();
@@ -1455,9 +1552,10 @@
     try { applyDeal(await dealData(), true); toast('Filled from the deal data'); } finally { b.disabled = false; b.textContent = '↻ Refill from deal'; }
   });
   $('resetBtn').addEventListener('click', () => {
-    const which = recap() ? 'the Meeting recap (all audiences)' : 'the Draft-order guide (all three versions)';
+    const which = recap() ? 'the Meeting recap (all audiences)' : S.template === 'gift' ? 'Gifted coverage' : 'the Draft-order guide (all three versions)';
     if (!confirm('Put the page text of ' + which + ' back to the template?\nMerchant, rep, date, accent, images and links stay as they are.')) return;
     if (recap()) { S.copy.recap = {}; Object.keys(S.copy).forEach(g => { if (g.indexOf('lens:') === 0) delete S.copy[g]; }); applyDealCopyOnly(); }
+    else if (S.template === 'gift') S.copy.gift = {};
     else ['sales', 'leads', 'support', 'shared'].forEach(g => { S.copy[g] = {}; });
     render(); saveDraft(); toast('Text reset to the template');
   });
@@ -1524,7 +1622,7 @@
     _tight.busy = true;
     const b = $('tightBtn'); b.disabled = true; b.textContent = '✂ Tightening…';
     try {
-      const prompt = 'Tighten the copy on a one-page ' + (recap() ? S.r.meetingType.toLowerCase() + ' recap' : 'draft-order guide') + ' that a ShipInsure rep sends to ' + (S.merchant || 'a merchant') +
+      const prompt = 'Tighten the copy on a one-page ' + (recap() ? S.r.meetingType.toLowerCase() + ' recap' : S.template === 'gift' ? 'gifted-coverage overview' : 'draft-order guide') + ' that a ShipInsure rep sends to ' + (S.merchant || 'a merchant') +
         '. It runs ' + Math.round(overBy()) + 'px past the bottom of a US Letter page, so the ' + total + ' characters below must shrink by about ' + pct + '% in total.\n\n' +
         'Style (Caveman Cliff Notes): lead with the point. Short sentences. Strong verbs, no adverbs (really, truly, quickly, simply, just). No hedging, filler or clichés. Every word earns its keep. ' +
         'This is a printed, client-ready page, so stay polished: no emoji, no slang, no koans, no em dashes.\n\n' +
@@ -1572,6 +1670,7 @@
   // ── Export PDF (print → Save as PDF) ──
   const fileName = () => (recap()
     ? ['ShipInsure', S.merchant || 'Merchant', S.r.meetingType + ' recap', S.r.audience]
+    : S.template === 'gift' ? ['ShipInsure', S.merchant || 'Merchant', 'gifted coverage']
     : ['ShipInsure', S.merchant || 'Merchant', AUD[S.audience], 'draft-order guide']).join(' – ').replace(/[\\/:*?"<>|]+/g, '');
   let _title = document.title;
   async function exportPdf(viewer) {
@@ -1581,7 +1680,7 @@
       if (!S.merchant) miss.push('merchant name');
       if (!S.repName) miss.push('rep name');
       if (!S.repEmail) miss.push('rep email');
-      const sup = recap() ? S.r.audience === 'Support team' : S.audience === 'support';
+      const sup = recap() ? S.r.audience === 'Support team' : S.template === 'guide' && S.audience === 'support';
       if (sup && !S.claimsLink) miss.push('claims link');
       if (sup && !S.escalation) miss.push('escalation contact');
       const blanks = Array.from(page.querySelectorAll('[contenteditable]')).filter(el => !el.textContent.trim() && el.dataset.ph && !el.dataset.b).length;
@@ -1627,7 +1726,7 @@
         if (row && row.merchant_ref) S.folderId = row.merchant_ref;
         paintAll(); saveDraft();
       },
-      defaultTitle: () => (recap() ? S.r.meetingType + ' recap' : 'Draft-order guide') + ' – ' + (S.merchant || 'Merchant')
+      defaultTitle: () => (recap() ? S.r.meetingType + ' recap' : TPL_NAME[S.template]) + ' – ' + (S.merchant || 'Merchant')
     });
   }
 
@@ -1764,7 +1863,7 @@
     if (!a || a.id !== qp.get('folder')) SIsb.setActiveFolder({ id: qp.get('folder'), name: qp.get('fname') || (a && a.id === qp.get('folder') ? a.name : '') });
   }
   startFor(window.SIsb ? SIsb.getActiveFolder() : null);
-  if (qp.get('template') === 'guide' || qp.get('template') === 'recap') S.template = qp.get('template');
+  if (DEF_ACCENT[qp.get('template')]) S.template = qp.get('template');
   if (AUD[qp.get('audience')]) { S.template = 'guide'; S.audience = qp.get('audience'); }
   if (LENSES[qp.get('audience')]) { S.template = 'recap'; S.r.audience = qp.get('audience'); }
   paintAll();
