@@ -101,6 +101,13 @@
 .silb.silb-co .silb-ban{height:150px;border-radius:8px;border-bottom:0;margin-bottom:18px}
 .silb.silb-co .silb-ban.silb-none{display:none}
 .silb.silb-co .silb-cobtn{display:block;width:100%;margin-top:20px;padding:13px;border:1px solid #d9d9d9;border-radius:5px;background:#fff;font:600 14px var(--ff);color:#1f1f1f;cursor:pointer}
+/* Canvas editor: every part shows it can be clicked */
+.silb-edit [data-silb]{cursor:pointer}
+.silb-edit [data-silb="title"],.silb-edit [data-silb="fa"],.silb-edit [data-silb="fb"]{cursor:text;border-radius:4px;outline:1px dashed transparent;outline-offset:2px;min-width:12px;display:inline-block}
+.silb-edit .silb-t[data-silb]{display:block}
+.silb-edit [data-silb]:not([data-silb="box"]):hover{outline:1px dashed #9aa5ff;outline-offset:2px}
+.silb-edit [data-silb].silb-on,.silb-edit [contenteditable]:focus{outline:2px solid #6675ff;outline-offset:2px}
+.silb-edit [data-silb]:empty::before{content:attr(data-ph);opacity:.4}
 .silb.silb-sheet{width:100%;border-radius:16px 16px 0 0 !important;max-height:88%}
 .silb.silb-cart.silb-sheet{border-radius:14px 14px 0 0 !important}
 `;
@@ -127,19 +134,22 @@
     const b = c.box, pd = num(b.pad, 24, 0, 60);
     const boxSt = `--ff:${ff};--hb:${hb};--pd:${pd}px;--ckbg:${ck}1f;font-family:${ff};background:${hex(b.bg, '#ffffff')};border:${num(b.bw, 0, 0, 12)}px solid ${hex(b.border, '#e3e5ee')};border-radius:${num(b.radius, 8, 0, 40)}px;`;
     const banSrc = c.banner === 'none' ? '' : c.banner === 'default' || !c.banner ? BASE + 'lightbox-banner.png' : url(c.banner);
-    const feats = `<ul class="silb-fl">${c.features.map(f => `<li class="silb-f"><span class="silb-ck">${CHECK(ck)}</span><span style="${fst(c.f1, ff)}">${esc(f.a)}${f.a && f.b ? '<span class="silb-sep">&nbsp;|&nbsp;</span>' : ''}</span><span style="${fst(c.f2, ff)}">${esc(f.b)}</span></li>`).join('')}</ul>`;
-    const foot = c.footer ? `<div class="silb-foot"><span class="silb-pw">Powered by ${MARK}<b>ShipInsure</b></span><a href="${esc(url(c.privacyUrl) || DEFAULTS.privacyUrl)}" target="_blank" rel="noopener">Privacy</a><a href="${esc(url(c.termsUrl) || DEFAULTS.termsUrl)}" target="_blank" rel="noopener">Terms</a></div>` : '';
-    const title = `<div class="silb-t" style="${fst(c.tStyle, ff)}">${esc(c.title)}</div>`;
-    const cls = 'silb ' + (c.variant === 'checkout' ? 'silb-co' : 'silb-cart') + (o.narrow ? ' silb-sheet' : '');
+    // data-silb marks each part, so the canvas editor (lightbox.html?canvas=1) can edit it in place.
+    const ed = !!o.edit;
+    const feats = `<ul class="silb-fl">${c.features.map((f, i) => `<li class="silb-f"><span class="silb-ck">${CHECK(ck)}</span><span data-silb="fa" data-i="${i}" data-ph="First text" style="${fst(c.f1, ff)}">${esc(f.a)}</span>${(f.a && f.b) || ed ? `<span class="silb-sep" style="${fst(c.f1, ff)}">&nbsp;|&nbsp;</span>` : ''}<span data-silb="fb" data-i="${i}" data-ph="Second text" style="${fst(c.f2, ff)}">${esc(f.b)}</span></li>`).join('')}</ul>`;
+    const foot = c.footer ? `<div class="silb-foot" data-silb="footer"><span class="silb-pw">Powered by ${MARK}<b>ShipInsure</b></span><a href="${esc(url(c.privacyUrl) || DEFAULTS.privacyUrl)}" target="_blank" rel="noopener">Privacy</a><a href="${esc(url(c.termsUrl) || DEFAULTS.termsUrl)}" target="_blank" rel="noopener">Terms</a></div>` : '';
+    const title = `<div class="silb-t" data-silb="title" data-ph="Title" style="${fst(c.tStyle, ff)}">${esc(c.title)}</div>`;
+    const cls = 'silb ' + (c.variant === 'checkout' ? 'silb-co' : 'silb-cart') + (o.narrow ? ' silb-sheet' : '') + (ed ? ' silb-edit' : '');
+    const ban = `<div class="silb-ban${banSrc ? '' : ' silb-none'}" data-silb="banner"${banSrc ? ` style="background-image:url('${banSrc}')"` : ''}>`;
     if (c.variant === 'checkout') {
-      return `<div class="${cls}" role="dialog" aria-modal="true" aria-label="${esc(c.title)}" style="${boxSt}">
+      return `<div class="${cls}" data-silb="box" role="dialog" aria-modal="true" aria-label="${esc(c.title)}" style="${boxSt}">
 <div class="silb-hd">${title}<button type="button" class="silb-x" aria-label="Close" data-silb-close>✕</button></div>
-<div class="silb-body"><div class="silb-ban${banSrc ? '' : ' silb-none'}"${banSrc ? ` style="background-image:url('${banSrc}')"` : ''}></div>${feats}${foot}<button type="button" class="silb-cobtn" data-silb-close>Close</button></div></div>`;
+<div class="silb-body">${ban}</div>${feats}${foot}<button type="button" class="silb-cobtn" data-silb-close>Close</button></div></div>`;
     }
-    const logo = url(c.logo) ? `<span class="silb-logo"><svg width="64" height="84" viewBox="0 0 64 84" aria-hidden="true"><path d="M14 40V25a18 18 0 0 1 36 0v15" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round"/></svg><img src="${url(c.logo)}" alt=""></span>` : `<span class="silb-logo">${LOCK(lc)}</span>`;
-    return `<div class="${cls}" role="dialog" aria-modal="true" aria-label="${esc(c.title)}" style="${boxSt}">
+    const logo = url(c.logo) ? `<span class="silb-logo" data-silb="logo"><svg width="64" height="84" viewBox="0 0 64 84" aria-hidden="true"><path d="M14 40V25a18 18 0 0 1 36 0v15" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round"/></svg><img src="${url(c.logo)}" alt=""></span>` : `<span class="silb-logo" data-silb="logo">${LOCK(lc)}</span>`;
+    return `<div class="${cls}" data-silb="box" role="dialog" aria-modal="true" aria-label="${esc(c.title)}" style="${boxSt}">
 <button type="button" class="silb-x" aria-label="Close" data-silb-close>✕</button>
-<div class="silb-ban${banSrc ? '' : ' silb-none'}"${banSrc ? ` style="background-image:url('${banSrc}')"` : ''}>${logo}</div>
+${ban}${logo}</div>
 <div class="silb-body">${title}${feats}${foot}</div></div>`;
   }
 

@@ -666,6 +666,9 @@
         .ilb-row select { flex: 1 1 150px; min-width: 0; font-size: 0.78em; padding: 5px 6px; border: 1px solid #d0d4e8; border-radius: 6px; background: #fff; }
         .ilb-btn { font-size: 0.74em; font-weight: 700; padding: 5px 9px; border: 1px solid #d0d4e8; border-radius: 6px; background: #fff; color: #3a467f; cursor: pointer; text-decoration: none; white-space: nowrap; }
         .ilb-btn:hover { border-color: #6675ff; }
+        /* ✏️ Design: the lightbox canvas editor (lightbox.html?canvas=1) over this page */
+        .ilb-ed { position: fixed; inset: 0; z-index: 2147483000; background: rgba(17,20,33,0.58); }
+        .ilb-ed iframe { width: 100%; height: 100%; border: 0; display: block; background: transparent; }
         /* ⓘ in a mockup (merchant link / demo): a hotspot that opens the lightbox */
         .mk2-hot { position: absolute; z-index: 6; pointer-events: auto; cursor: pointer; border-radius: 50%; }
         .mk2-hot::after { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 2px solid #6675ff; opacity: 0; animation: mkHot 2.4s ease-out infinite; }
@@ -870,7 +873,7 @@
                     <span class="ilb-lbl">ⓘ Info lightbox</span>
                     <select data-ilb-pick onchange="ilbPick(this.value)"><option value="default">ShipInsure default</option></select>
                     <button type="button" class="ilb-btn" onclick="ilbPreview()">Preview</button>
-                    <a class="ilb-btn" href="lightbox.html" target="_blank" rel="noopener" title="Design a custom lightbox (Rep Hub → Preview Designer → Info Lightbox)">✏️ Design</a>
+                    <button type="button" class="ilb-btn" onclick="ilbDesign()" title="Open the lightbox here and edit it on the canvas">✏️ Design</button>
                 </div>
 
                 <!-- Dual Checkout config -->
@@ -6362,7 +6365,7 @@ Return ONLY JSON — no markdown, no code fences:
             if (d) { h += `<option value="draft">My latest Lightbox design${d.store ? ' · ' + _escHtml(d.store) : ''}</option>`; vals.push('draft'); }
             if (_lbFolder.length) { h += `<optgroup label="This merchant's folder">${_lbFolder.map(r => `<option value="asset:${r.id}">${_escHtml(r.title)}</option>`).join('')}</optgroup>`; _lbFolder.forEach(r => vals.push('asset:' + r.id)); }
             const cur = !_lightbox ? 'default' : vals.indexOf(_lightboxSrc) >= 0 ? _lightboxSrc : 'current';
-            if (cur === 'current') h += '<option value="current">Saved with this design</option>';
+            if (cur === 'current') h += `<option value="current">${_lightboxSrc === 'custom' ? 'Designed here (✏️ Design)' : 'Saved with this design'}</option>`;
             sel.innerHTML = h; sel.value = cur;
         }
         async function ilbPick(v) {
@@ -6375,6 +6378,22 @@ Return ONLY JSON — no markdown, no code fences:
             ilbRender(); ilbPreview();
         }
         function ilbPreview() { if (window.SILightbox) SILightbox.open(_lbCur()); }
+        // ✏️ Design: the lightbox opens right here on a canvas (lightbox.html?canvas=1, same form and logic as the
+        // standalone page) with its settings docked beside it. Done keeps it as this design's lightbox.
+        function ilbDesign() {
+            if (document.getElementById('ilbEd') || !window.SILightbox) return;
+            const st = { cfg: SILightbox.norm(_lbCur()), store: _previewName || '', device: 'desktop' };
+            const theme = new URLSearchParams(location.search).get('theme');
+            const w = document.createElement('div'); w.id = 'ilbEd'; w.className = 'ilb-ed';
+            w.innerHTML = `<iframe title="Info lightbox editor" src="lightbox.html?canvas=1${theme ? '&theme=' + encodeURIComponent(theme) : ''}#d=${btoa(unescape(encodeURIComponent(JSON.stringify(st))))}"></iframe>`;
+            document.body.appendChild(w);
+        }
+        window.addEventListener('message', e => {
+            const d = e.data, w = document.getElementById('ilbEd');
+            if (!d || !d.siLb || !w || e.source !== w.querySelector('iframe').contentWindow) return;
+            if (d.siLb === 'done') { _lightbox = d.cfg; _lightboxSrc = 'custom'; w.remove(); ilbOptions(); showToast('Lightbox kept on this design'); document.dispatchEvent(new Event('change')); }
+            if (d.siLb === 'cancel') w.remove();
+        });
 
         // ── Control-bar wiring ──────────────────────────────────────────────
         function syncCashbackVisibility() {
@@ -6560,13 +6579,21 @@ Return ONLY JSON — no markdown, no code fences:
             // ── Merchant folder save/load (Rep Hub → Merchant Folders) ──
             if (window.SIFolderBar) SIFolderBar.mount({
                 kind: 'checkout', tool: 'Checkout Experience', before: document.querySelector('.control-bar'),
+                // An Info Lightbox save (Brand Folders → Info Lightboxes) opens here: it becomes this design's
+                // lightbox and opens in the ✏️ Design canvas. Save still only writes Checkout saves.
+                acceptKinds: ['checkout', 'lightbox'],
                 // Mockup page images go to storage first (signed in here), so the save holds links, not
                 // megabytes — when this folder bar can wait for it (an older cached copy can't).
                 getData: () => {
                     const data = () => { _mpCommit(); return { design: _collectDesign(), examples: _merchantExamples, name: _previewName, label: currentExampleLabel(), mpEdit: _mpEdit }; };
                     return SIFolderBar.asyncData ? _mkPersistImages().catch(() => {}).then(data) : data();
                 },
-                applyData: d => {
+                applyData: (d, kind, r) => {
+                    if (kind === 'lightbox') {
+                        if (d.cfg) { _lightbox = d.cfg; _lightboxSrc = r && r.id ? 'asset:' + r.id : 'custom'; }
+                        ilbOptions().then(() => ilbRender()); ilbDesign();
+                        return;
+                    }
                     _applyDesignObj(d.design || d);
                     _merchantExamples = Array.isArray(d.examples) ? d.examples : [];
                     _mpEdit = Number.isInteger(d.mpEdit) && _merchantExamples[d.mpEdit] ? d.mpEdit : null;

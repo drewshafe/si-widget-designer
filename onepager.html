@@ -1757,6 +1757,12 @@
     S.folderId = folder ? folder.id : null;
     paintAll();
   }
+  // Opened from a Brand Folder (?folder=<id>&fname=<name>): that folder is the active merchant, so
+  // the draft, deal data and every save belong to it.
+  if (window.SIsb && qp.get('folder')) {
+    const a = SIsb.getActiveFolder();
+    if (!a || a.id !== qp.get('folder')) SIsb.setActiveFolder({ id: qp.get('folder'), name: qp.get('fname') || (a && a.id === qp.get('folder') ? a.name : '') });
+  }
   startFor(window.SIsb ? SIsb.getActiveFolder() : null);
   if (qp.get('template') === 'guide' || qp.get('template') === 'recap') S.template = qp.get('template');
   if (AUD[qp.get('audience')]) { S.template = 'guide'; S.audience = qp.get('audience'); }

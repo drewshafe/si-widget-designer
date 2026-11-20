@@ -167,7 +167,7 @@
   // co = Checkout Experience, lb = Info Lightbox, em = Email Automation, cl = Claim Wizard, fq = FAQ.
   const KINDS = [
     { k: 'co', kind: 'checkout', name: 'Cart & checkout', emoji: '🛒', tool: 'Checkout Experience', href: 'index.html', draftKey: 'si_checkout_draft', parse: s => JSON.parse(s) },
-    { k: 'lb', kind: 'lightbox', name: 'Info lightbox (ⓘ)', emoji: 'ⓘ', tool: 'Info Lightbox', href: 'lightbox.html', draftKey: 'si_lightbox_draft', parse: s => JSON.parse(s) },
+    { k: 'lb', kind: 'lightbox', name: 'Info lightbox (ⓘ)', emoji: 'ⓘ', tool: 'Checkout Experience (ⓘ ✏️ Design)', href: 'index.html', draftKey: 'si_lightbox_draft', parse: s => JSON.parse(s) },
     { k: 'em', kind: 'email', name: 'Order emails', emoji: '✉️', tool: 'Email Automation', href: ROOT + 'si-email-automation/', draftKey: 'si_exp_email', parse: s => dec(s) },
     { k: 'cl', kind: 'claim', name: 'Claim flow', emoji: '🛡️', tool: 'Claim Wizard', href: ROOT + 'si-claim-wizard/', draftKey: 'si_exp_claim', parse: s => dec(s) },
     { k: 'fq', kind: 'faq', name: 'FAQ page', emoji: '❓', tool: 'FAQ', href: 'faq.html', draftKey: 'si_faq_draft', parse: s => JSON.parse(s) }

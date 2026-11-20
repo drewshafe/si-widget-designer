@@ -128,6 +128,32 @@
   body.embed .browser.mobile { max-width:none; margin:0; border:0; border-radius:0; }
   body.embed .shop, body.embed .browser.mobile .shop { height:100vh; }
 
+  /* ── Canvas mode (?canvas=1): opened in place by Checkout Experience → ⓘ Info lightbox → ✏️ Design.
+     The page is transparent, so the Checkout page shows through the backdrop; the lightbox sits on the
+     canvas with every part clickable, and this form is docked on the right. ── */
+  html.canvas, body.canvas { background:transparent; }
+  body.canvas .lb-app { grid-template-columns:minmax(0, 1fr) 360px; }
+  body.canvas .lb-side { order:2; border-right:0; border-left:1px solid var(--line); box-shadow:-12px 0 40px rgba(10,14,40,.25); padding-top:0; }
+  body.canvas .lb-stage { background:transparent; justify-content:center; padding:18px; }   /* Checkout's overlay dims its page */
+  body.canvas .browser, body.canvas .cv-only-hide { display:none; }
+  .cv-head, .cv-wrap { display:none; }
+  body.canvas .cv-head { display:flex; position:sticky; top:0; z-index:5; align-items:center; gap:8px; margin:0 -18px; padding:12px 18px; background:var(--card); border-bottom:1px solid var(--line); }
+  body.canvas .cv-head b { flex:1; font-size:15px; }
+  body.canvas .st-bar { justify-content:center; max-width:none; }
+  body.canvas .st-note { color:rgba(255,255,255,.88); }
+  body.canvas .cv-wrap { display:flex; flex:1; min-height:0; width:100%; overflow:auto; padding:10px 0 30px; }
+  body.canvas .cv-frame { margin:auto; }   /* centered, and still scrollable to its top when taller than the canvas */
+  .cv-frame { width:420px; max-width:100%; }
+  .cv-frame.co { width:520px; }
+  .cv-frame.mobile { width:390px; }
+  body.canvas .sifb { flex-wrap:wrap; margin:0 -18px 0; border-radius:0; }
+  @media (max-width: 860px) {
+    body.canvas .lb-app { grid-template-columns:1fr; grid-template-rows:minmax(0, 48%) minmax(0, 52%); overflow:hidden; }
+    body.canvas .lb-side { border-left:0; border-top:1px solid var(--line); box-shadow:0 -12px 40px rgba(10,14,40,.25); }
+    body.canvas .st-note { display:none; }
+  }
+  .flash { animation:flash 1.3s ease; border-radius:9px; }
+  @keyframes flash { 0%, 60% { box-shadow:0 0 0 3px var(--accent); background:var(--accent-soft); } 100% { box-shadow:0 0 0 0 transparent; } }
   .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(30px); opacity:0; background:#1d2240; color:#fff; padding:10px 16px; border-radius:10px; font-size:13px; font-weight:600; transition:.25s; pointer-events:none; z-index:2147483600; }
   .toast.show { opacity:1; transform:translateX(-50%); }
   @media (max-width: 900px) { .lb-app { grid-template-columns:1fr; overflow:auto; } body { overflow:auto; } .lb-side { border-right:0; border-bottom:1px solid var(--line); } }
@@ -136,8 +162,10 @@
 <body>
 <div class="lb-app" id="app">
   <aside class="lb-side">
+    <div class="cv-head"><b>ⓘ Info lightbox</b><button class="btn sm" type="button" id="cvCancel">Cancel</button><button class="btn p sm" type="button" id="cvDone">Done</button></div>
+    <div id="cvBar"></div>
     <div>
-      <div class="h1">Info Lightbox</div>
+      <div class="h1 cv-only-hide">Info Lightbox</div>
       <div class="h2">The pop-up a shopper sees after clicking the ShipInsure widget's ⓘ. Same settings as the Merchant Portal's widget-config <b>Modal</b> tab. Click the ⓘ in the preview to open it.</div>
     </div>
 
@@ -188,7 +216,7 @@
     <div class="grp">
       <div class="lbl">Share &amp; export</div>
       <div class="btns">
-        <button class="btn p" type="button" id="linkBtn">🔗 Copy preview link</button>
+        <button class="btn p cv-only-hide" type="button" id="linkBtn">🔗 Copy preview link</button>
         <button class="btn" type="button" id="pngBtn">⬇ Download PNG</button>
       </div>
       <div class="btns">
@@ -205,6 +233,7 @@
       <div class="seg" id="devSeg"><button type="button" data-d="desktop">🖥 Desktop</button><button type="button" data-d="mobile">📱 Mobile</button></div>
       <span class="st-note">Click the ⓘ to open the lightbox · click outside or ✕ to close it</span>
     </div>
+    <div class="cv-wrap" id="cvWrap"><div class="cv-frame" id="canvas"></div></div>
     <div class="browser" id="browser">
       <div class="b-bar"><i></i><i></i><i></i><span class="b-url" id="bUrl">store.com/cart</span></div>
       <div class="shop" id="shop"></div>
@@ -218,6 +247,8 @@
   const VIEW = new URLSearchParams(location.search).get('view') === '1';
   if (VIEW) document.body.classList.add('view');
   if (VIEW && new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('embed');
+  const CANVAS = !VIEW && new URLSearchParams(location.search).get('canvas') === '1' && window.parent !== window;
+  if (CANVAS) { document.documentElement.classList.add('canvas'); document.body.classList.add('canvas'); }
   const L = window.SILightbox;
   const clone = o => JSON.parse(JSON.stringify(o));
   const enc = o => btoa(unescape(encodeURIComponent(JSON.stringify(o))));
@@ -291,7 +322,23 @@
       <div class="dr-ft"><div class="w-row"><span class="w-tg"></span><span class="w-name">Loss, Damage, Theft Protection</span>${info}<span class="w-price">$2.99</span></div>
       <div class="tot"><span>Subtotal</span><span>$164.99</span></div><button class="ck-btn" type="button">Check out</button></div></div>`;
   }
-  function render() {
+  let inline = null;   // the lightbox text being typed on the canvas (not redrawn under the caret)
+  function renderCanvas() {
+    const mobile = S.device === 'mobile', co = S.cfg.variant === 'checkout';
+    const fr = $('canvas');
+    fr.className = 'cv-frame' + (co ? ' co' : '') + (mobile ? ' mobile' : '');
+    L.css();
+    fr.innerHTML = L.html(S.cfg, { edit: true, narrow: mobile && co });
+    const box = fr.firstElementChild; if (box) box.style.animation = 'none';
+  }
+  function render(o) {
+    if (CANVAS) {
+      if (!(o && o.keepCanvas)) renderCanvas();
+      document.querySelectorAll('#devSeg button').forEach(b => b.classList.toggle('on', b.dataset.d === S.device));
+      fillForm(); save();
+      parent.postMessage({ siLb: 'change', cfg: S.cfg }, '*');
+      return;
+    }
     const mobile = S.device === 'mobile';
     $('browser').classList.toggle('mobile', mobile);
     $('bUrl').textContent = (S.store ? S.store.toLowerCase().replace(/[^a-z0-9]+/g, '') : 'store') + '.com/' + (S.cfg.variant === 'checkout' ? 'checkouts/cn/…' : 'cart');
@@ -303,6 +350,48 @@
   }
   L.bind($('shop'), () => { lbOpen = true; render(); return null; });
 
+  // ── Canvas: click text to type it; the banner, logo, footer or box shows its controls ──
+  const FOR = { banner: () => $('banSeg').closest('.fld'), logo: () => $('logoFld'), footer: () => $('f-footer').closest('label'),
+                box: () => { const d = document.querySelector('details.sty'); d.open = true; return d; },
+                title: () => $('f-title').closest('.fld'), fa: i => $('feats').children[i], fb: i => $('feats').children[i] };
+  function point(part, i) {
+    const el = FOR[part] && FOR[part](i); if (!el) return;
+    el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  if (CANVAS) {
+    const cv = $('canvas');
+    cv.addEventListener('click', e => {
+      if (e.target.closest('a, [data-silb-close]')) { e.preventDefault(); return; }
+      const el = e.target.closest('[data-silb]'); if (!el) return;
+      const part = el.dataset.silb, i = +el.dataset.i;
+      cv.querySelectorAll('.silb-on').forEach(x => x.classList.remove('silb-on'));
+      if (['title', 'fa', 'fb'].includes(part)) {
+        if (el.getAttribute('contenteditable') !== 'plaintext-only') {
+          el.setAttribute('contenteditable', 'plaintext-only'); el.focus();
+          const r = document.createRange(); r.selectNodeContents(el); r.collapse(false); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+        }
+        inline = el;
+      } else el.classList.add('silb-on');
+      point(part, i);
+    });
+    cv.addEventListener('input', e => {
+      const el = e.target.closest('[data-silb]'); if (!el) return;
+      const v = el.textContent.replace(/\s+/g, ' ');
+      if (el.dataset.silb === 'title') S.cfg.title = v;
+      else if (S.cfg.features[+el.dataset.i]) S.cfg.features[+el.dataset.i][el.dataset.silb === 'fa' ? 'a' : 'b'] = v;
+      render({ keepCanvas: true });
+    });
+    cv.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.closest('[contenteditable]')) { e.preventDefault(); e.target.blur(); } });
+    cv.addEventListener('focusout', e => { if (e.target.closest('[contenteditable]')) { inline = null; S.cfg.title = S.cfg.title.trim(); render(); } });
+    $('cvDone').onclick = () => parent.postMessage({ siLb: 'done', cfg: S.cfg }, '*');
+    $('cvCancel').onclick = () => parent.postMessage({ siLb: 'cancel' }, '*');
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !inline) parent.postMessage({ siLb: 'cancel' }, '*'); });
+    $('cvWrap').addEventListener('click', e => { if (e.target === $('cvWrap')) $('canvas').querySelectorAll('.silb-on').forEach(x => x.classList.remove('silb-on')); });
+    document.querySelector('.st-note').textContent = 'Click any text to edit it · click the banner, logo, footer or box for its settings';
+    document.querySelector('.h2').textContent = 'Click any text on the lightbox to change it. Click the banner, logo, footer or the box itself to jump to its settings. Done keeps it on this Checkout design.';
+  }
+
   // ── Side panel events ──
   document.querySelector('.lb-side').addEventListener('input', e => {
     const el = e.target;
@@ -310,6 +399,7 @@
     else if (el.dataset.f != null) { S.cfg.features[+el.dataset.f][el.dataset.p] = el.value; lbOpen = true; render(); }
   });
   document.querySelector('.lb-side').addEventListener('change', e => { if (e.target.type === 'checkbox' && e.target.dataset.k) { set(e.target.dataset.k, e.target.checked); render(); } });
+  $('feats').addEventListener('focusin', e => { if (!CANVAS || e.target.dataset.f == null) return; const t = $('canvas').querySelector(`[data-silb="${e.target.dataset.p === 'a' ? 'fa' : 'fb'}"][data-i="${e.target.dataset.f}"]`); $('canvas').querySelectorAll('.silb-on').forEach(x => x.classList.remove('silb-on')); if (t) t.classList.add('silb-on'); });
   $('feats').addEventListener('click', e => { const b = e.target.closest('[data-del]'); if (b) { S.cfg.features.splice(+b.dataset.del, 1); render(); } });
   $('addFeat').onclick = () => { S.cfg.features.push({ a: '', b: '' }); render(); const ins = $('feats').querySelectorAll('input'); ins[ins.length - 2] && ins[ins.length - 2].focus(); };
   $('resetFeats').onclick = () => { S.cfg.features = clone(L.FEATURES); render(); };
@@ -408,7 +498,7 @@
     SIsb.onActiveFolder(folderSync); folderSync();
   }
   if (!VIEW && window.SIFolderBar) SIFolderBar.mount({
-    kind: 'lightbox', tool: 'Info Lightbox', before: $('app'),
+    kind: 'lightbox', tool: 'Info Lightbox', before: CANVAS ? $('cvBar') : $('app'),
     getData: () => clone(S),
     applyData: d => { S = adopt(d); lbOpen = true; render(); },
     defaultTitle: () => 'Info Lightbox – ' + (S.store || 'Merchant') + (S.cfg.variant === 'checkout' ? ' (checkout)' : ' (cart)'),
