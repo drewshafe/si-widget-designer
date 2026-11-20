@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SI Interactive Demo</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/drewshafe/si-roi-calculator/main/si_lock.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://drewshafe.github.io/si-roi-calculator/sb.js"></script>
+<script src="https://drewshafe.github.io/si-rep-hub/folder-bar.js"></script>
+<script src="lightbox.js"></script>
+<style>
+  /* SI Interactive Demo: the whole shopper journey with ShipInsure in one place, on a phone by default.
+     Built from what the rep made for this merchant (only what was added shows):
+       Cart / Checkout preview (Checkout Experience) + the ⓘ Info Lightbox → order emails (Email Automation)
+       → claim from the email (Claim Wizard) → claim from the FAQ page (FAQ).
+     Pieces come from the merchant folder's saves (or this browser's latest drafts). Saves to Merchant
+     Folders as kind 'demo'; the share link is view-only. */
+  * { margin:0; padding:0; box-sizing:border-box; }
+  [hidden] { display:none !important; }
+  :root { --p:#6675FF; --ink:#141a2e; --muted:#5b6380; --line:#e1e4ee; --card:#fff; --page:#eceef5; --field:#f6f7fb; }
+  body.pm { --ink:#ece6d6; --muted:#9a927f; --line:#26262f; --card:#111116; --page:#07070a; --field:#16161c; }
+  html, body { height:100%; }
+  body { font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:var(--page); color:var(--ink); display:flex; flex-direction:column; overflow:hidden; font-size:14px; }
+  button, select, input { font:inherit; color:inherit; }
+
+  .dm-app { flex:1; min-height:0; display:grid; grid-template-columns:300px minmax(0,1fr); }
+  body.view .dm-app { grid-template-columns:1fr; }
+  body.view .dm-side { display:none; }
+
+  /* ── Rep panel: which pieces go in ── */
+  .dm-side { background:var(--card); border-right:1px solid var(--line); overflow-y:auto; padding:16px 16px 26px; display:flex; flex-direction:column; gap:14px; }
+  .h1 { font-size:17px; font-weight:800; letter-spacing:-.01em; }
+  .h2 { font-size:12px; line-height:1.45; color:var(--muted); margin-top:3px; }
+  .pc { border:1px solid var(--line); border-radius:12px; padding:10px 11px; display:flex; flex-direction:column; gap:6px; }
+  .pc.off { opacity:.7; background:var(--field); }
+  .pc-h { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:700; }
+  .pc-h small { margin-left:auto; font-size:11px; font-weight:600; color:var(--muted); }
+  .pc select { width:100%; border:1px solid var(--line); background:var(--field); border-radius:8px; padding:6px 8px; font-size:12.5px; }
+  .pc a { font-size:11.5px; color:var(--p); text-decoration:none; font-weight:600; }
+  .hint { font-size:11.5px; line-height:1.45; color:var(--muted); }
+  .btn { border:1px solid var(--line); background:var(--card); border-radius:9px; padding:8px 12px; font-size:12.5px; font-weight:700; cursor:pointer; }
+  .btn.p { background:var(--p); border-color:var(--p); color:#fff; }
+  .btns { display:flex; gap:8px; flex-wrap:wrap; }
+  .fld input { width:100%; border:1px solid var(--line); background:var(--field); border-radius:8px; padding:7px 9px; font-size:13px; }
+  .lbl { font-size:10.5px; font-weight:800; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
+
+  /* ── Journey ── */
+  .dm-main { min-width:0; min-height:0; display:flex; flex-direction:column; }
+  .xp-top { flex:0 0 auto; display:flex; align-items:center; gap:10px; padding:10px 14px; background:var(--card); border-bottom:1px solid var(--line); }
+  .xp-steps { display:flex; align-items:center; gap:6px; flex:1; min-width:0; overflow-x:auto; scrollbar-width:none; }
+  .xp-step { display:inline-flex; align-items:center; gap:7px; font-size:12.5px; font-weight:600; color:var(--muted); background:var(--field); border:1px solid transparent; border-radius:30px; padding:6px 12px 6px 6px; cursor:pointer; white-space:nowrap; }
+  .xp-step i { font-style:normal; width:20px; height:20px; border-radius:50%; background:var(--card); color:var(--muted); display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; border:1px solid var(--line); }
+  .xp-step.on { color:#fff; background:var(--p); }
+  .xp-step.on i { color:var(--p); border-color:transparent; background:#fff; }
+  .xp-step.done i { background:var(--p); color:#fff; border-color:transparent; }
+  .xp-arrow { color:#b3b8cc; font-size:13px; }
+  .xp-dev { flex:0 0 auto; display:inline-flex; background:var(--field); border-radius:30px; padding:3px; }
+  .xp-dev button { font-size:12px; font-weight:600; color:var(--muted); background:none; border:none; border-radius:30px; padding:5px 11px; cursor:pointer; white-space:nowrap; }
+  .xp-dev button.on { background:var(--card); color:var(--ink); box-shadow:0 1px 4px rgba(20,26,60,.12); }
+  .xp-replay { flex:0 0 auto; font-size:12px; font-weight:600; color:var(--muted); background:none; border:none; cursor:pointer; white-space:nowrap; }
+
+  .xp-stage { flex:1; min-height:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:12px; padding:16px; overflow:auto; }
+  .xp-phone { position:relative; display:flex; flex-direction:column; background:#fff; overflow:hidden; }
+  body.mobile .xp-phone { flex:0 0 auto; width:390px; height:844px; border:12px solid #17171c; border-radius:52px; box-shadow:0 18px 50px rgba(20,24,60,.22); }
+  body:not(.mobile) .xp-phone { width:100%; max-width:1180px; flex:1; min-height:560px; border-radius:12px; box-shadow:0 4px 18px rgba(20,26,60,.08); }
+  .xp-status { display:none; flex:0 0 auto; height:40px; align-items:center; justify-content:space-between; padding:2px 28px 0 32px; font:600 14px/1 -apple-system,BlinkMacSystemFont,sans-serif; color:#111; position:relative; background:#fff; }
+  body.mobile .xp-status { display:flex; }
+  .xp-status::after { content:''; position:absolute; left:50%; top:9px; width:104px; height:28px; margin-left:-52px; border-radius:20px; background:#17171c; }
+  .xp-screen { position:relative; flex:1; min-height:0; display:flex; flex-direction:column; }
+  .xp-pane { flex:1; min-height:0; display:flex; flex-direction:column; }
+  .xp-pane iframe { flex:1; width:100%; border:0; display:block; background:#fff; }
+  .xp-empty { flex:1; display:flex; align-items:center; justify-content:center; text-align:center; padding:30px; color:#6b7090; font-size:14px; line-height:1.5; }
+
+  /* Inbox chrome around the email */
+  .mail-head { flex:0 0 auto; padding:14px 18px 12px; border-bottom:1px solid #eceef3; color:#141a2e; background:#fff; }
+  body.mobile .mail-head { padding:4px 16px 12px; }
+  .mail-back { display:none; font-size:14px; color:#2f6fed; margin-bottom:8px; }
+  body.mobile .mail-back { display:block; }
+  .mail-subj { font-size:16px; font-weight:600; margin-bottom:10px; line-height:1.3; }
+  .mail-from { display:flex; align-items:center; gap:10px; font-size:12.5px; color:#5b6380; }
+  .mail-av { width:30px; height:30px; border-radius:50%; background:var(--p); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex:0 0 auto; }
+  .mail-from b { color:#141a2e; font-weight:600; }
+  .mail-time { margin-left:auto; white-space:nowrap; }
+  /* Browser chrome for web pages on a phone */
+  .web-bar { flex:0 0 auto; display:none; align-items:center; justify-content:center; gap:6px; height:34px; background:#f2f3f6; font-size:12.5px; color:#333; border-bottom:1px solid #e3e4ea; }
+  body.mobile .web-bar { display:flex; }
+  .web-bar span { background:#fff; border-radius:8px; padding:4px 12px; max-width:80%; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+
+  .xp-nav { display:flex; align-items:center; gap:10px; width:100%; max-width:414px; }
+  body:not(.mobile) .xp-nav { max-width:1180px; }
+  .xp-nudge { flex:1; text-align:center; font-size:13px; font-weight:600; color:var(--ink); background:var(--card); border:1px solid var(--line); padding:9px 14px; border-radius:30px; line-height:1.35; }
+  .xp-nudge b { color:var(--p); }
+  .xp-go { flex:0 0 auto; width:38px; height:38px; border-radius:50%; border:1px solid var(--line); background:var(--card); font-size:18px; cursor:pointer; color:var(--ink); }
+  .xp-go.p { background:var(--p); border-color:var(--p); color:#fff; }
+  .xp-go:disabled { opacity:.35; cursor:default; }
+
+  .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(30px); opacity:0; background:#1d2240; color:#fff; padding:10px 16px; border-radius:10px; font-size:13px; font-weight:600; transition:.25s; pointer-events:none; z-index:2147483600; }
+  .toast.show { opacity:1; transform:translateX(-50%); }
+  @media (max-width: 860px) { .dm-app { grid-template-columns:1fr; } .dm-side { display:none; } body.show-side .dm-side { display:flex; } }
+</style>
+</head>
+<body class="mobile">
+<div class="dm-app" id="app">
+  <aside class="dm-side" id="side">
+    <div>
+      <div class="h1">SI Interactive Demo</div>
+      <div class="h2">The shopper's whole journey with ShipInsure, built from what you made for this merchant. Only the pieces you added show.</div>
+    </div>
+    <div class="fld"><div class="lbl">Merchant</div><input id="nameIn" placeholder="Store name"></div>
+    <div id="pieces"></div>
+    <div class="hint" id="srcHint"></div>
+    <div class="btns"><button class="btn p" type="button" id="linkBtn">🔗 Copy demo link</button><button class="btn" type="button" id="openBtn">↗ Open</button></div>
+    <div class="hint">The link opens straight into the demo (phone view). Save it to the merchant's folder from the bar above for a short link.</div>
+  </aside>
+
+  <section class="dm-main">
+    <header class="xp-top">
+      <nav class="xp-steps" id="steps"></nav>
+      <div class="xp-dev" id="devSeg" title="Preview on a phone or desktop"><button type="button" data-dev="mobile">📱 Mobile</button><button type="button" data-dev="desktop">🖥 Desktop</button></div>
+      <button class="xp-replay" type="button" id="replay">↺ Replay</button>
+    </header>
+    <main class="xp-stage" id="stage">
+      <div class="xp-phone" id="phone">
+        <div class="xp-status"><span>9:41</span><span>●●● ▮</span></div>
+        <div class="xp-screen" id="screen">
+          <section class="xp-pane" data-pane="shop"><div class="web-bar"><span id="shopUrl">store.com</span></div><iframe id="shopF" title="Cart and checkout"></iframe></section>
+          <section class="xp-pane" data-pane="mail">
+            <div class="mail-head"><div class="mail-back">‹ Inbox</div><div class="mail-subj" id="subj"></div>
+              <div class="mail-from"><span class="mail-av" id="av"></span><span><b id="fromName"></b> &lt;care@shipinsure.io&gt;<br>to me</span><span class="mail-time" id="when"></span></div></div>
+            <iframe id="emailF" title="Order email"></iframe>
+          </section>
+          <section class="xp-pane" data-pane="faq"><div class="web-bar"><span id="faqUrl">store.com/pages/faq</span></div><iframe id="faqF" title="FAQ page"></iframe></section>
+          <section class="xp-pane" data-pane="claim"><iframe id="claimF" title="Claim"></iframe></section>
+          <section class="xp-pane" data-pane="empty"><div class="xp-empty" id="emptyMsg"></div></section>
+        </div>
+      </div>
+      <div class="xp-nav"><button class="xp-go" type="button" id="back" aria-label="Back">‹</button><div class="xp-nudge" id="nudge"></div><button class="xp-go p" type="button" id="next" aria-label="Next">›</button></div>
+    </main>
+  </section>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const Q = new URLSearchParams(location.search);
+  const VIEW = Q.get('view') === '1';
+  if (VIEW) document.body.classList.add('view');
+  const enc = o => btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+  const dec = s => { try { return s ? JSON.parse(decodeURIComponent(escape(atob(s)))) : null; } catch (e) { return null; } };
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const hp = k => (location.hash.match(new RegExp('[#&]' + k + '=([^&]*)')) || [])[1] || '';
+  function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2200); }
+  // Sibling tools (same site): ../si-email-automation/, ../si-claim-wizard/, this folder for the rest.
+  const ROOT = location.href.replace(/[#?].*$/, '').replace(/[^/]*$/, '').replace(/si-widget-designer\/$/, '');
+  const URLS = {
+    co: p => p.id ? 'index.html?view=merchant&asset=' + encodeURIComponent(p.id) : 'index.html?view=merchant#s=' + enc({ name: p.data.name || '', examples: p.data.examples || [] }),
+    email: d => ROOT + 'si-email-automation/?view=1#d=' + enc(d),
+    claim: d => ROOT + 'si-claim-wizard/?view=1#d=' + enc(d),
+    faq: d => 'faq.html?view=1&embed=1&demo=1#d=' + enc(d),
+    lb: d => 'lightbox.html?view=1&embed=1#d=' + enc(d)
+  };
+
+  // ── The pieces. Each: null (left out), { id, title } (a folder save) or { draft: true, data } (this browser). ──
+  // co = Checkout Experience, lb = Info Lightbox, em = Email Automation, cl = Claim Wizard, fq = FAQ.
+  const KINDS = [
+    { k: 'co', kind: 'checkout', name: 'Cart & checkout', emoji: '🛒', tool: 'Checkout Experience', href: 'index.html', draftKey: 'si_checkout_draft', parse: s => JSON.parse(s) },
+    { k: 'lb', kind: 'lightbox', name: 'Info lightbox (ⓘ)', emoji: 'ⓘ', tool: 'Info Lightbox', href: 'lightbox.html', draftKey: 'si_lightbox_draft', parse: s => JSON.parse(s) },
+    { k: 'em', kind: 'email', name: 'Order emails', emoji: '✉️', tool: 'Email Automation', href: ROOT + 'si-email-automation/', draftKey: 'si_exp_email', parse: s => dec(s) },
+    { k: 'cl', kind: 'claim', name: 'Claim flow', emoji: '🛡️', tool: 'Claim Wizard', href: ROOT + 'si-claim-wizard/', draftKey: 'si_exp_claim', parse: s => dec(s) },
+    { k: 'fq', kind: 'faq', name: 'FAQ page', emoji: '❓', tool: 'FAQ', href: 'faq.html', draftKey: 'si_faq_draft', parse: s => JSON.parse(s) }
+  ];
+  let SPEC = { v: 1, name: '', pieces: {} };
+  let folderRows = {};   // kind → [{ id, title, updated_at }]
+  const drafts = {};
+  KINDS.forEach(K => { if (!K.draftKey) return; try { const raw = localStorage.getItem(K.draftKey); const d = raw && K.parse(raw); if (d && typeof d === 'object') drafts[K.k] = d; } catch (e) {} });
+
+  // ── Load each chosen piece's data ──
+  const cache = {};
+  async function pieceData(k) {
+    const p = SPEC.pieces[k]; if (!p) return null;
+    if (p.data) return p.data;
+    if (!p.id) return null;
+    if (cache[p.id]) return cache[p.id];
+    try { const r = await SIsb.getAsset(p.id); return (cache[p.id] = r.data || {}); } catch (e) { return null; }
+  }
+
+  let D = {};   // resolved: { co: assetId, lb: cfg, em: E, cl: C, fq: S }
+  async function resolve() {
+    const [lb, em, cl, fq] = await Promise.all(['lb', 'em', 'cl', 'fq'].map(pieceData));
+    const cp = SPEC.pieces.co;
+    D = { co: cp && (cp.id || cp.data) ? cp : null, lb: lb ? (lb.cfg || lb) : null, em: em ? Object.assign({}, em) : null, cl: cl ? Object.assign({}, cl) : null, fq: fq || null };
+    // Brand basics fill in across the pieces (as the Email → Claim link does).
+    const store = SPEC.name || (cp && cp.data && cp.data.name) || (D.em && D.em.storeName) || (D.cl && D.cl.storeName) || (D.fq && D.fq.f && D.fq.f.store) || (lb && lb.store) || 'Demo Store';
+    D.store = store;
+    const needClaim = D.em || D.fq;
+    if (needClaim && !D.cl) D.cl = {};
+    if (D.em) { D.em.storeName = D.em.storeName || store; if (!D.em.logo && D.cl && D.cl.logo) D.em.logo = D.cl.logo; if (D.cl && D.cl.primary && !D.em.btnColor) D.em.btnColor = D.cl.primary; D.em.type = 'confirm'; }
+    if (D.cl) { D.cl.storeName = D.cl.storeName || store; if (D.em) { if (!D.cl.logo && D.em.logo) D.cl.logo = D.em.logo; if (!D.cl.primary && D.em.btnColor) D.cl.primary = D.em.btnColor; if (!D.cl.orderNum && D.em.orderNum) D.cl.orderNum = D.em.orderNum; } }
+    if (D.fq) { D.fq = JSON.parse(JSON.stringify(D.fq)); D.fq.device = 'mobile'; D.fq.f = D.fq.f || {}; if (!D.fq.f.store) D.fq.f.store = store; }
+    const primary = (D.cl && D.cl.primary) || (D.em && D.em.btnColor) || '#6675FF';
+    document.documentElement.style.setProperty('--p', primary);
+  }
+
+  // ── Steps (only for what was added) ──
+  let STEPS = [], step = 0, loaded = {};
+  function buildSteps() {
+    STEPS = [];
+    if (D.co) STEPS.push({ id: 'shop', label: 'Cart & checkout', pane: 'shop', nudge: D.lb ? 'Tap the <b>ⓘ</b> beside the protection to see what’s covered' : 'Where shoppers add ShipInsure' });
+    if (D.lb) STEPS.push({ id: 'info', label: 'Info lightbox', pane: D.co ? 'shop' : 'lb', nudge: 'What opens from the <b>ⓘ</b>: what’s covered' });
+    if (D.em) {
+      STEPS.push({ id: 'confirm', label: 'Order protected email', pane: 'mail', nudge: 'Right after checkout: their order is covered' });
+      STEPS.push({ id: 'delivered', label: 'Delivered email', pane: 'mail', nudge: 'Something’s wrong? Tap <b>File a Claim</b> in the email' });
+      STEPS.push({ id: 'claim', label: 'Claim from email', pane: 'claim', nudge: 'Signed in from the email: straight to their order' });
+    }
+    if (D.fq) {
+      STEPS.push({ id: 'faq', label: 'FAQ page', pane: 'faq', nudge: 'Or from the store’s FAQ: tap the <b>File a Claim</b> link' });
+      STEPS.push({ id: 'faqclaim', label: 'Claim from FAQ', pane: 'claim', nudge: 'From the FAQ: they look up their order first' });
+    }
+    if (!D.em && !D.fq && D.cl) STEPS.push({ id: 'claim', label: 'File a claim', pane: 'claim', nudge: 'The claim, start to finish' });
+    $('steps').innerHTML = STEPS.map((s, i) => (i ? '<span class="xp-arrow">→</span>' : '') + `<button class="xp-step" type="button" data-i="${i}"><i>${i + 1}</i>${esc(s.label)}</button>`).join('');
+  }
+
+  const frameReady = {};
+  function load(name, src) {
+    const f = $(name);
+    if (f.dataset.src === src) return frameReady[name];
+    f.dataset.src = src;
+    frameReady[name] = new Promise(res => { f.onload = () => { tellDevice(f); res(f); }; });
+    f.src = src;
+    return frameReady[name];
+  }
+  const post = (name, msg) => (frameReady[name] || Promise.resolve($(name))).then(f => { try { f.contentWindow.postMessage(msg, '*'); } catch (e) {} });
+
+  async function go(i, opts) {
+    if (!STEPS.length) return showEmpty();
+    step = Math.max(0, Math.min(STEPS.length - 1, i));
+    const S = STEPS[step];
+    document.querySelectorAll('.xp-step').forEach(b => { const j = +b.dataset.i; b.classList.toggle('on', j === step); b.classList.toggle('done', j < step); });
+    const on = document.querySelector('.xp-step.on'); if (on) on.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    $('nudge').innerHTML = S.nudge;
+    $('back').disabled = step === 0; $('next').disabled = step === STEPS.length - 1;
+    const pane = S.pane === 'lb' ? 'shop' : S.pane;
+    document.querySelectorAll('.xp-pane').forEach(p => p.hidden = p.dataset.pane !== pane);
+    if (window.SILightbox) SILightbox.close($('screen'));
+    const host = D.store.toLowerCase().replace(/[^a-z0-9]+/g, '') || 'store';
+    if (S.pane === 'shop' || S.pane === 'lb') {
+      $('shopUrl').textContent = host + '.com/cart';
+      if (D.co) {
+        const f = await load('shopF', URLS.co(D.co).replace(/(#|$)/, (SPEC.pieces.lb && SPEC.pieces.lb.id ? '&lb=' + encodeURIComponent(SPEC.pieces.lb.id) : '') + '$1'));
+        try { if (D.lb) f.contentWindow._lbOverride = D.lb; } catch (e) {}
+        if (S.id === 'info') SILightbox.open(D.lb, { host: $('screen'), narrow: document.body.classList.contains('mobile') && D.lb.variant === 'checkout' });
+      } else {
+        load('shopF', URLS.lb({ cfg: D.lb, store: D.store, device: document.body.classList.contains('mobile') ? 'mobile' : 'desktop' }));
+      }
+    }
+    if (S.pane === 'mail') {
+      await load('emailF', URLS.email(D.em));
+      post('emailF', { siExp: 'set', type: S.id });
+      $('subj').textContent = S.id === 'delivered' ? `Your shipment from ${D.store} has been delivered!` : `Your ${D.store} order is covered`;
+      const d = new Date(); if (S.id === 'confirm') d.setDate(d.getDate() - 3);
+      $('when').textContent = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const sender = D.em.senderName || 'ShipInsure';
+      $('fromName').textContent = sender; $('av').textContent = sender.trim().charAt(0).toUpperCase() || 'S';
+    }
+    if (S.pane === 'faq') {
+      $('faqUrl').textContent = host + '.com/pages/faq';
+      await load('faqF', URLS.faq(Object.assign({}, D.fq, { device: mobile ? 'mobile' : 'desktop' })));
+    }
+    if (S.pane === 'claim') {
+      await load('claimF', URLS.claim(D.cl || {}));
+      // From the email: already signed in (Resolution Center). From the FAQ (or on its own): order lookup first.
+      if (!(opts && opts.keep)) { post('claimF', { siExp: 'restart' }); post('claimF', { siExp: 'claim', signedIn: S.id === 'claim' && !!D.em }); }
+    }
+  }
+  function showEmpty() {
+    document.querySelectorAll('.xp-pane').forEach(p => p.hidden = p.dataset.pane !== 'empty');
+    $('emptyMsg').innerHTML = VIEW ? 'This demo has nothing in it yet.' : 'Nothing added yet.<br>Pick a merchant folder with saved designs, or make one in the Checkout Experience, Info Lightbox, Email Automation, Claim Wizard or FAQ tools.';
+    $('steps').innerHTML = ''; $('nudge').textContent = 'The demo fills in as you add pieces'; $('back').disabled = $('next').disabled = true;
+  }
+
+  // From inside the frames: the email's File a Claim, the FAQ's claims link.
+  window.addEventListener('message', e => {
+    const d = e.data; if (!d || !d.siExp) return;
+    if (d.siExp === 'claim' && e.source === $('emailF').contentWindow) { const i = STEPS.findIndex(s => s.id === 'claim'); if (i >= 0) go(i); }
+    if (d.siExp === 'claim' && d.from === 'faq') { const i = STEPS.findIndex(s => s.id === 'faqclaim'); if (i >= 0) go(i); }
+  });
+  $('steps').addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (b) go(+b.dataset.i); });
+  $('back').onclick = () => go(step - 1);
+  $('next').onclick = () => go(step + 1);
+  $('replay').onclick = () => { ['shopF', 'faqF'].forEach(n => { const f = $(n); delete f.dataset.src; }); go(0); };
+
+  // ── Phone (default) / desktop ──
+  let mobile = Q.get('dev') !== 'desktop' && hp('dev') !== 'desktop';
+  function tellDevice(f) { try { f.contentWindow.postMessage({ siExp: 'device', mobile }, '*'); } catch (e) {} }
+  function fit() {
+    const ph = $('phone'), st = $('stage');
+    ph.style.zoom = mobile ? Math.min(1, (st.clientHeight - 80) / 868, (st.clientWidth - 24) / 414) : '';
+  }
+  function setDevice(dev) {
+    mobile = dev !== 'desktop';
+    document.body.classList.toggle('mobile', mobile);
+    document.querySelectorAll('#devSeg button').forEach(b => b.classList.toggle('on', (b.dataset.dev === 'mobile') === mobile));
+    ['shopF', 'emailF', 'claimF', 'faqF'].forEach(n => tellDevice($(n)));
+    if (STEPS[step] && (STEPS[step].pane === 'lb' || STEPS[step].pane === 'faq')) go(step, { keep: true });
+    fit();
+  }
+  $('devSeg').onclick = e => { const b = e.target.closest('[data-dev]'); if (b) setDevice(b.dataset.dev); };
+  addEventListener('resize', fit);
+
+  // ── Rep panel ──
+  function optLabel(r) { const d = r.updated_at ? new Date(r.updated_at) : null; return (r.title || 'Untitled') + (d ? ' · ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''); }
+  function renderSide() {
+    if (VIEW) return;
+    $('nameIn').value = SPEC.name || '';
+    $('pieces').innerHTML = KINDS.map(K => {
+      const rows = folderRows[K.kind] || [], p = SPEC.pieces[K.k];
+      const cur = !p ? 'off' : p.id ? 'a:' + p.id : 'draft';
+      let o = rows.map(r => `<option value="a:${esc(r.id)}">📁 ${esc(optLabel(r))}</option>`).join('');
+      if (drafts[K.k]) o += `<option value="draft">💻 My latest (this browser)</option>`;
+      if (p && p.id && !rows.some(r => r.id === p.id)) o += `<option value="a:${esc(p.id)}">📁 ${esc(p.title || 'Saved piece')}</option>`;
+      o += `<option value="off">— Leave out —</option>`;
+      return `<div class="pc${p ? '' : ' off'}"><div class="pc-h"><span>${K.emoji}</span>${esc(K.name)}<small>${rows.length ? rows.length + ' in folder' : ''}</small></div>
+        <select data-k="${K.k}">${o}</select><a href="${esc(K.href)}" target="_blank" rel="noopener">Open ${esc(K.tool)} ↗</a></div>`;
+    }).join('');
+    document.querySelectorAll('#pieces select').forEach(s => { const p = SPEC.pieces[s.dataset.k]; s.value = !p ? 'off' : p.id ? 'a:' + p.id : 'draft'; });
+    const a = window.SIsb && SIsb.getActiveFolder();
+    $('srcHint').textContent = a ? (Object.keys(folderRows).length ? `Using ${a.name}’s folder: the newest save of each piece is picked.` : `Nothing saved in ${a.name}’s folder yet (or sign in to see it).`) : 'Pick a merchant folder (bar above) to use its saved designs. Without one, your latest drafts in this browser are used.';
+  }
+  $('pieces').addEventListener('change', e => {
+    const s = e.target.closest('select[data-k]'); if (!s) return;
+    const k = s.dataset.k, v = s.value, K = KINDS.find(x => x.k === k);
+    if (v === 'off') SPEC.pieces[k] = null;
+    else if (v === 'draft') SPEC.pieces[k] = { draft: true, data: drafts[k] };
+    else { const id = v.slice(2), r = (folderRows[K.kind] || []).find(x => x.id === id); SPEC.pieces[k] = { id, title: r ? r.title : '' }; }
+    rebuild();
+  });
+  $('nameIn').addEventListener('input', e => { SPEC.name = e.target.value; clearTimeout(rebuild._t); rebuild._t = setTimeout(rebuild, 500); });
+
+  // Default pieces: the folder's newest save of each kind, else this browser's latest draft.
+  function autoPick() {
+    KINDS.forEach(K => {
+      const rows = folderRows[K.kind] || [];
+      if (rows.length) SPEC.pieces[K.k] = { id: rows[0].id, title: rows[0].title };
+      else if (drafts[K.k]) SPEC.pieces[K.k] = { draft: true, data: drafts[K.k] };
+      else SPEC.pieces[K.k] = null;
+    });
+  }
+  async function loadFolder() {
+    folderRows = {};
+    const a = window.SIsb && SIsb.getActiveFolder();
+    if (a) {
+      try {
+        const rows = await SIsb.listAssets(a.id);
+        rows.filter(r => r.source !== 'upload' && r.source !== 'link').forEach(r => { (folderRows[r.kind] = folderRows[r.kind] || []).push(r); });
+      } catch (e) {}
+      if (!SPEC.name) SPEC.name = a.name || '';
+    }
+  }
+
+  function linkSpec() {
+    // Drafts ride in the link (a Checkout draft with uploaded mockups is long: a folder save keeps it short).
+    const p = {};
+    Object.entries(SPEC.pieces).forEach(([k, v]) => { if (v) p[k] = v.id ? { id: v.id, title: v.title || '' } : { data: v.data }; });
+    return { v: 1, name: SPEC.name || '', pieces: p };
+  }
+  const demoLink = () => location.origin + location.pathname + '?view=1#d=' + enc(linkSpec());
+  $('linkBtn').onclick = () => {
+    const u = demoLink();
+    navigator.clipboard.writeText(u).then(() => toast(u.length > 60000 ? 'Demo link copied (long: save to the folder for a short link)' : 'Demo link copied'), () => prompt('Copy this demo link:', u));
+  };
+  $('openBtn').onclick = () => window.open(demoLink(), '_blank', 'noopener');
+
+  async function rebuild() {
+    await resolve();
+    ['shopF', 'emailF', 'claimF', 'faqF'].forEach(n => { delete $(n).dataset.src; });
+    buildSteps(); renderSide();
+    go(Math.min(step, Math.max(0, STEPS.length - 1)));
+  }
+
+  // ── Start ──
+  (async function init() {
+    const asset = Q.get('asset');
+    const fromHash = dec(hp('d'));
+    if (asset && window.SIsb) { try { const r = await SIsb.getAsset(asset); SPEC = Object.assign({ v: 1, name: '', pieces: {} }, r.data || {}); } catch (e) {} }
+    else if (fromHash) SPEC = Object.assign({ v: 1, name: '', pieces: {} }, fromHash);
+    else if (!VIEW) { await loadFolder(); autoPick(); }
+    if (!VIEW && (asset || fromHash)) await loadFolder();
+    setDevice(mobile ? 'mobile' : 'desktop');
+    await rebuild();
+  })();
+  if (!VIEW && window.SIsb) SIsb.onActiveFolder(async () => { SPEC.name = ''; await loadFolder(); autoPick(); rebuild(); });
+  if (!VIEW && window.SIFolderBar) {
+    // merchant_assets kind 'demo' (needs si-rep-hub/lightbox-demo-kind.sql; sb.js gets the kind here until its own list has it).
+    if (Array.isArray(SIsb.ASSET_KINDS) && SIsb.ASSET_KINDS.indexOf('demo') < 0) SIsb.ASSET_KINDS.push('demo');
+    SIFolderBar.mount({
+      kind: 'demo', tool: 'SI Interactive Demo', before: $('app'),
+      getData: () => linkSpec(),
+      applyData: d => { SPEC = Object.assign({ v: 1, name: '', pieces: {} }, d || {}); rebuild(); },
+      defaultTitle: () => 'Interactive Demo – ' + (SPEC.name || 'Merchant'),
+      shortLink: id => location.origin + location.pathname + '?view=1&asset=' + encodeURIComponent(id)
+    });
+  }
+
+  // ── Rep Hub theme hand-off ──
+  const setTheme = t => document.body.classList.toggle('pm', t === 'midnight');
+  setTheme(Q.get('theme'));
+  window.addEventListener('message', e => { const d = e.data || {}; if (d.siHub === 'apply' && d.theme) setTheme(d.theme); });
+</script>
+</body>
+</html>

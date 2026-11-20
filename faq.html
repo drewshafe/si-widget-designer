@@ -125,6 +125,10 @@
   body.view .browser { max-width:none; border-radius:0; box-shadow:none; }
   body.view .browser.mobile { max-width:390px; margin:18px auto; border-radius:44px; }
   body.view .b-bar { display:none; }
+  /* Inside the SI Interactive Demo's phone: no second phone frame */
+  body.embed .browser.mobile { max-width:none; margin:0; border:0; border-radius:0; }
+  body.embed .fq-stage { background:#fff; }
+  body.demo .si-block a[href*="claim"] { background:rgba(102,117,255,.12); border-radius:4px; padding:0 3px; box-shadow:0 0 0 2px rgba(102,117,255,.35); }
 
   .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(30px); opacity:0; background:#1d2240; color:#fff; padding:10px 16px; border-radius:10px; font-size:13px; font-weight:600; transition:.25s; pointer-events:none; z-index:90; }
   .toast.show { opacity:1; transform:translateX(-50%); }
@@ -226,6 +230,8 @@
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const clone = o => JSON.parse(JSON.stringify(o));
   const VIEW = new URLSearchParams(location.search).get('view') === '1';
+  // In the SI Interactive Demo (demo.html): the claims link starts the demo's claim instead of leaving.
+  const DEMO = VIEW && new URLSearchParams(location.search).get('demo') === '1' && window.parent !== window;
   function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2200); }
 
   // ── Template copy ("ShipInsure Documentation Examples for FAQ") ──
@@ -504,6 +510,8 @@
     if (q.get('store') && !S.f.store) S.f.store = q.get('store');
     if (q.get('faq') && !S.faqUrl) S.faqUrl = q.get('faq');
     if (VIEW) document.body.classList.add('view');
+    if (VIEW && q.get('embed') === '1') document.body.classList.add('embed');
+    if (DEMO) document.body.classList.add('demo');
   })();
 
   // ── Side panel events ──
@@ -522,7 +530,9 @@
 
   // ── Preview: open/close and in-place text edits ──
   $('site').addEventListener('click', e => {
-    if (e.target.closest('a') && !VIEW) { e.preventDefault(); return; }
+    const ln = e.target.closest('a');
+    if (ln && !VIEW) { e.preventDefault(); return; }
+    if (ln && DEMO) { e.preventDefault(); if (/claim/i.test((ln.getAttribute('href') || '') + ' ' + ln.textContent)) parent.postMessage({ siExp: 'claim', from: 'faq' }, '*'); return; }
     if (e.target.closest('[contenteditable="true"]')) return;   // editing text, not opening a question
     const q = e.target.closest('.q'); if (!q || S.style.icon === 'none') return;
     const qa = q.closest('.qa'), id = qa.dataset.q;

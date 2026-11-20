@@ -659,10 +659,99 @@
         /* Lock Logo Builder — colour swatches */
         .lb-swatch { border: 2px solid #d8dae5; box-shadow: 0 1px 2px rgba(0,0,0,0.15); }
         .lb-swatch.active { border-color: #6675ff; box-shadow: 0 0 0 2px rgba(102,117,255,0.3); }
+
+        /* ── Info lightbox picker (what the widget's ⓘ opens) ── */
+        .ilb-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 10px 0 2px; padding: 8px 10px; background: #f4f5ff; border: 1px solid #dfe3f7; border-radius: 10px; }
+        .ilb-lbl { font-size: 0.74em; font-weight: 800; color: #3a467f; white-space: nowrap; }
+        .ilb-row select { flex: 1 1 150px; min-width: 0; font-size: 0.78em; padding: 5px 6px; border: 1px solid #d0d4e8; border-radius: 6px; background: #fff; }
+        .ilb-btn { font-size: 0.74em; font-weight: 700; padding: 5px 9px; border: 1px solid #d0d4e8; border-radius: 6px; background: #fff; color: #3a467f; cursor: pointer; text-decoration: none; white-space: nowrap; }
+        .ilb-btn:hover { border-color: #6675ff; }
+        /* ⓘ in a mockup (merchant link / demo): a hotspot that opens the lightbox */
+        .mk2-hot { position: absolute; z-index: 6; pointer-events: auto; cursor: pointer; border-radius: 50%; }
+        .mk2-hot::after { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 2px solid #6675ff; opacity: 0; animation: mkHot 2.4s ease-out infinite; }
+        @keyframes mkHot { 0% { transform: scale(.6); opacity: .85; } 70%, 100% { transform: scale(1.35); opacity: 0; } }
+        .wp-info-btn, .wp-leaf-icon { cursor: pointer; }
+
+        /* ── Edit copy (Deal Room style): the few controls a rep needs, everything else under More tools ── */
+        .mk-ec { border: 1px solid #d5d9f0; border-radius: 12px; padding: 12px 12px 10px; margin: 10px 0; background: #fff; box-shadow: 0 2px 10px rgba(40,50,120,0.05); }
+        .mk-ec-hd { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+        .mk-ec-hd b { font-size: 0.92em; color: #1d2240; }
+        .mk-ec-n { font-size: 0.72em; color: #6b7090; }
+        .mk-ec-n button { font: inherit; font-weight: 700; color: #4a5fc1; background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
+        .mk-ec-sec { font-size: 0.72em; font-weight: 800; color: #1d2240; margin: 10px 0 4px; }
+        .mk-ec-price { display: flex; gap: 6px; margin: 4px 0 8px; }
+        .mk-ec-price select { flex: 1; min-width: 0; font-size: 0.78em; padding: 5px 6px; border: 1px solid #d0d4e8; border-radius: 6px; background: #fff; }
+        .mk-ec-price input { width: 70px; font-size: 0.78em; padding: 5px 6px; border: 1px solid #d0d4e8; border-radius: 6px; }
+        .mk-ec #mk-font { width: 100%; box-sizing: border-box; font-size: 0.8em; padding: 6px 8px; border: 1px solid #d0d4e8; border-radius: 6px; }
+        details.mk-more { border: 1px solid #e3e5f2; border-radius: 10px; padding: 8px 10px; margin: 6px 0 10px; background: #fafbff; }
+        details.mk-more > summary { cursor: pointer; font-size: 0.8em; font-weight: 800; color: #1d2240; list-style: none; }
+        details.mk-more > summary::before { content: '▸ '; color: #8890b5; }
+        details.mk-more[open] > summary::before { content: '▾ '; }
+        details.mk-more > summary span { font-weight: 500; color: #6b7090; font-size: 0.92em; }
+
+        /* ── What the merchant sees: one list of named views (Deal Room mockup list) ── */
+        .mp-set-hd { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+        .mp-set-hd .mp-set-title { margin: 0; }
+        .mp-add { font-size: 0.76em; font-weight: 700; padding: 6px 11px; border-radius: 8px; border: 1px solid #c9cff2; background: #eef0fb; color: #4a5fc1; cursor: pointer; white-space: nowrap; }
+        .mp-set-sub { font-size: 0.74em; color: #7a7f99; line-height: 1.4; margin-bottom: 8px; }
+        .mp-list { display: flex; flex-direction: column; gap: 6px; }
+        .mp-row { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border: 1px solid #e3e6f3; border-radius: 10px; background: #fff; }
+        .mp-row.on { border-color: #6675ff; background: #f6f7ff; box-shadow: 0 0 0 2px rgba(102,117,255,0.15); }
+        .mp-row.cur { border-style: dashed; background: #fbfbfe; }
+        .mp-n { font-size: 0.74em; font-weight: 800; color: #8890b5; width: 18px; text-align: right; flex: 0 0 auto; }
+        .mp-th { flex: 0 0 auto; width: 46px; height: 32px; border-radius: 6px; background: #e8eaf4 center top / cover no-repeat; border: 1px solid #dde0ef; }
+        .mp-th.ico { display: flex; align-items: center; justify-content: center; font-size: 15px; background: #eef0fb; }
+        .mp-nm-wrap { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+        .mp-nm { width: 100%; box-sizing: border-box; border: 1px solid transparent; border-radius: 6px; padding: 3px 5px; font-size: 0.82em; font-weight: 700; color: #1d2240; background: transparent; }
+        .mp-nm:hover { border-color: #e1e4f2; }
+        .mp-nm:focus { outline: none; border-color: #6675ff; background: #fff; }
+        .mp-curname { font-size: 0.8em; color: #3a3a5a; padding: 3px 5px 0; }
+        .mp-ty { font-size: 0.7em; color: #7a7f99; padding: 0 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .mp-ty b { color: #4a5fc1; font-weight: 700; }
+        .mp-btn { flex: 0 0 auto; font-size: 0.74em; font-weight: 700; padding: 5px 9px; border-radius: 7px; border: 1px solid #d0d4e8; background: #fff; color: #333; cursor: pointer; white-space: nowrap; }
+        .mp-btn.p { background: #4a5fc1; border-color: #4a5fc1; color: #fff; }
+        .mp-editing { flex: 0 0 auto; font-size: 0.72em; font-weight: 800; color: #4a5fc1; white-space: nowrap; padding: 0 4px; }
+        .mp-ic { flex: 0 0 auto; width: 24px; height: 24px; border: 0; border-radius: 6px; background: none; color: #8890b5; font-size: 0.95em; font-weight: 800; cursor: pointer; padding: 0; }
+        .mp-ic:hover:not(:disabled) { background: #eef0fb; color: #4a5fc1; }
+        .mp-ic:disabled { color: #d5d8e6; cursor: default; }
+        .mp-ic.x:hover { color: #dc3545; background: #fdeef0; }
+        .mp-ic.mp-star { color: #c7cbe0; }
+        .mp-ic.mp-star.on, .mp-ic.mp-star:hover { color: #f5b301; }
+
+        /* ── Merchant link: mockups in a viewer (thumbnails swap into the big view, hover to magnify) ── */
+        .mv { width: 100%; min-width: 0; max-width: 100%; flex: 1 1 100%; display: flex; flex-direction: column; gap: 10px; }
+        .mv-stage, .mv-slide { min-width: 0; max-width: 100%; }
+        .mv-stage { background: #fff; border: 1px solid #e3e7f5; border-radius: 12px; overflow: hidden; }
+        .mv-stage .mk-fit { overflow: hidden; }
+        .mv-stage .mk2-page { transition: transform .12s ease-out; }
+        .mv-stage .mk-flabel { padding: 6px 10px; margin: 0; }
+        @media (hover: hover) { .mv-stage .mk2-page { cursor: zoom-in; } }
+        .mk2-page.mv-mag { transform: scale(2.2); }
+        .mv-bar { display: flex; align-items: center; gap: 10px; font-size: 0.86em; }
+        .mv-name { font-weight: 800; color: #1d2240; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .mv-hint { color: #8890b5; font-size: 0.86em; white-space: nowrap; }
+        .mv-n { color: #6b7090; font-weight: 700; white-space: nowrap; }
+        .mv-nav { width: 30px; height: 30px; border-radius: 50%; border: 1px solid #d5d9f0; background: #fff; font-size: 1.1em; cursor: pointer; color: #3a467f; flex: 0 0 auto; }
+        .mv-thumbs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+        .mv-th { flex: 0 0 auto; width: 132px; display: flex; flex-direction: column; gap: 5px; padding: 5px; border: 2px solid transparent; border-radius: 10px; background: #fff; cursor: pointer; text-align: left; }
+        .mv-th.on { border-color: #6675ff; }
+        .mv-ti { display: block; height: 76px; border-radius: 6px; background: #e8eaf4 center top / cover no-repeat; }
+        .mv-th b { font-size: 0.72em; color: #3a3a5a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        @media (hover: none) { .mv-hint { display: none; } }
+        /* Merchant link on a phone (and inside the SI Interactive Demo) */
+        @media (max-width: 640px) {
+            .mp-layout { flex-direction: column; align-items: stretch; padding: 12px; gap: 14px; }
+            .mp-content, .mp-section, .mp-section-body { min-width: 0; max-width: 100%; }
+            .mp-section-body { padding: 12px; gap: 14px; }
+            .mp-view-header { padding: 14px 16px; }
+            .mv-th { width: 100px; }
+            .mv-ti { height: 58px; }
+        }
     </style>
 <script src="https://drewshafe.github.io/si-roi-calculator/sb.js"></script>
 <script src="https://drewshafe.github.io/si-rep-hub/folder-bar.js"></script>
 <script src="https://drewshafe.github.io/si-roi-calculator/portal-templates.js"></script>
+<script src="lightbox.js"></script>
 </head>
 <body>
     <div class="app-header">
@@ -776,6 +865,12 @@
                 <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:6px;">
                     <button class="scan-widget-btn" id="scanCartBtn" style="display:none;" onclick="openScanModal('cart')">🔍 Scan Cart</button>
                     <button class="scan-widget-btn" onclick="openScanModal()">🔍 Scan Widget</button>
+                </div>
+                <div class="ilb-row" title="What opens when a shopper clicks the widget's ⓘ (click the ⓘ in the preview to try it)">
+                    <span class="ilb-lbl">ⓘ Info lightbox</span>
+                    <select data-ilb-pick onchange="ilbPick(this.value)"><option value="default">ShipInsure default</option></select>
+                    <button type="button" class="ilb-btn" onclick="ilbPreview()">Preview</button>
+                    <a class="ilb-btn" href="lightbox.html" target="_blank" rel="noopener" title="Design a custom lightbox (Rep Hub → Preview Designer → Info Lightbox)">✏️ Design</a>
                 </div>
 
                 <!-- Dual Checkout config -->
@@ -1520,12 +1615,22 @@
                     </div>
                     <div id="mkFolderPick"></div>
                     <div id="mkStatus" class="mk2-status"></div>
-                    <div id="mkFeeInfo" class="mk2-fee" style="display:none;"></div>
-                    <label class="mk2-chk"><input type="checkbox" id="mk-reprice" checked onchange="mkRender()"> Re-price ShipInsure from the Pricing template</label>
-                    <label class="mk2-chk"><input type="checkbox" id="mk-tags" checked onchange="mkRender()"> Outline tagged prices in the preview (hover for the tag)</label>
-                    <div id="mkParts"></div>
-                    <div id="coEditor"></div>
-                    <div class="mk2-tools" id="mkTools">
+                    <div class="mk-ec" id="mkEditCard">
+                        <div class="mk-ec-hd"><b>✏️ Edit copy</b><span class="mk-ec-n" id="mkEcCount"></span></div>
+                        <label class="mk2-chk"><input type="checkbox" id="mk-tags" checked onchange="mkRender()"> Show price tags</label>
+                        <div class="mk-ec-sec">ShipInsure price</div>
+                        <label class="mk2-chk"><input type="checkbox" id="mk-reprice" checked onchange="mkRender()"> Re-price from the pricing below</label>
+                        <div class="mk-ec-price"><select data-proxy="pricingTemplate" onchange="mkProxy(this)" title="Pricing (same as the Pricing control at the top)"></select><input type="text" data-proxy="protectionPremium" inputmode="decimal" oninput="mkProxy(this)" title="SI premium"></div>
+                        <div id="mkFeeInfo" class="mk2-fee" style="display:none;"></div>
+                        <div class="mk-ec-sec">Mockup font</div>
+                        <input type="text" id="mk-font" placeholder="e.g. Poppins" onchange="mkSetFont(this.value)" title="Edited text is drawn in this font, fitted to the mockup's own letters. Type a different Google font to override.">
+                        <div id="mkSelPanel"></div>
+                        <div class="mk2-row"><button type="button" onclick="mkRevertAll()" title="Undo every text change, box and added text">↺ Revert all</button></div>
+                    </div>
+                    <details class="mk-more" id="mkMore"><summary>More tools <span>· ShipInsure widget text, Checkout Editor, boxes, images, move, add text, tag sections</span></summary>
+                        <div id="mkParts"></div>
+                        <div id="coEditor"></div>
+                        <div class="mk2-tools" id="mkTools">
                         <button type="button" data-tool="select" class="on" onclick="mkSetTool('select')" title="Click text to edit · click / drag boxes">↖ Select</button>
                         <button type="button" data-tool="box" onclick="mkSetTool('box')" title="Drag a box to cover or recolor an area (e.g. a button)">▭ Box</button>
                         <button type="button" data-tool="image" onclick="mkSetTool('image')" title="Drag where an image goes (logo, product photo), then pick the file">🖼 Image</button>
@@ -1533,14 +1638,8 @@
                         <button type="button" data-tool="text" onclick="mkSetTool('text')" title="Click where new text goes">T Text</button>
                         <button type="button" data-tool="tag" onclick="mkSetTool('tag')" title="Checkout Editor: mark a checkout section it didn't find (click its heading), or drag around a ShipInsure widget / line already in the mockup">⚑ Tag section</button>
                     </div>
-                    <div class="wconfig-style-row">
-                        <div class="wcs"><label>Mockup font (found automatically)</label><input type="text" id="mk-font" placeholder="e.g. Poppins" onchange="mkSetFont(this.value)" title="Edited text is drawn in this font, fitted to the mockup's own letters. Type a different Google font to override."></div>
-                    </div>
-                    <div id="mkSelPanel"></div>
-                    <div class="mk2-row">
-                        <button type="button" onclick="mkRevertAll()" title="Undo every text change, box and added text">↺ Revert all edits</button>
-                        <button type="button" onclick="mkClear()" title="Remove the imported mockup">✕ Remove mockup</button>
-                    </div>
+                        <div class="mk2-row"><button type="button" onclick="mkClear()" title="Remove the imported mockup">✕ Remove mockup</button></div>
+                    </details>
                     <input type="file" id="mkFileInput" accept=".pdf,application/pdf,image/*" style="display:none;" onchange="if(this.files[0]) mkImportBlob(this.files[0], this.files[0].name); this.value='';">
                     <input type="file" id="mkImgInput" accept="image/*" style="display:none;" onchange="if(this.files[0]) mkBoxImage(this.files[0]); this.value='';">
                 </div>
@@ -1556,9 +1655,10 @@
                 <div id="lineItemPreviewArea"></div>
             </div>
             <div class="mp-set-card" id="mpSetCard">
-                <div class="mp-set-title">Merchant Preview Set (<span id="mpCount">0</span>) — "Add View" to include a deployment example, then Copy Link to share the grid</div>
+                <div class="mp-set-hd"><div class="mp-set-title">What the merchant sees (<span id="mpCount">0</span>)</div><button type="button" class="mp-add" onclick="addCurrentView()" title="Add the design in the editor as a view on the merchant link">+ Add this view</button></div>
+                <div class="mp-set-sub">Each view shows on the merchant link (🔗 Copy Link) and saves with the folder. Each uploaded mockup gets its own view. ✏️ Edit opens a view in the editor, and changes save to it as you go.</div>
                 <input type="text" id="mpName" placeholder="Preview name (e.g. Acme Co. — Checkout Preview)" oninput="_previewName=this.value" style="width:100%;box-sizing:border-box;margin-bottom:8px;padding:7px 9px;font-size:0.82em;border:1px solid #d5d9f0;border-radius:7px;">
-                <div class="mp-chips" id="mpChips"><span class="mp-empty">No views added — the merchant link will show the current view.</span></div>
+                <div class="mp-list" id="mpChips"></div>
             </div>
 
         </div>
@@ -1850,6 +1950,8 @@
         }
 
         function setWidgetType(type) {
+            // Editing a view and picking another widget type: that view keeps its design; the new type is a new (unlisted) view.
+            if (!_mpLoading && !_mkReadOnly && _mpEdit != null && type !== _widgetType) { _mpCommit(); _mpEdit = null; }
             _widgetType = type;
             document.body.classList.toggle('mk-mode', type === 'mockup');
             ['dual', 'toggle', 'extension', 'mockup'].forEach(t => {
@@ -1859,6 +1961,7 @@
                 if (wc) wc.classList.toggle('active', t === type);
             });
             updateWidgetPreview();
+            if (!_mkReadOnly && typeof renderMerchantChips === 'function') renderMerchantChips();
         }
 
         // Downscale an uploaded image to a small PNG (keeps transparency) so the
@@ -3625,7 +3728,17 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             const str = _mkCase(_mkPlain(s), st.tt);
             return (_mkMctx.measureText(str).width / 100) * (st.sz || 14) + (st.ls || 0) * Math.max(0, str.length - 1) + (st.wsp || 0) * (str.match(/ /g) || []).length;
         }
+        // Merchant link / demo: the ⓘ beside a ShipInsure text opens the info lightbox.
+        const MK_SI_TXT = /protect|shipinsure|insur|guarantee|loss|damage|theft|coverage|green|carbon/i;
         function _mkIconHtml(t, pg) {
+            const h = _mkIconHtml0(t, pg), ic = t.ic;
+            if (!_mkReadOnly || !ic || t.wrap || !_mkPlain(t.t).trim() || !(t.role === 'fee' || t.part || MK_SI_TXT.test(t.o || t.t))) return h;
+            const num = v => +v || 0, m = h.match(/class="mk2-ic" style="left:([\d.-]+)px/);
+            const idy = _coDy(pg, num(ic.x), num(ic.y)); if (idy === null) return h;
+            const x = m ? +m[1] : num(ic.x), pad = Math.max(4, num(ic.h) * 0.4);
+            return h + `<span class="mk2-hot" data-si-info title="What's covered?" style="left:${x - pad}px;top:${num(ic.y) + idy - pad}px;width:${num(ic.w) + 2 * pad}px;height:${num(ic.h) + 2 * pad}px;"></span>`;
+        }
+        function _mkIconHtml0(t, pg) {
             const ic = t.ic;
             if (!ic || !_mkShown(t) || t.wrap) return '';
             const hex = c => /^#[0-9a-f]{3,8}$/i.test(String(c)) ? c : '#ffffff', num = v => +v || 0;
@@ -4381,6 +4494,12 @@ Return ONLY JSON — no markdown, no code fences:
         }
         function _mkAdopt(pages, src) {
             if (!pages.length) throw new Error('nothing to import');
+            // Deal Room style: every imported mockup is its own merchant view. The one in the editor keeps its edits.
+            if (!_mkReadOnly && _widgetType === 'mockup' && _mk.pages.length) {
+                if (_mpEdit != null && _merchantExamples[_mpEdit]) _mpCommit();
+                else _merchantExamples.push({ label: _mpAutoLabel(), auto: true, design: _collectDesign() });
+                _mpEdit = null;
+            }
             pages.forEach(_mkAutoRoles);
             _mkFeeConsensus(pages);
             // A font the rep typed carries over; one found for the last mockup doesn't.
@@ -4400,6 +4519,11 @@ Return ONLY JSON — no markdown, no code fences:
                 (nT ? ` with ${nT} editable texts. ` : '. ') +
                 (flat.length ? `${flat.length === pages.length ? 'It' : flat.length + ' page(s)'} is a flat image, so finding its text… ` : '') +
                 (nT && !fee ? 'No ShipInsure price found: click it in the preview and tag it “ShipInsure price”.' : ''), nT || !flat.length ? 'ok' : 'info');
+            if (!_mkReadOnly) {
+                if (_mpEdit == null) { _merchantExamples.push({ label: src || 'Mockup', auto: !src, design: _collectDesign() }); _mpEdit = _merchantExamples.length - 1; }
+                else _mpCommit();
+                renderMerchantChips();
+            }
             _mkPersistImages();
             if (flat.length) (async () => { for (const i of flat) await mkFindText(i); })();
         }
@@ -4526,7 +4650,29 @@ Return ONLY JSON — no markdown, no code fences:
             const fi = document.getElementById('mk-font'); if (fi && document.activeElement !== fi) fi.value = _mk.font || '';
             if (_mk.pages.length) { _mkAfterRender(); _coDetectAll(); }
         }
+        // Pricing select / premium in the Edit copy panel mirror the control bar's.
+        function mkProxy(el) {
+            const t = document.getElementById(el.dataset.proxy); if (!t) return;
+            t.value = el.value;
+            t.dispatchEvent(new Event(t.tagName === 'SELECT' ? 'change' : 'input', { bubbles: true }));
+        }
+        function _mkSyncProxies() {
+            document.querySelectorAll('[data-proxy]').forEach(px => {
+                const t = document.getElementById(px.dataset.proxy); if (!t) return;
+                if (px.tagName === 'SELECT' && px.options.length !== t.options.length) px.innerHTML = t.innerHTML;
+                if (document.activeElement !== px) px.value = t.value;
+                if (px.dataset.proxy === 'protectionPremium') { const g = document.getElementById('protectionPremiumGroup'); px.style.display = g && g.style.display === 'none' ? 'none' : ''; }
+            });
+        }
+        function _mkEcStatus() {
+            const el = document.getElementById('mkEcCount'); if (!el) return;
+            const n = _mk.pages.reduce((c, pg) => c + pg.texts.filter(t => t.add ? !!t.t : (t.t !== t.o || t.sty)).length + (pg.boxes || []).length, 0);
+            const ch = n ? n + ' change' + (n > 1 ? 's' : '') : 'No changes yet';
+            const ex = _mpEdit != null && _merchantExamples[_mpEdit];
+            el.innerHTML = ex ? `${ch} · saved to “${_escHtml(ex.label || 'this view')}”` : `${ch} · <button type="button" onclick="addCurrentView()">+ Add to merchant views</button>`;
+        }
         function _mkFeeInfo(pr) {
+            _mkSyncProxies(); _mkEcStatus();
             const el = document.getElementById('mkFeeInfo'); if (!el) return;
             if (!_mk.pages.length) { el.style.display = 'none'; return; }
             el.style.display = '';
@@ -4563,7 +4709,7 @@ Return ONLY JSON — no markdown, no code fences:
         function _mkInspector() {
             const el = document.getElementById('mkSelPanel'); if (!el) return;
             const c = _mkCur();
-            if (!c || _mkReadOnly) { el.innerHTML = _mk.pages.length ? '<div class="mk2-hint">Click a text or box in the preview to restyle, retag or remove it here.</div>' : ''; return; }
+            if (!c || _mkReadOnly) { el.innerHTML = _mk.pages.length ? '<div class="mk2-hint">Click any text on the mockup to change it. Prices tagged <b>ShipInsure price</b>, <b>subtotal</b> and <b>total</b> update together. Select a text or box to restyle, retag or remove it.</div>' : ''; return; }
             const o = c.o, opt = (v, cur, label) => `<option value="${v}"${String(v) === String(cur) ? ' selected' : ''}>${label}</option>`;
             if (_mkSel.k === 't') {
                 el.innerHTML = `<div class="mk2-insp">
@@ -5847,7 +5993,9 @@ Return ONLY JSON — no markdown, no code fences:
                 dualLogo: _dualLogoSrc,
                 togLogo: _toggleLogoSrc,
                 extLogo: _extLogoSrc,
-                mk: JSON.parse(JSON.stringify(_mk))
+                mk: JSON.parse(JSON.stringify(_mk)),
+                lightbox: _lightbox ? JSON.parse(JSON.stringify(_lightbox)) : null,
+                lightboxSrc: _lightboxSrc || ''
             };
         }
 
@@ -5892,6 +6040,7 @@ Return ONLY JSON — no markdown, no code fences:
             if (data.togLogo  !== undefined) _toggleLogoSrc = data.togLogo;
             if (data.extLogo  !== undefined) _extLogoSrc    = data.extLogo;
             _mk = Object.assign(_mkFresh(), data.mk || {});
+            _lightbox = data.lightbox || null; _lightboxSrc = data.lightboxSrc || '';
             _coTmp = null; _coSel = null;
             Object.entries(data.fields || {}).forEach(([id, val]) => {
                 const el = document.getElementById(id);
@@ -5922,12 +6071,49 @@ Return ONLY JSON — no markdown, no code fences:
         }
         function _escHtml(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 
-        function addCurrentView() {
-            _merchantExamples.push({ label: currentExampleLabel(), design: _collectDesign() });
-            renderMerchantChips();
-            showToast('Added to merchant preview');
+        // One list of everything the merchant link shows (Deal Room mockup list). _mpEdit = the view open in
+        // the editor: its changes are written back to it (on switching views, adding one, copying the link or saving).
+        var _mpEdit = null, _mpLoading = false;
+        function _mpAutoLabel() { return _widgetType === 'mockup' && _mk.src ? _mk.src : currentExampleLabel(); }
+        function _mpCommit() {
+            const ex = _mpEdit != null && _merchantExamples[_mpEdit];
+            if (!ex || _mkReadOnly) return;
+            ex.design = _collectDesign();
+            if (ex.auto) ex.label = _mpAutoLabel();
         }
-        function removeMerchantExample(i) { _merchantExamples.splice(i, 1); renderMerchantChips(); }
+        function _mpApply(d) {   // a saved design into the editor (as a folder load does)
+            _mpLoading = true;
+            try {
+                _applyDesignObj(d);
+                if (typeof setExtLineItem === 'function' && _extLineItem) setExtLineItem(_extLineItem);
+                toggleProtectionPremiumVisibility(); syncCashbackVisibility(); syncContributionVisibility();
+                setSubPos(_dualSubPos); setTogInfoPos(_togInfoPos); setWidgetType(_widgetType);
+                const fi = document.getElementById('mk-font'); if (fi) fi.value = _mk.font || '';
+            } finally { _mpLoading = false; }
+        }
+        function addCurrentView() {
+            const dup = _mpEdit != null;
+            _mpCommit();
+            _merchantExamples.push({ label: _mpAutoLabel() + (dup ? ' (copy)' : ''), auto: !dup, design: _collectDesign() });
+            _mpEdit = _merchantExamples.length - 1;
+            renderMerchantChips();
+            showToast(dup ? 'Added a copy: changes now go to the copy' : 'Added to the merchant views');
+        }
+        function mpEditItem(i) {
+            const ex = _merchantExamples[i]; if (!ex || i === _mpEdit) return;
+            _mpCommit();
+            _mpEdit = i;
+            _mpApply(JSON.parse(JSON.stringify(ex.design || {})));
+            renderMerchantChips();
+            const ps = document.getElementById('widgetPreviewSection'); if (ps && ps.getBoundingClientRect().top < 0) ps.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        function mpRename(i, v) { const ex = _merchantExamples[i]; if (!ex) return; ex.label = v; ex.auto = false; if (i === _mpEdit) _mkEcStatus(); }
+        function removeMerchantExample(i) {
+            const ex = _merchantExamples[i]; if (!ex) return;
+            if (!confirm(`Remove “${ex.label || 'this view'}” from the merchant views?` + (i === _mpEdit ? ' It stays in the editor.' : ''))) return;
+            if (i === _mpEdit) _mpEdit = null; else if (_mpEdit != null && i < _mpEdit) _mpEdit--;
+            _merchantExamples.splice(i, 1); renderMerchantChips(); _mkEcStatus();
+        }
         // Category of an example for the Recommended column: 'cart' (dual/toggle) or 'checkout'.
         function _exCategory(ex) { const w = ex && ex.design && ex.design.wtype; return w === 'extension' ? 'checkout' : w === 'mockup' ? 'mockup' : 'cart'; }
         // Designate one Cart and/or one Checkout design as the recommended deployment design.
@@ -5939,31 +6125,52 @@ Return ONLY JSON — no markdown, no code fences:
             ex.recommended = !wasRec;
             renderMerchantChips();
         }
-        // Reorder a view within the set (‹ earlier / › later); order carries into the merchant link + columns.
+        // Reorder (↑ / ↓); the order carries into the merchant link.
         function moveMerchantExample(i, dir) {
             const j = i + dir;
             if (j < 0 || j >= _merchantExamples.length) return;
             const t = _merchantExamples[i]; _merchantExamples[i] = _merchantExamples[j]; _merchantExamples[j] = t;
+            if (_mpEdit === i) _mpEdit = j; else if (_mpEdit === j) _mpEdit = i;
             renderMerchantChips();
+        }
+        function _mpType(ex) {
+            const d = (ex && ex.design) || {}, w = d.wtype;
+            if (w === 'mockup') { const n = ((d.mk || {}).pages || []).length; return 'Mockup' + (n ? ` · ${n} page${n > 1 ? 's' : ''}` : ''); }
+            if (w === 'extension') return 'Checkout extension';
+            if (w === 'toggle') return (d.fields || {})['wc-tog-is-toggle'] ? 'Cart toggle' : 'Cart checkbox';
+            return 'Dual Checkout';
+        }
+        function _mpThumb(d) {
+            d = d || {};
+            const img = d.wtype === 'mockup' && (((d.mk || {}).pages || [])[0] || {}).img;
+            if (img) return `<span class="mp-th" style="background-image:url('${String(img).replace(/['"()\\<>\s]/g, encodeURIComponent)}')"></span>`;
+            return `<span class="mp-th ico">${{ extension: '💳', toggle: '☑️', mockup: '🖼' }[d.wtype] || '🛒'}</span>`;
         }
         function renderMerchantChips() {
             const wrap = document.getElementById('mpChips');
             const count = document.getElementById('mpCount');
             if (count) count.textContent = _merchantExamples.length;
             if (!wrap) return;
-            if (!_merchantExamples.length) { wrap.innerHTML = '<span class="mp-empty">No views added — the merchant link will show the current view.</span>'; return; }
+            if (wrap.contains(document.activeElement) && document.activeElement.classList.contains('mp-nm')) return;
             const last = _merchantExamples.length - 1;
-            wrap.innerHTML = _merchantExamples.map((ex, i) =>
-                `<span class="mp-chip">
-                    <button class="mp-move" title="Move earlier" ${i === 0 ? 'disabled' : ''} onclick="moveMerchantExample(${i},-1)">‹</button>
-                    ${_escHtml(ex.label)}
-                    <button class="mp-move" title="Move later" ${i === last ? 'disabled' : ''} onclick="moveMerchantExample(${i},1)">›</button>
-                    ${_exCategory(ex) === 'mockup' ? '' : `<button class="mp-star ${ex.recommended ? 'on' : ''}" title="Set as the recommended ${_exCategory(ex)} design" onclick="setRecommendedExample(${i})">${ex.recommended ? '★' : '☆'}</button>`}
-                    <button title="Remove" onclick="removeMerchantExample(${i})">✕</button>
-                </span>`).join('');
+            const rows = _merchantExamples.map((ex, i) => `<div class="mp-row${i === _mpEdit ? ' on' : ''}">
+                    <span class="mp-n">${i + 1}.</span>${_mpThumb(ex.design)}
+                    <div class="mp-nm-wrap"><input class="mp-nm" value="${_escHtml(ex.label || '')}" oninput="mpRename(${i}, this.value)" title="The name the merchant sees"><span class="mp-ty">${_mpType(ex)}${i === _mpEdit ? ' · <b>open in the editor</b>' : ''}</span></div>
+                    ${i === _mpEdit ? '<span class="mp-editing">✎ Editing</span>' : `<button type="button" class="mp-btn" onclick="mpEditItem(${i})" title="Open this view in the editor">✏️ Edit</button>`}
+                    ${_exCategory(ex) === 'mockup' ? '' : `<button type="button" class="mp-ic mp-star ${ex.recommended ? 'on' : ''}" title="Set as the recommended ${_exCategory(ex)} design" onclick="setRecommendedExample(${i})">${ex.recommended ? '★' : '☆'}</button>`}
+                    <button type="button" class="mp-ic" title="Move up" ${i === 0 ? 'disabled' : ''} onclick="moveMerchantExample(${i},-1)">↑</button>
+                    <button type="button" class="mp-ic" title="Move down" ${i === last ? 'disabled' : ''} onclick="moveMerchantExample(${i},1)">↓</button>
+                    <button type="button" class="mp-ic x" title="Remove" onclick="removeMerchantExample(${i})">✕</button>
+                </div>`).join('');
+            const cur = _mpEdit != null && _merchantExamples[_mpEdit] ? '' : `<div class="mp-row cur"><span class="mp-n">✎</span>${_mpThumb({ wtype: _widgetType, mk: _mk })}
+                    <div class="mp-nm-wrap"><span class="mp-curname">In the editor: ${_escHtml(_mpAutoLabel())}</span><span class="mp-ty">${_merchantExamples.length ? 'Not on the merchant link yet' : 'The merchant link shows this until you add views'}</span></div>
+                    <button type="button" class="mp-btn p" onclick="addCurrentView()">+ Add</button></div>`;
+            wrap.innerHTML = rows + cur;
+            _mkEcStatus();
         }
 
         async function copyMerchantLink() {
+            _mpCommit();
             const set = _merchantExamples.length ? _merchantExamples : [{ label: currentExampleLabel(), design: _collectDesign() }];
             if (!(await _mkLinkReady(set.map(ex => ex.design)))) return;
             const payload = { name: (_previewName || '').trim(), examples: set };
@@ -5987,6 +6194,8 @@ Return ONLY JSON — no markdown, no code fences:
             _toggleLogoSrc = d.togLogo  !== undefined ? d.togLogo  : null;
             _extLogoSrc    = d.extLogo  !== undefined ? d.extLogo  : null;
             _mk = Object.assign(_mkFresh(), d.mk || {});
+            _lightbox = d.lightbox || null; _lightboxSrc = d.lightboxSrc || '';
+            if (!_mkReadOnly && typeof ilbRender === 'function') ilbRender();
             _coTmp = null; _coSel = null;
             Object.entries(d.fields || {}).forEach(([id, val]) => {
                 const el = document.getElementById(id);
@@ -6034,9 +6243,12 @@ Return ONLY JSON — no markdown, no code fences:
             const chk  = { cwidget: [], litem: [] };
             let recCart = null, recChk = null;   // { label, html } for the Recommended column
             const mocks = [];                    // full Cart + Checkout mockups (own section)
-            examples.forEach(ex => {
+            examples.forEach((ex, exI) => {
                 const p = _exampleParts(ex);
-                if (p.wtype === 'mockup') { mocks.push(`<div class="mp-mock">${p.widgetHtml}</div>`); return; }
+                // Each view's ⓘ opens that view's lightbox (data-ex → examples[i]).
+                p.widgetHtml = `<div data-ex="${exI}">${p.widgetHtml}</div>`;
+                p.lineItemHtml = `<div data-ex="${exI}">${p.lineItemHtml}</div>`;
+                if (p.wtype === 'mockup') { mocks.push({ i: exI, label: ex.label || 'Mockup', html: p.widgetHtml, thumb: ((((ex.design || {}).mk || {}).pages || [])[0] || {}).img || '' }); return; }
                 const rec = !!ex.recommended;   // recommended views live ONLY in the Recommended column
                 let recLabel = '', recHtml = '';
                 if (p.wtype === 'dual') {
@@ -6070,7 +6282,7 @@ Return ONLY JSON — no markdown, no code fences:
                 .filter(([k]) => chk[k].length).map(([k, t]) => scol(k, t, chk[k])).join('');
 
             let sectionsHtml = '';
-            if (mocks.length) sectionsHtml += section('Cart &amp; Checkout <span>Mockups</span>', mocks.join(''));
+            if (mocks.length) sectionsHtml += section('Cart &amp; Checkout <span>Mockups</span>', _mvHtml(mocks));
             if (cartCols) sectionsHtml += section('Cart <span>Designs</span>', cartCols);
             if (chkCols)  sectionsHtml += section('Checkout <span>Designs</span>', chkCols);
 
@@ -6086,7 +6298,83 @@ Return ONLY JSON — no markdown, no code fences:
             mv.innerHTML = headerHtml + `<div class="mp-layout"><div class="mp-content">${sectionsHtml}</div>${recHtml}</div>`;
             mv.style.display = 'block';
             mkFit(mv);
+            _mvInit(mv);
+            if (window.SILightbox) SILightbox.bind(mv, hit => { const w = hit.closest('[data-ex]'); const ex = w ? examples[+w.dataset.ex] : null; return _lbForView(ex && ex.design); });
         }
+
+        // Mockups on the merchant link (Deal Room viewer): one big view, thumbnails swap it, hover to magnify.
+        function _mvHtml(m) {
+            const one = m.length === 1, bg = u => u ? ` style="background-image:url('${String(u).replace(/['"()\\<>\s]/g, encodeURIComponent)}')"` : '';
+            return `<div class="mv">
+                <div class="mv-bar">${one ? '' : '<button type="button" class="mv-nav" data-mv="-1" aria-label="Previous">‹</button>'}<span class="mv-name">${_escHtml(m[0].label)}</span><span class="mv-hint">Hover to magnify</span>${one ? '' : `<span class="mv-n">1 / ${m.length}</span><button type="button" class="mv-nav" data-mv="1" aria-label="Next">›</button>`}</div>
+                <div class="mv-stage">${m.map((x, k) => `<div class="mv-slide" data-k="${k}" data-label="${_escHtml(x.label)}"${k ? ' hidden' : ''}>${x.html}</div>`).join('')}</div>
+                ${one ? '' : `<div class="mv-thumbs">${m.map((x, k) => `<button type="button" class="mv-th${k ? '' : ' on'}" data-k="${k}"><span class="mv-ti"${bg(x.thumb)}></span><b>${_escHtml(x.label)}</b></button>`).join('')}</div>`}
+            </div>`;
+        }
+        function _mvInit(root) {
+            const mv = root.querySelector('.mv'); if (!mv) return;
+            const slides = [...mv.querySelectorAll('.mv-slide')], thumbs = [...mv.querySelectorAll('.mv-th')];
+            let k = 0;
+            const go = n => {
+                k = (n + slides.length) % slides.length;
+                slides.forEach((s, j) => { s.hidden = j !== k; });
+                thumbs.forEach((t, j) => t.classList.toggle('on', j === k));
+                const nm = mv.querySelector('.mv-name'); if (nm) nm.textContent = slides[k].dataset.label;
+                const nn = mv.querySelector('.mv-n'); if (nn) nn.textContent = (k + 1) + ' / ' + slides.length;
+                mkFit(slides[k]);
+            };
+            mv.addEventListener('click', e => {
+                const t = e.target.closest('.mv-th'); if (t) return go(+t.dataset.k);
+                const n = e.target.closest('[data-mv]'); if (n) go(k + +n.dataset.mv);
+            });
+            if (!matchMedia('(hover: hover)').matches) return;
+            // Hover to magnify: the page zooms 2.2x around the pointer (the ⓘ stays under it, so it can still be clicked).
+            const off = () => mv.querySelectorAll('.mk2-page.mv-mag').forEach(p => p.classList.remove('mv-mag'));
+            mv.addEventListener('mousemove', e => {
+                const pg = e.target.closest && e.target.closest('.mv-stage .mk2-page');
+                if (!pg) return off();
+                const fit = pg.parentElement, r = fit.getBoundingClientRect(), z = parseFloat(pg.style.zoom) || 1;
+                pg.style.transformOrigin = `${(e.clientX - r.left) / z}px ${(e.clientY - r.top) / z}px`;
+                pg.classList.add('mv-mag');
+            });
+            mv.addEventListener('mouseleave', off);
+        }
+
+        // ── Info lightbox (what the widget's ⓘ opens) ──
+        // _lightbox: this design's lightbox (lightbox.js settings), or null = the ShipInsure default for its widget type.
+        var _lightbox = null, _lightboxSrc = '', _lbOverride = null, _lbFolder = [];
+        function _lbDefault(wtype) { return { variant: wtype === 'extension' ? 'checkout' : 'cart' }; }
+        function _lbCur() { return _lightbox || _lbDefault(_widgetType); }
+        // Merchant link / demo: the view's own lightbox, else the one the demo passed (&lb=), else the default.
+        function _lbForView(d) { return (d && d.lightbox) || _lbOverride || _lbDefault(d && d.wtype); }
+        function _lbDraft() { try { const d = JSON.parse(localStorage.getItem('si_lightbox_draft') || 'null'); return d && d.cfg ? d : null; } catch (e) { return null; } }
+        async function ilbOptions() {
+            const a = window.SIsb && SIsb.getActiveFolder();
+            _lbFolder = [];
+            if (a) { try { _lbFolder = (await SIsb.listAssets(a.id, 'lightbox')).map(r => ({ id: r.id, title: r.title || 'Lightbox' })); } catch (e) {} }
+            ilbRender();
+        }
+        function ilbRender() {
+            const sel = document.querySelector('[data-ilb-pick]'); if (!sel) return;
+            if (_lightboxSrc === 'draft') { const d = _lbDraft(); if (d) _lightbox = JSON.parse(JSON.stringify(d.cfg)); }   // follows the Lightbox designer
+            const d = _lbDraft(), vals = ['default'];
+            let h = '<option value="default">ShipInsure default</option>';
+            if (d) { h += `<option value="draft">My latest Lightbox design${d.store ? ' · ' + _escHtml(d.store) : ''}</option>`; vals.push('draft'); }
+            if (_lbFolder.length) { h += `<optgroup label="This merchant's folder">${_lbFolder.map(r => `<option value="asset:${r.id}">${_escHtml(r.title)}</option>`).join('')}</optgroup>`; _lbFolder.forEach(r => vals.push('asset:' + r.id)); }
+            const cur = !_lightbox ? 'default' : vals.indexOf(_lightboxSrc) >= 0 ? _lightboxSrc : 'current';
+            if (cur === 'current') h += '<option value="current">Saved with this design</option>';
+            sel.innerHTML = h; sel.value = cur;
+        }
+        async function ilbPick(v) {
+            if (v === 'default') { _lightbox = null; _lightboxSrc = ''; }
+            else if (v === 'draft') { const d = _lbDraft(); if (d) { _lightbox = JSON.parse(JSON.stringify(d.cfg)); _lightboxSrc = 'draft'; } }
+            else if (/^asset:/.test(v)) {
+                try { const r = await SIsb.getAsset(v.slice(6)); const c = (r.data || {}).cfg; if (c) { _lightbox = c; _lightboxSrc = v; } }
+                catch (e) { showToast('Couldn’t load that lightbox'); }
+            }
+            ilbRender(); ilbPreview();
+        }
+        function ilbPreview() { if (window.SILightbox) SILightbox.open(_lbCur()); }
 
         // ── Control-bar wiring ──────────────────────────────────────────────
         function syncCashbackVisibility() {
@@ -6209,8 +6497,11 @@ Return ONLY JSON — no markdown, no code fences:
             if (new URLSearchParams(location.search).get('view') === 'merchant') {
                 // Short merchant link from a Merchant Folders save: ?view=merchant&asset=<id>
                 const assetId = new URLSearchParams(location.search).get('asset');
+                // The SI Interactive Demo passes the folder's lightbox (&lb=<asset id>) for views without their own.
+                const lbId = new URLSearchParams(location.search).get('lb');
+                const lbReady = lbId && window.SIsb ? SIsb.getAsset(lbId).then(r => { _lbOverride = (r.data || {}).cfg || null; }, () => {}) : Promise.resolve();
                 if (assetId && window.SIsb) {
-                    SIsb.getAsset(assetId).then(r => {
+                    lbReady.then(() => SIsb.getAsset(assetId)).then(r => {
                         const d = r.data || {};
                         const set = Array.isArray(d.examples) && d.examples.length ? d.examples : [{ label: d.label || 'Checkout', design: d.design || d }];
                         renderMerchantView(set, d.name || r.merchant || '');
@@ -6231,6 +6522,25 @@ Return ONLY JSON — no markdown, no code fences:
                 return;
             }
             applyDesignerLink();
+            if (window.SILightbox) {
+                SILightbox.bind(document.getElementById('widgetPreviewArea'), () => _lbCur());
+                SILightbox.bind(document.getElementById('lineItemPreviewArea'), () => _lbCur());
+            }
+            ilbRender(); ilbOptions();
+            if (window.SIsb) SIsb.onActiveFolder(ilbOptions);
+            // This browser's latest merchant views, for the SI Interactive Demo (like the other tools' drafts).
+            let _coDraftT = null;
+            const coDraftSoon = () => { clearTimeout(_coDraftT); _coDraftT = setTimeout(() => {
+                try {
+                    _mpCommit();
+                    const examples = _merchantExamples.length ? _merchantExamples : [{ label: currentExampleLabel(), design: _collectDesign() }];
+                    const json = JSON.stringify({ at: Date.now(), name: _previewName || '', examples });
+                    if (json.length < 2500000) localStorage.setItem('si_checkout_draft', json);
+                } catch (e) {}
+            }, 1500); };
+            ['input', 'change', 'click'].forEach(ev => document.addEventListener(ev, coDraftSoon, true));
+            window.addEventListener('focus', ilbRender);   // a lightbox designed in another tab shows up here
+            renderMerchantChips();
             ['widgetMode', 'avgOrderValue', 'protectionPremium', 'widgetCashback', 'widgetContribution', 'pricingTemplate'].forEach(id => {
                 const el = document.getElementById(id);
                 if (!el) return;
@@ -6253,18 +6563,19 @@ Return ONLY JSON — no markdown, no code fences:
                 // Mockup page images go to storage first (signed in here), so the save holds links, not
                 // megabytes — when this folder bar can wait for it (an older cached copy can't).
                 getData: () => {
-                    const data = () => ({ design: _collectDesign(), examples: _merchantExamples, name: _previewName, label: currentExampleLabel() });
+                    const data = () => { _mpCommit(); return { design: _collectDesign(), examples: _merchantExamples, name: _previewName, label: currentExampleLabel(), mpEdit: _mpEdit }; };
                     return SIFolderBar.asyncData ? _mkPersistImages().catch(() => {}).then(data) : data();
                 },
                 applyData: d => {
                     _applyDesignObj(d.design || d);
                     _merchantExamples = Array.isArray(d.examples) ? d.examples : [];
+                    _mpEdit = Number.isInteger(d.mpEdit) && _merchantExamples[d.mpEdit] ? d.mpEdit : null;
                     _previewName = d.name || '';
                     const mp = document.getElementById('mpName'); if (mp) mp.value = _previewName;
                     renderMerchantChips();
                     if (typeof setExtLineItem === 'function' && _extLineItem) setExtLineItem(_extLineItem);
                     toggleProtectionPremiumVisibility(); syncCashbackVisibility(); syncContributionVisibility();
-                    setSubPos(_dualSubPos); setTogInfoPos(_togInfoPos); setWidgetType(_widgetType);
+                    _mpLoading = true; try { setSubPos(_dualSubPos); setTogInfoPos(_togInfoPos); setWidgetType(_widgetType); } finally { _mpLoading = false; }
                 },
                 defaultTitle: () => 'Checkout – ' + ((_previewName || '').trim() || currentExampleLabel()),
                 // The short link is the merchant-facing preview (same page as 🔗 Copy Link).

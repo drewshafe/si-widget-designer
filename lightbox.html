@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Info Lightbox · ShipInsure Designer</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/drewshafe/si-roi-calculator/main/si_lock.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="https://drewshafe.github.io/si-roi-calculator/sb.js"></script>
+<script src="https://drewshafe.github.io/si-rep-hub/folder-bar.js"></script>
+<script src="lightbox.js"></script>
+<style>
+  /* Info Lightbox designer: the modal a shopper sees after clicking the ShipInsure widget's ⓘ.
+     Settings mirror the Merchant Portal → Merchants → General Widget Setup → (configuration) → Modal
+     tab of the Preact multi-widget script, for cart widgets and the Checkout Extension. The preview is
+     a store cart / checkout with a working ⓘ. Saves to Merchant Folders (kind 'lightbox'), shares a
+     view-only link, downloads a PNG, and is what the Checkout Experience ⓘ and the SI Interactive Demo open. */
+  * { margin:0; padding:0; box-sizing:border-box; }
+  [hidden] { display:none !important; }
+  :root { --page:#f4f5fb; --card:#fff; --ink:#1d2240; --muted:#6b7090; --line:#e3e5f2; --accent:#4a5fc1; --accent-soft:#eef0ff; --stage:#e8eaf4; --field:#f7f8fc; }
+  body.pm { --page:#07070a; --card:#111116; --ink:#ece6d6; --muted:#9a927f; --line:#26262f; --accent:#d4af37; --accent-soft:#1f1b10; --stage:#0b0b10; --field:#16161c; }
+  html, body { height:100%; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:var(--page); color:var(--ink); font-size:14px; display:flex; flex-direction:column; overflow:hidden; }
+  button, input, select, textarea { font:inherit; color:inherit; }
+
+  .lb-app { flex:1; min-height:0; display:grid; grid-template-columns:350px minmax(0, 1fr); }
+  .lb-side { background:var(--card); border-right:1px solid var(--line); overflow-y:auto; padding:18px 18px 28px; display:flex; flex-direction:column; gap:18px; }
+  .lb-stage { background:var(--stage); overflow:auto; padding:18px 24px 40px; display:flex; flex-direction:column; align-items:center; gap:12px; }
+  .h1 { font-size:18px; font-weight:800; letter-spacing:-.01em; }
+  .h2 { font-size:12.5px; line-height:1.45; color:var(--muted); margin-top:4px; }
+  .grp { display:flex; flex-direction:column; gap:8px; }
+  .lbl { font-size:10.5px; font-weight:800; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); }
+  .fld { display:flex; flex-direction:column; gap:4px; min-width:0; }
+  .fld > label { font-size:11.5px; font-weight:600; color:var(--muted); }
+  .fld input:not([type=checkbox]):not([type=color]), .fld select, .fld textarea { width:100%; border:1px solid var(--line); background:var(--field); border-radius:8px; padding:7px 9px; font-size:13px; }
+  .fld input:focus, .fld select:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+  .fld input[type=color] { width:100%; height:32px; border:1px solid var(--line); border-radius:8px; padding:2px; background:var(--field); cursor:pointer; }
+  .row2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .row3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+  .row4 { display:grid; grid-template-columns:1.6fr .8fr .9fr .8fr; gap:6px; }
+  .hint { font-size:11.5px; line-height:1.45; color:var(--muted); }
+  .seg { display:flex; background:var(--field); border:1px solid var(--line); border-radius:9px; padding:3px; gap:3px; }
+  .seg button { flex:1; border:0; background:none; border-radius:7px; padding:6px 4px; font-size:12px; font-weight:600; color:var(--muted); cursor:pointer; white-space:nowrap; }
+  .seg button.on { background:var(--card); color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.12); }
+  .chk { display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; cursor:pointer; }
+  .btn { border:1px solid var(--line); background:var(--card); border-radius:9px; padding:8px 12px; font-size:12.5px; font-weight:700; cursor:pointer; }
+  .btn.p { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .btn.sm { padding:5px 9px; font-size:12px; }
+  body.pm .btn.p { background:linear-gradient(135deg,#b8902d,#e3c56a); border-color:transparent; color:#0a0a0a; }
+  .btn:disabled { opacity:.55; cursor:progress; }
+  .btns { display:flex; gap:8px; flex-wrap:wrap; }
+  .feats { display:flex; flex-direction:column; gap:6px; }
+  .feat { display:grid; grid-template-columns:1fr 1fr 26px; gap:6px; align-items:center; }
+  .feat input { width:100%; border:1px solid var(--line); background:var(--field); border-radius:8px; padding:7px 8px; font-size:12.5px; min-width:0; }
+  .feat button { border:0; background:none; color:#c0392b; font-size:15px; cursor:pointer; }
+  details.sty { border:1px solid var(--line); border-radius:10px; padding:8px 10px; }
+  details.sty > summary { cursor:pointer; font-size:12.5px; font-weight:700; list-style:none; }
+  details.sty > summary::before { content:'▸ '; color:var(--muted); }
+  details.sty[open] > summary::before { content:'▾ '; }
+  details.sty > div { display:flex; flex-direction:column; gap:10px; margin-top:10px; }
+  .sub { font-size:11px; font-weight:700; color:var(--ink); margin-bottom:-4px; }
+  .img-row { display:flex; gap:8px; align-items:center; }
+  .img-row .thumb { width:64px; height:36px; border-radius:6px; background:#dfe2ef center/cover no-repeat; border:1px solid var(--line); flex:0 0 auto; }
+
+  /* Stage toolbar */
+  .st-bar { width:100%; max-width:1100px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+  .st-bar .seg { background:var(--card); }
+  .st-note { font-size:12px; color:var(--muted); }
+
+  /* ── The store (preview) ── */
+  .browser { width:100%; max-width:1100px; background:#fff; border-radius:12px; box-shadow:0 10px 40px rgba(20,24,60,.14); overflow:hidden; position:relative; }
+  .browser.mobile { max-width:390px; border:12px solid #17171c; border-radius:44px; }
+  .b-bar { display:flex; align-items:center; gap:8px; background:#eceef3; padding:9px 12px; font-size:12px; color:#555; }
+  .b-bar i { width:10px; height:10px; border-radius:50%; background:#d5d7de; display:inline-block; }
+  .b-url { flex:1; background:#fff; border-radius:7px; padding:5px 10px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+  .browser.mobile .b-bar i { display:none; }
+  .shop { position:relative; height:640px; overflow:hidden; font-family:var(--sf, -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif); color:#1f2433; background:#fff; }
+  .browser.mobile .shop { height:700px; }
+  .s-hd { height:60px; display:flex; align-items:center; justify-content:center; border-bottom:1px solid #ececec; font-weight:700; letter-spacing:.06em; text-transform:uppercase; font-size:16px; }
+  .s-hd img { max-height:34px; max-width:180px; }
+  .s-page { display:grid; grid-template-columns:1fr 1fr; gap:28px; padding:28px; opacity:.55; }
+  .s-ph { background:#eef0f4; border-radius:6px; height:300px; }
+  .s-ln { background:#eef0f4; border-radius:4px; height:12px; margin-bottom:10px; }
+  .browser.mobile .s-page { grid-template-columns:1fr; padding:18px; }
+  /* Cart drawer */
+  .drawer { position:absolute; top:0; right:0; bottom:0; width:380px; max-width:100%; background:#fff; box-shadow:-8px 0 30px rgba(0,0,0,.12); display:flex; flex-direction:column; }
+  .dr-hd { display:flex; justify-content:space-between; align-items:center; padding:18px 20px; border-bottom:1px solid #ececec; font-size:17px; font-weight:600; }
+  .dr-items { flex:1; padding:16px 20px; display:flex; flex-direction:column; gap:14px; }
+  .it { display:grid; grid-template-columns:64px 1fr auto; gap:12px; font-size:13px; }
+  .it .im { width:64px; height:64px; border-radius:6px; background:#eef0f4 center/cover; }
+  .it small { display:block; color:#888; margin-top:2px; }
+  .dr-ft { border-top:1px solid #ececec; padding:14px 20px 20px; display:flex; flex-direction:column; gap:10px; }
+  .w-row { display:flex; align-items:center; gap:9px; font-size:13px; }
+  .w-tg { width:34px; height:20px; border-radius:20px; background:var(--wc); position:relative; flex:0 0 auto; }
+  .w-tg::after { content:''; position:absolute; top:2px; right:2px; width:16px; height:16px; border-radius:50%; background:#fff; }
+  .w-name { font-weight:600; }
+  .w-price { margin-left:auto; font-weight:600; }
+  .info { display:inline-flex; align-items:center; justify-content:center; width:15px; height:15px; border-radius:50%; border:1.4px solid #9aa0b4; color:#7c8296; font:700 10px/1 Georgia,serif; cursor:pointer; flex:0 0 auto; position:relative; }
+  .info.pulse::after { content:''; position:absolute; inset:-5px; border-radius:50%; border:2px solid var(--wc); animation:ping 1.6s ease-out infinite; }
+  @keyframes ping { 0% { transform:scale(.7); opacity:.9; } 100% { transform:scale(1.5); opacity:0; } }
+  .tot { display:flex; justify-content:space-between; font-weight:600; font-size:14px; }
+  .ck-btn { background:#111; color:#fff; border:0; border-radius:6px; padding:13px; font-weight:600; font-size:14px; }
+  /* Checkout */
+  .co { display:grid; grid-template-columns:1.1fr 1fr; height:100%; }
+  .co-l { padding:28px 36px; display:flex; flex-direction:column; gap:12px; }
+  .co-r { background:#f5f5f5; border-left:1px solid #e1e1e1; padding:28px 32px; display:flex; flex-direction:column; gap:14px; font-size:13.5px; }
+  .co-box { border:1px solid #d9d9d9; border-radius:6px; padding:13px; font-size:13px; color:#999; background:#fff; }
+  .co-h { font-size:17px; font-weight:600; margin-top:8px; }
+  .co-w { border:1px solid #d9d9d9; border-radius:8px; background:#fff; padding:13px 14px; display:flex; align-items:flex-start; gap:10px; }
+  .co-cb { width:18px; height:18px; border-radius:4px; background:var(--wc); flex:0 0 auto; display:flex; align-items:center; justify-content:center; margin-top:1px; }
+  .co-w p { margin:3px 0 0; font-size:12px; color:#707070; line-height:1.4; }
+  .browser.mobile .co { grid-template-columns:1fr; }
+  .browser.mobile .co-l { display:none; }
+  .browser.mobile .co-r { border-left:0; padding:22px 18px; }
+  .reopen { position:absolute; left:50%; bottom:18px; transform:translateX(-50%); background:rgba(20,26,46,.88); color:#fff; font-size:12.5px; font-weight:600; padding:8px 14px; border-radius:30px; white-space:nowrap; pointer-events:none; z-index:5; }
+
+  /* View-only (share link): just the store */
+  body.view .lb-app { grid-template-columns:1fr; }
+  body.view .lb-side, body.view .st-bar { display:none; }
+  body.view .lb-stage { padding:0; background:#fff; justify-content:flex-start; }
+  body.view .browser { max-width:none; border-radius:0; box-shadow:none; }
+  body.view .browser.mobile { max-width:390px; margin:18px auto; border-radius:44px; }
+  body.view .b-bar { display:none; }
+  body.view .shop { height:calc(100vh - 0px); }
+  body.view .browser.mobile .shop { height:700px; }
+  /* Inside the SI Interactive Demo's phone: no second phone frame, fill the screen */
+  body.embed .browser.mobile { max-width:none; margin:0; border:0; border-radius:0; }
+  body.embed .shop, body.embed .browser.mobile .shop { height:100vh; }
+
+  .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(30px); opacity:0; background:#1d2240; color:#fff; padding:10px 16px; border-radius:10px; font-size:13px; font-weight:600; transition:.25s; pointer-events:none; z-index:2147483600; }
+  .toast.show { opacity:1; transform:translateX(-50%); }
+  @media (max-width: 900px) { .lb-app { grid-template-columns:1fr; overflow:auto; } body { overflow:auto; } .lb-side { border-right:0; border-bottom:1px solid var(--line); } }
+</style>
+</head>
+<body>
+<div class="lb-app" id="app">
+  <aside class="lb-side">
+    <div>
+      <div class="h1">Info Lightbox</div>
+      <div class="h2">The pop-up a shopper sees after clicking the ShipInsure widget's ⓘ. Same settings as the Merchant Portal's widget-config <b>Modal</b> tab. Click the ⓘ in the preview to open it.</div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">Widget type</div>
+      <div class="seg" id="variantSeg"><button type="button" data-v="cart">🛒 Cart widget</button><button type="button" data-v="checkout">💳 Checkout extension</button></div>
+      <div class="hint" id="variantHint"></div>
+      <button class="btn sm" type="button" id="brandBtn" hidden>📁 Use folder branding</button>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">Copy</div>
+      <div class="fld"><label for="f-title">Title</label><input id="f-title" data-k="title"></div>
+      <div class="fld"><label>Modal feature list <span style="font-weight:400">(first text | second text)</span></label>
+        <div class="feats" id="feats"></div>
+        <div class="btns"><button class="btn sm" type="button" id="addFeat">+ Add item</button><button class="btn sm" type="button" id="resetFeats">Reset to default</button></div>
+      </div>
+      <label class="chk"><input type="checkbox" id="f-footer" data-k="footer"> Show modal footer (Powered by ShipInsure · Privacy · Terms)</label>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">Images</div>
+      <div class="fld"><label>Modal banner</label>
+        <div class="seg" id="banSeg"><button type="button" data-b="default">ShipInsure</button><button type="button" data-b="custom">Upload</button><button type="button" data-b="none">None</button></div>
+        <div class="img-row" id="banRow" hidden><span class="thumb" id="banThumb"></span><button class="btn sm" type="button" id="banPick">Choose image…</button></div>
+      </div>
+      <div class="fld" id="logoFld"><label>Modal logo</label>
+        <div class="seg" id="logoSeg"><button type="button" data-l="lock">ShipInsure lock</button><button type="button" data-l="custom">Upload logo</button></div>
+        <div class="img-row" id="logoRow" hidden><span class="thumb" id="logoThumb" style="background-size:contain"></span><button class="btn sm" type="button" id="logoPick">Choose image…</button></div>
+      </div>
+      <div class="row2">
+        <div class="fld" id="logoColorFld"><label for="f-logoColor">Default logo color</label><input type="color" id="f-logoColor" data-k="logoColor"></div>
+        <div class="fld"><label for="f-headerBorder">Header border color</label><input type="color" id="f-headerBorder" data-k="headerBorder"></div>
+      </div>
+      <input type="file" id="banIn" accept="image/*" hidden><input type="file" id="logoIn" accept="image/*" hidden>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">Style</div>
+      <div class="fld"><label for="f-font">Store font <span style="font-weight:400">(Google font, blank = Open Sans)</span></label><input id="f-font" data-k="font" list="fontList" placeholder="e.g. Poppins"></div>
+      <details class="sty"><summary>Modal container</summary><div>
+        <div class="row3"><div class="fld"><label>Background</label><input type="color" data-k="box.bg"></div><div class="fld"><label>Border</label><input type="color" data-k="box.border"></div><div class="fld"><label>Border width</label><input type="number" min="0" max="12" data-k="box.bw"></div></div>
+        <div class="row2"><div class="fld"><label>Border radius</label><input type="number" min="0" max="40" data-k="box.radius"></div><div class="fld"><label>Padding</label><input type="number" min="0" max="60" data-k="box.pad"></div></div>
+      </div></details>
+      <details class="sty"><summary>Title, feature first &amp; second text</summary><div id="txtStyles"></div></details>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">Share &amp; export</div>
+      <div class="btns">
+        <button class="btn p" type="button" id="linkBtn">🔗 Copy preview link</button>
+        <button class="btn" type="button" id="pngBtn">⬇ Download PNG</button>
+      </div>
+      <div class="btns">
+        <button class="btn sm" type="button" id="portalBtn" title="The settings as text, laid out like the Portal's Modal tab">📋 Copy Portal settings</button>
+        <button class="btn sm" type="button" id="resetBtn">↺ Reset all</button>
+      </div>
+      <div class="hint">Save it to the merchant's folder from the bar above: the Checkout Experience ⓘ and the SI Interactive Demo open the folder's latest lightbox.</div>
+    </div>
+    <datalist id="fontList"><option>Inter</option><option>Open Sans</option><option>Poppins</option><option>Montserrat</option><option>Lato</option><option>Roboto</option><option>DM Sans</option><option>Nunito Sans</option><option>Work Sans</option><option>Figtree</option><option>Manrope</option><option>Playfair Display</option><option>Cormorant Garamond</option><option>Libre Baskerville</option></datalist>
+  </aside>
+
+  <main class="lb-stage">
+    <div class="st-bar">
+      <div class="seg" id="devSeg"><button type="button" data-d="desktop">🖥 Desktop</button><button type="button" data-d="mobile">📱 Mobile</button></div>
+      <span class="st-note">Click the ⓘ to open the lightbox · click outside or ✕ to close it</span>
+    </div>
+    <div class="browser" id="browser">
+      <div class="b-bar"><i></i><i></i><i></i><span class="b-url" id="bUrl">store.com/cart</span></div>
+      <div class="shop" id="shop"></div>
+    </div>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const VIEW = new URLSearchParams(location.search).get('view') === '1';
+  if (VIEW) document.body.classList.add('view');
+  if (VIEW && new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('embed');
+  const L = window.SILightbox;
+  const clone = o => JSON.parse(JSON.stringify(o));
+  const enc = o => btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+  const dec = s => JSON.parse(decodeURIComponent(escape(atob(s))));
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2200); }
+
+  // S = { cfg: lightbox settings (lightbox.js), store, storeLogo, device, wc: widget color }
+  const fresh = () => ({ cfg: L.norm({}), store: '', storeLogo: '', device: 'desktop', wc: '#6675FF' });
+  const adopt = d => { const s = Object.assign(fresh(), d || {}); s.cfg = L.norm(s.cfg || d && d.cfg); return s; };
+  let S = fresh(), lbOpen = true;
+  const DRAFT = L.DRAFT_KEY;
+  try {
+    const m = location.hash.match(/[#&]d=([^&]+)/);
+    if (m) S = adopt(dec(m[1]));
+    else if (!VIEW) { const d = localStorage.getItem(DRAFT); if (d) S = adopt(JSON.parse(d)); }
+  } catch (e) {}
+  if (VIEW && !/[#&]d=/.test(location.hash)) S.device = 'mobile';
+
+  const get = k => k.split('.').reduce((o, p) => o == null ? o : o[p], S.cfg);
+  const set = (k, v) => { const ps = k.split('.'), last = ps.pop(); const o = ps.reduce((o, p) => (o[p] = o[p] || {}), S.cfg); o[last] = v; };
+  function save() { if (!VIEW) try { localStorage.setItem(DRAFT, JSON.stringify(Object.assign({ at: Date.now() }, S))); } catch (e) {} }
+
+  // ── Text style rows (title / feature first / feature second) ──
+  const STY = [['tStyle', 'Modal title'], ['f1', 'Feature first text'], ['f2', 'Feature second text']];
+  $('txtStyles').innerHTML = STY.map(([k, t]) => `<div class="sub">${t}</div><div class="row4">
+    <div class="fld"><label>Font</label><input data-k="${k}.font" list="fontList" placeholder="store font"></div>
+    <div class="fld"><label>Size</label><input type="number" min="8" max="40" data-k="${k}.size"></div>
+    <div class="fld"><label>Weight</label><select data-k="${k}.weight"><option value="400">400</option><option value="500">500</option><option value="600">600</option><option value="700">700</option><option value="800">800</option></select></div>
+    <div class="fld"><label>Color</label><input type="color" data-k="${k}.color"></div></div>`).join('');
+
+  function fillForm() {
+    document.querySelectorAll('[data-k]').forEach(el => {
+      const v = get(el.dataset.k);
+      if (el.type === 'checkbox') el.checked = !!v;
+      else if (document.activeElement !== el) el.value = v == null ? '' : v;
+    });
+    if (!$('feats').contains(document.activeElement) || $('feats').children.length !== S.cfg.features.length) $('feats').innerHTML = S.cfg.features.map((f, i) => `<div class="feat"><input data-f="${i}" data-p="a" value="${esc(f.a)}" placeholder="First text"><input data-f="${i}" data-p="b" value="${esc(f.b)}" placeholder="Second text"><button type="button" data-del="${i}" title="Remove">🗑</button></div>`).join('');
+    const ban = S.cfg.banner === 'none' ? 'none' : S.cfg.banner === 'default' || !S.cfg.banner ? 'default' : 'custom';
+    document.querySelectorAll('#banSeg button').forEach(b => b.classList.toggle('on', b.dataset.b === ban));
+    $('banRow').hidden = ban !== 'custom';
+    $('banThumb').style.backgroundImage = ban === 'custom' ? `url('${S.cfg.banner}')` : '';
+    const lg = S.cfg.logo ? 'custom' : 'lock';
+    document.querySelectorAll('#logoSeg button').forEach(b => b.classList.toggle('on', b.dataset.l === (S.logoMode || lg)));
+    $('logoRow').hidden = (S.logoMode || lg) !== 'custom';
+    $('logoThumb').style.backgroundImage = S.cfg.logo ? `url('${S.cfg.logo}')` : '';
+    document.querySelectorAll('#variantSeg button').forEach(b => b.classList.toggle('on', b.dataset.v === S.cfg.variant));
+    $('variantHint').textContent = S.cfg.variant === 'checkout'
+      ? 'Shopify checkout’s own modal: title bar, close, the store’s checkout font. Opens from the Checkout Extension widget’s ⓘ.'
+      : 'The script’s modal for cart widgets (toggle, checkbox, Dual Checkout, Info Only): banner, logo, title, features, footer.';
+    $('logoFld').hidden = $('logoColorFld').hidden = S.cfg.variant === 'checkout';
+    document.querySelectorAll('#devSeg button').forEach(b => b.classList.toggle('on', b.dataset.d === S.device));
+  }
+
+  // ── Preview: the store's cart drawer or checkout, with a working ⓘ ──
+  function shopHtml() {
+    const c = S.cfg, wc = S.wc || c.logoColor || '#6675FF';
+    const store = esc(S.store || 'Your Store');
+    const hd = `<div class="s-hd">${S.storeLogo ? `<img src="${esc(S.storeLogo)}" alt="">` : store}</div>`;
+    const info = `<span class="info${lbOpen ? '' : ' pulse'}" data-si-info title="What's covered?">i</span>`;
+    if (c.variant === 'checkout') {
+      return `<div class="co" style="--wc:${esc(wc)}"><div class="co-l"><div class="s-hd" style="justify-content:flex-start;border:0;height:auto;padding:0 0 6px">${S.storeLogo ? `<img src="${esc(S.storeLogo)}" alt="">` : store}</div>
+        <div class="co-h">Contact</div><div class="co-box">Email</div><div class="co-h">Delivery</div><div class="co-box">Country/Region</div><div class="row2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="co-box">First name</div><div class="co-box">Last name</div></div><div class="co-box">Address</div></div>
+        <div class="co-r"><div class="it"><span class="im"></span><span>Everyday Tote<small>Natural</small></span><span>$128.00</span></div>
+        <div class="co-w"><span class="co-cb"><svg width="11" height="11" viewBox="0 0 12 12"><path d="M2.2 6.3l2.4 2.4 5.2-5.4" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></span><div style="flex:1"><div style="display:flex;gap:6px;align-items:center"><b style="font-weight:600">Shipping Protection</b>${info}<span style="margin-left:auto;font-weight:600">$2.99</span></div><p>Protect your order from loss, damage or theft.</p></div></div>
+        <div class="tot" style="font-weight:400"><span>Subtotal</span><span>$128.00</span></div><div class="tot" style="font-weight:400"><span>Shipping Protection</span><span>$2.99</span></div><div class="tot" style="font-size:17px"><span>Total</span><span>$130.99</span></div></div></div>`;
+    }
+    return hd + `<div class="s-page"><div class="s-ph"></div><div><div class="s-ln" style="width:70%;height:22px"></div><div class="s-ln" style="width:30%"></div><div class="s-ln"></div><div class="s-ln" style="width:85%"></div></div></div>
+      <div class="drawer" style="--wc:${esc(wc)}"><div class="dr-hd">Your cart <span style="font-weight:400;color:#888">✕</span></div>
+      <div class="dr-items"><div class="it"><span class="im"></span><span>Everyday Tote<small>Natural</small></span><span>$128.00</span></div><div class="it"><span class="im"></span><span>Canvas Pouch<small>Olive</small></span><span>$34.00</span></div></div>
+      <div class="dr-ft"><div class="w-row"><span class="w-tg"></span><span class="w-name">Loss, Damage, Theft Protection</span>${info}<span class="w-price">$2.99</span></div>
+      <div class="tot"><span>Subtotal</span><span>$164.99</span></div><button class="ck-btn" type="button">Check out</button></div></div>`;
+  }
+  function render() {
+    const mobile = S.device === 'mobile';
+    $('browser').classList.toggle('mobile', mobile);
+    $('bUrl').textContent = (S.store ? S.store.toLowerCase().replace(/[^a-z0-9]+/g, '') : 'store') + '.com/' + (S.cfg.variant === 'checkout' ? 'checkouts/cn/…' : 'cart');
+    const shop = $('shop');
+    shop.style.setProperty('--sf', S.cfg.font ? `'${S.cfg.font.replace(/['";]/g, '')}',sans-serif` : '');
+    shop.innerHTML = shopHtml() + (lbOpen ? '' : '<div class="reopen">ⓘ Tap the info icon to see the lightbox</div>');
+    if (lbOpen) L.open(S.cfg, { host: shop, narrow: mobile && S.cfg.variant === 'checkout', onClose: () => { lbOpen = false; render(); } });
+    if (!VIEW) { fillForm(); save(); }
+  }
+  L.bind($('shop'), () => { lbOpen = true; render(); return null; });
+
+  // ── Side panel events ──
+  document.querySelector('.lb-side').addEventListener('input', e => {
+    const el = e.target;
+    if (el.dataset.k) { set(el.dataset.k, el.type === 'checkbox' ? el.checked : el.type === 'number' ? (el.value === '' ? '' : +el.value) : el.value); lbOpen = true; render(); }
+    else if (el.dataset.f != null) { S.cfg.features[+el.dataset.f][el.dataset.p] = el.value; lbOpen = true; render(); }
+  });
+  document.querySelector('.lb-side').addEventListener('change', e => { if (e.target.type === 'checkbox' && e.target.dataset.k) { set(e.target.dataset.k, e.target.checked); render(); } });
+  $('feats').addEventListener('click', e => { const b = e.target.closest('[data-del]'); if (b) { S.cfg.features.splice(+b.dataset.del, 1); render(); } });
+  $('addFeat').onclick = () => { S.cfg.features.push({ a: '', b: '' }); render(); const ins = $('feats').querySelectorAll('input'); ins[ins.length - 2] && ins[ins.length - 2].focus(); };
+  $('resetFeats').onclick = () => { S.cfg.features = clone(L.FEATURES); render(); };
+  $('variantSeg').onclick = e => { const b = e.target.closest('[data-v]'); if (b) { S.cfg.variant = b.dataset.v; lbOpen = true; render(); } };
+  $('devSeg').onclick = e => { const b = e.target.closest('[data-d]'); if (b) { S.device = b.dataset.d; render(); } };
+  $('banSeg').onclick = e => { const b = e.target.closest('[data-b]'); if (!b) return; if (b.dataset.b === 'custom') { if (/^(default|none)?$/.test(S.cfg.banner || '')) $('banIn').click(); else render(); } else { S.cfg.banner = b.dataset.b; render(); } };
+  $('logoSeg').onclick = e => { const b = e.target.closest('[data-l]'); if (!b) return; if (b.dataset.l === 'custom') { S.logoMode = 'custom'; if (!S.cfg.logo) $('logoIn').click(); render(); } else { S.logoMode = ''; S.cfg.logo = ''; render(); } };
+  $('banPick').onclick = () => $('banIn').click();
+  $('logoPick').onclick = () => $('logoIn').click();
+
+  // Uploaded images: shrunk in the browser, then put in storage when signed in (links stay short).
+  function shrink(file, max) {
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => { const im = new Image(); im.onload = () => {
+        const z = Math.min(1, max / Math.max(im.width, im.height)), cv = document.createElement('canvas');
+        cv.width = Math.round(im.width * z); cv.height = Math.round(im.height * z);
+        cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height);
+        const png = cv.toDataURL('image/png'); res(png.length < 450000 ? png : cv.toDataURL('image/jpeg', 0.86));
+      }; im.onerror = rej; im.src = r.result; };
+      r.onerror = rej; r.readAsDataURL(file);
+    });
+  }
+  async function stored(dataUrl) {
+    try { if (window.SIsb && await SIsb.currentUser()) { const u = await SIsb.uploadLogo(dataUrl); if (u && !/^data:/.test(u)) return u; } } catch (e) {}
+    return dataUrl;
+  }
+  $('banIn').onchange = async e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; S.cfg.banner = await stored(await shrink(f, 1100)); lbOpen = true; render(); };
+  $('logoIn').onchange = async e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; S.cfg.logo = await stored(await shrink(f, 360)); S.logoMode = 'custom'; lbOpen = true; render(); };
+
+  // ── Share & export ──
+  function viewLink() { return location.origin + location.pathname + '?view=1#d=' + enc(S); }
+  $('linkBtn').onclick = () => {
+    const u = viewLink();
+    if (/data:image/.test(u) && u.length > 60000) toast('Heads up: the uploaded image makes this link long. Sign in so uploads go to storage.');
+    navigator.clipboard.writeText(u).then(() => toast('Preview link copied'), () => prompt('Copy this link:', u));
+  };
+  $('portalBtn').onclick = () => { const t = L.portalText(S.cfg); navigator.clipboard.writeText(t).then(() => toast('Portal settings copied'), () => prompt('Copy:', t)); };
+  $('resetBtn').onclick = () => { if (!confirm('Reset every lightbox setting to the ShipInsure default?')) return; const keep = { store: S.store, storeLogo: S.storeLogo, device: S.device }; S = Object.assign(fresh(), keep); lbOpen = true; render(); };
+  let h2c = null;
+  function loadH2C() { return h2c || (h2c = new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'; s.onload = () => res(window.html2canvas); s.onerror = () => rej(new Error('couldn’t load the PNG exporter')); document.head.appendChild(s); })); }
+  $('pngBtn').onclick = async () => {
+    const btn = $('pngBtn'); btn.disabled = true;
+    try {
+      const h = await loadH2C();
+      // Drawn on its own (no backdrop) at 2x, in the desktop size.
+      const box = document.createElement('div');
+      box.style.cssText = 'position:fixed;left:-10000px;top:0;padding:24px;background:transparent;';
+      box.innerHTML = L.html(S.cfg, { narrow: false });
+      document.body.appendChild(box);
+      await document.fonts.ready; await new Promise(r => setTimeout(r, 250));
+      const el = box.firstElementChild; el.style.animation = 'none'; el.style.maxHeight = 'none';
+      const cv = await h(el, { scale: 2, useCORS: true, backgroundColor: null });
+      box.remove();
+      const a = document.createElement('a');
+      a.download = ((S.store || 'ShipInsure').replace(/[^\w-]+/g, '-') + '-info-lightbox.png').replace(/^-+/, '');
+      a.href = cv.toDataURL('image/png'); a.click();
+      toast('PNG downloaded');
+    } catch (e) { toast('PNG failed: ' + (e.message || e)); }
+    btn.disabled = false;
+  };
+
+  // ── Merchant folder: branding + save / load (kind 'lightbox') ──
+  function folderBrand(m) {
+    const cb = (m.cb || {}).branding || {}, b = (m.bld || {}).branding || {};
+    const hex = v => /^#?[0-9a-f]{6}$/i.test(String(v || '').trim()) ? '#' + String(v).trim().replace('#', '') : '';
+    return { name: m.name || '', logo: m.logo_path || b.logoUrl || cb.logoUrl || '', accent: hex(b.accent || cb.accentHex), font: b.hdrFont || b.font || cb.hdrFont || cb.font || '' };
+  }
+  async function folderSync() {
+    const a = !VIEW && window.SIsb && SIsb.getActiveFolder();
+    $('brandBtn').hidden = !a;
+    if (!a) return;
+    $('brandBtn').textContent = '📁 Use ' + a.name + ' branding';
+    try {
+      const f = folderBrand(await SIsb.getMerchant(a.id) || {});
+      let ch = false;
+      if (!S.store && f.name) { S.store = f.name; ch = true; }
+      if (!S.storeLogo && f.logo) { S.storeLogo = f.logo; ch = true; }
+      if (ch) render();
+    } catch (e) {}
+  }
+  $('brandBtn').onclick = async () => {
+    const a = SIsb.getActiveFolder(); if (!a) return;
+    try {
+      const f = folderBrand(await SIsb.getMerchant(a.id) || {}), got = [];
+      if (f.name) { S.store = f.name; got.push('store name'); }
+      if (f.logo) { S.storeLogo = f.logo; got.push('logo'); }
+      if (f.accent) { S.cfg.f2.color = f.accent; S.wc = f.accent; got.push('accent color'); }
+      if (f.font) { S.cfg.font = f.font; got.push('font'); }
+      lbOpen = true; render(); toast(got.length ? 'Used ' + got.join(', ') : 'No branding saved in that folder yet');
+    } catch (e) { toast('Couldn’t load: ' + (e.message || e)); }
+  };
+  if (window.SIsb && !VIEW) {
+    // merchant_assets kind 'lightbox' (needs si-rep-hub/lightbox-kind.sql; sb.js gets the kind here until its own list has it).
+    if (Array.isArray(SIsb.ASSET_KINDS) && SIsb.ASSET_KINDS.indexOf('lightbox') < 0) SIsb.ASSET_KINDS.push('lightbox');
+    SIsb.onActiveFolder(folderSync); folderSync();
+  }
+  if (!VIEW && window.SIFolderBar) SIFolderBar.mount({
+    kind: 'lightbox', tool: 'Info Lightbox', before: $('app'),
+    getData: () => clone(S),
+    applyData: d => { S = adopt(d); lbOpen = true; render(); },
+    defaultTitle: () => 'Info Lightbox – ' + (S.store || 'Merchant') + (S.cfg.variant === 'checkout' ? ' (checkout)' : ' (cart)'),
+    shortLink: id => location.origin + location.pathname + '?view=1&asset=' + encodeURIComponent(id)
+  });
+  // Short link from a folder save: ?view=1&asset=<id>
+  const assetId = new URLSearchParams(location.search).get('asset');
+  if (assetId && window.SIsb) SIsb.getAsset(assetId).then(r => { S = adopt(r.data || {}); if (VIEW && !(r.data || {}).device) S.device = 'mobile'; render(); }).catch(() => toast('Couldn’t load that lightbox'));
+
+  // ── Rep Hub theme hand-off ──
+  const setTheme = t => document.body.classList.toggle('pm', t === 'midnight');
+  setTheme(new URLSearchParams(location.search).get('theme'));
+  window.addEventListener('message', e => { const d = e.data || {}; if (d.siHub === 'apply' && d.theme) setTheme(d.theme); });
+
+  render();
+</script>
+</body>
+</html>
