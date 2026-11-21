@@ -680,6 +680,24 @@
         .ilb-btn { font-size: 0.74em; font-weight: 700; padding: 5px 9px; border: 1px solid #d0d4e8; border-radius: 6px; background: #fff; color: #3a467f; cursor: pointer; text-decoration: none; white-space: nowrap; }
         .ilb-btn:hover { border-color: #6675ff; }
         /* ✏️ Design: the lightbox canvas editor (lightbox.html?canvas=1) over this page */
+        #mmc { position: fixed; inset: 0; z-index: 2147483000; background: rgba(17,20,33,0.58); display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .mmc-bx { background: #fff; border-radius: 16px; width: min(1180px, 100%); max-height: 100%; overflow: auto; padding: 18px 20px; box-shadow: 0 18px 60px rgba(0,0,0,0.3); display: flex; flex-direction: column; gap: 14px; font-size: 13px; color: #2a3050; }
+        .mmc-hd { display: flex; flex-direction: column; gap: 3px; } .mmc-hd b { font-size: 15px; } .mmc-hd span { color: #6b7290; font-size: 12.5px; }
+        .mmc-bd { display: flex; gap: 20px; align-items: flex-start; }
+        .mmc-pg { position: relative; flex: 1; min-width: 0; user-select: none; touch-action: none; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.12); }
+        .mmc-pg img { display: block; width: 100%; }
+        .mmc-pg.off .mmc-ln, .mmc-pg.off .mmc-dim { display: none; }
+        .mmc-dim { position: absolute; top: 0; bottom: 0; background: rgba(20,24,50,0.45); pointer-events: none; } .mmc-dim.l { left: 0; } .mmc-dim.r { right: 0; }
+        .mmc-ln { position: absolute; top: 0; bottom: 0; width: 18px; margin-left: -9px; cursor: ew-resize; z-index: 2; }
+        .mmc-ln::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: #6675ff; box-shadow: 0 0 0 1px rgba(255,255,255,0.7); }
+        .mmc-ln i { position: absolute; top: 8px; left: 12px; white-space: nowrap; font: 700 10.5px/1 Inter, sans-serif; font-style: normal; background: #6675ff; color: #fff; padding: 4px 7px; border-radius: 10px; }
+        .mmc-ph { flex: 0 0 300px; height: 560px; border: 10px solid #17171c; border-radius: 40px; overflow: hidden; background: #fff; }
+        .mmc-scr { height: 100%; overflow-y: auto; }
+        .mmc-st { background-repeat: no-repeat; }
+        .mmc-bar { display: flex; justify-content: space-between; padding: 10px 12px; background: #f5f5f5; border-bottom: 1px solid #e1e1e1; color: #1773b0; font-size: 12px; } .mmc-bar b { color: #1a1a1a; }
+        .mmc-ft { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; } .mmc-ft .sp { flex: 1; } .mmc-ft label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+        .mmc-ft button { font: 700 12.5px inherit; padding: 8px 14px; border-radius: 8px; border: 1px solid #d5d9f0; background: #fff; color: #2a3050; cursor: pointer; } .mmc-ft button.p { background: #6675ff; border-color: #6675ff; color: #fff; }
+        @media (max-width: 860px) { .mmc-bd { flex-direction: column; } .mmc-ph { align-self: center; } }
         .ilb-ed { position: fixed; inset: 0; z-index: 2147483000; background: rgba(17,20,33,0.58); }
         .ilb-ed iframe { width: 100%; height: 100%; border: 0; display: block; background: transparent; }
         /* ⓘ in a mockup (merchant link / demo): a hotspot that opens the lightbox */
@@ -4635,7 +4653,7 @@ Return ONLY JSON — no markdown, no code fences:
         function _mkPageHtml(pg, pi, ed) {
             const L = _coLayout(pg);
             if (L) _coLays.set(pg, L); else _coLays.delete(pg);
-            const btns = ed ? `<span class="mk2-pbtns">${!pg.texts.length ? `<button type="button" onclick="mkFindText(${pi})" title="Find the text on this image so it can be edited (uses the scan model)">🔎 Find text</button>` : ''}<button type="button" onclick="mkFullscreen(this)" title="Edit full-size">⤢ Full screen</button><button type="button" onclick="mkRemovePage(${pi})" title="Remove this page">✕</button></span>` : '';
+            const btns = ed ? `<span class="mk2-pbtns">${!pg.texts.length ? `<button type="button" onclick="mkFindText(${pi})" title="Find the text on this image so it can be edited (uses the scan model)">🔎 Find text</button>` : ''}${_dfPhone(pg) ? '' : `<button type="button" onclick="mkMobCrop(${pi})" title="How this desktop page shows on a phone in the SI Interactive Demo">📱 Mobile crop${pg.mob ? ' ✓' : ''}</button>`}<button type="button" onclick="mkFullscreen(this)" title="Edit full-size">⤢ Full screen</button><button type="button" onclick="mkRemovePage(${pi})" title="Remove this page">✕</button></span>` : '';
             const cls = 'mk2-page' + (ed && _mkTool !== 'select' ? ' tool-' + _mkTool : '') + (ed && _mkOn('mk-tags') ? ' tags' : '');
             return `<div class="mk-flabel"><span>${_escHtml(pg.name || 'Page ' + (pi + 1))}</span>${btns}</div>` +
                 `<div class="mk-fit${ed ? ' mk-edit' : ''}"><div class="${cls}" data-p="${pi}" style="width:${pg.w}px;height:${L ? L.H : pg.h}px;">` +
@@ -6432,7 +6450,7 @@ Return ONLY JSON — no markdown, no code fences:
         // hasInfo } on every screen and { siExp: 'shop', done: true } after the last one's button; the demo
         // moves it with { siExp: 'shopGo', page }.
         var _mkNoProt = false;   // _mkPrice: the shopper took ShipInsure out (totals without it)
-        const DF = { on: false, ex: [], name: '', steps: [], i: 0, shown: false, prot: true, want: null, dev: '', t: 0 };
+        const DF = { on: false, ex: [], name: '', steps: [], i: 0, shown: false, prot: true, want: null, dev: '', t: 0, sumOpen: true };
         const DF_BTN = /checkout|paynow|placeorder|complete(my)?order|buynow|continueto|revieworder|proceedto/i;
         const DF_INFO = '[data-si-info], .wp-info-btn, .wp-leaf-icon, .mk2-hot';
         const _dfCompact = s => String(s || '').replace(/\s+/g, '');
@@ -6485,6 +6503,7 @@ Return ONLY JSON — no markdown, no code fences:
                 const pa = document.getElementById('widgetPreviewArea');
                 if (pa && window.MutationObserver) new MutationObserver(_dfPaintSoon).observe(pa, { childList: true });
                 addEventListener('resize', () => {
+                    _dfFitStrips(document.getElementById('dfStage'));
                     if ((innerWidth < 700 ? 'm' : 'd') === DF.dev) return;
                     const cur = DF.steps[DF.i]; _dfBuild();
                     const j = cur ? DF.steps.findIndex(s => s.ck === cur.ck) : 0;
@@ -6521,7 +6540,7 @@ Return ONLY JSON — no markdown, no code fences:
         function _dfPaint() {
             const st = document.getElementById('dfStage'), s = DF.steps[DF.i]; if (!st || !s) return;
             st.innerHTML = s.k === 'mk' ? _dfMkHtml(s) : s.k === 'cart' ? _dfCartHtml(s) : _dfCoHtml(s);
-            mkFit(st);
+            mkFit(st); _dfFitStrips(st);
             s.meta = {
                 ck: !!s.ck, last: DF.i === DF.steps.length - 1,
                 info: !!st.querySelector(DF_INFO), remove: !!st.querySelector('[data-df="rm"]'),
@@ -6558,6 +6577,7 @@ Return ONLY JSON — no markdown, no code fences:
                 else if (a === 'rm') _dfSetProt(false);
                 else if (a === 'undo') _dfSetProt(true);
                 else if (a === 'tog') _dfSetProt(!DF.prot);
+                else if (a === 'sum') { DF.sumOpen = !DF.sumOpen; _dfPaint(); }
                 return;
             }
             // The checkout's ShipInsure block (Checkout Editor): its checkbox row turns protection off / on.
@@ -6666,12 +6686,192 @@ Return ONLY JSON — no markdown, no code fences:
             let hots = _dfButtons(pg, cv).map(o => hot(o.b, `data-df="go"${o.prot ? ` data-prot="${o.prot}"` : ''} aria-label="Continue"`, o.pulse ? 'pulse' : '')).join('');
             if (DF.prot) lines.forEach(o => { const r = o.r; if (r) hots += hot({ x: r.x - 6, y: r.y - r.h * 0.5, w: r.w + 12, h: r.h * 2 }, 'data-df="rm" aria-label="Remove ShipInsure"', 'pulse rm'); });
             const covers = gone.map(o => { const dy = at(o.x + o.w / 2, o.y + 1); return dy === null ? '' : `<div class="mk2-cover df-gone" style="left:${o.x}px;top:${o.y + dy}px;width:${o.w}px;height:${o.h}px;background:${o.bg};"></div>`; }).join('');
-            const narrow = _dfPhone(pg) && innerWidth > 700;
-            return `<div class="mk-fit df-fit"${narrow ? ' style="max-width:480px"' : ''}><div class="mk2-page" data-p="${pi}" style="width:${pg.w}px;height:${L ? L.H : pg.h}px;">` +
+            const narrow = _dfPhone(pg) && innerWidth > 700, H = L ? L.H : pg.h;
+            const page = `<div class="mk2-page" data-p="${pi}" style="width:${pg.w}px;height:${H}px;">` +
                 (L ? _coPageHtml(pg, L) : `<img class="mk2-base" src="${pg.img}" alt="" draggable="false">`) +
                 (pg.boxes || []).map(b => _mkCoverHtml(b, pg)).join('') + (pg.boxes || []).map(b => _mkBoxHtml(b, pi, false)).join('') + covers +
                 T.map(t => _mkTextHtml(t, pg, pi, false)).join('') + `<div class="mk2-icons">${T.map(t => _mkIconHtml(t, pg)).join('')}</div>` +
-                (L ? _coInsHtml(L) : '') + hots + '</div></div>';
+                (L ? _coInsHtml(L) : '') + hots + '</div>';
+            // A desktop page on a phone: cut into the strips a phone would show (see _dfMobCut).
+            if (DF.dev === 'm' && !_dfPhone(pg)) {
+                const cut = _dfMobCut(pg, cv, !!s.ck, H, T);
+                if (cut) return _dfStripsHtml(cut, page, pg, T);
+            }
+            return `<div class="mk-fit df-fit"${narrow ? ' style="max-width:480px"' : ''}>${page}</div>`;
+        }
+
+        // ── Mobile cut: a desktop mockup page shown the way a phone lays it out ──
+        // Cart: the cart drawer (or the cart's content column), full height. Checkout: Shopify's phone
+        // order: the header, the order summary (opens / closes from its bar, total on it), then the form
+        // column. Each strip is the same page, layers and all, cropped and scaled to the phone's width,
+        // so the ⓘ, Remove, the protection checkbox and the buttons still work. The rep can set the cuts
+        // in the designer (📱 Mobile crop on the page): pg.mob = { x: [left, right] } or { x: [left, split, right] }.
+        const _dfLum = (d, o) => d[o] * 0.299 + d[o + 1] * 0.587 + d[o + 2] * 0.114;
+        // Average color of each x column (every 2 page px) between y0 and y1.
+        function _dfColProfile(cv, pg, y0, y1) {
+            if (!cv) return null;
+            try {
+                const k = cv.k, W = cv.ctx.canvas.width, H = cv.ctx.canvas.height;
+                const Y0 = Math.max(0, Math.floor(y0 * k)), Y1 = Math.min(H, Math.ceil(y1 * k)), rows = Math.min(36, Y1 - Y0);
+                if (rows < 4) return null;
+                const out = [];
+                const ys = Array.from({ length: rows }, (_, i) => Y0 + Math.floor((Y1 - Y0 - 1) * i / (rows - 1)));
+                const lines = ys.map(y => cv.ctx.getImageData(0, y, W, 1).data);
+                for (let x = 0; x < pg.w; x += 2) {
+                    const X = Math.min(W - 1, Math.round(x * k)); let r = 0, g = 0, b = 0;
+                    lines.forEach(d => { const o = X * 4; r += d[o]; g += d[o + 1]; b += d[o + 2]; });
+                    out.push([r / rows, g / rows, b / rows]);
+                }
+                return out;
+            } catch (e) { return null; }
+        }
+        // The strongest straight vertical edge between page x lo and hi (a drawer's or column's side).
+        function _dfEdge(prof, lo, hi, min) {
+            if (!prof) return null;
+            let best = null, bs = min || 22;
+            for (let i = Math.max(2, Math.floor(lo / 2)); i < Math.min(prof.length - 3, Math.ceil(hi / 2)); i++) {
+                const a = prof[i - 2], b = prof[i + 2], st = Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2]);
+                if (st > bs) { bs = st; best = i * 2; }
+            }
+            return best;
+        }
+        function _dfMobCut(pg, cv, ck, H, T) {
+            const cx = t => t.x + t.w / 2, cyy = t => t.y + t.h / 2, txt = T.filter(t => _mkPlain(t.t).trim());
+            const pad = 22, clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+            const dyAt = (x, y) => { const d = _coDy(pg, x, y); return d == null ? 0 : d; };
+            const byRe = re => txt.filter(t => re.test(_mkPlain(t.o).trim()));
+            if (pg.mob && pg.mob.off) return null;   // the rep chose the whole page
+            const man = pg.mob && Array.isArray(pg.mob.x) ? pg.mob.x.map(Number).filter(isFinite) : null;
+            if (ck) {
+                const sumT = byRe(/^(order summary|subtotal\b|total$|discount|shipping$|gift card)/i).concat(txt.filter(t => t.role === 'sub' || t.role === 'total'));
+                const mainT = byRe(/^(express checkout|contact( information)?|delivery|shipping address|shipping method|payment|billing address|remember me|pay now|complete order|place order)$/i);
+                let L0, split, R0;
+                if (man && man.length === 3) [L0, split, R0] = man;
+                else if (sumT.length && mainT.length) {
+                    const sumX = Math.min(...sumT.map(t => t.x)), mainR = Math.max(...txt.filter(t => cx(t) < sumX - 10 && t.x >= Math.min(...mainT.map(u => u.x)) - 40).map(t => t.x + t.w).concat([Math.max(...mainT.map(t => t.x + t.w))]));
+                    if (!(mainR < sumX)) return null;
+                    const top = Math.min(...mainT.concat(sumT).map(t => t.y));
+                    split = _dfEdge(_dfColProfile(cv, pg, top, Math.min(pg.h, top + 600)), mainR + 4, sumX - 4, 14);
+                    if (split == null) split = (mainR + sumX) / 2;
+                    const mainL = Math.min(...txt.filter(t => cx(t) < split && t.y >= top - 10).map(t => t.x));
+                    const sumR = Math.max(...txt.filter(t => cx(t) > split && t.y >= top - 10).map(t => t.x + t.w));
+                    L0 = mainL - pad; R0 = sumR + pad;
+                } else return null;
+                L0 = clamp(L0, 0, split - 120); R0 = clamp(R0, split + 120, pg.w);
+                const colT = txt.filter(t => cx(t) > L0 && cx(t) < R0);
+                const first = mainT.concat(sumT).filter(t => t.y > 10);
+                const hb = first.length ? Math.min(...first.map(t => t.y)) - 18 : 0;
+                const strips = [];
+                if (hb > 36) {
+                    // Header: around what's drawn in the top band (the logo), at the form column's width.
+                    const hdT = txt.filter(t => t.y + t.h < hb);
+                    let hx0 = L0, hx1 = split;
+                    const prof = _dfColProfile(cv, pg, 4, hb - 4);
+                    if (prof) {
+                        const bg = prof[1], ink = prof.map((c, i) => Math.abs(c[0] - bg[0]) + Math.abs(c[1] - bg[1]) + Math.abs(c[2] - bg[2]) > 6 ? i * 2 : -1).filter(v => v >= 0);
+                        if (ink.length) { const a = Math.min(...ink), b = Math.max(...ink), mid = (a + b) / 2, half = Math.max((split - L0) / 2, (b - a) / 2 + pad); hx0 = mid - half; hx1 = mid + half; }
+                    } else if (hdT.length) { const a = Math.min(...hdT.map(t => t.x)), b = Math.max(...hdT.map(t => t.x + t.w)), mid = (a + b) / 2, half = Math.max((split - L0) / 2, (b - a) / 2 + pad); hx0 = mid - half; hx1 = mid + half; }
+                    hx0 = clamp(hx0, 0, pg.w - 100); hx1 = clamp(hx1, hx0 + 100, pg.w);
+                    strips.push({ k: 'hdr', x: hx0, y: 0, w: hx1 - hx0, h: hb });
+                }
+                const sb = colT.filter(t => cx(t) > split).map(t => t.y + t.h + dyAt(cx(t), cyy(t)));
+                const sumBot = clamp((sb.length ? Math.max(...sb) : hb + 300) + 28, hb + 60, H);
+                strips.push({ k: 'sum', x: split, y: Math.max(0, hb), w: R0 - split, h: sumBot - Math.max(0, hb) });
+                strips.push({ k: 'main', x: L0, y: Math.max(0, hb), w: split - L0, h: H - Math.max(0, hb) });
+                return { ck: true, strips, total: (sumT.filter(t => t.role === 'total').map(t => _mkPlain(t.t).trim()).pop() || '') };
+            }
+            // Cart: the drawer (a panel down one side) or the content column.
+            let x0, x1;
+            if (man && man.length >= 2) { x0 = man[0]; x1 = man[man.length - 1]; }
+            else {
+                const anc = txt.filter(t => t.role === 'fee' || t.part === 'b1' || t.part === 'hdr' || DF_BTN.test(_dfCompact(t.o)));
+                if (!anc.length) return null;
+                const ax = anc.reduce((v, t) => v + cx(t), 0) / anc.length;
+                const prof = _dfColProfile(cv, pg, pg.h * 0.15, pg.h * 0.85);
+                const colOf = (lo, hi) => txt.filter(t => cx(t) > lo && cx(t) < hi);
+                if (ax > pg.w * 0.55) {
+                    x1 = pg.w;
+                    x0 = _dfEdge(prof, pg.w * 0.3, Math.min(...anc.map(t => t.x)) - 6);
+                    if (x0 == null) { const c = colOf(pg.w * 0.5, pg.w); x0 = (c.length ? Math.min(...c.map(t => t.x)) : pg.w * 0.6) - pad; }
+                } else if (ax < pg.w * 0.45) {
+                    x0 = 0;
+                    x1 = _dfEdge(prof, Math.max(...anc.map(t => t.x + t.w)) + 6, pg.w * 0.7);
+                    if (x1 == null) { const c = colOf(0, pg.w * 0.5); x1 = (c.length ? Math.max(...c.map(t => t.x + t.w)) : pg.w * 0.4) + pad; }
+                } else {
+                    const c = txt.filter(t => Math.abs(cx(t) - ax) < pg.w * 0.3);
+                    x0 = Math.min(...c.map(t => t.x)) - pad; x1 = Math.max(...c.map(t => t.x + t.w)) + pad;
+                }
+            }
+            x0 = clamp(x0, 0, pg.w - 200); x1 = clamp(x1, x0 + 200, pg.w);
+            if (x1 - x0 > pg.w * 0.82) return null;   // nothing narrower to show: the whole page
+            return { ck: false, strips: [{ k: 'drawer', x: x0, y: 0, w: x1 - x0, h: H }] };
+        }
+        function _dfStripsHtml(cut, page, pg) {
+            const strip = c => `<div class="df-strip df-s-${c.k}" data-w="${_mkR(c.w)}" style="width:${_mkR(c.w)}px;height:${_mkR(c.h)}px;"><div class="df-sin" style="transform:translate(${-_mkR(c.x)}px,${-_mkR(c.y)}px);">${page}</div></div>`;
+            return `<div class="df-mob${cut.ck ? ' df-mob-ck' : ''}">` + cut.strips.map(c => {
+                if (c.k !== 'sum') return strip(c);
+                const open = DF.sumOpen;
+                return `<button type="button" class="df-sumbar" data-df="sum" aria-expanded="${open}"><span>🛒 ${open ? 'Hide' : 'Show'} order summary <i>${open ? '▴' : '▾'}</i></span><b>${_escHtml(cut.total)}</b></button>` + (open ? strip(c) : '');
+            }).join('') + '</div>';
+        }
+        // 📱 Mobile crop (designer): drag the cut lines on the page; the phone beside it shows the result.
+        async function mkMobCrop(pi) {
+            const pg = _mk.pages[pi]; if (!pg || document.getElementById('mmc') || mkMobCrop.busy) return;
+            let cv = _mkCanvas[pg.img] || null;
+            if (!cv) { mkMobCrop.busy = true; try { cv = await _mkPageCanvas(pg); } catch (e) { cv = null; } mkMobCrop.busy = false; }
+            const ck = _dfIsCk(pg), keep = pg.mob ? JSON.parse(JSON.stringify(pg.mob)) : null;
+            const auto = () => { const m = pg.mob; delete pg.mob; const c = _dfMobCut(pg, cv, ck, pg.h, pg.texts); if (m) pg.mob = m; return c; };
+            const fromCut = c => !c ? null : ck ? (() => { const sm = c.strips.find(x => x.k === 'sum'), mn = c.strips.find(x => x.k === 'main'); return [mn.x, sm.x, sm.x + sm.w]; })() : (() => { const d = c.strips[0]; return [d.x, d.x + d.w]; })();
+            let X = (pg.mob && Array.isArray(pg.mob.x) && pg.mob.x.length === (ck ? 3 : 2)) ? pg.mob.x.slice() : fromCut(auto()) || (ck ? [pg.w * 0.08, pg.w * 0.56, pg.w * 0.94] : [pg.w * 0.62, pg.w]);
+            let whole = !!(pg.mob && pg.mob.off);
+            const names = ck ? ['Form left edge', 'Form | summary', 'Summary right edge'] : ['Cart left edge', 'Cart right edge'];
+            const w = document.createElement('div'); w.id = 'mmc';
+            w.innerHTML = `<div class="mmc-bx"><div class="mmc-hd"><b>📱 Mobile crop · ${_escHtml(pg.name || 'Page ' + (pi + 1))}</b><span>${ck ? 'Checkout: on a phone the order summary goes on top (opens / closes), then the form.' : 'Cart: on a phone only the cart drawer / column shows, full width.'} Drag the lines; the phone shows the result in the SI Interactive Demo.</span></div>
+                <div class="mmc-bd"><div class="mmc-pg" id="mmcPg"><img src="${pg.img}" alt="" draggable="false">${X.map((v, i) => `<div class="mmc-ln" data-i="${i}" title="${names[i]}"><i>${names[i]}</i></div>`).join('')}<div class="mmc-dim l"></div><div class="mmc-dim r"></div></div>
+                <div class="mmc-ph"><div class="mmc-scr" id="mmcPh"></div></div></div>
+                <div class="mmc-ft"><label><input type="checkbox" id="mmcWhole"${whole ? ' checked' : ''}> Show the whole page instead (no crop)</label><span class="sp"></span><button type="button" data-a="auto">↺ Auto</button><button type="button" data-a="cancel">Cancel</button><button type="button" class="p" data-a="save">Save</button></div></div>`;
+            document.body.appendChild(w);
+            const box = w.querySelector('#mmcPg');
+            const paint = () => {
+                const z = box.clientWidth / pg.w;
+                w.querySelectorAll('.mmc-ln').forEach(l => { l.style.left = (X[+l.dataset.i] * z) + 'px'; });
+                w.querySelector('.mmc-dim.l').style.width = (X[0] * z) + 'px';
+                w.querySelector('.mmc-dim.r').style.width = ((pg.w - X[X.length - 1]) * z) + 'px';
+                box.classList.toggle('off', whole);
+                const m = pg.mob; pg.mob = whole ? { off: true } : { x: X.map(v => Math.round(v)) };
+                const c = _dfMobCut(pg, cv, ck, pg.h, pg.texts); pg.mob = m;
+                const ph = w.querySelector('#mmcPh'), PW = ph.clientWidth;
+                const strip = st => { const k = PW / st.w; return `<div class="mmc-st" style="height:${st.h * k}px;background-image:url('${String(pg.img).replace(/['"<>\\]/g, encodeURIComponent)}');background-size:${pg.w * k}px ${pg.h * k}px;background-position:${-st.x * k}px ${-st.y * k}px"></div>`; };
+                ph.innerHTML = !c ? strip({ x: 0, y: 0, w: pg.w, h: pg.h }) : c.strips.map(st => (st.k === 'sum' ? `<div class="mmc-bar"><span>🛒 Hide order summary ▴</span><b>${_escHtml(c.total)}</b></div>` : '') + strip(st)).join('');
+            };
+            let drag = null;
+            box.addEventListener('pointerdown', e => { const l = e.target.closest('.mmc-ln'); if (!l || whole) return; drag = +l.dataset.i; l.setPointerCapture(e.pointerId); e.preventDefault(); });
+            box.addEventListener('pointermove', e => {
+                if (drag == null) return;
+                const r = box.getBoundingClientRect(), v = (e.clientX - r.left) / r.width * pg.w, gap = 60;
+                X[drag] = Math.max(drag ? X[drag - 1] + gap : 0, Math.min(drag < X.length - 1 ? X[drag + 1] - gap : pg.w, v));
+                paint();
+            });
+            box.addEventListener('pointerup', () => { drag = null; });
+            w.addEventListener('change', e => { if (e.target.id === 'mmcWhole') { whole = e.target.checked; paint(); } });
+            w.addEventListener('click', e => {
+                const a = (e.target.closest('[data-a]') || {}).dataset; if (!a || !a.a) return;
+                if (a.a === 'auto') { X = fromCut(auto()) || X; whole = false; w.querySelector('#mmcWhole').checked = false; paint(); return; }
+                if (a.a === 'save') { pg.mob = whole ? { off: true } : { x: X.map(v => Math.round(v)) }; showToast('Mobile crop saved on this page'); }
+                else if (keep) pg.mob = keep; else delete pg.mob;
+                w.remove(); mkRender(); document.dispatchEvent(new Event('change'));
+            });
+            const im = box.querySelector('img'); if (im.complete) paint(); else im.onload = paint;
+        }
+        // Each strip fills the phone's width.
+        function _dfFitStrips(root) {
+            const W = (root || document).querySelector('.df-mob'); if (!W) return;
+            const cw = W.clientWidth || 0;
+            W.querySelectorAll('.df-strip').forEach(st => {
+                const z = cw / (+st.dataset.w || 1); if (!(z > 0)) return;
+                st.style.zoom = z;
+                st.querySelectorAll('.mk2-page').forEach(p => p.style.setProperty('--z', z));
+            });
         }
 
         // ── Screens without a mockup: the widgets on a plain cart / checkout ──
@@ -6740,6 +6940,15 @@ Return ONLY JSON — no markdown, no code fences:
                 .df-hot.rm.pulse::after { animation-delay:1.2s; }
                 @keyframes dfPulse { 0% { opacity:.9; } 70%, 100% { opacity:0; } }
                 .mk2-cover.df-gone { z-index:2; }
+                .df-mob { width:100%; background:#fff; }
+                .df-strip { position:relative; overflow:hidden; }
+                .df-sin { position:absolute; left:0; top:0; }
+                .df-sin .mk2-page { zoom:1; }
+                .df-s-hdr { border-bottom:1px solid #e6e6e6; }
+                .df-sumbar { display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%; border:0; border-bottom:1px solid #e1e1e1; background:#f5f5f5; padding:14px 16px; font:500 14px/1.2 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; color:#1773b0; cursor:pointer; text-align:left; }
+                .df-sumbar i { font-style:normal; font-size:11px; }
+                .df-sumbar b { color:#1a1a1a; font-size:16px; font-weight:700; }
+                .df-s-sum { border-bottom:1px solid #e1e1e1; }
                 #demoFlow .co-w-row { cursor:pointer; }
                 .df-undo { position:fixed; left:50%; bottom:16px; transform:translateX(-50%); display:flex; align-items:center; gap:10px; background:#1d2240; color:#fff; border-radius:30px; padding:7px 7px 7px 15px; font:600 13px/1.2 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; box-shadow:0 6px 20px rgba(20,26,60,.25); z-index:60; white-space:nowrap; }
                 .df-undo[hidden] { display:none; }
