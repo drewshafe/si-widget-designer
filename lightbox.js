@@ -33,7 +33,8 @@
     privacyUrl: 'https://shipinsure.io/privacy-policy',
     termsUrl: 'https://shipinsure.io/terms-of-service',
     banner: 'default',                  // 'default' | 'none' | an image URL / data URL
-    logo: '',                           // '' = ShipInsure lock in logoColor; else an image URL / data URL
+    logo: '',                           // '' = the ShipInsure lock (si-lock.png); else an image URL / data URL
+    logoKind: '',                       // 'lock' = a custom lock from the Lock builder (shown like the SI lock); '' = an uploaded logo (white tile)
     logoColor: '#6675FF',
     headerBorder: '#6675FF',
     box:    { bg: '#ffffff', border: '#e3e5ee', bw: 0, radius: 8, pad: 24 },
@@ -83,8 +84,7 @@
 .silb-logo{position:absolute;left:22px;bottom:-26px;width:64px;height:84px;filter:drop-shadow(0 3px 6px rgba(0,0,0,.18))}
 .silb-logo img.silb-own{position:absolute;left:4px;right:4px;bottom:0;height:52px;width:56px;object-fit:contain;background:#fff;border-radius:10px;padding:5px}
 .silb-lock{position:absolute;left:-10px;bottom:0;width:84px;height:84px;display:block;isolation:isolate}
-.silb-lock i{position:absolute;inset:0;background:var(--lc);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center}
-.silb-lock img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;mix-blend-mode:lighten}
+.silb-lock img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
 .silb-body{padding:40px var(--pd) 22px}
 .silb-t{margin:0 0 18px}
 .silb-fl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px}
@@ -119,9 +119,8 @@
 
   const fst = (s, base) => `font-family:${fam(s.font) ? `'${fam(s.font)}',` : ''}${base};font-size:${num(s.size, 12, 8, 40)}px;font-weight:${num(s.weight, 600, 100, 900)};color:${hex(s.color, '#1f2433')};`;
   const CHECK = c => `<svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.2 6.3l2.4 2.4 5.2-5.4" fill="none" stroke="${c}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  // The ShipInsure lock over the banner: the real lock (si-lock.png, the Rep Hub's), filled with the
-  // Default Logo Color (the image is the mask; its white box mark stays white on top).
-  const LOCK = c => `<span class="silb-lock" style="--lc:${c}"><i style="-webkit-mask-image:url('${BASE}si-lock.png');mask-image:url('${BASE}si-lock.png')"></i><img src="${BASE}si-lock.png" alt=""></span>`;
+  // The lock over the banner: ShipInsure's own si-lock.png (the Rep Hub's), or a custom lock from the Lock builder.
+  const LOCK = src => `<span class="silb-lock"><img src="${src}" alt=""></span>`;
   // "Powered by" uses ShipInsure's own light gray logo.
   const MARK = `<img class="silb-pwl" src="${BASE}si-logo-grey.png" alt="ShipInsure">`;
 
@@ -147,7 +146,9 @@
 <div class="silb-hd">${title}<button type="button" class="silb-x" aria-label="Close" data-silb-close>✕</button></div>
 <div class="silb-body">${ban}</div>${feats}${foot}<button type="button" class="silb-cobtn" data-silb-close>Close</button></div></div>`;
     }
-    const logo = url(c.logo) ? `<span class="silb-logo" data-silb="logo"><img class="silb-own" src="${url(c.logo)}" alt=""></span>` : `<span class="silb-logo" data-silb="logo">${LOCK(lc)}</span>`;
+    const logo = !url(c.logo) ? `<span class="silb-logo" data-silb="logo">${LOCK(BASE + 'si-lock.png')}</span>`
+      : c.logoKind === 'lock' ? `<span class="silb-logo" data-silb="logo">${LOCK(url(c.logo))}</span>`
+      : `<span class="silb-logo" data-silb="logo"><img class="silb-own" src="${url(c.logo)}" alt=""></span>`;
     return `<div class="${cls}" data-silb="box" role="dialog" aria-modal="true" aria-label="${esc(c.title)}" style="${boxSt}">
 <button type="button" class="silb-x" aria-label="Close" data-silb-close>✕</button>
 ${ban}${logo}</div>
@@ -202,7 +203,7 @@ ${ban}${logo}</div>
       s('Modal Feature First Style', c.f1),
       s('Modal Feature Second Style', c.f2),
       'Default Logo Color: ' + c.logoColor,
-      'Modal Logo: ' + (c.logo ? 'custom (upload the logo file)' : 'default ShipInsure lock'),
+      'Modal Logo: ' + (c.logo ? (c.logoKind === 'lock' ? 'custom lock (upload the lock PNG)' : 'custom (upload the logo file)') : 'default ShipInsure lock'),
       'Modal Banner: ' + (c.banner === 'none' ? 'none' : c.banner === 'default' || !c.banner ? 'default ShipInsure banner' : 'custom (upload the banner file)'),
       'Widget type: ' + (c.variant === 'checkout' ? 'Checkout Extension' : 'Cart widget (toggle / checkbox / dual checkout / info only)')
     ].join('\n');

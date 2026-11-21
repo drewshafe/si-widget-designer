@@ -9,7 +9,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <script src="https://drewshafe.github.io/si-roi-calculator/sb.js"></script>
 <script src="https://drewshafe.github.io/si-rep-hub/folder-bar.js"></script>
+<script src="https://drewshafe.github.io/si-rep-hub/brand-kit.js"></script>
 <script src="lightbox.js"></script>
+<script src="lock-builder.js"></script>
 <style>
   /* Info Lightbox designer: the modal a shopper sees after clicking the ShipInsure widget's ⓘ.
      Settings mirror the Merchant Portal → Merchants → General Widget Setup → (configuration) → Modal
@@ -193,11 +195,10 @@
         <div class="img-row" id="banRow" hidden><span class="thumb" id="banThumb"></span><button class="btn sm" type="button" id="banPick">Choose image…</button></div>
       </div>
       <div class="fld" id="logoFld"><label>Modal logo</label>
-        <div class="seg" id="logoSeg"><button type="button" data-l="lock">ShipInsure lock</button><button type="button" data-l="custom">Upload logo</button></div>
-        <div class="img-row" id="logoRow" hidden><span class="thumb" id="logoThumb" style="background-size:contain"></span><button class="btn sm" type="button" id="logoPick">Choose image…</button></div>
+        <div class="seg" id="logoSeg"><button type="button" data-l="lock">ShipInsure lock</button><button type="button" data-l="custom">🔒 Custom lock</button></div>
+        <div class="img-row" id="logoRow" hidden><span class="thumb" id="logoThumb" style="background-size:contain"></span><button class="btn sm" type="button" id="logoPick" title="The merchant's logo inside the ShipInsure lock">🔒 Build in Lock</button><button class="btn sm" type="button" id="logoFolder" hidden></button></div>
       </div>
       <div class="row2">
-        <div class="fld" id="logoColorFld"><label for="f-logoColor">Default logo color</label><input type="color" id="f-logoColor" data-k="logoColor"></div>
         <div class="fld"><label for="f-headerBorder">Header border color</label><input type="color" id="f-headerBorder" data-k="headerBorder"></div>
       </div>
       <input type="file" id="banIn" accept="image/*" hidden><input type="file" id="logoIn" accept="image/*" hidden>
@@ -299,7 +300,9 @@
     $('variantHint').textContent = S.cfg.variant === 'checkout'
       ? 'Shopify checkout’s own modal: title bar, close, the store’s checkout font. Opens from the Checkout Extension widget’s ⓘ.'
       : 'The script’s modal for cart widgets (toggle, checkbox, Dual Checkout, Info Only): banner, logo, title, features, footer.';
-    $('logoFld').hidden = $('logoColorFld').hidden = S.cfg.variant === 'checkout';
+    $('logoFld').hidden = S.cfg.variant === 'checkout';
+    $('logoFolder').hidden = !folderLock || folderLock === S.cfg.logo;
+    if (folderLock) $('logoFolder').textContent = '📁 Use ' + ((window.SIsb && SIsb.getActiveFolder() || {}).name || 'folder') + '’s lock';
     document.querySelectorAll('#devSeg button').forEach(b => b.classList.toggle('on', b.dataset.d === S.device));
   }
 
@@ -421,9 +424,26 @@
   }
   $('devSeg').onclick = e => { const b = e.target.closest('[data-d]'); if (b) { S.device = b.dataset.d; render(); keepDevice(S.device); } };
   $('banSeg').onclick = e => { const b = e.target.closest('[data-b]'); if (!b) return; if (b.dataset.b === 'custom') { if (/^(default|none)?$/.test(S.cfg.banner || '')) $('banIn').click(); else render(); } else { S.cfg.banner = b.dataset.b; render(); } };
-  $('logoSeg').onclick = e => { const b = e.target.closest('[data-l]'); if (!b) return; if (b.dataset.l === 'custom') { S.logoMode = 'custom'; if (!S.cfg.logo) $('logoIn').click(); render(); } else { S.logoMode = ''; S.cfg.logo = ''; render(); } };
+  // Custom lock = the Lock builder (the merchant's logo in the SI lock), or the folder's saved lock.
+  var folderLock = '';
+  function useLock(u) { S.cfg.logo = u; S.cfg.logoKind = 'lock'; S.logoMode = 'custom'; lbOpen = true; render(); }
+  function buildLock() {
+    const a = window.SIsb && SIsb.getActiveFolder();
+    window.SILockBuilder && SILockBuilder.open({
+      logo: S.storeLogo || '', saveTo: a && window.SIBrand ? a.name : '',
+      onUse: async (u, o) => {
+        useLock(await stored(u));
+        if (o.save && a && window.SIBrand) {
+          try { await SIBrand.set(a.id, 'lock', S.cfg.logo); folderLock = S.cfg.logo; render(); toast('Lock saved to ' + a.name + '’s brand kit'); }
+          catch (e) { toast('Not saved to the brand kit: ' + (e.message || e)); }
+        }
+      }
+    });
+  }
+  $('logoSeg').onclick = e => { const b = e.target.closest('[data-l]'); if (!b) return; if (b.dataset.l === 'custom') { S.logoMode = 'custom'; if (!S.cfg.logo) { if (folderLock) useLock(folderLock); else buildLock(); } render(); } else { S.logoMode = ''; S.cfg.logo = ''; S.cfg.logoKind = ''; render(); } };
+  $('logoFolder').onclick = () => useLock(folderLock);
   $('banPick').onclick = () => $('banIn').click();
-  $('logoPick').onclick = () => $('logoIn').click();
+  $('logoPick').onclick = buildLock;
 
   // Uploaded images: shrunk in the browser, then put in storage when signed in (links stay short).
   function shrink(file, max) {
@@ -488,6 +508,7 @@
     $('brandBtn').hidden = !a;
     if (!a) return;
     $('brandBtn').textContent = '📁 Use ' + a.name + ' branding';
+    if (window.SIBrand) SIBrand.get(a.id).then(k => { folderLock = k.lock || ''; render(); }, () => {});
     try {
       const f = folderBrand(await SIsb.getMerchant(a.id) || {});
       let ch = false;
