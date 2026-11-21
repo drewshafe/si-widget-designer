@@ -408,6 +408,18 @@
         #merchantView { min-height: 100vh; background: #eef1f8; padding: 0 0 40px; }
         .mp-view-header { background: var(--header-grad); padding: 20px 24px; display: flex; align-items: center; gap: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.18); }
         .mp-view-header img { height: 34px; }
+        /* Layout canvas (🖼 Layout): hidden parts stay visible, ghosted, so they can be turned back on. */
+        .mvx-bar { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 10px 18px; background: #fff; border-bottom: 1px solid #dfe3f2; box-shadow: 0 2px 10px rgba(20,26,60,0.08); font-size: 13px; color: #2a3050; }
+        .mvx-bar b { font-weight: 800; margin-right: 4px; }
+        .mvx-bar label { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+        .mvx-bar .sp { flex: 1; }
+        .mvx-bar .hint { font-size: 12px; color: #7a819e; }
+        .mvx-bar button { font: 700 12.5px inherit; padding: 7px 13px; border-radius: 8px; border: 1px solid #d5d9f0; background: #fff; color: #2a3050; cursor: pointer; }
+        .mvx-bar button.p { background: #6675ff; border-color: #6675ff; color: #fff; }
+        .mv-edit [data-mvt] { outline: 1px dashed rgba(255,255,255,0.55); outline-offset: 3px; border-radius: 3px; cursor: text; }
+        .mv-edit [data-mvt]:focus { outline: 2px solid #aab4ff; }
+        .mv-edit .mv-off { opacity: 0.35; position: relative; }
+        .mv-edit .mv-off::after { content: 'Hidden on the link'; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font: 800 10px/1 Inter, sans-serif; letter-spacing: .06em; text-transform: uppercase; background: #fff; color: #4a5fc1; padding: 5px 8px; border-radius: 20px; }
         .mp-view-header .t1 { font-size: 1.1em; font-weight: 800; color: #fff; }
         .mp-view-header .t2 { font-size: 0.78em; font-weight: 500; color: rgba(255,255,255,0.82); }
         .mp-grid { max-width: 1180px; margin: 24px auto 0; padding: 0 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
@@ -429,6 +441,7 @@
         .mp-section { background: #fff; border: 1px solid #e3e7f5; border-radius: 18px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
         .mp-section-banner { background: linear-gradient(100deg,#141420,#2b2b42); color: #fff; font-size: 1.05em; font-weight: 900; letter-spacing: 0.04em; text-transform: uppercase; padding: 12px 22px; }
         .mp-section-banner span { color: #aab4ff; }
+        .mp-section-banner .mvb-t { font-style: normal; }
         .mp-section-body { padding: 22px; display: flex; gap: 26px; align-items: flex-start; flex-wrap: wrap; }
         .mp-scol { display: flex; flex-direction: column; gap: 14px; min-width: 520px; flex: 0 1 auto; }
         .mp-scol.col-cwidget { min-width: 640px; }
@@ -1658,7 +1671,7 @@
                 <div id="lineItemPreviewArea"></div>
             </div>
             <div class="mp-set-card" id="mpSetCard">
-                <div class="mp-set-hd"><div class="mp-set-title">What the merchant sees (<span id="mpCount">0</span>)</div><button type="button" class="mp-add" onclick="addCurrentView()" title="Add the design in the editor as a view on the merchant link">+ Add this view</button></div>
+                <div class="mp-set-hd"><div class="mp-set-title">What the merchant sees (<span id="mpCount">0</span>)</div><button type="button" class="mp-add" onclick="mvLayoutOpen()" title="Lay out the merchant link: view header and section banners (hidden by default), their text">🖼 Layout</button><button type="button" class="mp-add" onclick="addCurrentView()" title="Add the design in the editor as a view on the merchant link">+ Add this view</button></div>
                 <div class="mp-set-sub">Each view shows on the merchant link (🔗 Copy Link) and saves with the folder. Each uploaded mockup gets its own view. ✏️ Edit opens a view in the editor, and changes save to it as you go.</div>
                 <input type="text" id="mpName" placeholder="Preview name (e.g. Acme Co. — Checkout Preview)" oninput="_previewName=this.value" style="width:100%;box-sizing:border-box;margin-bottom:8px;padding:7px 9px;font-size:0.82em;border:1px solid #d5d9f0;border-radius:7px;">
                 <div class="mp-list" id="mpChips"></div>
@@ -3424,14 +3437,14 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 // Checkout Editor: on a checkout page the protection is in the order only while its
                 // block says so (the Package Protection checkbox). ShipInsure is a cart line there,
                 // so it counts in the subtotal as well as the total.
-                const coCk = !!_mk.co && _mk.co.plus !== false && _coIsCheckout(_coAnchors(pg)), protIn = coCk ? _coProtOn('checkout') : true;
+                const coCk = !!_mk.co && _mk.co.plus !== false && _coIsCheckout(_coAnchors(pg)), protIn = !_mkNoProt && (coCk ? _coProtOn('checkout') : true);
                 const addF = protIn && F != null ? F : 0;
                 pg.texts.forEach(t => {
                     if (t.man || !t.role || t.role === 'item') return;
                     const v0 = _mkVal(t.o); if (v0 == null) return;
                     const v = t.role === 'fee' ? F
                         : coCk ? (t.role === 'sub' ? v0 + di + (pfee ? 0 : addF) : v0 + di - (pfee ? pF0 : 0) + addF)
-                        : t.role === 'sub' ? v0 + di : v0 + di + ((F != null && pF0 != null) ? F - pF0 : 0);
+                        : t.role === 'sub' ? v0 + di : v0 + di + ((F != null && pF0 != null) ? (protIn ? F : 0) - pF0 : 0);
                     if (v == null) return;
                     t.t = Math.abs(v - v0) < 0.005 ? t.o : _mkFmt(t.o, v);
                 });
@@ -6176,7 +6189,7 @@ Return ONLY JSON — no markdown, no code fences:
             _mpCommit();
             const set = _merchantExamples.length ? _merchantExamples : [{ label: currentExampleLabel(), design: _collectDesign() }];
             if (!(await _mkLinkReady(set.map(ex => ex.design)))) return;
-            const payload = { name: (_previewName || '').trim(), examples: set };
+            const payload = { name: (_previewName || '').trim(), examples: set, layout: _mvLayout };
             const enc = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
             const url = location.origin + location.pathname + '?view=merchant#s=' + enc;
             navigator.clipboard.writeText(url).then(showToast, () => prompt('Copy this merchant link:', url));
@@ -6223,18 +6236,78 @@ Return ONLY JSON — no markdown, no code fences:
                 scanBg: (_widgetType === 'dual' || _widgetType === 'toggle') ? _cartScanBg : _extScanBg
             };
         }
-        function renderMerchantView(examples, name) {
+        // ── Merchant view layout: what the link shows around the views ──
+        // null = the defaults: no view header, no section banners. Set on a canvas (🖼 Layout).
+        var _mvLayout = null;
+        const MV_BN = { mock: 'Cart & Checkout Mockups', cart: 'Cart Designs', chk: 'Checkout Designs' };
+        function _mvL(l) {
+            l = l || {}; const bn = l.bn || {}, o = { header: !!l.header, t1: String(l.t1 || ''), t2: String(l.t2 || ''), bn: {} };
+            Object.keys(MV_BN).forEach(k => { o.bn[k] = { on: !!(bn[k] && bn[k].on), t: String((bn[k] && bn[k].t) || '') }; });
+            return o;
+        }
+        // The banner's last word takes the accent color (as "Cart & Checkout <span>Mockups</span>").
+        function _mvBnHtml(s) { const w = String(s).trim().split(/\s+/), last = w.pop() || ''; return (w.length ? _escHtml(w.join(' ')) + ' ' : '') + `<span>${_escHtml(last)}</span>`; }
+        function mvLayoutOpen() {
+            if (document.getElementById('mvEd')) return;
+            _mpCommit();
+            const set = _merchantExamples.length ? _merchantExamples : [{ label: currentExampleLabel(), design: _collectDesign() }];
+            const theme = new URLSearchParams(location.search).get('theme');
+            const w = document.createElement('div'); w.id = 'mvEd'; w.className = 'ilb-ed';
+            w.innerHTML = `<iframe title="Merchant view layout" src="${location.pathname}?view=merchant&mvedit=1${theme ? '&theme=' + encodeURIComponent(theme) : ''}"></iframe>`;
+            document.body.appendChild(w);
+            const f = w.querySelector('iframe');
+            f.onload = () => f.contentWindow.postMessage({ siMv: 'load', name: _previewName || '', examples: JSON.parse(JSON.stringify(set)), layout: _mvLayout }, '*');
+        }
+        window.addEventListener('message', e => {
+            const d = e.data, w = document.getElementById('mvEd');
+            if (!d || !d.siMv || !w || e.source !== w.querySelector('iframe').contentWindow) return;
+            if (d.siMv === 'done') { _mvLayout = d.layout || null; w.remove(); showToast('Layout kept: Copy Link and folder saves use it'); document.dispatchEvent(new Event('change')); }
+            if (d.siMv === 'cancel') w.remove();
+        });
+        // Layout canvas (inside the 🖼 Layout iframe): toggles in a bar, text edited in place.
+        function _mvEditWire(mv, L, rerender) {
+            const bar = document.createElement('div'); bar.className = 'mvx-bar';
+            const present = Object.keys(MV_BN).filter(k => mv.querySelector(`[data-mvb="${k}"]`));
+            bar.innerHTML = `<b>Merchant view layout</b>
+                <label><input type="checkbox" data-mvk="header"${L.header ? ' checked' : ''}> View header</label>
+                ${present.map(k => `<label><input type="checkbox" data-mvk="bn.${k}"${L.bn[k].on ? ' checked' : ''}> “${_escHtml(L.bn[k].t || MV_BN[k])}” banner</label>`).join('')}
+                <span class="hint">Click the header or a banner's text to edit it.</span><span class="sp"></span>
+                <button type="button" data-mva="reset">Reset</button><button type="button" data-mva="cancel">Cancel</button><button type="button" class="p" data-mva="done">Done</button>`;
+            mv.prepend(bar);
+            bar.addEventListener('change', e => {
+                const k = e.target.dataset.mvk; if (!k) return;
+                if (k === 'header') L.header = e.target.checked; else L.bn[k.slice(3)].on = e.target.checked;
+                const el = k === 'header' ? mv.querySelector('.mp-view-header') : mv.querySelector(`[data-mvb="${k.slice(3)}"]`);
+                if (el) el.classList.toggle('mv-off', !e.target.checked);
+            });
+            bar.addEventListener('click', e => {
+                const a = e.target.closest('[data-mva]'); if (!a) return;
+                if (a.dataset.mva === 'reset') { if (confirm('Back to the default layout (no header, no banners, default text)?')) rerender(_mvL(null)); return; }
+                parent.postMessage(a.dataset.mva === 'done' ? { siMv: 'done', layout: L } : { siMv: 'cancel' }, '*');
+            });
+            mv.addEventListener('input', e => {
+                const t = e.target.closest('[data-mvt]'); if (!t) return;
+                const v = t.textContent.replace(/\s+/g, ' ').trim(), k = t.dataset.mvt;
+                if (k === 't1' || k === 't2') L[k] = v; else L.bn[k].t = v;
+                if (k !== 't1' && k !== 't2') { const lb = bar.querySelector(`[data-mvk="bn.${k}"]`); if (lb) lb.parentNode.lastChild.textContent = ` “${v || MV_BN[k]}” banner`; }
+            });
+            mv.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.closest('[data-mvt]')) { e.preventDefault(); e.target.blur(); } });
+        }
+        function renderMerchantView(examples, name, layout, opt) {
+            const L = _mvL(layout), ED = !!(opt && opt.edit);
+            const ce = k => ED ? ` contenteditable="plaintext-only" spellcheck="false" data-mvt="${k}"` : '';
             _mkReadOnly = true;
             _previewName = name || '';   // mockups default their store name from the preview name
             ['.app-header', '.control-bar', '.designer-body'].forEach(sel => {
                 const el = document.querySelector(sel); if (el) el.style.display = 'none';
             });
             const mv = document.getElementById('merchantView');
-            const t1 = (name && name.trim()) ? _escHtml(name.trim()) : 'Shipping Protection — Preview';
-            const headerHtml = `<div class="mp-view-header">
+            const t1 = _escHtml(L.t1 || ((name && name.trim()) ? name.trim() : 'Shipping Protection — Preview'));
+            const t2 = _escHtml(L.t2 || 'How ShipInsure could appear across your store');
+            const headerHtml = (L.header || ED) ? `<div class="mp-view-header${L.header ? '' : ' mv-off'}">
                 <img src="https://raw.githubusercontent.com/drewshafe/si-roi-calculator/main/si_lock.png" alt="ShipInsure" onerror="this.style.display='none';">
-                <div><div class="t1">${t1}</div><div class="t2">How ShipInsure could appear across your store</div></div>
-            </div>`;
+                <div><div class="t1"${ce('t1')}>${t1}</div><div class="t2"${ce('t2')}>${t2}</div></div>
+            </div>` : '';
             if (!examples || !examples.length) {
                 mv.innerHTML = headerHtml + '<div class="mp-empty-view">No preview examples in this link.</div>';
                 mv.style.display = 'block'; return;
@@ -6277,7 +6350,10 @@ Return ONLY JSON — no markdown, no code fences:
             });
 
             const scol  = (k, title, cells) => `<div class="mp-scol col-${k}"><div class="mp-scol-title">${title}</div>${cells.map(h => `<div class="mp-cell"><div class="mp-widget">${h}</div></div>`).join('')}</div>`;
-            const section = (title, colsHtml) => `<div class="mp-section"><div class="mp-section-banner">${title}</div><div class="mp-section-body">${colsHtml}</div></div>`;
+            const section = (k, colsHtml) => {
+                const b = L.bn[k], ban = (b.on || ED) ? `<div class="mp-section-banner${b.on ? '' : ' mv-off'}" data-mvb="${k}"><em class="mvb-t"${ce(k)}>${_mvBnHtml(b.t || MV_BN[k])}</em></div>` : '';
+                return `<div class="mp-section">${ban}<div class="mp-section-body">${colsHtml}</div></div>`;
+            };
 
             const cartCols = [['dual', 'Dual Checkout'], ['checkbox', 'Checkbox Widget'], ['toggleSwitch', 'Toggle Widget']]
                 .filter(([k]) => cart[k].length).map(([k, t]) => scol(k, t, cart[k])).join('');
@@ -6285,9 +6361,9 @@ Return ONLY JSON — no markdown, no code fences:
                 .filter(([k]) => chk[k].length).map(([k, t]) => scol(k, t, chk[k])).join('');
 
             let sectionsHtml = '';
-            if (mocks.length) sectionsHtml += section('Cart &amp; Checkout <span>Mockups</span>', _mvHtml(mocks));
-            if (cartCols) sectionsHtml += section('Cart <span>Designs</span>', cartCols);
-            if (chkCols)  sectionsHtml += section('Checkout <span>Designs</span>', chkCols);
+            if (mocks.length) sectionsHtml += section('mock', _mvHtml(mocks));
+            if (cartCols) sectionsHtml += section('cart', cartCols);
+            if (chkCols)  sectionsHtml += section('chk', chkCols);
 
             let recHtml = '';
             if (recCart || recChk) {
@@ -6300,6 +6376,8 @@ Return ONLY JSON — no markdown, no code fences:
 
             mv.innerHTML = headerHtml + `<div class="mp-layout"><div class="mp-content">${sectionsHtml}</div>${recHtml}</div>`;
             mv.style.display = 'block';
+            mv.classList.toggle('mv-edit', ED);
+            if (ED) _mvEditWire(mv, L, l => renderMerchantView(examples, name, l, opt));
             mkFit(mv);
             _mvInit(mv);
             if (window.SILightbox) SILightbox.bind(mv, hit => { const w = hit.closest('[data-ex]'); const ex = w ? examples[+w.dataset.ex] : null; return _lbForView(ex && ex.design); });
@@ -6341,6 +6419,365 @@ Return ONLY JSON — no markdown, no code fences:
                 pg.classList.add('mv-mag');
             });
             mv.addEventListener('mouseleave', off);
+        }
+
+        // ── Demo flow (SI Interactive Demo: ?view=merchant&flow=1) ──
+        // The shopper's path one screen at a time, filling the demo's phone / desktop frame (fit to width):
+        // every cart page of the mockups first (mockup order, then page order), then the checkout pages.
+        // The cart's checkout button moves on (the secondary "without protection" button takes ShipInsure
+        // out first), the ⓘ opens the view's info lightbox, Remove under the ShipInsure line takes it out
+        // (covered, totals re-priced without it via _mkNoProt) and the checkout's protection checkbox turns
+        // it off and on. No mockup: the cart widget, then the checkout widget / line item, on a plain cart and
+        // checkout screen. The demo page follows along: this posts { siExp: 'shop', page, of, labels, meta,
+        // hasInfo } on every screen and { siExp: 'shop', done: true } after the last one's button; the demo
+        // moves it with { siExp: 'shopGo', page }.
+        var _mkNoProt = false;   // _mkPrice: the shopper took ShipInsure out (totals without it)
+        const DF = { on: false, ex: [], name: '', steps: [], i: 0, shown: false, prot: true, want: null, dev: '', t: 0 };
+        const DF_BTN = /checkout|paynow|placeorder|complete(my)?order|buynow|continueto|revieworder|proceedto/i;
+        const DF_INFO = '[data-si-info], .wp-info-btn, .wp-leaf-icon, .mk2-hot';
+        const _dfCompact = s => String(s || '').replace(/\s+/g, '');
+        const _dfPhone = pg => pg.w <= 700 || pg.w / pg.h < 0.75;
+        function _dfIsCk(pg) {
+            const A = _coAnchors(pg);
+            return _coIsCheckout(A) || ['contact', 'payment', 'paynow'].some(k => A[k]) || /^checkout\b/i.test(pg.name || '');
+        }
+        // The screens, in order. Mockups: carts then checkouts (only the pages for this device when the
+        // mockups hold both phone and desktop pages). Otherwise one cart and one checkout design.
+        function _dfBuild() {
+            const mobile = innerWidth < 700, mk = [];
+            DF.dev = mobile ? 'm' : 'd';
+            DF.ex.forEach((ex, e) => {
+                const d = ex && ex.design;
+                if (d && d.wtype === 'mockup' && d.mk) (d.mk.pages || []).forEach((pg, p) => mk.push({ k: 'mk', e, p, pg, ck: _dfIsCk(pg), ph: _dfPhone(pg) }));
+            });
+            let steps = [];
+            if (mk.length) {
+                const kinds = a => a.some(s => s.ck) + ',' + a.some(s => !s.ck);
+                const fit = mk.filter(s => s.ph === mobile);
+                const use = fit.length && fit.length < mk.length && kinds(fit) === kinds(mk) ? fit : mk;
+                steps = use.filter(s => !s.ck).concat(use.filter(s => s.ck));
+            } else {
+                const pick = ok => { const all = DF.ex.map((ex, e) => ({ ex, e })).filter(x => x.ex && x.ex.design && ok(x.ex.design.wtype)); return (all.find(x => x.ex.recommended) || all[0] || {}).e; };
+                const c = pick(w => w === 'dual' || w === 'toggle' || !w), k = pick(w => w === 'extension');
+                if (c != null) steps.push({ k: 'cart', e: c, ck: false });
+                if (k != null) steps.push({ k: 'co', e: k, ck: true });
+            }
+            const n = { c: 0, k: 0 }, tot = { c: steps.filter(s => !s.ck).length, k: steps.filter(s => s.ck).length };
+            steps.forEach(s => { const key = s.ck ? 'k' : 'c', j = ++n[key]; s.label = (s.ck ? 'Checkout' : 'Cart') + (tot[key] > 1 && j > 1 ? ` (${j})` : ''); });
+            DF.steps = steps;
+            // Does any screen have an ⓘ that opens the lightbox? (the demo keeps its own lightbox step if not)
+            DF.hasInfo = steps.some(s => s.k === 'mk' ? s.pg.texts.some(t => t.ic && !t.wrap && (t.role === 'fee' || t.part || MK_SI_TXT.test(t.o || t.t))) : true);
+        }
+        function renderDemoFlow(examples, name) {
+            _mkReadOnly = true;
+            _previewName = name || '';
+            ['.app-header', '.control-bar', '.designer-body'].forEach(sel => { const el = document.querySelector(sel); if (el) el.style.display = 'none'; });
+            DF.on = true; DF.ex = examples || []; DF.name = (name || '').trim();
+            _dfCss();
+            let root = document.getElementById('demoFlow');
+            if (!root) {
+                root = document.createElement('div'); root.id = 'demoFlow';
+                root.innerHTML = '<div class="df-stage" id="dfStage"></div><div class="df-undo" id="dfUndo" hidden><span>ShipInsure removed</span><button type="button" data-df="undo">Undo</button></div>';
+                document.body.appendChild(root);
+                if (window.SILightbox) SILightbox.bind(root, () => _dfLb());
+                root.addEventListener('click', _dfClick, true);
+                // A pass that finishes later (page images, the checkout layout) repaints the screen.
+                const pa = document.getElementById('widgetPreviewArea');
+                if (pa && window.MutationObserver) new MutationObserver(_dfPaintSoon).observe(pa, { childList: true });
+                addEventListener('resize', () => {
+                    if ((innerWidth < 700 ? 'm' : 'd') === DF.dev) return;
+                    const cur = DF.steps[DF.i]; _dfBuild();
+                    const j = cur ? DF.steps.findIndex(s => s.ck === cur.ck) : 0;
+                    DF.shown = false; _dfShow(Math.max(0, j));
+                });
+            }
+            _dfBuild();
+            if (!DF.steps.length) { document.getElementById('dfStage').innerHTML = '<div class="df-empty">No cart or checkout designs in this link yet.</div>'; _dfPost(); return; }
+            // Page pixels (button boxes, the ShipInsure line's extent): load them, then repaint.
+            DF.steps.forEach(s => { if (s.k === 'mk') _mkPageCanvas(s.pg).then(_dfPaintSoon, () => {}); });
+            _dfShow(DF.want != null ? DF.want : 0);
+        }
+        function _dfLb() { const s = DF.steps[DF.i], ex = s && DF.ex[s.e]; return _lbForView(ex && ex.design); }
+        function _dfShow(i) {
+            if (!DF.steps.length) return;
+            i = Math.max(0, Math.min(DF.steps.length - 1, +i || 0));
+            const moved = i !== DF.i || !DF.shown;
+            DF.i = i; DF.shown = true;
+            if (window.SILightbox) SILightbox.close();
+            _dfApply(); _dfPaint();
+            if (moved) scrollTo(0, 0);
+            _dfPost();
+        }
+        // Load the step's design into the (hidden) editor state: pricing, parts and checkout layout.
+        function _dfApply() {
+            const s = DF.steps[DF.i], d = (DF.ex[s.e] || {}).design || {};
+            _mkNoProt = !DF.prot;
+            _applyDesignObj(d);
+            // The checkout's Package Protection block follows the shopper's choice (unless it's always on).
+            if (s.k === 'mk' && _mk.co) { const pp = _coPP('checkout'); if (pp && (pp.set || {}).state !== 'always') pp.on = DF.prot; }
+            setWidgetType(d.wtype || 'dual');   // renders it (prices, parts, layout)
+        }
+        function _dfPaintSoon() { cancelAnimationFrame(DF.t); DF.t = requestAnimationFrame(() => { if (DF.on && DF.shown) _dfPaint(); }); }
+        function _dfPaint() {
+            const st = document.getElementById('dfStage'), s = DF.steps[DF.i]; if (!st || !s) return;
+            st.innerHTML = s.k === 'mk' ? _dfMkHtml(s) : s.k === 'cart' ? _dfCartHtml(s) : _dfCoHtml(s);
+            mkFit(st);
+            s.meta = {
+                ck: !!s.ck, last: DF.i === DF.steps.length - 1,
+                info: !!st.querySelector(DF_INFO), remove: !!st.querySelector('[data-df="rm"]'),
+                toggle: !!st.querySelector('.co-w-row, [data-df="tog"]'), btn: !!st.querySelector('[data-df="go"]'), prot: DF.prot
+            };
+            // Taken off this screen (no checkbox here to bring it back): Undo.
+            s.meta.undo = !DF.prot && !s.meta.toggle && (!!st.querySelector('.df-gone') || s.k === 'co');
+            const u = document.getElementById('dfUndo'); if (u) u.hidden = !s.meta.undo;
+        }
+        function _dfPost(extra) {
+            if (parent === window) return;
+            const s = DF.steps[DF.i];
+            try { parent.postMessage(Object.assign({ siExp: 'shop', page: DF.i, of: DF.steps.length, labels: DF.steps.map(x => x.label), meta: (s && s.meta) || {}, hasInfo: !!DF.hasInfo }, extra || {}), '*'); } catch (e) {}
+        }
+        function _dfNext() {
+            if (DF.i < DF.steps.length - 1) _dfShow(DF.i + 1);
+            else _dfPost({ done: true });
+        }
+        function _dfSetProt(on) {
+            if (DF.prot === !!on) return;
+            DF.prot = !!on;
+            _dfApply(); _dfPaint(); _dfPost();
+        }
+        function _dfClick(e) {
+            const t = e.target; if (!t || !t.closest) return;
+            if (t.closest(DF_INFO)) return;   // the ⓘ: SILightbox.bind has it
+            const stop = () => { e.preventDefault(); e.stopPropagation(); };
+            if (t.closest('.co-w-lm, .wp-learn-more')) { stop(); if (window.SILightbox) SILightbox.open(_dfLb()); return; }
+            const h = t.closest('[data-df]');
+            if (h) {
+                stop();
+                const a = h.dataset.df;
+                if (a === 'go') { if (h.dataset.prot) DF.prot = h.dataset.prot === '1'; _dfNext(); }
+                else if (a === 'rm') _dfSetProt(false);
+                else if (a === 'undo') _dfSetProt(true);
+                else if (a === 'tog') _dfSetProt(!DF.prot);
+                return;
+            }
+            // The checkout's ShipInsure block (Checkout Editor): its checkbox row turns protection off / on.
+            const row = t.closest('.co-w-row');
+            if (row) { stop(); if (!row.querySelector('.co-w-cb.lock')) _dfSetProt(!DF.prot); }
+        }
+        window.addEventListener('message', e => {
+            const d = e.data;
+            if (!d || d.siExp !== 'shopGo' || !DF.on) return;
+            if (!DF.shown) { DF.want = +d.page || 0; return; }
+            if (+d.page !== DF.i) _dfShow(d.page);
+        });
+
+        // ── Mockup screens ──
+        const _dfUnion = L => { const x = Math.min(...L.map(t => t.x)), y = Math.min(...L.map(t => t.y)); return { x, y, w: Math.max(...L.map(t => t.x + t.w)) - x, h: Math.max(...L.map(t => t.y + t.h)) - y }; };
+        const _dfIn = (b, x, y) => x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h;
+        // The ShipInsure line items on a page (a Remove under the protection text; or, once removed, a
+        // protection price sitting above the subtotal) and how far each one reaches, image included.
+        function _dfLines(pg, cv) {
+            const T = pg.texts.filter(t => !t.add && _mkPlain(t.o).trim()), cy = t => t.y + t.h / 2, out = [];
+            const isSi = t => t.role === 'fee' || MK_SI_TXT.test(t.o);
+            T.filter(t => /^(×|✕|x)?remove$/i.test(_dfCompact(t.o))).forEach(R => {
+                const above = T.filter(u => u !== R && u.y + u.h <= R.y + 1 && R.y - u.y < R.h * 7 && u.x < R.x + R.w + 260 && u.x + u.w > R.x - R.h * 4);
+                const si = above.filter(isSi);
+                if (!si.length) return;
+                const top = Math.min(...si.map(u => u.y)) - R.h;
+                const C = T.filter(u => cy(u) >= top && cy(u) <= R.y + R.h + 2 && u.x >= R.x - R.h * 4);
+                out.push({ r: R, C, b: _dfUnion(C) });
+            });
+            if (!DF.prot) T.filter(t => t.role === 'fee' && !t.part && !out.some(o => o.C.includes(t))).forEach(F => {
+                if (!T.some(u => u.y > F.y + F.h && (u.role === 'sub' || /^subtotal/i.test(_dfCompact(u.o))))) return;   // not a line above the subtotal: a widget
+                const C = T.filter(u => !u.part && Math.abs(cy(u) - cy(F)) < Math.max(u.h, F.h) * 0.8 && u.x < F.x + F.w && u.x + u.w > F.x - 700 && (u === F || isSi(u) || u.x > F.x - 400));
+                const sub = T.filter(u => !C.includes(u) && u.y >= F.y + F.h - 1 && u.y - (F.y + F.h) < F.h * 2.2 && C.some(c => c !== F && Math.abs(c.x - u.x) < 4));
+                out.push({ r: null, C: C.concat(sub), b: _dfUnion(C.concat(sub)) });
+            });
+            out.forEach(o => { Object.assign(o, _dfGrow(pg, cv, o.b, T.filter(u => !o.C.includes(u)), (o.r || o.C[0]).bg)); });
+            return out;
+        }
+        // From the texts' box out to the line's own pixels (the product image beside it), never into
+        // another text; the background it sits on covers it.
+        function _dfGrow(pg, cv, b, others, bg0) {
+            const lim = { l: 0, r: pg.w, t: 0, bt: pg.h };
+            others.forEach(u => {
+                const vo = u.y < b.y + b.h && u.y + u.h > b.y, ho = u.x < b.x + b.w && u.x + u.w > b.x - b.h * 3;
+                if (vo && u.x + u.w <= b.x) lim.l = Math.max(lim.l, u.x + u.w + 2);
+                if (ho && u.y + u.h <= b.y) lim.t = Math.max(lim.t, u.y + u.h + 2);
+                if (ho && u.y >= b.y + b.h) lim.bt = Math.min(lim.bt, u.y - 2);
+            });
+            let x0 = b.x, y0 = b.y, x1 = b.x + b.w, y1 = b.y + b.h, bg = /^#[0-9a-f]{6}$/i.test(bg0 || '') ? bg0 : '#ffffff';
+            if (cv) {
+                try {
+                    bg = _mkSample(cv, b.x, b.y, b.w, b.h).bg;
+                    const k = cv.k, W = cv.ctx.canvas.width, H = cv.ctx.canvas.height, B = _mkRgb(bg);
+                    const reach = Math.min(b.x - lim.l, b.h * 1.8 + 40);
+                    const X0 = Math.max(0, Math.floor((b.x - reach) * k)), X1 = Math.min(W, Math.ceil(x1 * k));
+                    const Y0 = Math.max(0, Math.floor(Math.max(lim.t, b.y - b.h) * k)), Y1 = Math.min(H, Math.ceil(Math.min(lim.bt, y1 + b.h) * k));
+                    const RW = X1 - X0, RH = Y1 - Y0;
+                    if (RW > 2 && RH > 2) {
+                        const d = cv.ctx.getImageData(X0, Y0, RW, RH).data;
+                        const ink = (xx, yy) => { const o = (yy * RW + xx) * 4; return Math.abs(d[o] - B[0]) + Math.abs(d[o + 1] - B[1]) + Math.abs(d[o + 2] - B[2]) > 18; };   // a white image tile on a light grey summary still counts
+                        const by0 = Math.round(b.y * k) - Y0, by1 = Math.round(y1 * k) - Y0;
+                        const colInk = xx => { for (let yy = Math.max(0, by0); yy < Math.min(RH, by1); yy++) if (ink(xx, yy)) return true; return false; };
+                        // Left: across the gap to the line's image, stopping at a gap wider than that one.
+                        const bx = Math.round(b.x * k) - X0, gapMax = 15 * k;
+                        let last = bx, gap = 0;
+                        for (let xx = bx - 1; xx >= 0; xx--) { if (colInk(xx)) { last = xx; gap = 0; } else if (++gap > gapMax) break; }
+                        x0 = Math.min(b.x, (X0 + last) / k);
+                        // Up / down: the image can be taller than the texts.
+                        if (last < bx) {
+                            const rowInk = yy => { for (let q = last; q < bx; q++) if (ink(q, yy)) return true; return false; };
+                            let yy = by0 - 1; while (yy >= 0 && rowInk(yy)) yy--; y0 = Math.min(b.y, (Y0 + yy + 1) / k);
+                            yy = by1; while (yy < RH && rowInk(yy)) yy++; y1 = Math.max(b.y + b.h, (Y0 + yy) / k);
+                        }
+                    }
+                } catch (e) {}
+            }
+            const P = 3;
+            x0 = Math.max(lim.l, x0 - P); y0 = Math.max(lim.t, y0 - P); x1 = Math.min(lim.r, x1 + P); y1 = Math.min(lim.bt, y1 + P);
+            return { x: _mkR(x0), y: _mkR(y0), w: _mkR(x1 - x0), h: _mkR(y1 - y0), bg };
+        }
+        // The buttons that move on: the two checkout buttons (b1 / b2 widget parts) and any other checkout,
+        // pay or continue button, as the box around their text when the pixels show one.
+        function _dfButtons(pg, cv) {
+            const T = pg.texts.filter(t => !t.add && _mkPlain(t.t).trim()), cy = t => t.y + t.h / 2, out = [];
+            const row = lead => T.filter(u => u === lead || (!u.part && Math.abs(cy(u) - cy(lead)) < Math.max(u.h, lead.h) * 0.7 && u.x < lead.x + lead.w + lead.h * 6 && u.x + u.w > lead.x - lead.h * 6 && _dfCompact(u.o).length < 16));
+            ['b1', 'b2'].forEach(p => { const L = T.filter(t => t.part === p); if (L.length) out.push({ b: _dfUnion(L), prot: p === 'b1' ? '1' : '0', pulse: p === 'b1' }); });
+            T.filter(t => !t.part && t.y > pg.h * 0.1 && !/express/i.test(t.o) && _dfCompact(t.o).length <= 32 && (DF_BTN.test(_dfCompact(t.o)) || MK_BTN2_RE.test(t.o)))
+                .forEach(t => { if (out.some(o => _dfIn(o.b, t.x + t.w / 2, cy(t)))) return; out.push({ b: _dfUnion(row(t)), prot: MK_BTN2_RE.test(t.o) ? '0' : '', pulse: !MK_BTN2_RE.test(t.o) }); });
+            // Beside a "without protection" button, the main one checks out WITH it.
+            if (out.some(o => o.prot === '0')) out.forEach(o => { if (!o.prot) o.prot = '1'; });
+            out.forEach(o => {
+                const bx = cv && _coBoxOf(cv, o.b);
+                o.b = bx && bx.w < pg.w * 0.9 ? { x: bx.x, y: bx.y, w: bx.w, h: bx.h } : { x: o.b.x - 14, y: o.b.y - o.b.h * 0.7, w: o.b.w + 28, h: o.b.h * 2.4 };
+            });
+            return out;
+        }
+        function _dfMkHtml(s) {
+            const pg = s.pg, pi = s.p, cv = _mkCanvas[pg.img] || null;
+            _coPlaced = new Set();
+            const L = _coLayout(pg);
+            if (L) _coLays.set(pg, L); else _coLays.delete(pg);
+            const at = (x, y) => _coDy(pg, x, y), lines = _dfLines(pg, cv);
+            const gone = DF.prot ? [] : lines;   // taken out: covered, its texts and ⓘ hidden
+            const T = pg.texts.filter(t => !gone.some(o => _dfIn(o, t.x + t.w / 2, t.y + t.h / 2)));
+            const hot = (b, attrs, cls) => { const dy = at(b.x + b.w / 2, b.y + b.h / 2); return dy === null ? '' : `<button type="button" class="df-hot${cls ? ' ' + cls : ''}" ${attrs} style="left:${_mkR(b.x)}px;top:${_mkR(b.y + dy)}px;width:${_mkR(b.w)}px;height:${_mkR(b.h)}px;"></button>`; };
+            let hots = _dfButtons(pg, cv).map(o => hot(o.b, `data-df="go"${o.prot ? ` data-prot="${o.prot}"` : ''} aria-label="Continue"`, o.pulse ? 'pulse' : '')).join('');
+            if (DF.prot) lines.forEach(o => { const r = o.r; if (r) hots += hot({ x: r.x - 6, y: r.y - r.h * 0.5, w: r.w + 12, h: r.h * 2 }, 'data-df="rm" aria-label="Remove ShipInsure"', 'pulse rm'); });
+            const covers = gone.map(o => { const dy = at(o.x + o.w / 2, o.y + 1); return dy === null ? '' : `<div class="mk2-cover df-gone" style="left:${o.x}px;top:${o.y + dy}px;width:${o.w}px;height:${o.h}px;background:${o.bg};"></div>`; }).join('');
+            const narrow = _dfPhone(pg) && innerWidth > 700;
+            return `<div class="mk-fit df-fit"${narrow ? ' style="max-width:480px"' : ''}><div class="mk2-page" data-p="${pi}" style="width:${pg.w}px;height:${L ? L.H : pg.h}px;">` +
+                (L ? _coPageHtml(pg, L) : `<img class="mk2-base" src="${pg.img}" alt="" draggable="false">`) +
+                (pg.boxes || []).map(b => _mkCoverHtml(b, pg)).join('') + (pg.boxes || []).map(b => _mkBoxHtml(b, pi, false)).join('') + covers +
+                T.map(t => _mkTextHtml(t, pg, pi, false)).join('') + `<div class="mk2-icons">${T.map(t => _mkIconHtml(t, pg)).join('')}</div>` +
+                (L ? _coInsHtml(L) : '') + hots + '</div></div>';
+        }
+
+        // ── Screens without a mockup: the widgets on a plain cart / checkout ──
+        function _dfMoney() {
+            const aov = parseFloat(removeCommas((document.getElementById('avgOrderValue') || {}).value || '')) || 75;
+            return { M: aov, F: Math.round(siPremiumFor(aov) * 100 + 1e-6) / 100 };
+        }
+        const _dfUsd = v => formatCurrencyWithCents(v);
+        // A checkbox / toggle drawn by updateWidgetPreview, shown off.
+        function _dfCtlOff(root) {
+            const sw = root.querySelector('div[style^="width:38px;height:22px"]');
+            if (sw) { sw.style.background = '#c9ccd6'; const k = sw.firstElementChild; if (k) { k.style.right = ''; k.style.left = '2px'; } return; }
+            const cb = root.querySelector('div[style^="width:20px;height:20px"], div[style^="width:18px;height:18px"]');
+            if (cb) { cb.style.background = 'transparent'; const c = cb.querySelector('span'); if (c) c.style.visibility = 'hidden'; }
+        }
+        function _dfFrag(html) { const d = document.createElement('div'); d.innerHTML = html; return d; }
+        function _dfHead(sub) { return `<header class="df-hd"><b>${_escHtml(DF.name || 'Your Store')}</b><span>${sub}</span></header>`; }
+        const _dfItem = M => `<div class="df-item"><span class="df-th"><i>1</i></span><span class="df-in"><b>Your order</b><small>Qty 1</small></span><span>${_dfUsd(M)}</span></div>`;
+        function _dfCartHtml(s) {
+            const d = DF.ex[s.e].design, { M, F } = _dfMoney(), w = _dfFrag(document.getElementById('widgetPreviewArea').innerHTML);
+            let tail = '';
+            if (_widgetType === 'toggle') {
+                const r = w.querySelector('.wp-toggle-row'); if (r) { r.dataset.df = 'tog'; r.style.cursor = 'pointer'; }
+                if (!DF.prot) _dfCtlOff(w);
+                const tot = M + (DF.prot ? F : 0);
+                tail = `<div class="df-rows">${DF.prot ? `<div><span>Shipping protection</span><span>${_dfUsd(F)}</span></div>` : ''}<div class="df-tot"><span>Subtotal</span><span>${_dfUsd(tot)}</span></div></div>` +
+                    `<button type="button" class="df-btn pulse" data-df="go">Checkout · ${_dfUsd(tot)}</button>`;
+            } else {
+                // Dual checkout: the protected and the unprotected button.
+                const b = w.querySelector('button');
+                if (b) {
+                    const sib = [...b.parentElement.children].filter(x => x !== b && x.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_PRECEDING && /cursor:\s*default/.test(x.getAttribute('style') || ''));
+                    [b, sib[0]].forEach(x => { if (!x) return; x.dataset.df = 'go'; x.dataset.prot = MK_BTN2_RE.test(x.textContent) ? '0' : '1'; x.style.cursor = 'pointer'; });
+                }
+            }
+            const bg = d.cartScanBg || '';
+            return `<div class="df-shop">${_dfHead('Cart')}<main class="df-cart"><h1>Your cart</h1>${(d.cartScanItems || []).length ? '' : `<div class="df-card">${_dfItem(M)}</div>`}` +
+                `<div class="df-w"${bg ? ` style="background:${_escHtml(bg)};padding:16px;border-radius:10px;"` : ''}>${w.innerHTML}</div>${tail}</main></div>`;
+        }
+        function _dfCoHtml(s) {
+            const { M, F } = _dfMoney(), tot = M + (DF.prot ? F : 0);
+            const w = _dfFrag(document.getElementById('widgetPreviewArea').innerHTML), li = _dfFrag(document.getElementById('lineItemPreviewArea').innerHTML);
+            const r = w.querySelector('.wp-ext-row'); if (r) { r.dataset.df = 'tog'; r.style.cursor = 'pointer'; }
+            if (!DF.prot) _dfCtlOff(w);
+            [...li.querySelectorAll('button')].filter(b => /remove/i.test(b.textContent)).forEach(b => { b.dataset.df = 'rm'; b.classList.add('df-rmb'); });
+            const li0 = li.firstElementChild;   // the line item's card: our row only (no scanned rows here)
+            const siRow = !DF.prot ? '' : _extShowsLineItem() && li0 ? `<div class="df-li">${li.innerHTML}</div>` : `<div class="df-item"><span class="df-th">🛡</span><span class="df-in"><b>Shipping Protection</b></span><span>${_dfUsd(F)}</span></div>`;
+            const f = l => `<div class="df-f">${l}</div>`;
+            const main = `<section class="df-main"><h3>Contact</h3>${f('Email')}<h3>Delivery</h3>${f('Address')}${f('City')}` +
+                `<h3>Shipping method</h3><div class="df-f df-r"><span>Standard</span><b>FREE</b></div>` +
+                (_extShowsWidget() ? `<div class="df-w">${w.innerHTML}</div>` : '') +
+                `<h3>Payment</h3>${f('Card number')}<button type="button" class="df-btn pulse" data-df="go">Pay now</button></section>`;
+            const sum = `<aside class="df-sum"><h3>Order summary</h3>${_dfItem(M)}${siRow}<div class="df-rows"><div><span>Subtotal</span><span>${_dfUsd(tot)}</span></div><div><span>Shipping</span><span>FREE</span></div><div class="df-tot"><span>Total</span><span><small>USD</small> ${_dfUsd(tot)}</span></div></div></aside>`;
+            return `<div class="df-shop">${_dfHead('Checkout')}<div class="df-ck">${main}${sum}</div></div>`;
+        }
+        function _dfCss() {
+            if (document.getElementById('dfCss')) return;
+            const st = document.createElement('style'); st.id = 'dfCss';
+            st.textContent = `
+                body.df-on { background:#fff; }
+                #demoFlow { min-height:100vh; background:#fff; }
+                #demoFlow .mk-fit { border-radius:0; box-shadow:none; margin:0 auto; }
+                .df-empty { padding:40px 20px; text-align:center; color:#6b7090; font-size:14px; }
+                .df-hot { position:absolute; z-index:7; background:transparent; border:0; padding:0; margin:0; cursor:pointer; border-radius:calc(8px / var(--z)); }
+                .df-hot.pulse::after { content:''; position:absolute; inset:calc(-3px / var(--z)); border-radius:inherit; box-shadow:0 0 0 calc(2px / var(--z)) #6675ff; opacity:0; animation:dfPulse 2.4s ease-out infinite; }
+                .df-hot.rm.pulse::after { animation-delay:1.2s; }
+                @keyframes dfPulse { 0% { opacity:.9; } 70%, 100% { opacity:0; } }
+                .mk2-cover.df-gone { z-index:2; }
+                #demoFlow .co-w-row { cursor:pointer; }
+                .df-undo { position:fixed; left:50%; bottom:16px; transform:translateX(-50%); display:flex; align-items:center; gap:10px; background:#1d2240; color:#fff; border-radius:30px; padding:7px 7px 7px 15px; font:600 13px/1.2 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; box-shadow:0 6px 20px rgba(20,26,60,.25); z-index:60; white-space:nowrap; }
+                .df-undo[hidden] { display:none; }
+                .df-undo button { border:0; border-radius:20px; background:#fff; color:#1d2240; font:inherit; padding:6px 12px; cursor:pointer; }
+                .df-shop { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#1a1a1a; font-size:14px; }
+                .df-hd { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid #e6e6e6; font-size:18px; }
+                .df-hd span { font-size:13px; color:#707070; }
+                .df-cart { max-width:520px; margin:0 auto; padding:18px 16px 40px; display:flex; flex-direction:column; gap:14px; }
+                .df-cart h1 { font-size:22px; margin:0; }
+                .df-card { border:1px solid #e9ecef; border-radius:10px; padding:2px 12px; }
+                .df-item { display:flex; align-items:center; gap:14px; padding:12px 0; }
+                .df-th { position:relative; flex:0 0 auto; width:52px; height:52px; border-radius:10px; background:#f0f0f2; display:flex; align-items:center; justify-content:center; font-size:20px; }
+                .df-th i { position:absolute; top:-8px; right:-8px; min-width:20px; height:20px; border-radius:10px; background:#666; color:#fff; font:700 11px/20px sans-serif; text-align:center; font-style:normal; }
+                .df-in { flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+                .df-in small { color:#8a8f98; font-size:12px; }
+                .df-rows { display:flex; flex-direction:column; gap:8px; }
+                .df-rows > div { display:flex; justify-content:space-between; gap:10px; }
+                .df-tot { font-weight:700; font-size:16px; }
+                .df-tot small { font-weight:400; color:#707070; font-size:12px; }
+                .df-btn { position:relative; display:block; width:100%; border:0; border-radius:8px; background:#1a1a1a; color:#fff; font:600 15px/1 inherit; padding:16px; cursor:pointer; }
+                .df-btn.pulse::after { content:''; position:absolute; inset:-3px; border-radius:10px; box-shadow:0 0 0 2px #6675ff; opacity:0; animation:dfPulse 2.4s ease-out infinite; }
+                .df-ck { display:flex; flex-direction:column-reverse; }
+                .df-main { padding:18px 16px 40px; display:flex; flex-direction:column; gap:10px; }
+                .df-main h3, .df-sum h3 { font-size:17px; margin:8px 0 0; }
+                .df-f { border:1px solid #d9d9d9; border-radius:6px; padding:13px 12px; color:#8a8a8a; }
+                .df-r { display:flex; justify-content:space-between; color:#1a1a1a; }
+                .df-w { margin:6px 0; }
+                .df-sum { background:#f5f5f5; border-bottom:1px solid #e6e6e6; padding:16px; display:flex; flex-direction:column; gap:10px; }
+                .df-li > div { max-width:none !important; box-shadow:none !important; background:transparent !important; border:0 !important; padding:0 !important; }
+                .df-li > div > div { padding-left:0 !important; padding-right:0 !important; }
+                .df-rmb { cursor:pointer; }
+                @media (min-width:760px) {
+                    .df-ck { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); min-height:calc(100vh - 60px); }
+                    .df-main { padding:28px 36px 40px; border-right:1px solid #e6e6e6; }
+                    .df-sum { border:0; padding:28px 36px; align-self:stretch; }
+                }`;
+            document.head.appendChild(st);
+            document.body.classList.add('df-on');
         }
 
         // ── Info lightbox (what the widget's ⓘ opens) ──
@@ -6514,6 +6951,7 @@ Return ONLY JSON — no markdown, no code fences:
         document.addEventListener('DOMContentLoaded', () => {
             // Merchant grid view: render the hand-picked examples and skip the designer.
             if (new URLSearchParams(location.search).get('view') === 'merchant') {
+                if (new URLSearchParams(location.search).get('flow')) renderMerchantView = renderDemoFlow;   // SI Interactive Demo: one screen at a time
                 // Short merchant link from a Merchant Folders save: ?view=merchant&asset=<id>
                 const assetId = new URLSearchParams(location.search).get('asset');
                 // The SI Interactive Demo passes the folder's lightbox (&lb=<asset id>) for views without their own.
@@ -6523,21 +6961,29 @@ Return ONLY JSON — no markdown, no code fences:
                     lbReady.then(() => SIsb.getAsset(assetId)).then(r => {
                         const d = r.data || {};
                         const set = Array.isArray(d.examples) && d.examples.length ? d.examples : [{ label: d.label || 'Checkout', design: d.design || d }];
-                        renderMerchantView(set, d.name || r.merchant || '');
+                        renderMerchantView(set, d.name || r.merchant || '', d.layout);
                     }).catch(() => renderMerchantView([], ''));
                     return;
                 }
                 const m = location.hash.match(/[#&]s=([^&]+)/);
-                let set = [], name = '';
+                let set = [], name = '', layout = null;
+                // 🖼 Layout canvas: the designer sends the views over (they can be large).
+                if (new URLSearchParams(location.search).get('mvedit') === '1') {
+                    window.addEventListener('message', e => {
+                        const d = e.data; if (!d || d.siMv !== 'load' || e.source !== parent) return;
+                        renderMerchantView(d.examples || [], d.name || '', d.layout, { edit: true });
+                    });
+                    return;
+                }
                 if (m) {
                     try {
                         const parsed = JSON.parse(decodeURIComponent(escape(atob(m[1]))));
                         // New payload: { name, examples }. Old links: a bare array.
                         if (Array.isArray(parsed)) { set = parsed; }
-                        else { set = parsed.examples || []; name = parsed.name || ''; }
+                        else { set = parsed.examples || []; name = parsed.name || ''; layout = parsed.layout; }
                     } catch (e) { set = []; }
                 }
-                renderMerchantView(set, name);
+                renderMerchantView(set, name, layout);
                 return;
             }
             applyDesignerLink();
@@ -6553,7 +6999,7 @@ Return ONLY JSON — no markdown, no code fences:
                 try {
                     _mpCommit();
                     const examples = _merchantExamples.length ? _merchantExamples : [{ label: currentExampleLabel(), design: _collectDesign() }];
-                    const json = JSON.stringify({ at: Date.now(), name: _previewName || '', examples });
+                    const json = JSON.stringify({ at: Date.now(), name: _previewName || '', examples, layout: _mvLayout });
                     if (json.length < 2500000) localStorage.setItem('si_checkout_draft', json);
                 } catch (e) {}
             }, 1500); };
@@ -6585,7 +7031,7 @@ Return ONLY JSON — no markdown, no code fences:
                 // Mockup page images go to storage first (signed in here), so the save holds links, not
                 // megabytes — when this folder bar can wait for it (an older cached copy can't).
                 getData: () => {
-                    const data = () => { _mpCommit(); return { design: _collectDesign(), examples: _merchantExamples, name: _previewName, label: currentExampleLabel(), mpEdit: _mpEdit }; };
+                    const data = () => { _mpCommit(); return { design: _collectDesign(), examples: _merchantExamples, name: _previewName, label: currentExampleLabel(), mpEdit: _mpEdit, layout: _mvLayout }; };
                     return SIFolderBar.asyncData ? _mkPersistImages().catch(() => {}).then(data) : data();
                 },
                 applyData: (d, kind, r) => {
@@ -6598,6 +7044,7 @@ Return ONLY JSON — no markdown, no code fences:
                     _merchantExamples = Array.isArray(d.examples) ? d.examples : [];
                     _mpEdit = Number.isInteger(d.mpEdit) && _merchantExamples[d.mpEdit] ? d.mpEdit : null;
                     _previewName = d.name || '';
+                    _mvLayout = d.layout || null;
                     const mp = document.getElementById('mpName'); if (mp) mp.value = _previewName;
                     renderMerchantChips();
                     if (typeof setExtLineItem === 'function' && _extLineItem) setExtLineItem(_extLineItem);

@@ -404,7 +404,22 @@
   $('addFeat').onclick = () => { S.cfg.features.push({ a: '', b: '' }); render(); const ins = $('feats').querySelectorAll('input'); ins[ins.length - 2] && ins[ins.length - 2].focus(); };
   $('resetFeats').onclick = () => { S.cfg.features = clone(L.FEATURES); render(); };
   $('variantSeg').onclick = e => { const b = e.target.closest('[data-v]'); if (b) { S.cfg.variant = b.dataset.v; lbOpen = true; render(); } };
-  $('devSeg').onclick = e => { const b = e.target.closest('[data-d]'); if (b) { S.device = b.dataset.d; render(); } };
+  // The link keeps its Mobile / Desktop: a #d= link rewrites itself (copy it from the address bar);
+  // a folder link (?asset=) saves it to the save when a rep is signed in. Viewers just switch.
+  async function keepDevice(dev) {
+    if (!VIEW) return;
+    if (/[#&]d=/.test(location.hash)) history.replaceState(null, '', location.pathname + location.search + '#d=' + enc(S));
+    const id = new URLSearchParams(location.search).get('asset');
+    if (!id || !window.SIsb) return;
+    try {
+      if (!(await SIsb.currentUser())) return;
+      const r = await SIsb.getAsset(id);
+      if (((r.data || {}).device || 'mobile') === dev) return;
+      await SIsb.saveAsset({ id, merchant_ref: r.merchant_ref, kind: r.kind, title: r.title || '', data: Object.assign({}, r.data || {}, { device: dev }) });
+      toast('Saved: this link opens on ' + (dev === 'mobile' ? 'a phone' : 'a desktop'));
+    } catch (e) {}
+  }
+  $('devSeg').onclick = e => { const b = e.target.closest('[data-d]'); if (b) { S.device = b.dataset.d; render(); keepDevice(S.device); } };
   $('banSeg').onclick = e => { const b = e.target.closest('[data-b]'); if (!b) return; if (b.dataset.b === 'custom') { if (/^(default|none)?$/.test(S.cfg.banner || '')) $('banIn').click(); else render(); } else { S.cfg.banner = b.dataset.b; render(); } };
   $('logoSeg').onclick = e => { const b = e.target.closest('[data-l]'); if (!b) return; if (b.dataset.l === 'custom') { S.logoMode = 'custom'; if (!S.cfg.logo) $('logoIn').click(); render(); } else { S.logoMode = ''; S.cfg.logo = ''; render(); } };
   $('banPick').onclick = () => $('banIn').click();

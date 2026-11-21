@@ -519,7 +519,22 @@
   $('stl').addEventListener('change', e => { S.stl = e.target.checked; render(); });
   $('markSi').addEventListener('change', e => { S.markSi = e.target.checked; render(); });
   $('place').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (b) { S.place = b.dataset.v; render(); } });
-  $('dev').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (b) { S.device = b.dataset.v; render(); } });
+  // The link keeps its Mobile / Desktop: a #d= link rewrites itself (copy it from the address bar);
+  // a folder link (?asset=) saves it to the save when a rep is signed in. Viewers just switch.
+  async function keepDevice(dev) {
+    if (!VIEW) return;
+    if (/[#&]d=/.test(location.hash)) history.replaceState(null, '', location.pathname + location.search + '#d=' + enc(S));
+    const id = new URLSearchParams(location.search).get('asset');
+    if (!id || !window.SIsb) return;
+    try {
+      if (!(await SIsb.currentUser())) return;
+      const r = await SIsb.getAsset(id);
+      if (((r.data || {}).device || 'mobile') === dev) return;
+      await SIsb.saveAsset({ id, merchant_ref: r.merchant_ref, kind: r.kind, title: r.title || '', data: Object.assign({}, r.data || {}, { device: dev }) });
+      toast('Saved: this link opens on ' + (dev === 'mobile' ? 'a phone' : 'a desktop'));
+    } catch (e) {}
+  }
+  $('dev').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (b) { S.device = b.dataset.v; render(); keepDevice(S.device); } });
   $('faqUrl').addEventListener('input', e => { S.faqUrl = e.target.value.trim(); save(); });
   $('fields').addEventListener('input', e => { const k = e.target.dataset.f; if (!k) return; S.f[k] = e.target.value; render(); });
   $('fields').addEventListener('change', e => { const k = e.target.dataset.f; if (!k) return; S.f[k] = e.target.value; render(); });
@@ -739,8 +754,14 @@
     kind: 'faq', tool: 'FAQ', before: $('app'),
     getData: () => clone(S),
     applyData: d => { S = adopt(d); open.clear(); render(); },
-    defaultTitle: () => 'FAQ – ' + (S.f.store || 'Merchant')
+    defaultTitle: () => 'FAQ – ' + (S.f.store || 'Merchant'),
+    shortLink: id => location.origin + location.pathname + '?view=1&asset=' + encodeURIComponent(id)
   });
+  // Short link from a folder save: ?view=1&asset=<id> (its saved Mobile / Desktop included).
+  (function () {
+    const id = new URLSearchParams(location.search).get('asset');
+    if (id && window.SIsb) SIsb.getAsset(id).then(r => { S = adopt(r.data || {}); open.clear(); render(); }).catch(() => toast('Couldn’t load that FAQ'));
+  })();
 
   // ── Rep Hub theme hand-off ──
   const setTheme = t => document.body.classList.toggle('pm', t === 'midnight');

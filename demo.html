@@ -156,7 +156,8 @@
   // Sibling tools (same site): ../si-email-automation/, ../si-claim-wizard/, this folder for the rest.
   const ROOT = location.href.replace(/[#?].*$/, '').replace(/[^/]*$/, '').replace(/si-widget-designer\/$/, '');
   const URLS = {
-    co: p => p.id ? 'index.html?view=merchant&asset=' + encodeURIComponent(p.id) : 'index.html?view=merchant#s=' + enc({ name: p.data.name || '', examples: p.data.examples || [] }),
+    // flow=1: the cart / checkout screens one at a time (index.html renderDemoFlow), not the merchant grid.
+    co: p => p.id ? 'index.html?view=merchant&flow=1&asset=' + encodeURIComponent(p.id) : 'index.html?view=merchant&flow=1#s=' + enc({ name: p.data.name || '', examples: p.data.examples || [] }),
     email: d => ROOT + 'si-email-automation/?view=1#d=' + enc(d),
     claim: d => ROOT + 'si-claim-wizard/?view=1#d=' + enc(d),
     faq: d => 'faq.html?view=1&embed=1&demo=1#d=' + enc(d),
@@ -206,10 +207,26 @@
 
   // ── Steps (only for what was added) ──
   let STEPS = [], step = 0, loaded = {};
+  // The shop screens as the cart / checkout frame reports them: { labels: ['Cart', 'Cart (2)', 'Checkout'],
+  // meta: { page: { ck, info, remove, toggle, btn, last } }, hasInfo }. One "Cart & checkout" step until it does.
+  let SHOP = { labels: null, meta: {}, hasInfo: null };
+  function shopNudge(k) {
+    const m = SHOP.meta[k];
+    if (!m) return D.lb ? 'Tap the <b>ⓘ</b> beside the protection to see what’s covered, then <b>Checkout</b>' : 'Where shoppers add ShipInsure: tap <b>Checkout</b> to keep going';
+    const bits = [];
+    if (m.info) bits.push('tap the <b>ⓘ</b> to see what’s covered');
+    if (m.remove) bits.push('try <b>Remove</b> on the ShipInsure line');
+    else if (m.undo) bits.push('ShipInsure is out: <b>Undo</b> brings it back');
+    if (m.toggle) bits.push('tap the ShipInsure <b>checkbox</b> to take it off and on');
+    const go = m.btn ? (m.ck ? 'tap <b>Pay now</b>' : 'tap <b>Checkout</b>') : (m.last ? 'tap <b>›</b> to place the order' : 'tap <b>›</b>');
+    const t = bits.join(', ') + (bits.length ? ', then ' : '') + go;
+    return t.charAt(0).toUpperCase() + t.slice(1);
+  }
   function buildSteps() {
     STEPS = [];
-    if (D.co) STEPS.push({ id: 'shop', label: 'Cart & checkout', pane: 'shop', nudge: D.lb ? 'Tap the <b>ⓘ</b> beside the protection to see what’s covered' : 'Where shoppers add ShipInsure' });
-    if (D.lb) STEPS.push({ id: 'info', label: 'Info lightbox', pane: D.co ? 'shop' : 'lb', nudge: 'What opens from the <b>ⓘ</b>: what’s covered' });
+    if (D.co) (SHOP.labels || ['Cart & checkout']).forEach((l, k) => STEPS.push({ id: 'shop', sub: k, label: l, pane: 'shop', nudge: shopNudge(k) }));
+    // The ⓘ is tapped right on the cart; the lightbox keeps its own step when there's no cart, or no ⓘ on it.
+    if (D.lb && (!D.co || SHOP.hasInfo === false)) STEPS.splice(D.co ? 1 : 0, 0, { id: 'info', label: 'Info lightbox', pane: D.co ? 'shop' : 'lb', nudge: 'What opens from the <b>ⓘ</b>: what’s covered' });
     if (D.em) {
       STEPS.push({ id: 'confirm', label: 'Order protected email', pane: 'mail', nudge: 'Right after checkout: their order is covered' });
       STEPS.push({ id: 'delivered', label: 'Delivered email', pane: 'mail', nudge: 'Something’s wrong? Tap <b>File a Claim</b> in the email' });
@@ -234,14 +251,18 @@
   }
   const post = (name, msg) => (frameReady[name] || Promise.resolve($(name))).then(f => { try { f.contentWindow.postMessage(msg, '*'); } catch (e) {} });
 
-  async function go(i, opts) {
-    if (!STEPS.length) return showEmpty();
-    step = Math.max(0, Math.min(STEPS.length - 1, i));
-    const S = STEPS[step];
+  function mark() {
+    const S = STEPS[step]; if (!S) return;
     document.querySelectorAll('.xp-step').forEach(b => { const j = +b.dataset.i; b.classList.toggle('on', j === step); b.classList.toggle('done', j < step); });
     const on = document.querySelector('.xp-step.on'); if (on) on.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     $('nudge').innerHTML = S.nudge;
     $('back').disabled = step === 0; $('next').disabled = step === STEPS.length - 1;
+  }
+  async function go(i, opts) {
+    if (!STEPS.length) return showEmpty();
+    step = Math.max(0, Math.min(STEPS.length - 1, i));
+    const S = STEPS[step];
+    mark();
     const pane = S.pane === 'lb' ? 'shop' : S.pane;
     document.querySelectorAll('.xp-pane').forEach(p => p.hidden = p.dataset.pane !== pane);
     if (window.SILightbox) SILightbox.close($('screen'));
@@ -251,6 +272,8 @@
       if (D.co) {
         const f = await load('shopF', URLS.co(D.co).replace(/(#|$)/, (SPEC.pieces.lb && SPEC.pieces.lb.id ? '&lb=' + encodeURIComponent(SPEC.pieces.lb.id) : '') + '$1'));
         try { if (D.lb) f.contentWindow._lbOverride = D.lb; } catch (e) {}
+        // The frame shows one screen at a time; moved from here (step bar / arrows), tell it which.
+        if (S.id === 'shop' && !(opts && opts.fromFrame)) post('shopF', { siExp: 'shopGo', page: S.sub || 0 });
         if (S.id === 'info') SILightbox.open(D.lb, { host: $('screen'), narrow: document.body.classList.contains('mobile') && D.lb.variant === 'checkout' });
       } else {
         load('shopF', URLS.lb({ cfg: D.lb, store: D.store, device: document.body.classList.contains('mobile') ? 'mobile' : 'desktop' }));
@@ -284,16 +307,43 @@
   // From inside the frames: the email's File a Claim, the FAQ's claims link.
   window.addEventListener('message', e => {
     const d = e.data; if (!d || !d.siExp) return;
+    // The cart / checkout frame: its screens, the one showing, and its last button (on to the emails).
+    if (d.siExp === 'shop' && e.source === $('shopF').contentWindow) {
+      if (d.done) {
+        const last = STEPS.map(s => s.id).lastIndexOf('shop');
+        const nx = STEPS.findIndex((s, j) => j > last && s.id !== 'info');
+        if (last >= 0 && nx > 0) go(nx); else toast('Order placed');
+        return;
+      }
+      const cur = STEPS[step], labels = Array.isArray(d.labels) && d.labels.length ? d.labels : null;
+      SHOP.meta[d.page] = d.meta || {};
+      const again = JSON.stringify(labels) !== JSON.stringify(SHOP.labels) || (d.hasInfo === false) !== (SHOP.hasInfo === false);
+      SHOP.labels = labels; SHOP.hasInfo = d.hasInfo;
+      if (again) {
+        buildSteps();
+        let j = cur ? STEPS.findIndex(s => s.id === cur.id && (cur.id !== 'shop' || s.sub === cur.sub)) : -1;
+        if (j < 0 && cur && cur.id === 'shop') j = STEPS.findIndex(s => s.id === 'shop');
+        step = j >= 0 ? j : Math.min(step, STEPS.length - 1);
+      }
+      STEPS.forEach(s => { if (s.id === 'shop') s.nudge = shopNudge(s.sub); });
+      // Follow the frame while the shopper is in it; elsewhere just keep the bar current.
+      const i = STEPS.findIndex(s => s.id === 'shop' && s.sub === d.page);
+      if (STEPS[step] && STEPS[step].pane === 'shop' && STEPS[step].id === 'shop' && i >= 0) { step = i; }
+      mark();
+      return;
+    }
     if (d.siExp === 'claim' && e.source === $('emailF').contentWindow) { const i = STEPS.findIndex(s => s.id === 'claim'); if (i >= 0) go(i); }
     if (d.siExp === 'claim' && d.from === 'faq') { const i = STEPS.findIndex(s => s.id === 'faqclaim'); if (i >= 0) go(i); }
   });
   $('steps').addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (b) go(+b.dataset.i); });
   $('back').onclick = () => go(step - 1);
   $('next').onclick = () => go(step + 1);
-  $('replay').onclick = () => { ['shopF', 'faqF'].forEach(n => { const f = $(n); delete f.dataset.src; }); go(0); };
+  $('replay').onclick = () => { ['shopF', 'faqF'].forEach(n => { const f = $(n); delete f.dataset.src; }); go(0); };   // the cart frame reloads: ShipInsure back in, first screen
 
   // ── Phone (default) / desktop ──
   let mobile = Q.get('dev') !== 'desktop' && hp('dev') !== 'desktop';
+  // Phone or desktop: ?dev= / #dev= first, else what the demo was saved with (SPEC.device), else phone.
+  const devPref = () => Q.get('dev') || hp('dev') || SPEC.device || 'mobile';
   function tellDevice(f) { try { f.contentWindow.postMessage({ siExp: 'device', mobile }, '*'); } catch (e) {} }
   function fit() {
     const ph = $('phone'), st = $('stage');
@@ -307,7 +357,28 @@
     if (STEPS[step] && (STEPS[step].pane === 'lb' || STEPS[step].pane === 'faq')) go(step, { keep: true });
     fit();
   }
-  $('devSeg').onclick = e => { const b = e.target.closest('[data-dev]'); if (b) setDevice(b.dataset.dev); };
+  // The rep's pick is saved with the demo (link + folder save). A viewer just switches; a signed-in rep
+  // viewing a saved demo's link keeps it on that save (and a #d= link carries it).
+  async function keepDevice(dev) {
+    if (!VIEW) return;
+    if (/[#&]d=/.test(location.hash)) history.replaceState(null, '', location.pathname + location.search + '#d=' + enc(linkSpec()));
+    const id = Q.get('asset');
+    if (!id || !window.SIsb) return;
+    try {
+      if (!(await SIsb.currentUser())) return;
+      const r = await SIsb.getAsset(id);
+      if (((r.data || {}).device || 'mobile') === dev) return;
+      await SIsb.saveAsset({ id, merchant_ref: r.merchant_ref, kind: r.kind, title: r.title || '', data: Object.assign({}, r.data || {}, { device: dev }) });
+      toast('Saved: this link opens on ' + (dev === 'mobile' ? 'a phone' : 'a desktop'));
+    } catch (e) {}
+  }
+  $('devSeg').onclick = e => {
+    const b = e.target.closest('[data-dev]'); if (!b) return;
+    const dev = b.dataset.dev === 'desktop' ? 'desktop' : 'mobile';
+    setDevice(dev);
+    SPEC.device = dev;
+    keepDevice(dev);
+  };
   addEventListener('resize', fit);
 
   // ── Rep panel ──
@@ -364,7 +435,9 @@
     // Drafts ride in the link (a Checkout draft with uploaded mockups is long: a folder save keeps it short).
     const p = {};
     Object.entries(SPEC.pieces).forEach(([k, v]) => { if (v) p[k] = v.id ? { id: v.id, title: v.title || '' } : { data: v.data }; });
-    return { v: 1, name: SPEC.name || '', pieces: p };
+    const o = { v: 1, name: SPEC.name || '', pieces: p };
+    if (SPEC.device) o.device = SPEC.device === 'desktop' ? 'desktop' : 'mobile';
+    return o;
   }
   const demoLink = () => location.origin + location.pathname + '?view=1#d=' + enc(linkSpec());
   $('linkBtn').onclick = () => {
@@ -375,6 +448,7 @@
 
   async function rebuild() {
     await resolve();
+    SHOP = { labels: null, meta: {}, hasInfo: null };   // the cart frame reloads and reports its screens again
     ['shopF', 'emailF', 'claimF', 'faqF'].forEach(n => { delete $(n).dataset.src; });
     buildSteps(); renderSide();
     go(Math.min(step, Math.max(0, STEPS.length - 1)));
@@ -388,7 +462,7 @@
     else if (fromHash) SPEC = Object.assign({ v: 1, name: '', pieces: {} }, fromHash);
     else if (!VIEW) { await loadFolder(); autoPick(); }
     if (!VIEW && (asset || fromHash)) await loadFolder();
-    setDevice(mobile ? 'mobile' : 'desktop');
+    setDevice(devPref());
     await rebuild();
   })();
   if (!VIEW && window.SIsb) SIsb.onActiveFolder(async () => { SPEC.name = ''; await loadFolder(); autoPick(); rebuild(); });
@@ -398,7 +472,7 @@
     SIFolderBar.mount({
       kind: 'demo', tool: 'SI Interactive Demo', before: $('app'),
       getData: () => linkSpec(),
-      applyData: d => { SPEC = Object.assign({ v: 1, name: '', pieces: {} }, d || {}); rebuild(); },
+      applyData: d => { SPEC = Object.assign({ v: 1, name: '', pieces: {} }, d || {}); setDevice(devPref()); rebuild(); },
       defaultTitle: () => 'Interactive Demo – ' + (SPEC.name || 'Merchant'),
       shortLink: id => location.origin + location.pathname + '?view=1&asset=' + encodeURIComponent(id)
     });

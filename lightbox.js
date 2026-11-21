@@ -81,7 +81,10 @@
 .silb-ban{position:relative;height:180px;background:#2c2f6b center/cover no-repeat;border-bottom:6px solid var(--hb)}
 .silb-ban.silb-none{height:58px;background:var(--hb);border-bottom:0}
 .silb-logo{position:absolute;left:22px;bottom:-26px;width:64px;height:84px;filter:drop-shadow(0 3px 6px rgba(0,0,0,.18))}
-.silb-logo img{position:absolute;left:4px;right:4px;bottom:0;height:52px;width:56px;object-fit:contain;background:#fff;border-radius:10px;padding:5px}
+.silb-logo img.silb-own{position:absolute;left:4px;right:4px;bottom:0;height:52px;width:56px;object-fit:contain;background:#fff;border-radius:10px;padding:5px}
+.silb-lock{position:absolute;left:-10px;bottom:0;width:84px;height:84px;display:block;isolation:isolate}
+.silb-lock i{position:absolute;inset:0;background:var(--lc);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center}
+.silb-lock img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;mix-blend-mode:lighten}
 .silb-body{padding:40px var(--pd) 22px}
 .silb-t{margin:0 0 18px}
 .silb-fl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px}
@@ -91,7 +94,7 @@
 .silb-foot{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:24px;font:400 12px/1.4 var(--ff);color:#6b7085}
 .silb-foot a{color:#6b7085;text-decoration:underline}
 .silb-pw{display:inline-flex;align-items:center;gap:6px}
-.silb-pw b{font-weight:700;color:#3b3f52;letter-spacing:-.01em}
+.silb-pwl{height:15px;width:auto;display:block;filter:brightness(.66)}
 /* Checkout Extension: Shopify checkout's own modal (title bar, close, divider) in the store's font */
 .silb.silb-co{width:520px}
 .silb.silb-co .silb-hd{display:flex;align-items:center;gap:12px;padding:16px var(--pd);border-bottom:1px solid #e6e6e6}
@@ -116,13 +119,11 @@
 
   const fst = (s, base) => `font-family:${fam(s.font) ? `'${fam(s.font)}',` : ''}${base};font-size:${num(s.size, 12, 8, 40)}px;font-weight:${num(s.weight, 600, 100, 900)};color:${hex(s.color, '#1f2433')};`;
   const CHECK = c => `<svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.2 6.3l2.4 2.4 5.2-5.4" fill="none" stroke="${c}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  // The ShipInsure lock over the banner (Default Logo Color fills the box badge).
-  const LOCK = c => `<svg class="silb-lock" width="64" height="84" viewBox="0 0 64 84" aria-hidden="true">
-<path d="M14 40V25a18 18 0 0 1 36 0v15" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round"/>
-<rect x="3" y="34" width="58" height="50" rx="11" fill="#fff"/>
-<rect x="17" y="44" width="30" height="30" rx="7" fill="${c}"/>
-<path d="M32 50.5l8.5 4.6v9.4L32 69l-8.5-4.5v-9.4z" fill="#fff"/><path d="M23.5 55.1L32 59.7l8.5-4.6M32 59.7V69" fill="none" stroke="${c}" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
-  const MARK = `<svg width="15" height="16" viewBox="0 0 64 70" aria-hidden="true"><path d="M14 34V22a18 18 0 0 1 36 0v12" fill="none" stroke="#8a8fa3" stroke-width="9"/><rect x="3" y="30" width="58" height="40" rx="9" fill="#8a8fa3"/><path d="M32 39l9 5v10l-9 5-9-5V44z" fill="#fff"/></svg>`;
+  // The ShipInsure lock over the banner: the real lock (si-lock.png, the Rep Hub's), filled with the
+  // Default Logo Color (the image is the mask; its white box mark stays white on top).
+  const LOCK = c => `<span class="silb-lock" style="--lc:${c}"><i style="-webkit-mask-image:url('${BASE}si-lock.png');mask-image:url('${BASE}si-lock.png')"></i><img src="${BASE}si-lock.png" alt=""></span>`;
+  // "Powered by" uses ShipInsure's own light gray logo.
+  const MARK = `<img class="silb-pwl" src="${BASE}si-logo-grey.png" alt="ShipInsure">`;
 
   function html(cfg, opts) {
     const c = norm(cfg), o = opts || {};
@@ -137,7 +138,7 @@
     // data-silb marks each part, so the canvas editor (lightbox.html?canvas=1) can edit it in place.
     const ed = !!o.edit;
     const feats = `<ul class="silb-fl">${c.features.map((f, i) => `<li class="silb-f"><span class="silb-ck">${CHECK(ck)}</span><span data-silb="fa" data-i="${i}" data-ph="First text" style="${fst(c.f1, ff)}">${esc(f.a)}</span>${(f.a && f.b) || ed ? `<span class="silb-sep" style="${fst(c.f1, ff)}">&nbsp;|&nbsp;</span>` : ''}<span data-silb="fb" data-i="${i}" data-ph="Second text" style="${fst(c.f2, ff)}">${esc(f.b)}</span></li>`).join('')}</ul>`;
-    const foot = c.footer ? `<div class="silb-foot" data-silb="footer"><span class="silb-pw">Powered by ${MARK}<b>ShipInsure</b></span><a href="${esc(url(c.privacyUrl) || DEFAULTS.privacyUrl)}" target="_blank" rel="noopener">Privacy</a><a href="${esc(url(c.termsUrl) || DEFAULTS.termsUrl)}" target="_blank" rel="noopener">Terms</a></div>` : '';
+    const foot = c.footer ? `<div class="silb-foot" data-silb="footer"><span class="silb-pw">Powered by ${MARK}</span><a href="${esc(url(c.privacyUrl) || DEFAULTS.privacyUrl)}" target="_blank" rel="noopener">Privacy</a><a href="${esc(url(c.termsUrl) || DEFAULTS.termsUrl)}" target="_blank" rel="noopener">Terms</a></div>` : '';
     const title = `<div class="silb-t" data-silb="title" data-ph="Title" style="${fst(c.tStyle, ff)}">${esc(c.title)}</div>`;
     const cls = 'silb ' + (c.variant === 'checkout' ? 'silb-co' : 'silb-cart') + (o.narrow ? ' silb-sheet' : '') + (ed ? ' silb-edit' : '');
     const ban = `<div class="silb-ban${banSrc ? '' : ' silb-none'}" data-silb="banner"${banSrc ? ` style="background-image:url('${banSrc}')"` : ''}>`;
@@ -146,7 +147,7 @@
 <div class="silb-hd">${title}<button type="button" class="silb-x" aria-label="Close" data-silb-close>✕</button></div>
 <div class="silb-body">${ban}</div>${feats}${foot}<button type="button" class="silb-cobtn" data-silb-close>Close</button></div></div>`;
     }
-    const logo = url(c.logo) ? `<span class="silb-logo" data-silb="logo"><svg width="64" height="84" viewBox="0 0 64 84" aria-hidden="true"><path d="M14 40V25a18 18 0 0 1 36 0v15" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round"/></svg><img src="${url(c.logo)}" alt=""></span>` : `<span class="silb-logo" data-silb="logo">${LOCK(lc)}</span>`;
+    const logo = url(c.logo) ? `<span class="silb-logo" data-silb="logo"><img class="silb-own" src="${url(c.logo)}" alt=""></span>` : `<span class="silb-logo" data-silb="logo">${LOCK(lc)}</span>`;
     return `<div class="${cls}" data-silb="box" role="dialog" aria-modal="true" aria-label="${esc(c.title)}" style="${boxSt}">
 <button type="button" class="silb-x" aria-label="Close" data-silb-close>✕</button>
 ${ban}${logo}</div>
