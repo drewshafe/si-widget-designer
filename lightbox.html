@@ -63,6 +63,16 @@
   details.sty > div { display:flex; flex-direction:column; gap:10px; margin-top:10px; }
   .sub { font-size:11px; font-weight:700; color:var(--ink); margin-bottom:-4px; }
   .img-row { display:flex; gap:8px; align-items:center; }
+  .fit-row { display:flex; gap:10px; align-items:flex-start; margin-top:8px; }
+  .fpick { position:relative; display:inline-block; flex:0 0 auto; border-radius:6px; overflow:hidden; cursor:crosshair; border:1px solid var(--line); background:repeating-conic-gradient(#e8eaf1 0% 25%, #f6f7fb 0% 50%) 0 0/10px 10px; touch-action:none; }
+  .fpick img { display:block; max-width:150px; max-height:84px; user-select:none; pointer-events:none; }
+  .fpick.sq img { max-width:84px; }
+  .fpick i { position:absolute; width:14px; height:14px; margin:-7px 0 0 -7px; border-radius:50%; border:2px solid #fff; box-shadow:0 0 0 1.5px #6675ff, 0 1px 4px rgba(0,0,0,.4); background:rgba(102,117,255,.55); pointer-events:none; }
+  .fit-ctl { display:flex; flex-direction:column; gap:6px; flex:1; min-width:0; }
+  .fit-ctl select { width:100%; border:1px solid var(--line); background:var(--field); border-radius:8px; padding:5px 7px; font-size:12px; }
+  .fhint { font-size:11px; color:var(--muted); line-height:1.35; }
+  .seg.sm button { font-size:11px; padding:5px 3px; }
+  .seg button:disabled { opacity:.4; cursor:default; }
   .img-row .thumb { width:64px; height:36px; border-radius:6px; background:#dfe2ef center/cover no-repeat; border:1px solid var(--line); flex:0 0 auto; }
 
   /* Stage toolbar */
@@ -191,16 +201,26 @@
     <div class="grp">
       <div class="lbl">Images</div>
       <div class="fld"><label>Modal banner</label>
-        <div class="seg" id="banSeg"><button type="button" data-b="default">ShipInsure</button><button type="button" data-b="custom">Upload</button><button type="button" data-b="none">None</button></div>
-        <div class="img-row" id="banRow" hidden><span class="thumb" id="banThumb"></span><button class="btn sm" type="button" id="banPick">Choose image…</button></div>
+        <div class="seg" id="banSeg"><button type="button" data-b="default">ShipInsure</button><button type="button" data-b="custom">Upload</button><button type="button" data-b="folder" id="banFolderBtn">📁 Folder banner</button></div>
+        <div class="fit-row" id="banRow" hidden>
+          <div class="fpick" id="banFp" title="Click or drag to set the crop focus"><img alt=""><i></i></div>
+          <div class="fit-ctl"><div class="seg sm" id="banFit"><button type="button" data-f="cover">Fill · crop</button><button type="button" data-f="contain">Fit whole</button></div>
+            <span class="fhint">Click the image to set the crop focus.</span><button class="btn sm" type="button" id="banPick">Choose image…</button></div>
+        </div>
       </div>
       <div class="fld" id="logoFld"><label>Modal logo</label>
-        <div class="seg" id="logoSeg"><button type="button" data-l="lock">ShipInsure lock</button><button type="button" data-l="custom">🔒 Custom lock</button></div>
+        <div class="seg" id="logoSeg"><button type="button" data-l="lock">ShipInsure lock</button><button type="button" data-l="custom">🔒 Custom lock</button><button type="button" data-l="folder" id="logoFolderBtn">📁 Folder logo</button></div>
         <div class="img-row" id="logoRow" hidden><span class="thumb" id="logoThumb" style="background-size:contain"></span><button class="btn sm" type="button" id="logoPick" title="The merchant's logo inside the ShipInsure lock">🔒 Build in Lock</button><button class="btn sm" type="button" id="logoFolder" hidden></button></div>
+        <div class="fit-row" id="logoFRow" hidden>
+          <div class="fpick sq" id="logoFp" title="Click or drag to set the crop focus"><img alt=""><i></i></div>
+          <div class="fit-ctl"><select id="logoSlot" title="Which brand-kit image"></select><div class="seg sm" id="logoFit"><button type="button" data-f="contain">Fit whole</button><button type="button" data-f="cover">Fill · crop</button></div><span class="fhint">Fill crops to the square; click the image to set its focus.</span></div>
+        </div>
       </div>
       <div class="row2">
         <div class="fld"><label for="f-headerBorder">Header border color</label><input type="color" id="f-headerBorder" data-k="headerBorder"></div>
+        <div class="fld"><label for="f-f2c">Second text color</label><input type="color" id="f-f2c" data-k="f2.color"></div>
       </div>
+      <button class="btn sm" type="button" id="brandColBtn" hidden title="The brand color that reads best: the border gets the brand color, the second text a version that's readable on the box">🎨 Use brand colors</button>
       <input type="file" id="banIn" accept="image/*" hidden><input type="file" id="logoIn" accept="image/*" hidden>
     </div>
 
@@ -288,13 +308,33 @@
       else if (document.activeElement !== el) el.value = v == null ? '' : v;
     });
     if (!$('feats').contains(document.activeElement) || $('feats').children.length !== S.cfg.features.length) $('feats').innerHTML = S.cfg.features.map((f, i) => `<div class="feat"><input data-f="${i}" data-p="a" value="${esc(f.a)}" placeholder="First text"><input data-f="${i}" data-p="b" value="${esc(f.b)}" placeholder="Second text"><button type="button" data-del="${i}" title="Remove">🗑</button></div>`).join('');
-    const ban = S.cfg.banner === 'none' ? 'none' : S.cfg.banner === 'default' || !S.cfg.banner ? 'default' : 'custom';
+    const ban = S.cfg.banner === 'none' ? 'none' : S.cfg.banner === 'default' || !S.cfg.banner ? 'default' : S.cfg.banSrc === 'folder' ? 'folder' : 'custom';
     document.querySelectorAll('#banSeg button').forEach(b => b.classList.toggle('on', b.dataset.b === ban));
-    $('banRow').hidden = ban !== 'custom';
-    $('banThumb').style.backgroundImage = ban === 'custom' ? `url('${S.cfg.banner}')` : '';
-    const lg = S.cfg.logo ? 'custom' : 'lock';
-    document.querySelectorAll('#logoSeg button').forEach(b => b.classList.toggle('on', b.dataset.l === (S.logoMode || lg)));
-    $('logoRow').hidden = (S.logoMode || lg) !== 'custom';
+    const fName = (window.SIsb && SIsb.getActiveFolder() || {}).name || '';
+    $('banFolderBtn').disabled = !(kit && kit.banner);
+    $('banFolderBtn').title = kit && kit.banner ? `${fName}’s brand-kit banner` : fName ? `No banner in ${fName}’s brand kit yet (Merchant Folders → Brand kit)` : 'Pick a merchant folder (bar above) to use its brand-kit banner';
+    $('banRow').hidden = ban !== 'custom' && ban !== 'folder';
+    $('banPick').hidden = ban !== 'custom';
+    if (!$('banRow').hidden) fpPaint($('banFp'), S.cfg.banner, S.cfg.banPos);
+    document.querySelectorAll('#banFit button').forEach(b => b.classList.toggle('on', b.dataset.f === S.cfg.banFit));
+    const lg = /^folder:/.test(S.cfg.logoSrc || '') || (S.cfg.logo && S.cfg.logoKind !== 'lock') ? 'folder' : S.cfg.logo ? 'custom' : 'lock';
+    const lmode = S.logoMode || lg;
+    document.querySelectorAll('#logoSeg button').forEach(b => b.classList.toggle('on', b.dataset.l === lmode));
+    const slots = kitSlots();
+    $('logoFolderBtn').disabled = !slots.length && lg !== 'folder';
+    $('logoFolderBtn').title = slots.length ? `A logo from ${fName}’s brand kit` : fName ? `No logos in ${fName}’s brand kit yet` : 'Pick a merchant folder (bar above) to use its brand-kit logos';
+    $('logoRow').hidden = lmode !== 'custom';
+    $('logoFRow').hidden = lmode !== 'folder';
+    if (lmode === 'folder') {
+      const cur = (S.cfg.logoSrc || '').replace(/^folder:/, '');
+      $('logoSlot').innerHTML = slots.map(x => `<option value="${x.k}">${esc(x.label)}</option>`).join('') + (cur && slots.some(x => x.k === cur) ? '' : '<option value="">Current image</option>');
+      $('logoSlot').value = slots.some(x => x.k === cur) ? cur : '';
+      const tile = S.cfg.logoKind !== 'lock';
+      $('logoFit').hidden = !tile; $('logoFp').hidden = !tile;
+      if (tile) fpPaint($('logoFp'), S.cfg.logo, S.cfg.logoPos);
+      document.querySelectorAll('#logoFit button').forEach(b => b.classList.toggle('on', b.dataset.f === S.cfg.logoFit));
+    }
+    $('brandColBtn').hidden = !(brandCands && brandCands.length);
     $('logoThumb').style.backgroundImage = S.cfg.logo ? `url('${S.cfg.logo}')` : '';
     document.querySelectorAll('#variantSeg button').forEach(b => b.classList.toggle('on', b.dataset.v === S.cfg.variant));
     $('variantHint').textContent = S.cfg.variant === 'checkout'
@@ -424,10 +464,65 @@
     } catch (e) {}
   }
   $('devSeg').onclick = e => { const b = e.target.closest('[data-d]'); if (b) { S.device = b.dataset.d; render(); keepDevice(S.device); } };
-  $('banSeg').onclick = e => { const b = e.target.closest('[data-b]'); if (!b) return; if (b.dataset.b === 'custom') { if (/^(default|none)?$/.test(S.cfg.banner || '')) $('banIn').click(); else render(); } else { S.cfg.banner = b.dataset.b; render(); } };
+  $('banSeg').onclick = e => {
+    const b = e.target.closest('[data-b]'); if (!b || b.disabled) return;
+    if (b.dataset.b === 'custom') { if (S.cfg.banSrc === 'folder' || /^(default|none)?$/.test(S.cfg.banner || '')) { S.cfg.banSrc = ''; $('banIn').click(); } else render(); }
+    else if (b.dataset.b === 'folder') { if (kit && kit.banner) { S.cfg.banner = kit.banner; S.cfg.banSrc = 'folder'; lbOpen = true; render(); } }
+    else { S.cfg.banner = 'default'; S.cfg.banSrc = ''; render(); }
+  };
+  $('banFit').onclick = e => { const b = e.target.closest('[data-f]'); if (b) { S.cfg.banFit = b.dataset.f; lbOpen = true; render(); } };
+  $('logoFit').onclick = e => { const b = e.target.closest('[data-f]'); if (b) { S.cfg.logoFit = b.dataset.f; lbOpen = true; render(); } };
+  // Crop focus: click / drag on the picture.
+  function fpPaint(el, src, pos) {
+    const im = el.querySelector('img'); if (im.getAttribute('src') !== src) im.src = src || '';
+    const [x, y] = String(pos || '50% 50%').split(' '); const dot = el.querySelector('i'); dot.style.left = x; dot.style.top = y;
+  }
+  function fpWire(el, key) {
+    let on = false;
+    const at = e => { const r = el.getBoundingClientRect(); const x = Math.round(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * 100), y = Math.round(Math.max(0, Math.min(1, (e.clientY - r.top) / r.height)) * 100); S.cfg[key] = x + '% ' + y + '%'; lbOpen = true; render(); };
+    el.addEventListener('pointerdown', e => { on = true; el.setPointerCapture(e.pointerId); at(e); });
+    el.addEventListener('pointermove', e => { if (on) at(e); });
+    el.addEventListener('pointerup', () => { on = false; });
+  }
+  fpWire($('banFp'), 'banPos'); fpWire($('logoFp'), 'logoPos');
+  // The merchant folder's brand kit (Merchant Folders → Brand kit), loaded with the folder.
+  var kit = null, brandCands = [];
+  var KIT_LOGOS = [['main', 'Main logo'], ['hero', 'Hero logo'], ['secondary', 'Secondary logo'], ['favicon', 'Favicon'], ['lock', 'Custom SI lock']];
+  function kitSlots() { return kit && KIT_LOGOS ? KIT_LOGOS.filter(([k]) => kit[k]).map(([k, label]) => ({ k, label })) : []; }
+  function useFolderLogo(k) {
+    if (!kit || !kit[k]) return;
+    S.cfg.logo = kit[k]; S.cfg.logoKind = k === 'lock' ? 'lock' : ''; S.cfg.logoSrc = 'folder:' + k; S.logoMode = 'folder'; lbOpen = true; render();
+  }
+  $('logoSlot').onchange = e => useFolderLogo(e.target.value);
+  // Best brand colors: the border takes the brand color; the second text one that reads on the box.
+  function brandColors() {
+    const o = window.SIBrand && SIBrand.optimal && SIBrand.optimal(brandCands, S.cfg.box.bg);
+    if (!o) return false;
+    S.cfg.headerBorder = o.border; S.cfg.f2.color = o.text; S.wc = o.border;
+    return true;
+  }
+  $('brandColBtn').onclick = () => { if (brandColors()) { lbOpen = true; render(); toast('Brand colors applied'); } };
+  const isDef = (v, d) => String(v || '').toLowerCase() === String(d).toLowerCase();
+  async function loadKit(a) {
+    kit = null; brandCands = [];
+    if (!a || !window.SIBrand) { folderLock = ''; render(); return; }
+    try { kit = await SIBrand.get(a.id); } catch (e) { kit = null; }
+    folderLock = (kit && kit.lock) || '';
+    if (kit && SIBrand.colorsFor) { try { brandCands = await SIBrand.colorsFor(kit); } catch (e) { brandCands = []; } }
+    // Saved images / colors are the defaults: anything still on the ShipInsure default takes the brand kit's (once per folder).
+    if (kit && S.brandAuto !== a.id && !VIEW) {
+      const used = [];
+      if (kit.banner && S.cfg.banner === 'default') { S.cfg.banner = kit.banner; S.cfg.banSrc = 'folder'; used.push('banner'); }
+      if (!S.cfg.logo && kit.lock) { S.cfg.logo = kit.lock; S.cfg.logoKind = 'lock'; S.cfg.logoSrc = 'folder:lock'; used.push('lock'); }
+      if (brandCands.length && isDef(S.cfg.headerBorder, L.DEFAULTS.headerBorder) && isDef(S.cfg.f2.color, L.DEFAULTS.f2.color) && brandColors()) used.push('colors');
+      S.brandAuto = a.id;
+      if (used.length) toast('Using ' + a.name + '’s brand kit: ' + used.join(', '));
+    }
+    render();
+  }
   // Custom lock = the Lock builder (the merchant's logo in the SI lock), or the folder's saved lock.
   var folderLock = '';
-  function useLock(u) { S.cfg.logo = u; S.cfg.logoKind = 'lock'; S.logoMode = 'custom'; lbOpen = true; render(); }
+  function useLock(u) { S.cfg.logo = u; S.cfg.logoKind = 'lock'; S.cfg.logoSrc = ''; S.logoMode = 'custom'; lbOpen = true; render(); }
   function buildLock() {
     const a = window.SIsb && SIsb.getActiveFolder();
     window.SILockBuilder && SILockBuilder.open({
@@ -441,7 +536,7 @@
       }
     });
   }
-  $('logoSeg').onclick = e => { const b = e.target.closest('[data-l]'); if (!b) return; if (b.dataset.l === 'custom') { S.logoMode = 'custom'; if (!S.cfg.logo) { if (folderLock) useLock(folderLock); else buildLock(); } render(); } else { S.logoMode = ''; S.cfg.logo = ''; S.cfg.logoKind = ''; render(); } };
+  $('logoSeg').onclick = e => { const b = e.target.closest('[data-l]'); if (!b || b.disabled) return; if (b.dataset.l === 'folder') { const sl = kitSlots(); if (/^folder:/.test(S.cfg.logoSrc || '')) { S.logoMode = 'folder'; render(); } else if (sl.length) useFolderLogo((sl.find(x => x.k !== 'lock') || sl[0]).k); return; } if (b.dataset.l === 'custom') { S.logoMode = 'custom'; if (!S.cfg.logo) { if (folderLock) useLock(folderLock); else buildLock(); } render(); } else { S.logoMode = ''; S.cfg.logo = ''; S.cfg.logoKind = ''; S.cfg.logoSrc = ''; render(); } };
   $('logoFolder').onclick = () => useLock(folderLock);
   $('banPick').onclick = () => $('banIn').click();
   $('logoPick').onclick = buildLock;
@@ -507,9 +602,9 @@
   async function folderSync() {
     const a = !VIEW && window.SIsb && SIsb.getActiveFolder();
     $('brandBtn').hidden = !a;
-    if (!a) return;
+    if (!a) { loadKit(null); return; }
     $('brandBtn').textContent = '📁 Use ' + a.name + ' branding';
-    if (window.SIBrand) SIBrand.get(a.id).then(k => { folderLock = k.lock || ''; render(); }, () => {});
+    loadKit(a);
     try {
       const f = folderBrand(await SIsb.getMerchant(a.id) || {});
       let ch = false;

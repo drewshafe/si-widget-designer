@@ -33,16 +33,23 @@
     privacyUrl: 'https://shipinsure.io/privacy-policy',
     termsUrl: 'https://shipinsure.io/terms-of-service',
     banner: 'default',                  // 'default' | 'none' | an image URL / data URL
+    banSrc: '',                         // 'folder' = the merchant folder's brand-kit banner ('' = uploaded / default)
+    banFit: 'cover',                    // 'cover' (fill, cropped at banPos) | 'contain' (whole image)
+    banPos: '50% 50%',                  // crop focus (background-position)
     logo: '',                           // '' = the ShipInsure lock (si-lock.png); else an image URL / data URL
-    logoKind: '',                       // 'lock' = a custom lock from the Lock builder (shown like the SI lock); '' = an uploaded logo (white tile)
+    logoKind: '',                       // 'lock' = a custom lock from the Lock builder (shown like the SI lock); '' = a logo in a white tile
+    logoSrc: '',                        // 'folder:<slot>' = from the merchant folder's brand kit (main, secondary, hero, favicon)
+    logoFit: 'contain',                 // tile logo: 'contain' (whole logo) | 'cover' (fills the tile, cropped at logoPos)
+    logoPos: '50% 50%',
     logoColor: '#6675FF',
     headerBorder: '#6675FF',
     box:    { bg: '#ffffff', border: '#e3e5ee', bw: 0, radius: 8, pad: 24 },
-    tStyle: { font: '', size: 13, weight: 600, color: '#1f2433' },
+    tStyle: { font: '', size: 22, weight: 700, color: '#2f3146' },   // big and bold, as the live modals show it
     f1:     { font: '', size: 12, weight: 600, color: '#1f2433' },
     f2:     { font: '', size: 12, weight: 400, color: '#6675FF' },
     font: ''                            // base font for the whole lightbox (the store's), '' = Open Sans
   };
+  const POS = p => /^\d{1,3}(\.\d+)?% \d{1,3}(\.\d+)?%$/.test(String(p || '')) ? p : '50% 50%';
   const SYS = /^(arial|helvetica|helvetica neue|times|times new roman|georgia|verdana|system-ui|sans-serif|serif|inherit)$/i;
 
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -57,6 +64,11 @@
     ['box', 'tStyle', 'f1', 'f2'].forEach(k => { o[k] = Object.assign({}, DEFAULTS[k], c[k] || {}); });
     o.features = Array.isArray(c.features) ? c.features.filter(f => f && (String(f.a || '').trim() || String(f.b || '').trim())).map(f => ({ a: String(f.a || ''), b: String(f.b || '') })) : FEATURES.slice();
     o.variant = o.variant === 'checkout' ? 'checkout' : 'cart';
+    // Saves made with the old small title default (13 / 600) get the new big, bold one.
+    if (c.tStyle && +c.tStyle.size === 13 && +c.tStyle.weight === 600) { o.tStyle.size = DEFAULTS.tStyle.size; o.tStyle.weight = DEFAULTS.tStyle.weight; if (/^#1f2433$/i.test(c.tStyle.color || '')) o.tStyle.color = DEFAULTS.tStyle.color; }
+    o.banFit = o.banFit === 'contain' ? 'contain' : 'cover';
+    o.logoFit = o.logoFit === 'cover' ? 'cover' : 'contain';
+    o.banPos = POS(o.banPos); o.logoPos = POS(o.logoPos);
     return o;
   }
 
@@ -82,7 +94,8 @@
 .silb-ban{position:relative;height:180px;background:#2c2f6b center/cover no-repeat;border-bottom:6px solid var(--hb)}
 .silb-ban.silb-none{height:58px;background:var(--hb);border-bottom:0}
 .silb-logo{position:absolute;left:22px;bottom:-26px;width:64px;height:84px;filter:drop-shadow(0 3px 6px rgba(0,0,0,.18))}
-.silb-logo img.silb-own{position:absolute;left:4px;right:4px;bottom:0;height:52px;width:56px;object-fit:contain;background:#fff;border-radius:10px;padding:5px}
+.silb-logo img.silb-own{position:absolute;left:0;bottom:0;width:76px;height:76px;background:#fff;border-radius:6px;padding:7px;box-sizing:border-box}
+.silb-logo img.silb-own.cover{padding:0}
 .silb-lock{position:absolute;left:-10px;bottom:0;width:84px;height:84px;display:block;isolation:isolate}
 .silb-lock img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
 .silb-body{padding:40px var(--pd) 22px}
@@ -140,9 +153,10 @@
     const ed = !!o.edit;
     const feats = `<ul class="silb-fl">${c.features.map((f, i) => `<li class="silb-f"><span class="silb-ck">${CHECK(ck)}</span><span data-silb="fa" data-i="${i}" data-ph="First text" style="${fst(c.f1, ff)}">${esc(f.a)}</span>${(f.a && f.b) || ed ? `<span class="silb-sep" style="${fst(c.f1, ff)}">&nbsp;|&nbsp;</span>` : ''}<span data-silb="fb" data-i="${i}" data-ph="Second text" style="${fst(c.f2, ff)}">${esc(f.b)}</span></li>`).join('')}</ul>`;
     const foot = c.footer ? `<div class="silb-foot" data-silb="footer"><span class="silb-pw">Powered by ${MARK}</span><a href="${esc(url(c.privacyUrl) || DEFAULTS.privacyUrl)}" target="_blank" rel="noopener">Privacy</a><a href="${esc(url(c.termsUrl) || DEFAULTS.termsUrl)}" target="_blank" rel="noopener">Terms</a></div>` : '';
-    const title = `<div class="silb-t" data-silb="title" data-ph="Title" style="${fst(c.tStyle, ff)}">${esc(c.title)}</div>`;
+    const tSt = c.variant === 'checkout' ? Object.assign({}, c.tStyle, { size: Math.min(num(c.tStyle.size, 22, 8, 40), 18) }) : c.tStyle;   // Shopify's title bar
+    const title = `<div class="silb-t" data-silb="title" data-ph="Title" style="${fst(tSt, ff)};line-height:1.25">${esc(c.title)}</div>`;
     const cls = 'silb ' + (c.variant === 'checkout' ? 'silb-co' : 'silb-cart') + (o.narrow ? ' silb-sheet' : '') + (ed ? ' silb-edit' : '');
-    const ban = `<div class="silb-ban${banSrc ? '' : ' silb-none'}" data-silb="banner"${banSrc ? ` style="background-image:url('${banSrc}')"` : ''}>`;
+    const ban = `<div class="silb-ban${banSrc ? '' : ' silb-none'}" data-silb="banner"${banSrc ? ` style="background-image:url('${banSrc}');background-size:${c.banFit};background-position:${c.banPos}${c.banFit === 'contain' ? `;background-color:${hex(b.bg, '#ffffff')}` : ''}"` : ''}>`;
     if (c.variant === 'checkout') {
       return `<div class="${cls}" data-silb="box" role="dialog" aria-modal="true" aria-label="${esc(c.title)}" style="${boxSt}">
 <div class="silb-hd">${title}<button type="button" class="silb-x" aria-label="Close" data-silb-close>✕</button></div>
@@ -150,7 +164,7 @@
     }
     const logo = !url(c.logo) ? `<span class="silb-logo" data-silb="logo">${LOCK(BASE + 'si-lock.png')}</span>`
       : c.logoKind === 'lock' ? `<span class="silb-logo" data-silb="logo">${LOCK(url(c.logo))}</span>`
-      : `<span class="silb-logo" data-silb="logo"><img class="silb-own" src="${url(c.logo)}" alt=""></span>`;
+      : `<span class="silb-logo" data-silb="logo"><img class="silb-own${c.logoFit === 'cover' ? ' cover' : ''}" src="${url(c.logo)}" alt="" style="object-fit:${c.logoFit};object-position:${c.logoPos}"></span>`;
     return `<div class="${cls}" data-silb="box" role="dialog" aria-modal="true" aria-label="${esc(c.title)}" style="${boxSt}">
 <button type="button" class="silb-x" aria-label="Close" data-silb-close>✕</button>
 ${ban}${logo}</div>
