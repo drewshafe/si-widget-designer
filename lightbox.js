@@ -88,7 +88,9 @@
 .silb-body{padding:40px var(--pd) 22px}
 .silb-t{margin:0 0 18px}
 .silb-fl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px}
-.silb-f{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.silb-f{display:flex;align-items:center;gap:10px;flex-wrap:nowrap}
+.silb-f>span{min-width:0}.silb-f>.silb-sep,.silb-f>[data-silb="fa"]{flex:0 0 auto;white-space:nowrap}
+@media (max-width:480px){.silb.silb-cart .silb-body{padding-left:18px;padding-right:18px}.silb.silb-cart .silb-f{gap:8px}}
 .silb-ck{flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--ckbg);display:inline-flex;align-items:center;justify-content:center}
 .silb-sep{opacity:.9;margin:0 2px}
 .silb-foot{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:24px;font:400 12px/1.4 var(--ff);color:#6b7085}
@@ -165,7 +167,8 @@ ${ban}${logo}</div>
     close(host);
     const inHost = host !== document.body;
     if (inHost && getComputedStyle(host).position === 'static') host.style.position = 'relative';
-    const narrow = o.narrow != null ? o.narrow : (inHost ? host.clientWidth : innerWidth) < 480;
+    // On a phone the Checkout Extension's modal is a bottom sheet (Shopify checkout); a cart widget's is a centered card.
+    const narrow = o.narrow != null ? o.narrow : norm(cfg).variant === 'checkout' && (inHost ? host.clientWidth : innerWidth) < 480;
     const ov = document.createElement('div');
     ov.className = 'silb-ov' + (inHost ? ' in-host' : '') + (narrow ? ' silb-sheet' : '');
     ov.innerHTML = html(cfg, { narrow });

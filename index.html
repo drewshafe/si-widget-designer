@@ -692,8 +692,9 @@
         .mmc-ln::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: #6675ff; box-shadow: 0 0 0 1px rgba(255,255,255,0.7); }
         .mmc-ln i { position: absolute; top: 8px; left: 12px; white-space: nowrap; font: 700 10.5px/1 Inter, sans-serif; font-style: normal; background: #6675ff; color: #fff; padding: 4px 7px; border-radius: 10px; }
         .mmc-ph { flex: 0 0 300px; height: 560px; border: 10px solid #17171c; border-radius: 40px; overflow: hidden; background: #fff; }
-        .mmc-scr { height: 100%; overflow-y: auto; }
-        .mmc-st { background-repeat: no-repeat; }
+        .mmc-scr { height: 100%; overflow-y: auto; display: flex; flex-direction: column; }
+        .mmc-st { background-repeat: no-repeat; flex: 0 0 auto; }
+        .mmc-gap { flex: 1 0 12px; }
         .mmc-bar { display: flex; justify-content: space-between; padding: 10px 12px; background: #f5f5f5; border-bottom: 1px solid #e1e1e1; color: #1773b0; font-size: 12px; } .mmc-bar b { color: #1a1a1a; }
         .mmc-ft { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; } .mmc-ft .sp { flex: 1; } .mmc-ft label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
         .mmc-ft button { font: 700 12.5px inherit; padding: 8px 14px; border-radius: 8px; border: 1px solid #d5d9f0; background: #fff; color: #2a3050; cursor: pointer; } .mmc-ft button.p { background: #6675ff; border-color: #6675ff; color: #fff; }
@@ -6516,7 +6517,9 @@ Return ONLY JSON — no markdown, no code fences:
             DF.steps.forEach(s => { if (s.k === 'mk') _mkPageCanvas(s.pg).then(_dfPaintSoon, () => {}); });
             _dfShow(DF.want != null ? DF.want : 0);
         }
-        function _dfLb() { const s = DF.steps[DF.i], ex = s && DF.ex[s.e]; return _lbForView(ex && ex.design); }
+        // The ⓘ's lightbox, in the style of where it was tapped: the cart widget's card on a cart, the
+        // Checkout Extension's modal on a checkout (as the real store shows them).
+        function _dfLb() { const s = DF.steps[DF.i], ex = s && DF.ex[s.e], c = _lbForView(ex && ex.design); return s ? Object.assign({}, c, { variant: s.ck ? 'checkout' : 'cart' }) : c; }
         function _dfShow(i) {
             if (!DF.steps.length) return;
             i = Math.max(0, Math.min(DF.steps.length - 1, +i || 0));
@@ -6804,11 +6807,74 @@ Return ONLY JSON — no markdown, no code fences:
             }
             x0 = clamp(x0, 0, pg.w - 200); x1 = clamp(x1, x0 + 200, pg.w);
             if (x1 - x0 > pg.w * 0.82) return null;   // nothing narrower to show: the whole page
+            // A phone's cart drawer fills the screen: items at the top, the footer (totals, the ShipInsure
+            // widget, the checkout buttons) pinned to the bottom, empty space between.
+            const foot = _dfDrawerFoot(pg, cv, txt.filter(t => cx(t) > x0 && cx(t) < x1), x0, x1, H);
+            if (foot) return { ck: false, drawer: true, bg: foot.bg, strips: [
+                { k: 'drawer', x: x0, y: 0, w: x1 - x0, h: foot.topEnd },
+                { k: 'foot', x: x0, y: foot.y, w: x1 - x0, h: foot.end - foot.y }] };
             return { ck: false, strips: [{ k: 'drawer', x: x0, y: 0, w: x1 - x0, h: H }] };
+        }
+        // The drawer's footer: from the top of its band (a background change just above the subtotal /
+        // ShipInsure / checkout rows) to the last button; and where the items above it end.
+        function _dfDrawerFoot(pg, cv, T, x0, x1, H) {
+            const isFoot = t => t.role === 'sub' || t.role === 'total' || t.role === 'fee' || ['hdr', 'body', 'b1', 'b2', 'disc'].includes(t.part) ||
+                /^(sub-?total|total|estimated total|taxes|shipping|checkout|check out)/i.test(_mkPlain(t.o).trim()) || DF_BTN.test(_dfCompact(t.o)) || MK_BTN2_RE.test(t.o);
+            const F = T.filter(t => isFoot(t) && t.y + t.h / 2 > pg.h * 0.35);
+            if (!F.length) return null;
+            const fTop = Math.min(...F.map(t => t.y)), fBot = Math.max(...F.map(t => t.y + t.h));
+            const above = T.filter(t => t.y + t.h <= fTop - 2);
+            // Rows of pixels across the drawer: average color + how far the row strays from it.
+            let row = null;
+            if (cv) {
+                try {
+                    const k = cv.k, X0 = Math.max(0, Math.round((x0 + 8) * k)), X1 = Math.min(cv.ctx.canvas.width, Math.round((x1 - 8) * k));
+                    row = y => {
+                        const Y = Math.max(0, Math.min(cv.ctx.canvas.height - 1, Math.round(y * k))), d = cv.ctx.getImageData(X0, Y, Math.max(1, X1 - X0), 1).data, n = d.length / 4;
+                        let r = 0, g = 0, b = 0; for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i + 1]; b += d[i + 2]; }
+                        r /= n; g /= n; b /= n;
+                        let dev = 0; for (let i = 0; i < d.length; i += 4) { const v = Math.abs(d[i] - r) + Math.abs(d[i + 1] - g) + Math.abs(d[i + 2] - b); if (v > dev) dev = v; }
+                        return [r, g, b, dev];   // average color, and the most any pixel strays from it (0 = one flat color)
+                    };
+                } catch (e) { row = null; }
+            }
+            const dist = (a, b) => Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2]);
+            const lastAbove = above.length ? Math.max(...above.map(t => t.y + t.h)) : 0;
+            // Down from a row of letters while the rows still hold something (a product image, a box's or a
+            // button's edges): it ends after a run of rows that are one flat color.
+            const flat = c => c[3] <= 24;
+            // The drawer's background: the most common flat row color above the footer.
+            let dbg = [255, 255, 255];
+            if (row) {
+                const cnt = {};
+                for (let y = 4; y < fTop; y += 6) { const c = row(y); if (!flat(c)) continue; const key = c.slice(0, 3).map(v => Math.round(v / 8)).join(','); (cnt[key] = cnt[key] || { n: 0, c }).n++; }
+                const best = Object.values(cnt).sort((a, b) => b.n - a.n)[0]; if (best) dbg = best.c;
+            }
+            const blankRow = c => flat(c) && dist(c, dbg) < 14;
+            const inkEnd = (from, limit) => {
+                if (!row) return Math.min(limit, from + 30);
+                let y = from, blank = 0;
+                for (; y < limit; y += 2) { if (!blankRow(row(y))) blank = 0; else if ((blank += 2) >= 22) break; }
+                return Math.min(limit, y + 4);
+            };
+            // The items end where their pixels do; the footer starts at its band's top edge (flat rows of two
+            // different colors, e.g. white → grey), else just above its first row, never above the items' end.
+            const topEnd = Math.max(60, Math.min(fTop - 2, inkEnd(lastAbove, fTop - 2)));
+            let fy = Math.max(topEnd, fTop - 14);
+            if (row) {
+                let prev = row(fTop - 3);
+                for (let y = fTop - 5; y >= topEnd; y -= 2) { const c = row(y); if (flat(c) && flat(prev) && dist(c, prev) > 16) { fy = y + 1; break; } prev = c; }
+            }
+            const topBg = dbg;   // the gap between the items and the footer
+            const end = Math.min(H, inkEnd(fBot, H) + 10);
+            if (end - fy < 40 || end - fy > H * 0.75) return null;
+            const hx = v => Math.round(v).toString(16).padStart(2, '0');
+            return { y: fy, end, topEnd, bg: '#' + topBg.slice(0, 3).map(hx).join('') };
         }
         function _dfStripsHtml(cut, page, pg) {
             const strip = c => `<div class="df-strip df-s-${c.k}" data-w="${_mkR(c.w)}" style="width:${_mkR(c.w)}px;height:${_mkR(c.h)}px;"><div class="df-sin" style="transform:translate(${-_mkR(c.x)}px,${-_mkR(c.y)}px);">${page}</div></div>`;
-            return `<div class="df-mob${cut.ck ? ' df-mob-ck' : ''}">` + cut.strips.map(c => {
+            return `<div class="df-mob${cut.ck ? ' df-mob-ck' : ''}${cut.drawer ? ' df-drawer' : ''}"${cut.bg ? ` style="background:${cut.bg}"` : ''}>` + cut.strips.map(c => {
+                if (c.k === 'foot') return '<div class="df-gap"></div>' + strip(c);
                 if (c.k !== 'sum') return strip(c);
                 const open = DF.sumOpen;
                 return `<button type="button" class="df-sumbar" data-df="sum" aria-expanded="${open}"><span>🛒 ${open ? 'Hide' : 'Show'} order summary <i>${open ? '▴' : '▾'}</i></span><b>${_escHtml(cut.total)}</b></button>` + (open ? strip(c) : '');
@@ -6842,7 +6908,7 @@ Return ONLY JSON — no markdown, no code fences:
                 const c = _dfMobCut(pg, cv, ck, pg.h, pg.texts); pg.mob = m;
                 const ph = w.querySelector('#mmcPh'), PW = ph.clientWidth;
                 const strip = st => { const k = PW / st.w; return `<div class="mmc-st" style="height:${st.h * k}px;background-image:url('${String(pg.img).replace(/['"<>\\]/g, encodeURIComponent)}');background-size:${pg.w * k}px ${pg.h * k}px;background-position:${-st.x * k}px ${-st.y * k}px"></div>`; };
-                ph.innerHTML = !c ? strip({ x: 0, y: 0, w: pg.w, h: pg.h }) : c.strips.map(st => (st.k === 'sum' ? `<div class="mmc-bar"><span>🛒 Hide order summary ▴</span><b>${_escHtml(c.total)}</b></div>` : '') + strip(st)).join('');
+                ph.innerHTML = !c ? strip({ x: 0, y: 0, w: pg.w, h: pg.h }) : c.strips.map(st => (st.k === 'foot' ? `<div class="mmc-gap" style="background:${c.bg || '#fff'}"></div>` : '') + (st.k === 'sum' ? `<div class="mmc-bar"><span>🛒 Hide order summary ▴</span><b>${_escHtml(c.total)}</b></div>` : '') + strip(st)).join('');
             };
             let drag = null;
             box.addEventListener('pointerdown', e => { const l = e.target.closest('.mmc-ln'); if (!l || whole) return; drag = +l.dataset.i; l.setPointerCapture(e.pointerId); e.preventDefault(); });
@@ -6945,6 +7011,9 @@ Return ONLY JSON — no markdown, no code fences:
                 .df-sin { position:absolute; left:0; top:0; }
                 .df-sin .mk2-page { zoom:1; }
                 .df-s-hdr { border-bottom:1px solid #e6e6e6; }
+                .df-mob.df-drawer { min-height:100vh; display:flex; flex-direction:column; }
+                .df-drawer .df-gap { flex:1 1 auto; }
+                .df-drawer .df-s-foot { flex:0 0 auto; position:sticky; bottom:0; z-index:3; }
                 .df-sumbar { display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%; border:0; border-bottom:1px solid #e1e1e1; background:#f5f5f5; padding:14px 16px; font:500 14px/1.2 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; color:#1773b0; cursor:pointer; text-align:left; }
                 .df-sumbar i { font-style:normal; font-size:11px; }
                 .df-sumbar b { color:#1a1a1a; font-size:16px; font-weight:700; }
