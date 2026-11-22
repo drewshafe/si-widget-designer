@@ -333,6 +333,7 @@
     L.css();
     fr.innerHTML = L.html(S.cfg, { edit: true, narrow: mobile && co });
     const box = fr.firstElementChild; if (box) box.style.animation = 'none';
+    L.fit(fr);
   }
   function render(o) {
     if (CANVAS) {
@@ -484,7 +485,7 @@
       const box = document.createElement('div');
       box.style.cssText = 'position:fixed;left:-10000px;top:0;padding:24px;background:transparent;';
       box.innerHTML = L.html(S.cfg, { narrow: false });
-      document.body.appendChild(box);
+      document.body.appendChild(box); L.fit(box);
       await document.fonts.ready; await new Promise(r => setTimeout(r, 250));
       const el = box.firstElementChild; el.style.animation = 'none'; el.style.maxHeight = 'none';
       const cv = await h(el, { scale: 2, useCORS: true, backgroundColor: null });

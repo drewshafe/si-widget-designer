@@ -89,7 +89,7 @@
 .silb-t{margin:0 0 18px}
 .silb-fl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px}
 .silb-f{display:flex;align-items:center;gap:10px;flex-wrap:nowrap}
-.silb-f>span{min-width:0}.silb-f>.silb-sep,.silb-f>[data-silb="fa"]{flex:0 0 auto;white-space:nowrap}
+.silb-f>span{flex:0 0 auto;white-space:nowrap}
 @media (max-width:480px){.silb.silb-cart .silb-body{padding-left:18px;padding-right:18px}.silb.silb-cart .silb-f{gap:8px}}
 .silb-ck{flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--ckbg);display:inline-flex;align-items:center;justify-content:center}
 .silb-sep{opacity:.9;margin:0 2px}
@@ -157,6 +157,31 @@ ${ban}${logo}</div>
 <div class="silb-body">${title}${feats}${foot}</div></div>`;
   }
 
+  // Every feature line stays on one line (first text | second text): when any line is too wide, all the
+  // feature texts shrink by the same factor (as the live script does on phones). Refits on resize and typing.
+  function fit(root) {
+    (root && root.querySelectorAll ? root : document).querySelectorAll('.silb').forEach(box => {
+      const run = () => {
+        const rows = [...box.querySelectorAll('.silb-f')]; if (!rows.length) return;
+        const spans = rows.flatMap(r => [...r.querySelectorAll('[data-silb="fa"], [data-silb="fb"], .silb-sep')]);
+        spans.forEach(el => { if (!el.dataset.fs) el.dataset.fs = parseFloat(el.style.fontSize) || 12; el.style.fontSize = el.dataset.fs + 'px'; });
+        for (let pass = 0; pass < 3; pass++) {
+          let k = 1;
+          rows.forEach(r => { const need = r.scrollWidth, have = r.clientWidth; if (have > 0 && need > have + 0.5) k = Math.min(k, have / need); });
+          if (k >= 0.999) break;
+          spans.forEach(el => { el.style.fontSize = Math.max(7, parseFloat(el.style.fontSize) * k * 0.995) + 'px'; });
+        }
+      };
+      run();
+      if (!box._silbFit) {
+        box._silbFit = true;
+        if (window.ResizeObserver) new ResizeObserver(() => run()).observe(box);
+        box.addEventListener('input', run);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(run);
+      }
+    });
+  }
+
   function close(host) {
     const root = host || document.body;
     root.querySelectorAll(':scope > .silb-ov').forEach(o => o.remove());
@@ -176,6 +201,7 @@ ${ban}${logo}</div>
       if (e.target === ov || e.target.closest('[data-silb-close]')) { e.preventDefault(); ov.remove(); o.onClose && o.onClose(); }
     });
     host.appendChild(ov);
+    fit(ov);
     return ov;
   }
   const INFO = '[data-si-info], .wp-info-btn, .wp-leaf-icon, .mk2-hot';
@@ -212,5 +238,5 @@ ${ban}${logo}</div>
     ].join('\n');
   }
 
-  window.SILightbox = { DEFAULTS, FEATURES, norm, html, open, close, bind, css, portalText, BASE, DRAFT_KEY: 'si_lightbox_draft' };
+  window.SILightbox = { DEFAULTS, FEATURES, norm, html, open, close, bind, css, portalText, fit, BASE, DRAFT_KEY: 'si_lightbox_draft' };
 })();
