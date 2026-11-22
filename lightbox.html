@@ -204,7 +204,7 @@
         <div class="seg" id="banSeg"><button type="button" data-b="default">ShipInsure</button><button type="button" data-b="custom">Upload</button><button type="button" data-b="folder" id="banFolderBtn">📁 Folder banner</button></div>
         <div class="fit-row" id="banRow" hidden>
           <div class="fpick" id="banFp" title="Click or drag to set the crop focus"><img alt=""><i></i></div>
-          <div class="fit-ctl"><div class="seg sm" id="banFit"><button type="button" data-f="cover">Fill · crop</button><button type="button" data-f="contain">Fit whole</button></div>
+          <div class="fit-ctl"><select id="banSlot" title="Which brand-kit image" hidden></select><div class="seg sm" id="banFit"><button type="button" data-f="cover">Fill · crop</button><button type="button" data-f="contain">Fit whole</button></div>
             <span class="fhint">Click the image to set the crop focus.</span><button class="btn sm" type="button" id="banPick">Choose image…</button></div>
         </div>
       </div>
@@ -311,8 +311,15 @@
     const ban = S.cfg.banner === 'none' ? 'none' : S.cfg.banner === 'default' || !S.cfg.banner ? 'default' : S.cfg.banSrc === 'folder' ? 'folder' : 'custom';
     document.querySelectorAll('#banSeg button').forEach(b => b.classList.toggle('on', b.dataset.b === ban));
     const fName = (window.SIsb && SIsb.getActiveFolder() || {}).name || '';
-    $('banFolderBtn').disabled = !(kit && kit.banner);
-    $('banFolderBtn').title = kit && kit.banner ? `${fName}’s brand-kit banner` : fName ? `No banner in ${fName}’s brand kit yet (Merchant Folders → Brand kit)` : 'Pick a merchant folder (bar above) to use its brand-kit banner';
+    const bSlots = kitBanSlots();
+    $('banFolderBtn').disabled = !bSlots.length;
+    $('banFolderBtn').title = bSlots.length ? `An image from ${fName}’s brand kit` : fName ? `No images in ${fName}’s brand kit yet (Merchant Folders → Brand kit)` : 'Pick a merchant folder (bar above) to use its brand-kit images';
+    $('banSlot').hidden = ban !== 'folder' || !bSlots.length;
+    if (ban === 'folder') {
+      const cur = bSlots.find(x => x.src === S.cfg.banner);
+      $('banSlot').innerHTML = bSlots.map(x => `<option value="${x.k}">${esc(x.label)}</option>`).join('') + (cur ? '' : '<option value="">Current image</option>');
+      $('banSlot').value = cur ? cur.k : '';
+    }
     $('banRow').hidden = ban !== 'custom' && ban !== 'folder';
     $('banPick').hidden = ban !== 'custom';
     if (!$('banRow').hidden) fpPaint($('banFp'), S.cfg.banner, S.cfg.banPos);
@@ -467,7 +474,7 @@
   $('banSeg').onclick = e => {
     const b = e.target.closest('[data-b]'); if (!b || b.disabled) return;
     if (b.dataset.b === 'custom') { if (S.cfg.banSrc === 'folder' || /^(default|none)?$/.test(S.cfg.banner || '')) { S.cfg.banSrc = ''; $('banIn').click(); } else render(); }
-    else if (b.dataset.b === 'folder') { if (kit && kit.banner) { S.cfg.banner = kit.banner; S.cfg.banSrc = 'folder'; lbOpen = true; render(); } }
+    else if (b.dataset.b === 'folder') { const sl = kitBanSlots(); if (sl.length) { S.cfg.banner = sl[0].src; S.cfg.banSrc = 'folder'; lbOpen = true; render(); } }
     else { S.cfg.banner = 'default'; S.cfg.banSrc = ''; render(); }
   };
   $('banFit').onclick = e => { const b = e.target.closest('[data-f]'); if (b) { S.cfg.banFit = b.dataset.f; lbOpen = true; render(); } };
@@ -488,6 +495,10 @@
   // The merchant folder's brand kit (Merchant Folders → Brand kit), loaded with the folder.
   var kit = null, brandCands = [];
   var KIT_LOGOS = [['main', 'Main logo'], ['hero', 'Hero logo'], ['secondary', 'Secondary logo'], ['favicon', 'Favicon'], ['lock', 'Custom SI lock']];
+  // Banner: any brand-kit image (the banner first).
+  var KIT_BANS = [['banner', 'Banner'], ['hero', 'Hero logo'], ['main', 'Main logo'], ['secondary', 'Secondary logo'], ['lock', 'Custom SI lock'], ['favicon', 'Favicon']];
+  function kitBanSlots() { return kit && KIT_BANS ? KIT_BANS.filter(([k]) => kit[k]).map(([k, label]) => ({ k, label, src: kit[k] })) : []; }
+  $('banSlot').onchange = e => { const it = kitBanSlots().find(x => x.k === e.target.value); if (it) { S.cfg.banner = it.src; S.cfg.banSrc = 'folder'; lbOpen = true; render(); } };
   function kitSlots() { return kit && KIT_LOGOS ? KIT_LOGOS.filter(([k]) => kit[k]).map(([k, label]) => ({ k, label })) : []; }
   function useFolderLogo(k) {
     if (!kit || !kit[k]) return;

@@ -146,6 +146,29 @@
             align-items: center; justify-content: center; font-size: 0.7em; flex-shrink: 0;
         }
         .wtype-opt.active .wtype-cb::after { content: '✓'; }
+        /* Mockup first: the mockup is the main mode; the widget types are what you add to it. */
+        .wtype-main { font-size: 0.85em; padding: 8px 14px; }
+        .wtype-sub { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: -2px 0 10px; }
+        .wtype-sublbl { font-size: 0.68em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #8890b5; margin-right: 2px; }
+        .wtype-sub .wtype-opt::before { content: '＋'; font-weight: 800; }
+        .wtype-sub .wtype-opt .wtype-cb { display: none; }
+        .wtype-sub .wtype-opt.on { background: #eef0fb; border-color: #4a5fc1; color: #4a5fc1; }
+        .mk-wbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: #eef0fb; border: 1px solid #c9cff2; border-radius: 10px; padding: 8px 10px; margin: 10px 0 8px; font-size: 0.78em; color: #2a3050; }
+        .mk-wbar b { font-weight: 800; }
+        .mk-wbar .sp { flex: 1; }
+        .mk-wbar button { font-size: 0.95em; font-weight: 700; padding: 4px 9px; border-radius: 7px; border: 1px solid #c9cff2; background: #fff; color: #4a5fc1; cursor: pointer; }
+        .mk-whint { font-size: 0.74em; color: #6b7290; background: #f7f8fc; border: 1px dashed #c9cff2; border-radius: 8px; padding: 7px 9px; margin: 0 0 10px; }
+        /* A ShipInsure widget placed on a mockup page (scaled to its spot), and the page re-flowed under it. */
+        .mk-wid { position: absolute; z-index: 9; }
+        .mk-wid-in { transform-origin: 0 0; }
+        .mk-edit .mk-wid { cursor: move; }
+        .mk-edit .mk-wid .mk-wid-in { pointer-events: none; }
+        .mk-edit .mk-wid:hover { outline: calc(1.5px / var(--z)) dashed rgba(70,86,199,0.75); outline-offset: calc(2px / var(--z)); }
+        .mk-edit .mk-wid.sel { outline: calc(2px / var(--z)) solid #4656c7; outline-offset: calc(2px / var(--z)); }
+        .mk-wid-rz { position: absolute; right: calc(-8px / var(--z)); bottom: calc(-8px / var(--z)); width: calc(16px / var(--z)); height: calc(16px / var(--z)); border-radius: 50%; background: #4656c7; border: calc(2px / var(--z)) solid #fff; cursor: nwse-resize; }
+        .mk-wid-tag { position: absolute; left: 0; bottom: 100%; margin-bottom: calc(3px / var(--z)); font: 700 calc(11px / var(--z))/1 Inter, sans-serif; background: #4656c7; color: #fff; padding: calc(3px / var(--z)) calc(6px / var(--z)); border-radius: calc(4px / var(--z)); white-space: nowrap; }
+        .mk-col { position: absolute; overflow: hidden; z-index: 8; }
+        .mk-cin { position: absolute; }
 
         .wconfig-section { width: 100%; display: none; }
         .wconfig-section.active { display: block; }
@@ -884,19 +907,23 @@
         <div class="config-col">
             <div id="widgetPreviewSection" class="widget-preview-section">
                 <div class="wtype-row">
-                    <label class="wtype-opt active" id="wtype-dual" onclick="setWidgetType('dual')">
-                        <span class="wtype-cb"></span> Dual Checkout
-                    </label>
-                    <label class="wtype-opt" id="wtype-toggle" onclick="setWidgetType('toggle')">
-                        <span class="wtype-cb"></span> Cart Toggle / Checkbox
-                    </label>
-                    <label class="wtype-opt" id="wtype-extension" onclick="setWidgetType('extension')">
-                        <span class="wtype-cb"></span> Checkout Extension
-                    </label>
-                    <label class="wtype-opt" id="wtype-mockup" onclick="setWidgetType('mockup')">
-                        <span class="wtype-cb"></span> Cart + Checkout Mockup
+                    <label class="wtype-opt wtype-main active" id="wtype-mockup" onclick="setWidgetType('mockup')" title="Their cart / checkout: a screenshot of the live store, a Figma export or an image">
+                        <span class="wtype-cb"></span> 🖼 Cart + Checkout Mockup
                     </label>
                 </div>
+                <div class="wtype-sub">
+                    <span class="wtype-sublbl">Add ShipInsure</span>
+                    <label class="wtype-opt" id="wtype-dual" onclick="mkWidgetPick('dual')" title="On a cart screenshot: replaces their checkout button. Without one: the widget on its own.">
+                        <span class="wtype-cb"></span> Dual Checkout
+                    </label>
+                    <label class="wtype-opt" id="wtype-toggle" onclick="mkWidgetPick('toggle')" title="On a cart screenshot: goes right above their checkout button. Without one: the widget on its own.">
+                        <span class="wtype-cb"></span> Cart Toggle / Checkbox
+                    </label>
+                    <label class="wtype-opt" id="wtype-extension" onclick="mkWidgetPick('extension')" title="On a checkout screenshot: the Checkout Editor's ShipInsure block. Without one: the widget on its own.">
+                        <span class="wtype-cb"></span> Checkout Extension
+                    </label>
+                </div>
+                <div class="mk-whint" id="mkWHint" style="display:none;"></div>
                 <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:6px;">
                     <button class="scan-widget-btn" id="scanCartBtn" style="display:none;" onclick="openScanModal('cart')">🔍 Scan Cart</button>
                     <button class="scan-widget-btn" onclick="openScanModal()">🔍 Scan Widget</button>
@@ -1650,6 +1677,8 @@
                     </div>
                     <div id="mkFolderPick"></div>
                     <div id="mkStatus" class="mk2-status"></div>
+                    <div id="mkWBar"></div>
+                    <div id="mkWPanelSlot"></div>
                     <div class="mk-ec" id="mkEditCard">
                         <div class="mk-ec-hd"><b>✏️ Edit copy</b><span class="mk-ec-n" id="mkEcCount"></span></div>
                         <label class="mk2-chk"><input type="checkbox" id="mk-tags" checked onchange="mkRender()"> Show price tags</label>
@@ -1794,7 +1823,7 @@
 </div>
     <script>
         // ── Widget designer state (ported from ROI calc, ROI deps removed) ──
-        let _widgetType      = 'dual';   // 'dual' | 'toggle' | 'extension'
+        let _widgetType      = 'mockup';   // 'mockup' (the main mode) | 'dual' | 'toggle' | 'extension' (a widget on its own)
         let _dualLogoSrc     = null;
         let _toggleLogoSrc   = null;
         let _extLogoSrc      = null;
@@ -1988,13 +2017,9 @@
             // Editing a view and picking another widget type: that view keeps its design; the new type is a new (unlisted) view.
             if (!_mpLoading && !_mkReadOnly && _mpEdit != null && type !== _widgetType) { _mpCommit(); _mpEdit = null; }
             _widgetType = type;
+            if (type !== 'mockup') { _mkWEdit = null; _mkWSel = null; }
             document.body.classList.toggle('mk-mode', type === 'mockup');
-            ['dual', 'toggle', 'extension', 'mockup'].forEach(t => {
-                const wt = document.getElementById('wtype-' + t);
-                if (wt) wt.classList.toggle('active', t === type);
-                const wc = document.getElementById('wc-' + t);
-                if (wc) wc.classList.toggle('active', t === type);
-            });
+            _mkWPanels();
             updateWidgetPreview();
             if (!_mkReadOnly && typeof renderMerchantChips === 'function') renderMerchantChips();
         }
@@ -4656,10 +4681,13 @@ Return ONLY JSON — no markdown, no code fences:
             if (L) _coLays.set(pg, L); else _coLays.delete(pg);
             const btns = ed ? `<span class="mk2-pbtns">${!pg.texts.length ? `<button type="button" onclick="mkFindText(${pi})" title="Find the text on this image so it can be edited (uses the scan model)">🔎 Find text</button>` : ''}${_dfPhone(pg) ? '' : `<button type="button" onclick="mkMobCrop(${pi})" title="How this desktop page shows on a phone in the SI Interactive Demo">📱 Mobile crop${pg.mob ? ' ✓' : ''}</button>`}<button type="button" onclick="mkFullscreen(this)" title="Edit full-size">⤢ Full screen</button><button type="button" onclick="mkRemovePage(${pi})" title="Remove this page">✕</button></span>` : '';
             const cls = 'mk2-page' + (ed && _mkTool !== 'select' ? ' tool-' + _mkTool : '') + (ed && _mkOn('mk-tags') ? ' tags' : '');
+            const H = L ? L.H : pg.h;
+            const inner = (L ? _coPageHtml(pg, L) : `<img class="mk2-base" src="${pg.img}" alt="" draggable="false">`) +
+                `${pg.boxes.map(b => _mkCoverHtml(b, pg)).join('')}${pg.boxes.map(b => _mkBoxHtml(b, pi, ed)).join('')}${pg.texts.map(t => _mkTextHtml(t, pg, pi, ed)).join('')}<div class="mk2-icons">${pg.texts.map(t => _mkIconHtml(t, pg)).join('')}</div>${L ? _coInsHtml(L) : ''}`;
+            const wl = _mkWLayer(pg, pi, ed, inner, H);   // ShipInsure widgets placed on the page (and the page re-flowed under them)
             return `<div class="mk-flabel"><span>${_escHtml(pg.name || 'Page ' + (pi + 1))}</span>${btns}</div>` +
-                `<div class="mk-fit${ed ? ' mk-edit' : ''}"><div class="${cls}" data-p="${pi}" style="width:${pg.w}px;height:${L ? L.H : pg.h}px;">` +
-                (L ? _coPageHtml(pg, L) : `<img class="mk2-base" src="${pg.img}" alt="" draggable="false">`) +
-                `${pg.boxes.map(b => _mkCoverHtml(b, pg)).join('')}${pg.boxes.map(b => _mkBoxHtml(b, pi, ed)).join('')}${pg.texts.map(t => _mkTextHtml(t, pg, pi, ed)).join('')}<div class="mk2-icons">${pg.texts.map(t => _mkIconHtml(t, pg)).join('')}</div>${L ? _coInsHtml(L) : ''}${ed && _coTagAt && _coTagAt.p === pi ? `<div class="co-mark" style="left:${_coTagAt.x}px;top:${_coTagAt.y + (_coDy(pg, _coTagAt.x, _coTagAt.y) || 0)}px;width:${Math.max(_coTagAt.w, 30)}px;height:${Math.max(_coTagAt.h, 4)}px;"></div>` : ''}</div></div>`;
+                `<div class="mk-fit${ed ? ' mk-edit' : ''}"><div class="${cls}" data-p="${pi}" style="width:${pg.w}px;height:${H + wl.addH}px;">` + inner + wl.html +
+                `${ed && _coTagAt && _coTagAt.p === pi ? `<div class="co-mark" style="left:${_coTagAt.x}px;top:${_coTagAt.y + (_coDy(pg, _coTagAt.x, _coTagAt.y) || 0)}px;width:${Math.max(_coTagAt.w, 30)}px;height:${Math.max(_coTagAt.h, 4)}px;"></div>` : ''}</div></div>`;
         }
         function mkRender() {
             const area = document.getElementById('widgetPreviewArea');
@@ -4672,12 +4700,14 @@ Return ONLY JSON — no markdown, no code fences:
             area.style.background = ''; area.style.padding = ''; area.style.borderRadius = '';
             const ed = !_mkReadOnly;
             _mkLoadFonts();
+            _mkWCache = {};
             const pr = _mkLastPr = _mkPrice();
             if (_mk.pages.length) _mkApplyParts(pr);
             _coPlaced = new Set();
             area.innerHTML = _mk.pages.length ? _mk.pages.map((pg, pi) => _mkPageHtml(pg, pi, ed)).join('')
                 : (ed ? `<div class="mk2-empty"><b>Import this merchant's mockup to start.</b><br>Upload the Figma export (PDF, every page), an image or a store screenshot, pick it from the merchant's folder, or paste a Figma link.<br>Every text then becomes editable right here, and the ShipInsure price and totals follow the Pricing template.</div>` : '');
             mkFit(area);
+            _mkWBarRender();
             _mkFeeInfo(pr);
             _mkInspector();
             _mkPartsPanel();
@@ -4685,6 +4715,178 @@ Return ONLY JSON — no markdown, no code fences:
             const fi = document.getElementById('mk-font'); if (fi && document.activeElement !== fi) fi.value = _mk.font || '';
             if (_mk.pages.length) { _mkAfterRender(); _coDetectAll(); }
         }
+        // ── Add ShipInsure: widgets placed on the mockup ──
+        // pg.wid = [{ id, t: 'dual' | 'toggle', x, y, w, cover: {x,y,w,h,bg} | null, col: {x0,x1,bg}, push }]
+        // Dual Checkout covers the cart's own checkout button and takes its place; the toggle / checkbox goes
+        // right above it. The drawer's content below moves down to make room (the page re-flows). Each one
+        // is the widget designed in its own panel (colors, text, logo, pricing), priced on the mockup's cart.
+        // The Checkout Extension goes on a checkout screenshot through the Checkout Editor.
+        var _mkWEdit = null, _mkWSel = null, _mkWCache = {};
+        const MK_WNAME = { dual: 'Dual Checkout', toggle: 'Cart Toggle / Checkbox', extension: 'Checkout Extension' };
+        const _wHome = {};
+        function _mkWPanels() {
+            const slot = document.getElementById('mkWPanelSlot');
+            ['dual', 'toggle', 'extension', 'mockup'].forEach(t => {
+                const wc = document.getElementById('wc-' + t);
+                const inMk = _widgetType === 'mockup' && t === _mkWEdit && (t === 'dual' || t === 'toggle');
+                if (wc && t !== 'mockup') {
+                    if (!_wHome[t]) _wHome[t] = { parent: wc.parentNode, next: wc.nextSibling };
+                    if (inMk && slot && wc.parentNode !== slot) slot.appendChild(wc);
+                    else if (!inMk && slot && wc.parentNode === slot) _wHome[t].parent.insertBefore(wc, _wHome[t].next);
+                }
+                if (wc) wc.classList.toggle('active', t === _widgetType || inMk);
+                const wt = document.getElementById('wtype-' + t);
+                if (wt) { wt.classList.toggle('active', t === _widgetType); wt.classList.toggle('on', _widgetType === 'mockup' && t === _mkWEdit); }
+            });
+            const h = document.getElementById('mkWHint');
+            if (h) {
+                const solo = _widgetType !== 'mockup';
+                h.style.display = solo ? '' : 'none';
+                if (solo) h.innerHTML = `Showing the ${MK_WNAME[_widgetType] || 'widget'} on its own. <b>Add a screenshot of their ${_widgetType === 'extension' ? 'checkout' : 'cart'}</b> under 🖼 Cart + Checkout Mockup (or pick their mockup) to put it on their store.`;
+            }
+        }
+        async function mkWidgetPick(t) {
+            if (!_mk.pages.length) { setWidgetType(t); return; }   // no screenshot yet: the widget on its own, as before
+            if (_widgetType !== 'mockup') setWidgetType('mockup');
+            if (t === 'extension') return _mkWExt();
+            let pi = _mk.pages.findIndex(pg => (pg.wid || []).some(w => w.t === t));
+            if (pi < 0) {
+                pi = _mk.pages.findIndex(pg => !_dfIsCk(pg)); if (pi < 0) pi = 0;
+                const pg = _mk.pages[pi]; pg.wid = pg.wid || [];
+                pg.wid.push(await _mkWAuto(pg, t));
+            }
+            const w = _mk.pages[pi].wid.find(x => x.t === t);
+            _mkWEdit = t; _mkWSel = { p: pi, id: w.id };
+            _mkWPanels(); mkRender();
+            document.dispatchEvent(new Event('change'));
+            const el = document.querySelector(`#widgetPreviewArea .mk-wid[data-w="${w.id}"]`); if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        }
+        // Where it goes: on the cart's main checkout button (found from the page's text and pixels).
+        async function _mkWAuto(pg, t) {
+            let cv = null; try { cv = await _mkPageCanvas(pg); } catch (e) {}
+            const bs = _dfButtons(pg, cv).filter(o => o.prot !== '0').sort((a, b) => b.b.w * b.b.h - a.b.w * a.b.h);
+            const btn = bs[0];
+            let col = null;
+            try { const cut = _dfMobCut(pg, cv, false, pg.h, pg.texts), dr = cut && cut.strips.find(x => x.k === 'drawer'); if (dr) col = { x0: _mkR(dr.x), x1: _mkR(dr.x + dr.w) }; } catch (e) {}
+            const bgAt = (x, y) => { try { return cv ? _mkSample(cv, x, y, 2, 2).bg : '#ffffff'; } catch (e) { return '#ffffff'; } };
+            const id = _mkId('w');
+            if (btn) {
+                const b = btn.b;
+                if (!col || b.x < col.x0 - 4 || b.x + b.w > col.x1 + 4) col = { x0: _mkR(Math.max(0, b.x - 30)), x1: _mkR(Math.min(pg.w, b.x + b.w + 30)) };
+                col.bg = bgAt(Math.max(col.x0 + 2, b.x - 8), b.y + b.h / 2);
+                // A ShipInsure widget already in the screenshot (its protection line, widget text, the "without
+                // protection" button) goes too: the new one takes the whole spot.
+                const near = r => r.x + r.w > col.x0 && r.x < col.x1 && r.y > b.y - 170 && r.y < b.y + b.h + 130;
+                const si = pg.texts.filter(x => !x.add && (['hdr', 'body', 'disc', 'b1', 'b2'].includes(x.part) || x.role === 'fee') && near(x)).map(x => ({ x: x.x - 4, y: x.y - 6, w: x.w + 8, h: x.h + 12 }));
+                const others = _dfButtons(pg, cv).map(o => o.b).filter(r => r !== b && near(r) && (r.y >= b.y - 4));
+                const U = [{ x: b.x, y: b.y, w: b.w, h: b.h }].concat(si, others), ux0 = Math.min(...U.map(r => r.x)), uy0 = Math.min(...U.map(r => r.y));
+                const reg = { x: ux0, y: uy0, w: Math.max(...U.map(r => r.x + r.w)) - ux0, h: Math.max(...U.map(r => r.y + r.h)) - uy0 };
+                if (t === 'dual') return { id, t, x: _mkR(b.x), y: _mkR(reg.y + 2), w: _mkR(b.w), cover: { x: _mkR(Math.max(col.x0, reg.x - 2)), y: _mkR(reg.y - 2), w: _mkR(Math.min(col.x1, reg.x + reg.w + 2) - Math.max(col.x0, reg.x - 2)), h: _mkR(reg.h + 4), bg: col.bg }, col, push: true };
+                const siTop = si.length ? { x: Math.min(...si.map(r => r.x)), y: Math.min(...si.map(r => r.y)) } : null;
+                if (siTop && siTop.y < b.y) {   // an old widget above the button: the toggle takes its spot
+                    const sb = Math.max(...si.filter(r => r.y < b.y).map(r => r.y + r.h));
+                    return { id, t, x: _mkR(b.x), y: _mkR(siTop.y), w: _mkR(b.w), cover: { x: _mkR(Math.max(col.x0, Math.min(siTop.x, b.x) - 2)), y: _mkR(siTop.y - 2), w: _mkR(Math.min(col.x1, b.x + b.w + 4) - Math.max(col.x0, Math.min(siTop.x, b.x) - 2)), h: _mkR(Math.min(b.y - 2, sb + 2) - siTop.y + 2), bg: col.bg }, col, push: true, above: true };
+                }
+                return { id, t, x: _mkR(b.x), y: _mkR(b.y - 10), w: _mkR(b.w), cover: null, col, push: true };
+            }
+            if (!col) col = { x0: _mkR(pg.w * 0.25), x1: _mkR(pg.w * 0.75) };
+            col.bg = bgAt((col.x0 + col.x1) / 2, pg.h * 0.6);
+            const w = Math.min(col.x1 - col.x0 - 40, 420);
+            return { id, t, x: _mkR(col.x0 + (col.x1 - col.x0 - w) / 2), y: _mkR(pg.h * 0.6), w: _mkR(w), cover: null, col, push: true };
+        }
+        // The widget as its own panel designs it, priced on the mockup's cart: drawn by updateWidgetPreview
+        // into a scratch area for a moment (the real preview area and its cards are put back after).
+        function _mkWRender(t) {
+            const M = _mkLastPr && _mkLastPr.M, key = t + '|' + (M == null ? '' : M);
+            if (_mkWCache[key]) return _mkWCache[key];
+            const ids = ['widgetPreviewArea', 'lineItemPreviewArea'], real = ids.map(i => document.getElementById(i));
+            const scratch = ids.map(() => { const d = document.createElement('div'); d.style.cssText = 'position:absolute;left:-10000px;top:0;width:400px;'; return d; });
+            const keepT = _widgetType, inl = document.getElementById('showWidgetInline'), inlOn = !!(inl && inl.checked);
+            const aovEl = document.getElementById('avgOrderValue'), aov0 = aovEl ? aovEl.value : '';
+            const ui = ['previewTitle', 'lineItemCard', 'widgetPreviewCard', 'scanCartBtn'].map(i => document.getElementById(i)).filter(Boolean).map(e => [e, e.style.display, e.id === 'previewTitle' ? e.textContent : null]);
+            real.forEach((e, i) => { if (e) e.id = ids[i] + '__mk'; });
+            scratch.forEach((d, i) => { d.id = ids[i]; document.body.appendChild(d); });
+            let out = { html: '', w0: 400, h0: 120 };
+            try {
+                _widgetType = t; if (inl) inl.checked = false;
+                if (aovEl && M != null && M > 0) aovEl.value = M.toFixed(2);
+                updateWidgetPreview();
+                const el = scratch[0].firstElementChild, rw = el ? el.getBoundingClientRect().width : 0;
+                out = { html: scratch[0].innerHTML, w0: Math.round(rw >= 160 ? Math.min(400, rw) : 400), h0: Math.max(30, Math.round(scratch[0].getBoundingClientRect().height)) };
+                if (out.w0 < 400 && el) { scratch[0].style.width = out.w0 + 'px'; out.h0 = Math.max(30, Math.round(scratch[0].getBoundingClientRect().height)); }
+            } catch (e) {}
+            finally {
+                _widgetType = keepT; if (inl) inl.checked = inlOn; if (aovEl) aovEl.value = aov0;
+                scratch.forEach(d => d.remove()); real.forEach((e, i) => { if (e) e.id = ids[i]; });
+                ui.forEach(([e, d, tx]) => { e.style.display = d; if (tx != null) e.textContent = tx; });
+            }
+            return (_mkWCache[key] = out);
+        }
+        // The page's widgets: each scaled to its spot; the first one re-flows the drawer (its column below the
+        // spot is drawn again, moved down by the widget's height). flow = the SI Interactive Demo (clickable).
+        function _mkWLayer(pg, pi, ed, inner, H, flow) {
+            const ws = (pg.wid || []).filter(w => w && (w.t === 'dual' || w.t === 'toggle'));
+            let html = '', addH = 0, shift = null;
+            ws.forEach(w => {
+                const r = _mkWRender(w.t); if (!r.html) return;
+                const k = w.w / r.w0, h = r.h0 * k, body = flow ? _dfWidgetFlow(r.html, w.t) : r.html;
+                // Takes a spot (covers it: Dual Checkout on the checkout buttons, or an old widget) or slots in above the button.
+                const spot = !!w.cover && (w.t === 'dual' || w.above);
+                let top = spot ? w.y : w.y + 6;
+                if (w.push !== false && !shift) {
+                    const Yi = spot ? w.cover.y + w.cover.h : w.y, G = spot ? h - w.cover.h + 8 : h + 14, c = w.col || { x0: 0, x1: pg.w };
+                    if (Math.abs(G) > 1) {
+                        // Room for it: the column below moves down by G (or up, when it's shorter than what it replaced).
+                        html += (G > 0 ? `<div class="mk2-cover" style="z-index:8;left:${_mkR(c.x0)}px;top:${_mkR(Yi)}px;width:${_mkR(c.x1 - c.x0)}px;height:${_mkR(G)}px;background:${c.bg || '#ffffff'};"></div>` : '') +
+                            `<div class="mk-col" style="left:${_mkR(c.x0)}px;top:${_mkR(Yi + G)}px;width:${_mkR(c.x1 - c.x0)}px;height:${_mkR(H - Yi)}px;"><div class="mk-cin" style="left:${-_mkR(c.x0)}px;top:${-_mkR(Yi)}px;width:${pg.w}px;height:${H}px;">${inner}</div></div>`;
+                        addH = G; shift = { x0: c.x0, x1: c.x1, y: Yi, g: G };
+                    }
+                }
+                const cv = w.cover ? `<div class="mk2-cover" style="z-index:8;left:${w.cover.x}px;top:${w.cover.y}px;width:${w.cover.w}px;height:${w.cover.h}px;background:${w.cover.bg || (w.col || {}).bg || '#ffffff'};"></div>` : '';
+                const sel = ed && _mkWSel && _mkWSel.p === pi && _mkWSel.id === w.id;
+                html += cv + `<div class="mk-wid${sel ? ' sel' : ''}" data-w="${w.id}" style="left:${_mkR(w.x)}px;top:${_mkR(top)}px;width:${_mkR(w.w)}px;height:${_mkR(h)}px;">` +
+                    `<div class="mk-wid-in" style="width:${r.w0}px;transform:scale(${k});">${body}</div>` + (sel ? `<span class="mk-wid-tag">${MK_WNAME[w.t]}</span><i class="mk-wid-rz"></i>` : '') + '</div>';
+            });
+            return { html, addH, shift };
+        }
+        function _mkWFind(id) { for (let p = 0; p < _mk.pages.length; p++) { const pg = _mk.pages[p], i = (pg.wid || []).findIndex(w => w.id === id); if (i >= 0) return { pg, p, i, w: pg.wid[i] }; } return null; }
+        function _mkWBarRender() {
+            const el = document.getElementById('mkWBar'); if (!el) return;
+            const w = _mkWSel && _mkWFind(_mkWSel.id);
+            if (_widgetType !== 'mockup' || !_mkWEdit || _mkWEdit === 'extension' || !w) { el.innerHTML = ''; return; }
+            el.innerHTML = `<div class="mk-wbar"><b>${MK_WNAME[w.w.t]}</b><span>on “${_escHtml(w.pg.name || 'Page ' + (w.p + 1))}” · drag it on the page, ◢ resizes · its design is below</span><span class="sp"></span>` +
+                `<button type="button" onclick="mkWAuto('${w.w.id}')" title="Put it back on their checkout button">↺ Snap to button</button>` +
+                `<button type="button" onclick="mkWRemove('${w.w.id}')" title="Take it off the screenshot">✕ Remove</button><button type="button" onclick="mkWDone()">Done</button></div>`;
+        }
+        async function mkWAuto(id) { const f = _mkWFind(id); if (!f) return; const n = await _mkWAuto(f.pg, f.w.t); Object.assign(f.w, n, { id: f.w.id }); mkRender(); document.dispatchEvent(new Event('change')); }
+        function mkWRemove(id) { const f = _mkWFind(id); if (!f) return; f.pg.wid.splice(f.i, 1); _mkWSel = null; _mkWEdit = null; _mkWPanels(); mkRender(); document.dispatchEvent(new Event('change')); }
+        function mkWDone() { _mkWEdit = null; _mkWSel = null; _mkWPanels(); mkRender(); }
+        // Checkout Extension on a checkout screenshot: the Checkout Editor's ShipInsure block (and its order
+        // line), its text and logo taken from the Checkout Extension design.
+        function _mkWExt() {
+            const pi = _mk.pages.findIndex(pg => _dfIsCk(pg));
+            if (pi < 0) { _mkStatus('Add a screenshot of their checkout (Contact / Delivery / Payment) to put the Checkout Extension on it.', 'warn'); return; }
+            const co = _coEnsure(); co.page = 'checkout';
+            if (_coBlocked('checkout')) { _mkStatus('This merchant isn’t on Shopify Plus, so the Checkout Extension can’t go on the checkout page (Checkout Editor → Plus).', 'warn'); }
+            // The block goes in the checkout's own spot when the screenshot shows it (after Payment), else the
+            // nearest section it does show (a screenshot cut off above Payment still gets it).
+            const A = _coAnchors(_mk.pages[pi]), shows = id => (CO_AT[id] || []).some(([, k]) => A[k]);
+            const prefer = ['pay.after', 'pay.before', 'ship.after', 'ship.before', 'addr.after', 'addr.before', 'contact', 'main.top'];
+            const ppNow = _coPP('checkout'), ppAt = ppNow && _coFind(ppNow.id);
+            if (ppAt && !shows(ppAt.slot.id)) coRemove(ppNow.id);
+            if (!_coUsed('checkout').has('si-pp')) {
+                const slot = prefer.map(id => _coSlots('checkout').find(x => x.id === id)).find(x => x && shows(x.id) && _coAllowed(_coBlock('si-pp'), x, 'checkout'));
+                if (slot) coAdd(slot.id, 'si-pp'); else coAddHome('si-pp');
+            }
+            if (!_coUsed('checkout').has('si-line')) coAddHome('si-line');
+            const pp = _coPP('checkout'), gv = id => ((document.getElementById(id) || {}).value || '').trim();
+            if (pp) { pp.set.hdr = pp.set.hdr || gv('wc-ext-header'); pp.set.sub = pp.set.sub || gv('wc-ext-body'); if (!pp.set.img && _extLogoSrc) pp.set.img = _extLogoSrc; _coSel = pp.id; }
+            _mkWEdit = 'extension'; _mkWSel = null; _coOpen = true;
+            const mm = document.getElementById('mkMore'); if (mm) mm.open = true;
+            _mkWPanels(); mkRender(); document.dispatchEvent(new Event('change'));
+            const pe = document.querySelector(`#widgetPreviewArea .mk2-page[data-p="${pi}"]`); if (pe) pe.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        }
+
         // Pricing select / premium in the Edit copy panel mirror the control bar's.
         function mkProxy(el) {
             const t = document.getElementById(el.dataset.proxy); if (!t) return;
@@ -5044,6 +5246,28 @@ Return ONLY JSON — no markdown, no code fences:
                 mkRender();
                 const el = document.querySelector(`#widgetPreviewArea .mk2-page[data-p="${pi}"] .mk2-t[data-t="${t.id}"]`);
                 if (el) { el.focus(); const rg = document.createRange(); rg.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(rg); }
+                return;
+            }
+            // A placed ShipInsure widget: select it (its design panel opens), drag to move, ◢ to resize.
+            const we = e.target.closest('.mk-wid');
+            if (we && _mkTool === 'select') {
+                e.preventDefault();
+                const w = (pg.wid || []).find(x => x.id === we.dataset.w); if (!w) return;
+                if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+                const r0 = pe.getBoundingClientRect(), zs = r0.width / pg.w, start = { x: w.x, y: w.y, w: w.w, l: parseFloat(we.style.left), t: parseFloat(we.style.top), h: parseFloat(we.style.height) }, rz = !!e.target.closest('.mk-wid-rz');
+                const sx = e.clientX, sy = e.clientY;
+                const was = _mkWSel && _mkWSel.id === w.id;
+                _mkWSel = { p: pi, id: w.id };
+                if (_mkWEdit !== w.t) { _mkWEdit = w.t; _mkWPanels(); }
+                let moved = false;
+                drag(ev => {
+                    const dx = (ev.clientX - sx) / zs, dy = (ev.clientY - sy) / zs;
+                    if (!moved && Math.hypot(dx, dy) < 2) return;
+                    moved = true;
+                    if (rz) { w.w = _mkR(Math.max(80, start.w + dx)); we.style.width = w.w + 'px'; we.style.height = (start.h * w.w / start.w) + 'px'; const inn = we.querySelector('.mk-wid-in'); if (inn) inn.style.transform = `scale(${w.w / parseFloat(inn.style.width)})`; }
+                    else { w.x = _mkR(start.x + dx); w.y = _mkR(start.y + dy); we.style.left = (start.l + dx) + 'px'; we.style.top = (start.t + dy) + 'px'; }
+                }, () => { mkRender(); if (moved) document.dispatchEvent(new Event('change')); });
+                if (!was) { document.querySelectorAll('#widgetPreviewArea .mk-wid.sel').forEach(x => x.classList.remove('sel')); we.classList.add('sel'); _mkWBarRender(); }
                 return;
             }
             // Select tool: a box (move / resize), an added text (drag, or click to type), else deselect.
@@ -6485,7 +6709,7 @@ Return ONLY JSON — no markdown, no code fences:
             steps.forEach(s => { const key = s.ck ? 'k' : 'c', j = ++n[key]; s.label = (s.ck ? 'Checkout' : 'Cart') + (tot[key] > 1 && j > 1 ? ` (${j})` : ''); });
             DF.steps = steps;
             // Does any screen have an ⓘ that opens the lightbox? (the demo keeps its own lightbox step if not)
-            DF.hasInfo = steps.some(s => s.k === 'mk' ? s.pg.texts.some(t => t.ic && !t.wrap && (t.role === 'fee' || t.part || MK_SI_TXT.test(t.o || t.t))) : true);
+            DF.hasInfo = steps.some(s => s.k === 'mk' ? (s.pg.wid || []).length > 0 || s.pg.texts.some(t => t.ic && !t.wrap && (t.role === 'fee' || t.part || MK_SI_TXT.test(t.o || t.t))) : true);
         }
         function renderDemoFlow(examples, name) {
             _mkReadOnly = true;
@@ -6542,6 +6766,7 @@ Return ONLY JSON — no markdown, no code fences:
         function _dfPaintSoon() { cancelAnimationFrame(DF.t); DF.t = requestAnimationFrame(() => { if (DF.on && DF.shown) _dfPaint(); }); }
         function _dfPaint() {
             const st = document.getElementById('dfStage'), s = DF.steps[DF.i]; if (!st || !s) return;
+            _mkWCache = {};
             st.innerHTML = s.k === 'mk' ? _dfMkHtml(s) : s.k === 'cart' ? _dfCartHtml(s) : _dfCoHtml(s);
             mkFit(st); _dfFitStrips(st);
             s.meta = {
@@ -6707,10 +6932,16 @@ Return ONLY JSON — no markdown, no code fences:
                     `<div class="mk2-cover" style="z-index:8;left:${_mkR(col.x0)}px;top:${_mkR(H - col.band)}px;width:${_mkR(col.x1 - col.x0)}px;height:${_mkR(col.band)}px;background:${col.bg};"></div>`;
                 else col.band = 0;
             }
-            const page = `<div class="mk2-page" data-p="${pi}" style="width:${pg.w}px;height:${H}px;">` + inner + colHtml + '</div>';
+            // ShipInsure widgets placed on the page (Add ShipInsure), clickable here; the page re-flows under them.
+            const wl = _mkWLayer(pg, pi, false, inner, H, true);
+            const page = `<div class="mk2-page" data-p="${pi}" style="width:${pg.w}px;height:${H + wl.addH}px;">` + inner + wl.html + colHtml + '</div>';
             // A desktop page on a phone: cut into the strips a phone would show (see _dfMobCut).
             if (DF.dev === 'm' && !_dfPhone(pg)) {
-                const cut = _dfMobCut(pg, cv, !!s.ck, H, T);
+                const cut = _dfMobCut(pg, cv, !!s.ck, H + wl.addH, T);
+                if (cut && wl.shift) cut.strips.forEach(c => {   // the re-flowed column: what's below the widget moved down
+                    if (c.x + c.w <= wl.shift.x0 + 4 || c.x >= wl.shift.x1 - 4) return;
+                    if (c.y >= wl.shift.y) c.y += wl.shift.g; else if (c.y + c.h > wl.shift.y) c.h += wl.shift.g;
+                });
                 if (cut) {
                     // The closed-up column is shorter by the line it lost.
                     if (col && col.band) cut.strips.forEach(c => { if ((c.k === 'sum' || c.k === 'drawer') && c.x >= col.x0 - 8 && c.x + c.w <= col.x1 + 8 && col.Y0 >= c.y && col.Y0 < c.y + c.h) c.h = Math.max(40, c.h - col.band); });
@@ -7000,6 +7231,21 @@ Return ONLY JSON — no markdown, no code fences:
             if (sw) { sw.style.background = '#c9ccd6'; const k = sw.firstElementChild; if (k) { k.style.right = ''; k.style.left = '2px'; } return; }
             const cb = root.querySelector('div[style^="width:20px;height:20px"], div[style^="width:18px;height:18px"]');
             if (cb) { cb.style.background = 'transparent'; const c = cb.querySelector('span'); if (c) c.style.visibility = 'hidden'; }
+        }
+        // A widget placed on a mockup, made clickable: Dual Checkout's buttons check out (with / without
+        // protection), the toggle / checkbox row turns protection off and on.
+        function _dfWidgetFlow(html, t) {
+            const w = _dfFrag(html);
+            if (t === 'toggle') {
+                const r = w.querySelector('.wp-toggle-row'); if (r) { r.dataset.df = 'tog'; r.style.cursor = 'pointer'; }
+                if (!DF.prot) _dfCtlOff(w);
+            } else {
+                const b = w.querySelector('button');
+                if (b) { b.dataset.df = 'go'; b.dataset.prot = MK_BTN2_RE.test(b.textContent) ? '0' : '1'; b.style.cursor = 'pointer'; }
+                [...w.querySelectorAll('button, div, a')].filter(x => x !== b && !x.dataset.df && MK_BTN2_RE.test(x.textContent) && ![...x.children].some(c => MK_BTN2_RE.test(c.textContent)))
+                    .forEach(x => { x.dataset.df = 'go'; x.dataset.prot = '0'; x.style.cursor = 'pointer'; });
+            }
+            return w.innerHTML;
         }
         function _dfFrag(html) { const d = document.createElement('div'); d.innerHTML = html; return d; }
         function _dfHead(sub) { return `<header class="df-hd"><b>${_escHtml(DF.name || 'Your Store')}</b><span>${sub}</span></header>`; }
