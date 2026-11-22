@@ -6684,23 +6684,71 @@ Return ONLY JSON — no markdown, no code fences:
             if (L) _coLays.set(pg, L); else _coLays.delete(pg);
             const at = (x, y) => _coDy(pg, x, y), lines = _dfLines(pg, cv);
             const gone = DF.prot ? [] : lines;   // taken out: covered, its texts and ⓘ hidden
-            const T = pg.texts.filter(t => !gone.some(o => _dfIn(o, t.x + t.w / 2, t.y + t.h / 2)));
+            // Taken out: its texts go, and "Subtotal · 2 items" counts one fewer.
+            const T = pg.texts.filter(t => !gone.some(o => _dfIn(o, t.x + t.w / 2, t.y + t.h / 2)))
+                .map(t => gone.length && /\b\d+\s+items?\b/i.test(t.t) ? Object.assign({}, t, { t: t.t.replace(/\b(\d+)(\s+)items?\b/i, (m, n, sp) => { const v = Math.max(1, +n - gone.length); return v + sp + (v === 1 ? 'item' : 'items'); }) }) : t);
             const hot = (b, attrs, cls) => { const dy = at(b.x + b.w / 2, b.y + b.h / 2); return dy === null ? '' : `<button type="button" class="df-hot${cls ? ' ' + cls : ''}" ${attrs} style="left:${_mkR(b.x)}px;top:${_mkR(b.y + dy)}px;width:${_mkR(b.w)}px;height:${_mkR(b.h)}px;"></button>`; };
             let hots = _dfButtons(pg, cv).map(o => hot(o.b, `data-df="go"${o.prot ? ` data-prot="${o.prot}"` : ''} aria-label="Continue"`, o.pulse ? 'pulse' : '')).join('');
             if (DF.prot) lines.forEach(o => { const r = o.r; if (r) hots += hot({ x: r.x - 6, y: r.y - r.h * 0.5, w: r.w + 12, h: r.h * 2 }, 'data-df="rm" aria-label="Remove ShipInsure"', 'pulse rm'); });
             const covers = gone.map(o => { const dy = at(o.x + o.w / 2, o.y + 1); return dy === null ? '' : `<div class="mk2-cover df-gone" style="left:${o.x}px;top:${o.y + dy}px;width:${o.w}px;height:${o.h}px;background:${o.bg};"></div>`; }).join('');
             const narrow = _dfPhone(pg) && innerWidth > 700, H = L ? L.H : pg.h;
-            const page = `<div class="mk2-page" data-p="${pi}" style="width:${pg.w}px;height:${H}px;">` +
-                (L ? _coPageHtml(pg, L) : `<img class="mk2-base" src="${pg.img}" alt="" draggable="false">`) +
+            const inner = (L ? _coPageHtml(pg, L) : `<img class="mk2-base" src="${pg.img}" alt="" draggable="false">`) +
                 (pg.boxes || []).map(b => _mkCoverHtml(b, pg)).join('') + (pg.boxes || []).map(b => _mkBoxHtml(b, pi, false)).join('') + covers +
                 T.map(t => _mkTextHtml(t, pg, pi, false)).join('') + `<div class="mk2-icons">${T.map(t => _mkIconHtml(t, pg)).join('')}</div>` +
-                (L ? _coInsHtml(L) : '') + hots + '</div>';
+                (L ? _coInsHtml(L) : '') + hots;
+            // ShipInsure taken out: its column closes up (what's below the line moves up into its place).
+            const col = gone.length ? _dfCollapse(pg, cv, gone[0], !!s.ck, H, T) : null;
+            let colHtml = '';
+            if (col) {
+                const mx = (col.x0 + col.x1) / 2, d0 = at(mx, col.y0), d1 = at(mx, col.y1);
+                col.Y0 = col.y0 + (d0 || 0); col.Y1 = col.y1 + (d1 == null ? (d0 || 0) : d1); col.band = col.Y1 - col.Y0;
+                if (col.band > 2) colHtml = `<div class="df-col" style="left:${_mkR(col.x0)}px;top:${_mkR(col.Y0)}px;width:${_mkR(col.x1 - col.x0)}px;height:${_mkR(H - col.Y1)}px;">` +
+                    `<div class="df-cin" style="left:${-_mkR(col.x0)}px;top:${-_mkR(col.Y1)}px;width:${pg.w}px;height:${H}px;">${inner}</div></div>` +
+                    `<div class="mk2-cover" style="z-index:8;left:${_mkR(col.x0)}px;top:${_mkR(H - col.band)}px;width:${_mkR(col.x1 - col.x0)}px;height:${_mkR(col.band)}px;background:${col.bg};"></div>`;
+                else col.band = 0;
+            }
+            const page = `<div class="mk2-page" data-p="${pi}" style="width:${pg.w}px;height:${H}px;">` + inner + colHtml + '</div>';
             // A desktop page on a phone: cut into the strips a phone would show (see _dfMobCut).
             if (DF.dev === 'm' && !_dfPhone(pg)) {
                 const cut = _dfMobCut(pg, cv, !!s.ck, H, T);
-                if (cut) return _dfStripsHtml(cut, page, pg, T);
+                if (cut) {
+                    // The closed-up column is shorter by the line it lost.
+                    if (col && col.band) cut.strips.forEach(c => { if ((c.k === 'sum' || c.k === 'drawer') && c.x >= col.x0 - 8 && c.x + c.w <= col.x1 + 8 && col.Y0 >= c.y && col.Y0 < c.y + c.h) c.h = Math.max(40, c.h - col.band); });
+                    return _dfStripsHtml(cut, page, pg, T);
+                }
             }
             return `<div class="mk-fit df-fit"${narrow ? ' style="max-width:480px"' : ''}>${page}</div>`;
+        }
+
+        // ── Closing up after Remove: the column the ShipInsure line sat in (the order summary, the cart
+        // drawer) and the band to take out: the line plus the gap under it, so the next row lands where
+        // the line was (as the real checkout re-flows) ──
+        function _dfCollapse(pg, cv, o, ck, H, T) {
+            let x0, x1;
+            const cut = _dfMobCut(pg, cv, ck, H, T), c = cut && cut.strips.find(x => ck ? x.k === 'sum' : x.k === 'drawer');
+            if (c && o.x >= c.x - 8 && o.x + o.w <= c.x + c.w + 8) { x0 = c.x; x1 = c.x + c.w; }
+            else { x0 = Math.max(0, o.x - 24); x1 = Math.min(pg.w, o.x + o.w + 24); }
+            let y0 = o.y, y1 = o.y + o.h, bg = o.bg || '#ffffff';
+            if (cv) {
+                try {
+                    const k = cv.k, X0 = Math.max(0, Math.round((x0 + 6) * k)), X1 = Math.min(cv.ctx.canvas.width, Math.round((x1 - 6) * k));
+                    const busy = y => {
+                        const Y = Math.max(0, Math.min(cv.ctx.canvas.height - 1, Math.round(y * k))), d = cv.ctx.getImageData(X0, Y, Math.max(1, X1 - X0), 1).data, n = d.length / 4;
+                        let r = 0, g = 0, b = 0; for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i + 1]; b += d[i + 2]; }
+                        r /= n; g /= n; b /= n; let dev = 0;
+                        for (let i = 0; i < d.length; i += 4) { const v = Math.abs(d[i] - r) + Math.abs(d[i + 1] - g) + Math.abs(d[i + 2] - b); if (v > dev) dev = v; }
+                        return dev > 24;
+                    };
+                    let prev = null, next = null;
+                    for (let y = o.y - 1; y > Math.max(0, o.y - 140); y--) if (busy(y)) { prev = y; break; }
+                    for (let y = o.y + o.h + 1; y < Math.min(pg.h, o.y + o.h + 180); y++) if (busy(y)) { next = y; break; }
+                    // Same spacing above the next row as there was above the line.
+                    if (next != null) y1 = Math.max(y1, next - (prev != null ? Math.max(0, o.y - prev - 1) : 0));
+                    const bottom = cv.ctx.getImageData(Math.round((x0 + x1) / 2 * k), Math.min(cv.ctx.canvas.height - 1, Math.round((pg.h - 3) * k)), 1, 1).data;
+                    bg = '#' + [0, 1, 2].map(i => bottom[i].toString(16).padStart(2, '0')).join('');
+                } catch (e) {}
+            }
+            return y1 - y0 > 4 ? { x0, x1, y0, y1, bg } : null;
         }
 
         // ── Mobile cut: a desktop mockup page shown the way a phone lays it out ──
@@ -7006,6 +7054,8 @@ Return ONLY JSON — no markdown, no code fences:
                 .df-hot.rm.pulse::after { animation-delay:1.2s; }
                 @keyframes dfPulse { 0% { opacity:.9; } 70%, 100% { opacity:0; } }
                 .mk2-cover.df-gone { z-index:2; }
+                .df-col { position:absolute; overflow:hidden; z-index:8; }
+                .df-cin { position:absolute; }
                 .df-mob { width:100%; background:#fff; }
                 .df-strip { position:relative; overflow:hidden; }
                 .df-sin { position:absolute; left:0; top:0; }
