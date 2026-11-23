@@ -727,6 +727,7 @@
         /* ⓘ in a mockup (merchant link / demo): a hotspot that opens the lightbox */
         .mk2-hot { position: absolute; z-index: 6; pointer-events: auto; cursor: pointer; border-radius: 50%; }
         .mk2-hot::after { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 2px solid #6675ff; opacity: 0; animation: mkHot 2.4s ease-out infinite; }
+        .mk2-hot.wide, .mk2-hot.wide::after { border-radius: calc(6px / var(--z, 1)); }
         @keyframes mkHot { 0% { transform: scale(.6); opacity: .85; } 70%, 100% { transform: scale(1.35); opacity: 0; } }
         .wp-info-btn, .wp-leaf-icon { cursor: pointer; }
 
@@ -3790,8 +3791,20 @@ For uncertain values make your best visual estimate. Always use valid hex colors
         }
         // Merchant link / demo: the ⓘ beside a ShipInsure text opens the info lightbox.
         const MK_SI_TXT = /protect|shipinsure|insur|guarantee|loss|damage|theft|coverage|green|carbon/i;
+        // The ShipInsure widget's header (or the protection line beside its price) when the ⓘ beside it wasn't
+        // found on the image: it still opens the lightbox, from the text and the spot after it.
+        function _mkSiInfoText(t, pg) {
+            if (t.wrap || t.add || !_mkPlain(t.t).trim()) return false;
+            if (t.part === 'hdr') return true;
+            const cy = t.y + t.h / 2;
+            return MK_SI_TXT.test(t.o || t.t) && !t.role && pg.texts.some(u => u.role === 'fee' && Math.abs((u.y + u.h / 2) - cy) < Math.max(u.h, t.h));
+        }
         function _mkIconHtml(t, pg) {
             const h = _mkIconHtml0(t, pg), ic = t.ic;
+            if (_mkReadOnly && !ic && _mkSiInfoText(t, pg) && !pg.texts.some(u => u !== t && u.ic && _mkSiInfoText(u, pg))) {
+                const em = Math.max(t.h, (t.sz || t.h) * 0.75), pad = Math.max(4, em * 0.4), dy = _coDy(pg, t.x, t.y); if (dy === null) return h;
+                return h + `<span class="mk2-hot wide" data-si-info title="What's covered?" style="left:${_mkR(t.x - pad)}px;top:${_mkR(t.y + dy - pad)}px;width:${_mkR(t.w + em * 2.4 + pad)}px;height:${_mkR(t.h + 2 * pad)}px;"></span>`;
+            }
             if (!_mkReadOnly || !ic || t.wrap || !_mkPlain(t.t).trim() || !(t.role === 'fee' || t.part || MK_SI_TXT.test(t.o || t.t))) return h;
             const num = v => +v || 0, m = h.match(/class="mk2-ic" style="left:([\d.-]+)px/);
             const idy = _coDy(pg, num(ic.x), num(ic.y)); if (idy === null) return h;
@@ -6709,7 +6722,7 @@ Return ONLY JSON — no markdown, no code fences:
             steps.forEach(s => { const key = s.ck ? 'k' : 'c', j = ++n[key]; s.label = (s.ck ? 'Checkout' : 'Cart') + (tot[key] > 1 && j > 1 ? ` (${j})` : ''); });
             DF.steps = steps;
             // Does any screen have an ⓘ that opens the lightbox? (the demo keeps its own lightbox step if not)
-            DF.hasInfo = steps.some(s => s.k === 'mk' ? (s.pg.wid || []).length > 0 || s.pg.texts.some(t => t.ic && !t.wrap && (t.role === 'fee' || t.part || MK_SI_TXT.test(t.o || t.t))) : true);
+            DF.hasInfo = steps.some(s => s.k === 'mk' ? (s.pg.wid || []).length > 0 || s.pg.texts.some(t => (t.ic && !t.wrap && (t.role === 'fee' || t.part || MK_SI_TXT.test(t.o || t.t))) || _mkSiInfoText(t, s.pg)) : true);
         }
         function renderDemoFlow(examples, name) {
             _mkReadOnly = true;
