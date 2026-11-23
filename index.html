@@ -508,8 +508,8 @@
         .mk-edit .mk2-b:hover { outline: calc(1.5px / var(--z)) dashed rgba(70,86,199,0.75); }
         .mk-edit .mk2-b.sel { outline: calc(2px / var(--z)) solid #4656c7; }
         .mk2-rz { position: absolute; right: calc(-7px / var(--z)); bottom: calc(-7px / var(--z)); width: calc(14px / var(--z)); height: calc(14px / var(--z)); box-sizing: border-box; background: #4656c7; border: calc(2px / var(--z)) solid #fff; border-radius: 50%; cursor: nwse-resize; }
-        .mk2-page.tool-box, .mk2-page.tool-image, .mk2-page.tool-text, .mk2-page.tool-lift, .mk2-page.tool-tag { cursor: crosshair; }
-        .mk2-page:is(.tool-box, .tool-image, .tool-text, .tool-lift, .tool-tag) :is(.mk2-t, .mk2-b, .co-ins) { pointer-events: none; }
+        .mk2-page.tool-box, .mk2-page.tool-image, .mk2-page.tool-text, .mk2-page.tool-lift, .mk2-page.tool-tag, .mk2-page.tool-info { cursor: crosshair; }
+        .mk2-page:is(.tool-box, .tool-image, .tool-text, .tool-lift, .tool-tag, .tool-info) :is(.mk2-t, .mk2-b, .co-ins, .mk-wid) { pointer-events: none; }
         .mk2-cover { position: absolute; z-index: 1; pointer-events: none; }
         .mk2-tint { position: absolute; inset: 0; display: block; pointer-events: none; }
         .mk2-draw { position: absolute; z-index: 5; box-sizing: border-box; border: calc(2px / var(--z)) dashed #4656c7; background: rgba(70,86,199,0.12); pointer-events: none; }
@@ -727,7 +727,6 @@
         /* ⓘ in a mockup (merchant link / demo): a hotspot that opens the lightbox */
         .mk2-hot { position: absolute; z-index: 6; pointer-events: auto; cursor: pointer; border-radius: 50%; }
         .mk2-hot::after { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 2px solid #6675ff; opacity: 0; animation: mkHot 2.4s ease-out infinite; }
-        .mk2-hot.wide, .mk2-hot.wide::after { border-radius: calc(6px / var(--z, 1)); }
         @keyframes mkHot { 0% { transform: scale(.6); opacity: .85; } 70%, 100% { transform: scale(1.35); opacity: 0; } }
         .wp-info-btn, .wp-leaf-icon { cursor: pointer; }
 
@@ -1690,7 +1689,7 @@
                         <div class="mk-ec-sec">Mockup font</div>
                         <input type="text" id="mk-font" placeholder="e.g. Poppins" onchange="mkSetFont(this.value)" title="Edited text is drawn in this font, fitted to the mockup's own letters. Type a different Google font to override.">
                         <div id="mkSelPanel"></div>
-                        <div class="mk2-row"><button type="button" onclick="mkRevertAll()" title="Undo every text change, box and added text">↺ Revert all</button></div>
+                        <div class="mk2-row"><button type="button" onclick="mkSetTool('info')" title="Click the ⓘ on the page: it opens the info lightbox and moves with its text when the copy changes">ⓘ Set info icon</button><button type="button" onclick="mkRevertAll()" title="Undo every text change, box and added text">↺ Revert all</button></div>
                     </div>
                     <details class="mk-more" id="mkMore"><summary>More tools <span>· ShipInsure widget text, Checkout Editor, boxes, images, move, add text, tag sections</span></summary>
                         <div id="mkParts"></div>
@@ -1701,6 +1700,7 @@
                         <button type="button" data-tool="image" onclick="mkSetTool('image')" title="Drag where an image goes (logo, product photo), then pick the file">🖼 Image</button>
                         <button type="button" data-tool="lift" onclick="mkSetTool('lift')" title="Drag around an icon or any part of the mockup (e.g. the ⓘ) to move, resize, recolor or remove it">✥ Move area</button>
                         <button type="button" data-tool="text" onclick="mkSetTool('text')" title="Click where new text goes">T Text</button>
+                        <button type="button" data-tool="info" onclick="mkSetTool('info')" title="Click the ⓘ on the page: it opens the info lightbox and moves with its text when the copy changes">ⓘ Info icon</button>
                         <button type="button" data-tool="tag" onclick="mkSetTool('tag')" title="Checkout Editor: mark a checkout section it didn't find (click its heading), or drag around a ShipInsure widget / line already in the mockup">⚑ Tag section</button>
                     </div>
                         <div class="mk2-row"><button type="button" onclick="mkClear()" title="Remove the imported mockup">✕ Remove mockup</button></div>
@@ -3743,14 +3743,44 @@ For uncertain values make your best visual estimate. Always use valid hex colors
 
         // ── Icons beside text (the ⓘ after "Shipping Protection"): found once per text, then
         // moved with the text's new right edge so the gap stays as designed ──
+        // Icon finder version: pages looked at by an older one are looked at again (an ⓘ placed by hand stays).
+        const MK_ICV = 2;
+        const MK_IC_TOK = /^(.*\S)\s*(\([iI]\)|[ⓘℹ①ⓞ⊙◎©®@•●]|[oOiI0])$/;
+        const MK_IC_ONLY = /^\s*(\([iI]\)|[ⓘℹ①ⓞ⊙◎©®@•●oOiI0])\s*$/;
+        const _mkSiTxt = t => t.part === 'hdr' || t.part === 'body' || MK_SI_TXT.test(t.o || '');
+        const _mkOv = (u, r) => u.x < r.x + r.w && u.x + u.w > r.x && u.y < r.y + r.h && u.y + u.h > r.y;
+        // The scan read the ⓘ as a letter / symbol at the end of a ShipInsure line ("… Guarantee O", "… ①"):
+        // it comes off the text (so an edit never paints it as a letter) and its spot is the icon.
+        function _mkTrimInfoGlyph(t) {
+            if (!_mkSiTxt(t)) return false;
+            const m = String(t.o).match(MK_IC_TOK); if (!m) return false;
+            const head = m[1], tok = m[2];
+            if (/^[oOiI0]$/.test(tok) && !/\s$/.test(t.o.slice(0, -1))) return false;   // the last letter of a word
+            if (head.replace(/\s/g, '').length < 4) return false;
+            const w0 = _mkMeasure(t, t.o), wh = _mkMeasure(t, head), wt = _mkMeasure(t, tok);
+            if (!(w0 > 0) || !(wh > 0)) return false;
+            const k = t.w / w0, icw = Math.max(t.h * 0.8, wt * k);
+            t.ic = { x: _mkR(t.x + t.w - icw - 1), y: _mkR(t.y - 1), w: _mkR(icw + 2), h: _mkR(t.h + 2), bg: t.bg };
+            if (t.t === t.o) t.t = head;
+            else if (String(t.t).replace(/\s+$/, '').endsWith(tok)) t.t = String(t.t).replace(/\s+$/, '').slice(0, -tok.length).replace(/\s+$/, '');
+            t.o = head; t.w = _mkR(wh * k);
+            return true;
+        }
         function _mkFindIcons(pg, cv) {
             if (!cv) return;
+            if (pg.icV !== MK_ICV) { pg.texts.forEach(t => { if (!t.icm && !t.add) delete t.ic; }); pg.icV = MK_ICV; }
             const k = cv.k, CW = cv.ctx.canvas.width, CH = cv.ctx.canvas.height;
-            pg.texts.forEach(t => {
+            pg.texts.slice().forEach(t => {
                 if (t.ic !== undefined || t.add) return;
                 t.ic = null;
                 if (t.wrap || !t.o || !t.o.trim()) return;
                 const em = Math.max(t.h, (t.sz || t.h) * 0.75);
+                if (_mkTrimInfoGlyph(t)) return;
+                // …or as its own little text right after the line ("O", "(i)"): that text goes; its spot is the icon.
+                if (_mkSiTxt(t)) {
+                    const gi = pg.texts.findIndex(u => u !== t && !u.add && MK_IC_ONLY.test(u.o || '') && Math.abs((u.y + u.h / 2) - (t.y + t.h / 2)) < Math.max(u.h, t.h) * 0.7 && u.x >= t.x + t.w - 2 && u.x - (t.x + t.w) < em * 2);
+                    if (gi >= 0) { const u = pg.texts[gi]; t.ic = { x: _mkR(u.x - 1), y: _mkR(Math.min(u.y, t.y) - 1), w: _mkR(Math.max(u.w, u.h * 0.8) + 2), h: _mkR(Math.max(u.h, t.h) + 2), bg: t.bg }; pg.texts.splice(gi, 1); return; }
+                }
                 const x0 = t.x + t.w + 0.5, x1 = t.x + t.w + em * 3, y0 = t.y - em * 0.45, y1 = t.y + t.h + em * 0.45;
                 const X0 = Math.max(0, Math.floor(x0 * k)), X1 = Math.min(CW, Math.ceil(x1 * k));
                 const Y0 = Math.max(0, Math.floor(y0 * k)), Y1 = Math.min(CH, Math.ceil(y1 * k));
@@ -3774,7 +3804,9 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 const ix = (X0 + a) / k, iy = (Y0 + ty) / k, iw = (b - a + 1) / k, ih = (by - ty + 1) / k;
                 if (iw < em * 0.4 || iw > em * 2.2 || ih < em * 0.5 || ih > em * 2.2) return;
                 if (ty === 0 || by === RH - 1) return;          // touches the band's edge: part of something bigger
-                const hit = pg.texts.some(u => u !== t && !u.add && u.x < ix + iw && u.x + u.w > ix && u.y < iy + ih && u.y + u.h > iy);
+                // Another text on the spot is an icon's no-go, unless it also runs under this line (text hidden
+                // behind a cart drawer: the page under it, still in the PDF's text layer).
+                const hit = pg.texts.some(u => u !== t && !u.add && _mkOv(u, { x: ix, y: iy, w: iw, h: ih }) && !_mkOv(u, t));
                 if (hit) return;
                 const P = 1;
                 t.ic = { x: _mkR(ix - P), y: _mkR(iy - P), w: _mkR(iw + 2 * P), h: _mkR(ih + 2 * P), bg: t.bg };
@@ -3791,20 +3823,8 @@ For uncertain values make your best visual estimate. Always use valid hex colors
         }
         // Merchant link / demo: the ⓘ beside a ShipInsure text opens the info lightbox.
         const MK_SI_TXT = /protect|shipinsure|insur|guarantee|loss|damage|theft|coverage|green|carbon/i;
-        // The ShipInsure widget's header (or the protection line beside its price) when the ⓘ beside it wasn't
-        // found on the image: it still opens the lightbox, from the text and the spot after it.
-        function _mkSiInfoText(t, pg) {
-            if (t.wrap || t.add || !_mkPlain(t.t).trim()) return false;
-            if (t.part === 'hdr') return true;
-            const cy = t.y + t.h / 2;
-            return MK_SI_TXT.test(t.o || t.t) && !t.role && pg.texts.some(u => u.role === 'fee' && Math.abs((u.y + u.h / 2) - cy) < Math.max(u.h, t.h));
-        }
         function _mkIconHtml(t, pg) {
             const h = _mkIconHtml0(t, pg), ic = t.ic;
-            if (_mkReadOnly && !ic && _mkSiInfoText(t, pg) && !pg.texts.some(u => u !== t && u.ic && _mkSiInfoText(u, pg))) {
-                const em = Math.max(t.h, (t.sz || t.h) * 0.75), pad = Math.max(4, em * 0.4), dy = _coDy(pg, t.x, t.y); if (dy === null) return h;
-                return h + `<span class="mk2-hot wide" data-si-info title="What's covered?" style="left:${_mkR(t.x - pad)}px;top:${_mkR(t.y + dy - pad)}px;width:${_mkR(t.w + em * 2.4 + pad)}px;height:${_mkR(t.h + 2 * pad)}px;"></span>`;
-            }
             if (!_mkReadOnly || !ic || t.wrap || !_mkPlain(t.t).trim() || !(t.role === 'fee' || t.part || MK_SI_TXT.test(t.o || t.t))) return h;
             const num = v => +v || 0, m = h.match(/class="mk2-ic" style="left:([\d.-]+)px/);
             const idy = _coDy(pg, num(ic.x), num(ic.y)); if (idy === null) return h;
@@ -4337,7 +4357,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             try {
                 let found = false;
                 for (const pg of _mk.pages) {
-                    if (!pg.texts.some(t => t.ic === undefined && !t.add)) continue;
+                    if (pg.icV === MK_ICV && !pg.texts.some(t => t.ic === undefined && !t.add)) continue;
                     try { _mkFindIcons(pg, await _mkPageCanvas(pg)); found = true; } catch (e) {}
                 }
                 if (found) _mkPlaceIcons();
@@ -4878,9 +4898,9 @@ Return ONLY JSON — no markdown, no code fences:
         // line), its text and logo taken from the Checkout Extension design.
         function _mkWExt() {
             const pi = _mk.pages.findIndex(pg => _dfIsCk(pg));
-            if (pi < 0) { _mkStatus('Add a screenshot of their checkout (Contact / Delivery / Payment) to put the Checkout Extension on it.', 'warn'); return; }
+            if (pi < 0) { _mkStatus('Add a screenshot of their checkout (Contact / Delivery / Payment) to put the Checkout Extension on it.', 'error'); return; }
             const co = _coEnsure(); co.page = 'checkout';
-            if (_coBlocked('checkout')) { _mkStatus('This merchant isn’t on Shopify Plus, so the Checkout Extension can’t go on the checkout page (Checkout Editor → Plus).', 'warn'); }
+            if (_coBlocked('checkout')) { _mkStatus('This merchant isn’t on Shopify Plus, so the Checkout Extension can’t go on the checkout page (Checkout Editor → Plus).', 'error'); }
             // The block goes in the checkout's own spot when the screenshot shows it (after Payment), else the
             // nearest section it does show (a screenshot cut off above Payment still gets it).
             const A = _coAnchors(_mk.pages[pi]), shows = id => (CO_AT[id] || []).some(([, k]) => A[k]);
@@ -5098,9 +5118,66 @@ Return ONLY JSON — no markdown, no code fences:
             _mkTool = t;
             document.querySelectorAll('#mkTools button').forEach(b => b.classList.toggle('on', b.dataset.tool === t));
             document.querySelectorAll('#widgetPreviewArea .mk2-page').forEach(p => {
-                p.classList.remove('tool-box', 'tool-image', 'tool-text', 'tool-lift', 'tool-tag');
+                p.classList.remove('tool-box', 'tool-image', 'tool-text', 'tool-lift', 'tool-tag', 'tool-info');
                 if (t !== 'select') p.classList.add('tool-' + t);
             });
+        }
+        // ⓘ placed by hand: the icon's own pixels around the click, and the text it follows (on its row, ending
+        // just left of it; a ShipInsure line first). It opens the lightbox and moves with that text's edits.
+        async function _mkPlaceInfo(pg, pi, p) {
+            let cv = null; try { cv = await _mkPageCanvas(pg); } catch (e) {}
+            const row = pg.texts.filter(t => !t.add && !t.wrap && _mkPlain(t.t).trim() && p.y >= t.y - t.h * 0.9 && p.y <= t.y + t.h * 1.9 && t.x + t.w <= p.x + t.h * 0.6 && p.x - (t.x + t.w) < t.h * 8);
+            row.sort((a, b) => (_mkSiTxt(b) - _mkSiTxt(a)) || ((p.x - (a.x + a.w)) - (p.x - (b.x + b.w))));
+            const t = row[0];
+            if (!t) { _mkStatus('Click the ⓘ right after its text (the protection line or widget header).', 'error'); return; }
+            const em = Math.max(t.h, (t.sz || t.h) * 0.75);
+            let box = { x: p.x - em * 0.6, y: p.y - em * 0.6, w: em * 1.2, h: em * 1.2 };
+            if (cv) {
+                try {
+                    // Connected ink nearest the click (and anything inside it, e.g. the "i" in a ring).
+                    const k = cv.k, R = em * 1.3, X0 = Math.max(0, Math.floor((p.x - R) * k)), Y0 = Math.max(0, Math.floor((p.y - R) * k));
+                    const W = Math.min(cv.ctx.canvas.width - X0, Math.ceil(2 * R * k)), H = Math.min(cv.ctx.canvas.height - Y0, Math.ceil(2 * R * k));
+                    const d = cv.ctx.getImageData(X0, Y0, W, H).data, bg = _mkRgb(t.bg || '#ffffff');
+                    const ink = new Uint8Array(W * H);
+                    for (let i = 0; i < W * H; i++) ink[i] = Math.hypot(d[i * 4] - bg[0], d[i * 4 + 1] - bg[1], d[i * 4 + 2] - bg[2]) > 60 ? 1 : 0;
+                    const cx = Math.round(p.x * k) - X0, cyy = Math.round(p.y * k) - Y0;
+                    // Every connected blob of ink in the window; the icon is the biggest icon-sized one at the click
+                    // (a ring around the "i"), with whatever sits inside it.
+                    const lab = new Int32Array(W * H).fill(-1), comps = [];
+                    for (let i0 = 0; i0 < W * H; i0++) {
+                        if (!ink[i0] || lab[i0] >= 0) continue;
+                        const c = { x0: W, y0: H, x1: -1, y1: -1 }, st = [i0]; lab[i0] = comps.length;
+                        while (st.length) {
+                            const i = st.pop(), x = i % W, y = (i / W) | 0;
+                            if (x < c.x0) c.x0 = x; if (x > c.x1) c.x1 = x; if (y < c.y0) c.y0 = y; if (y > c.y1) c.y1 = y;
+                            for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+                                const nx = x + dx, ny = y + dy, j = ny * W + nx;
+                                if (nx >= 0 && ny >= 0 && nx < W && ny < H && ink[j] && lab[j] < 0) { lab[j] = comps.length; st.push(j); }
+                            }
+                        }
+                        comps.push(c);
+                    }
+                    const max = em * 2.4 * k, near = em * 0.6 * k;
+                    const dist = c => Math.hypot(Math.max(c.x0 - cx, 0, cx - c.x1), Math.max(c.y0 - cyy, 0, cyy - c.y1));
+                    const cand = comps.filter(c => c.x1 - c.x0 + 1 <= max && c.y1 - c.y0 + 1 <= max && dist(c) <= near);
+                    if (cand.length) {
+                        const m = cand.sort((p1, p2) => (p2.x1 - p2.x0) * (p2.y1 - p2.y0) - (p1.x1 - p1.x0) * (p1.y1 - p1.y0))[0];
+                        comps.forEach(c => { if (c.x0 >= m.x0 - 1 && c.x1 <= m.x1 + 1 && c.y0 >= m.y0 - 1 && c.y1 <= m.y1 + 1) { m.x0 = Math.min(m.x0, c.x0); m.y0 = Math.min(m.y0, c.y0); m.x1 = Math.max(m.x1, c.x1); m.y1 = Math.max(m.y1, c.y1); } });
+                        box = { x: (X0 + m.x0) / k - 1, y: (Y0 + m.y0) / k - 1, w: (m.x1 - m.x0 + 1) / k + 2, h: (m.y1 - m.y0 + 1) / k + 2 };
+                    }
+                } catch (e) {}
+            }
+            pg.texts.forEach(u => { if (u !== t && u.ic && _mkOv(u.ic, box)) { u.ic = null; u.icm = true; } });
+            t.ic = { x: _mkR(box.x), y: _mkR(box.y), w: _mkR(box.w), h: _mkR(box.h), bg: t.bg };
+            t.icm = true;
+            mkRender(); document.dispatchEvent(new Event('change'));
+            _mkStatus(`ⓘ set beside “${_mkPlain(t.t).slice(0, 40)}”: it opens the lightbox and moves with that text.`, 'ok');
+        }
+        // Merchant link / demo: older saves get the current icon finder before they draw.
+        async function _mkPrepIcons(examples) {
+            const jobs = [];
+            (examples || []).forEach(ex => { const mk = ex && ex.design && ex.design.mk; ((mk && mk.pages) || []).forEach(pg => { if (pg.icV !== MK_ICV || pg.texts.some(t => t.ic === undefined && !t.add)) jobs.push(_mkPageCanvas(pg).then(cv => _mkFindIcons(pg, cv), () => {})); }); });
+            if (jobs.length) await Promise.race([Promise.all(jobs), new Promise(r => setTimeout(r, 6000))]);
         }
         function mkSetFont(v) { _mk.font = String(v || '').trim(); _mk.fontBy = _mk.font ? 'user' : ''; mkRender(); }
         function mkRemovePage(pi) {
@@ -5245,6 +5322,12 @@ Return ONLY JSON — no markdown, no code fences:
                     mkRender();
                     if (tool === 'image') document.getElementById('mkImgInput').click();
                 });
+                return;
+            }
+            if (_mkTool === 'info') {   // ⓘ Info icon: the click is on the icon
+                e.preventDefault();
+                mkSetTool('select');
+                _mkPlaceInfo(pg, pi, { x: p0.x, y: _coUn(pg, p0.x, p0.y) });
                 return;
             }
             if (_mkTool === 'text') {
@@ -6722,7 +6805,7 @@ Return ONLY JSON — no markdown, no code fences:
             steps.forEach(s => { const key = s.ck ? 'k' : 'c', j = ++n[key]; s.label = (s.ck ? 'Checkout' : 'Cart') + (tot[key] > 1 && j > 1 ? ` (${j})` : ''); });
             DF.steps = steps;
             // Does any screen have an ⓘ that opens the lightbox? (the demo keeps its own lightbox step if not)
-            DF.hasInfo = steps.some(s => s.k === 'mk' ? (s.pg.wid || []).length > 0 || s.pg.texts.some(t => (t.ic && !t.wrap && (t.role === 'fee' || t.part || MK_SI_TXT.test(t.o || t.t))) || _mkSiInfoText(t, s.pg)) : true);
+            DF.hasInfo = steps.some(s => s.k === 'mk' ? (s.pg.wid || []).length > 0 || s.pg.texts.some(t => t.ic && !t.wrap && (t.role === 'fee' || t.part || MK_SI_TXT.test(t.o || t.t))) : true);
         }
         function renderDemoFlow(examples, name) {
             _mkReadOnly = true;
@@ -7548,7 +7631,7 @@ Return ONLY JSON — no markdown, no code fences:
                     lbReady.then(() => SIsb.getAsset(assetId)).then(r => {
                         const d = r.data || {};
                         const set = Array.isArray(d.examples) && d.examples.length ? d.examples : [{ label: d.label || 'Checkout', design: d.design || d }];
-                        renderMerchantView(set, d.name || r.merchant || '', d.layout);
+                        _mkPrepIcons(set).then(() => renderMerchantView(set, d.name || r.merchant || '', d.layout));
                     }).catch(() => renderMerchantView([], ''));
                     return;
                 }
@@ -7570,7 +7653,7 @@ Return ONLY JSON — no markdown, no code fences:
                         else { set = parsed.examples || []; name = parsed.name || ''; layout = parsed.layout; }
                     } catch (e) { set = []; }
                 }
-                renderMerchantView(set, name, layout);
+                _mkPrepIcons(set).then(() => renderMerchantView(set, name, layout));
                 return;
             }
             applyDesignerLink();
