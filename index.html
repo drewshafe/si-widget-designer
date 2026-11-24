@@ -4895,6 +4895,8 @@ Return ONLY JSON — no markdown, no code fences:
                 const k = w.w / r.w0, h = r.h0 * k, body = flow ? _dfWidgetFlow(r.html, w.t) : r.html;
                 // Takes a spot (covers it: Dual Checkout on the checkout buttons, or an old widget) or slots in above the button.
                 const spot = !!w.cover && (w.t === 'dual' || w.above);
+                const wd = _coDy(pg, w.x + w.w / 2, spot ? w.cover.y : w.y) || 0;   // erased lines above it closed up
+                if (wd) w = Object.assign({}, w, { y: w.y + wd, cover: w.cover && Object.assign({}, w.cover, { y: w.cover.y + wd }) });
                 let top = spot ? w.y : w.y + 6;
                 if (w.push !== false && !shift) {
                     const Yi = spot ? w.cover.y + w.cover.h : w.y, G = spot ? h - w.cover.h + 8 : h + 14, c = w.col || { x0: 0, x1: pg.w };
@@ -6107,11 +6109,13 @@ Return ONLY JSON — no markdown, no code fences:
 
         // The page's layout with the configured blocks in it, or null when nothing changes.
         function _coLayout(pg) {
-            if (!_mk.co || !_mk.pages.length || _mk.co.plus === false) return null;
-            const A = _coAnchors(pg); if (!_coIsCheckout(A)) return null;
+            if (!_mk.pages.length) return null;
+            const A = _coAnchors(pg), ck = !!_mk.co && _mk.co.plus !== false && _coIsCheckout(A), er = _mkErased(pg);
+            if (!ck && !er.length) return null;
             const cv = _mkCanvas[pg.img] || null;
             if (!cv) _mkPageCanvas(pg).then(_coSoon, () => {});
-            const cols = _coCols(pg, A), k = _coScale(pg), M = 10, ops = [];
+            const cols = ck ? _coCols(pg, A) : _mkCols(pg, cv), k = _coScale(pg), M = 10, ops = [], patches = [];
+            if (ck) {
             const all = _coSlots('checkout').flatMap(s => s.blocks.map(b => ({ b, s })));
             [['si-widget', 'si-pp'], ['si-line', 'si-line']].forEach(([key, type]) => {
                 const r = A[key]; if (!r) return;
@@ -6130,7 +6134,10 @@ Return ONLY JSON — no markdown, no code fences:
                 const w = at.col.r - at.col.l, h = Math.round((_coMeasure(html, w / k) + 2 * M) * k);
                 ops.push({ col: at.col, y: Math.round(at.y), h, html, bid: b.id, x: at.col.l, w, k, M, bg: _coBgAt(cv, at.col, at.y) });
             });
-            if (!ops.length) return null;
+            }
+            // Erased lines close up: what's under them moves up into their place.
+            if (er.length && cv) _mkCloseUp(pg, cv, cols, er, ops, patches);
+            if (!ops.length && !patches.length) return null;
             cols.forEach(c => {
                 const ev = ops.filter(o => o.col === c).sort((a, b) => a.y - b.y);
                 let oy = 0, dy = 0;
@@ -6152,12 +6159,117 @@ Return ONLY JSON — no markdown, no code fences:
                 c.end = Math.ceil(pg.h) + dy;
                 c.bgEnd = _coBgAt(cv, c, pg.h - 2);
             });
-            return { cols, H: Math.max(...cols.map(c => c.end)) };
+            patches.forEach(p => {   // each piece of the text block between its cuts moves up by what was cut above it
+                p.cuts.sort((a, b) => a[0] - b[0]);
+                let o = p.y0, d = 0; p.pieces = [];
+                p.cuts.forEach(([a, b]) => { if (a > o) p.pieces.push({ o0: o, o1: a, dy: d }); d -= b - a; o = Math.max(o, b); });
+                if (p.y1 > o) p.pieces.push({ o0: o, o1: p.y1, dy: d });
+                p.G = -d;
+            });
+            return { cols, H: Math.max(...cols.map(c => c.end)), patches };
+        }
+        // A text line the rep erased (its text emptied, or its widget part turned off). A widget part whose
+        // lines were merged into its first line isn't erased: that line holds them all.
+        function _mkErased(pg) {
+            const P = _mk.parts || {};
+            return pg.texts.filter(t => !t.add && _mkPlain(t.o).trim() && !_mkPlain(t.t).trim()
+                && !(t.pm && ['hdr', 'body', 'disc'].includes(t.part) && (P[t.part] || {}).on !== false));
+        }
+        // A page that isn't a laid-out checkout: a cart drawer is its own column (the store behind it stays
+        // put), anything else is one column.
+        const _mkColsMemo = new WeakMap();
+        function _mkCols(pg, cv) {
+            const key = pg.img + '|' + pg.texts.length + '|' + (cv ? 1 : 0), m = _mkColsMemo.get(pg);
+            if (m && m.key === key) return m.cols.map(c => Object.assign({}, c));
+            const T = pg.texts.filter(t => !t.add), span = (x0, x1) => {
+                const ts = T.filter(t => t.x + t.w / 2 >= x0 && t.x + t.w / 2 < x1);
+                return { l: ts.length ? Math.min(...ts.map(t => t.x)) : x0 + 16, r: ts.length ? Math.max(...ts.map(t => t.x + t.w)) : x1 - 16 };
+            };
+            let cols = [Object.assign({ x0: 0, x1: pg.w, main: 1 }, span(0, pg.w))];
+            if (!_dfPhone(pg)) {
+                try {
+                    const cut = _dfMobCut(pg, cv, false, pg.h, pg.texts), dr = cut && cut.strips.find(x => x.k === 'drawer');
+                    // A drawer slides in from a side: one that doesn't reach either edge is a misread, so one column.
+                    if (dr && (dr.x <= 8 || dr.x + dr.w >= pg.w - 8)) {
+                        const a = dr.x <= 8 ? 0 : Math.round(dr.x), b = dr.x + dr.w >= pg.w - 8 ? pg.w : Math.round(dr.x + dr.w);
+                        cols = [];
+                        if (a > 8) cols.push({ x0: 0, x1: a, l: 16, r: a - 16 });
+                        cols.push(Object.assign({ x0: a, x1: b, main: 1 }, span(a, b)));
+                        if (b < pg.w - 8) cols.push({ x0: b, x1: pg.w, l: b + 16, r: pg.w - 16 });
+                    }
+                } catch (e) {}
+            }
+            _mkColsMemo.set(pg, { key, cols });
+            return cols.map(c => Object.assign({}, c));
+        }
+        // Each erased line, top down. Its row is empty but for it (thin box borders allowed): the band from the
+        // middle of the gap above it to the middle of the gap below is cut across the column, so the lines
+        // under it, the box it's in and everything after move up. Something beside it (a product's picture):
+        // just its text block closes up, down to where that block ends, and the row keeps its height.
+        function _mkCloseUp(pg, cv, cols, er, ops, patches) {
+            const k = cv.k, CW = cv.ctx.canvas.width, CH = cv.ctx.canvas.height;
+            const hexRgb = h => /^#[0-9a-f]{6}$/i.test(h || '') ? [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)) : [255, 255, 255];
+            // An erased line's letters are still in the picture, and so is a small icon right beside it (its ⓘ, a tag).
+            const skips = er.flatMap(t => [{ x0: t.x - t.h * 1.6, x1: t.x + t.w + t.h * 1.6, y0: t.y - 3, y1: t.y + t.h + 3 }].concat(t.ic ? [{ x0: +t.ic.x - 3, x1: +t.ic.x + +t.ic.w + 3, y0: +t.ic.y - 3, y1: +t.ic.y + +t.ic.h + 3 }] : []));
+            const live = pg.texts.filter(t => !t.add && er.indexOf(t) < 0 && _mkPlain(t.o).trim());
+            const pix = {};
+            const data = c => { const key = c.x0 + '|' + c.x1; if (!pix[key]) { const X0 = Math.max(0, Math.floor(c.x0 * k)), X1 = Math.min(CW, Math.ceil(c.x1 * k)); pix[key] = { X0, w: X1 - X0, d: cv.ctx.getImageData(X0, 0, Math.max(1, X1 - X0), CH).data }; } return pix[key]; };
+            // Is page row y empty between xa and xb: only bg there, a thin vertical line, or an erased text's letters?
+            const rowOk = (c, y, xa, xb, bg) => {
+                const P = data(c), Y = Math.round(y * k); if (Y < 0 || Y >= CH) return false;
+                const sk = skips.filter(r => y >= r.y0 && y < r.y1);
+                let run = 0;
+                for (let X = Math.max(P.X0, Math.round(xa * k)); X < Math.min(P.X0 + P.w, Math.round(xb * k)); X++) {
+                    const o = (Y * P.w + (X - P.X0)) * 4, d = P.d;
+                    const far = Math.abs(d[o] - bg[0]) + Math.abs(d[o + 1] - bg[1]) + Math.abs(d[o + 2] - bg[2]) > 40;
+                    if (far && !sk.some(r => X / k >= r.x0 && X / k < r.x1)) { if (++run > Math.max(3, 2.5 * k)) return false; } else run = 0;
+                }
+                return true;
+            };
+            const bandOk = (c, y0, y1, xa, xb, bg) => { for (let y = y0; y < y1; y += 1 / k) if (!rowOk(c, y, xa, xb, bg)) return false; return true; };
+            const cutHere = (c, y) => ops.some(o => o.cut && o.col === c && y >= o.y && y < o.y1);
+            const done = new Set();
+            er.slice().sort((a, b) => a.y - b.y).forEach(t0 => {
+                if (done.has(t0)) return;
+                const c = _coColAt(cols, t0.x + t0.w / 2); if (!c.main && !c.sum) return;
+                if (cutHere(c, t0.y + t0.h / 2)) return;
+                const cy = u => u.y + u.h / 2, same = u => Math.abs(cy(u) - cy(t0)) < Math.max(u.h, t0.h) * 0.6;
+                const row = er.filter(u => !done.has(u) && same(u) && _coColAt(cols, u.x + u.w / 2) === c); row.forEach(u => done.add(u));
+                const U = { x: Math.min(...row.map(u => u.x)), y: Math.min(...row.map(u => u.y)) }; U.w = Math.max(...row.map(u => u.x + u.w)) - U.x; U.h = Math.max(...row.map(u => u.y + u.h)) - U.y;
+                const bg = hexRgb(t0.bg), L = Math.max(c.x0, c.l - 6), R = Math.min(c.x1, c.r + 6);
+                // A whole line: nothing else still showing on its row.
+                // (A tiny label left of it, like a picture's quantity badge, doesn't count.)
+                if (live.some(u => same(u) && _coColAt(cols, u.x + u.w / 2) === c && _mkPlain(u.t).trim() && !(u.x + u.w <= U.x && _mkPlain(u.t).trim().length <= 2))) return;
+                let mode = bandOk(c, U.y, U.y + U.h, L, R, bg) ? 'col' : bandOk(c, U.y, U.y + U.h, U.x - 4, R, bg) ? 'block' : null;
+                if (!mode) return;
+                const xa = mode === 'col' ? L : U.x - 4, lim = Math.max(12, U.h * 3), st = 1 / k;
+                let up = 0; while (up < lim && rowOk(c, U.y - up - st, xa, R, bg)) up += st;
+                let dn = 0; while (dn < lim && rowOk(c, U.y + U.h + dn, xa, R, bg)) dn += st;
+                up = Math.min(up, U.h * 1.6); dn = Math.min(dn, U.h * 1.6);
+                const a = Math.round(U.y - up / 2), b = Math.round(U.y + U.h + dn / 2);
+                if (b - a < 4) return;
+                if (mode === 'col') { ops.push({ cut: 1, col: c, y: a, y1: b, er: 1 }); return; }
+                // The block ends at the next gap that runs across the whole column (the space between items).
+                const need = Math.max(4, U.h * 0.45);
+                let end = pg.h, run = 0;
+                for (let y = b; y < pg.h; y += st) { if (rowOk(c, y, L, R, bg)) { run += st; if (run >= need) { end = Math.round(y - run + st); break; } } else run = 0; }
+                end = Math.max(end, b);
+                const fill = '#' + bg.map(v => v.toString(16).padStart(2, '0')).join('');
+                const p = patches.find(q => q.col === c && Math.abs(q.x0 - (U.x - 4)) < 24 && a < q.y1 + 2 && q.y0 < end);
+                if (p) { p.cuts.push([a, b]); p.y0 = Math.min(p.y0, a); p.y1 = Math.max(p.y1, end); p.x0 = Math.min(p.x0, U.x - 4); }
+                else patches.push({ col: c, x0: U.x - 4, x1: R, y0: a, y1: end, cuts: [[a, b]], bg: fill });
+            });
         }
         // Display offset for a point of the original page: dy, or null when it was cut away.
         function _coDy(pg, x, y) {
             const L = _coLays.get(pg); if (!L) return 0;
-            const c = _coColAt(L.cols, x);
+            const d = _coColDy(_coColAt(L.cols, x), y); if (d === null) return null;
+            const p = (L.patches || []).find(q => x >= q.x0 && x < q.x1 && y >= q.y0 && y < q.y1);
+            if (!p) return d;
+            const pc = p.pieces.find(q => y >= q.o0 && y < q.o1);
+            return pc ? d + pc.dy : null;   // inside a cut: gone
+        }
+        function _coColDy(c, y) {
             for (const s of c.segs) if (y >= s.o0 && y < s.o1) return s.cut ? null : s.dy;
             return c.segs.length ? (c.segs[c.segs.length - 1].dy || 0) : 0;
         }
@@ -6165,6 +6277,11 @@ Return ONLY JSON — no markdown, no code fences:
         function _coUn(pg, x, y) {
             const L = _coLays.get(pg); if (!L) return y;
             const c = _coColAt(L.cols, x);
+            for (const p of (L.patches || [])) {
+                if (x < p.x0 || x >= p.x1) continue;
+                const d = _coColDy(c, p.y0) || 0, pc = p.pieces.find(q => y >= q.o0 + q.dy + d && y < q.o1 + q.dy + d);
+                if (pc) return y - pc.dy - d;
+            }
             for (const s of c.segs) if (!s.cut && y >= s.o0 + s.dy && y < s.o1 + s.dy) return y - s.dy;
             const g = c.ins.find(i => y >= i.top && y < i.top + i.h);
             if (g) return g.y;
@@ -6179,6 +6296,12 @@ Return ONLY JSON — no markdown, no code fences:
                 c.segs.forEach(s => { if (!s.cut && s.o1 > s.o0) h += `<div class="co-tile" style="left:${c.x0}px;top:${s.o0 + s.dy}px;width:${w}px;height:${s.o1 - s.o0}px;"><img src="${img}" alt="" draggable="false" style="left:${-c.x0}px;top:${-s.o0}px;width:${pg.w}px;height:${pg.h}px;"></div>`; });
                 if (c.end < L.H) h += `<div class="co-fill" style="left:${c.x0}px;top:${c.end}px;width:${w}px;height:${L.H - c.end}px;background:${c.bgEnd};"></div>`;
                 c.ins.forEach(i => { h += `<div class="co-fill" style="left:${c.x0}px;top:${i.top}px;width:${w}px;height:${i.h}px;background:${i.bg};"></div>`; });
+            });
+            // A text block that closed up beside a picture: painted over, then its pieces drawn moved up.
+            (L.patches || []).forEach(p => {
+                const d = _coColDy(p.col, p.y0) || 0, w = p.x1 - p.x0;
+                h += `<div class="co-fill" style="left:${_mkR(p.x0)}px;top:${_mkR(p.y0 + d)}px;width:${_mkR(w)}px;height:${_mkR(p.y1 - p.y0)}px;background:${p.bg};"></div>`;
+                p.pieces.forEach(q => { if (q.o1 > q.o0) h += `<div class="co-tile" style="left:${_mkR(p.x0)}px;top:${_mkR(q.o0 + q.dy + d)}px;width:${_mkR(w)}px;height:${_mkR(q.o1 - q.o0)}px;"><img src="${img}" alt="" draggable="false" style="left:${-_mkR(p.x0)}px;top:${-_mkR(q.o0)}px;width:${pg.w}px;height:${pg.h}px;"></div>`; });
             });
             return h;
         }
@@ -7113,6 +7236,11 @@ Return ONLY JSON — no markdown, no code fences:
                 if (cut && wl.shift) cut.strips.forEach(c => {   // the re-flowed column: what's below the widget moved down
                     if (c.x + c.w <= wl.shift.x0 + 4 || c.x >= wl.shift.x1 - 4) return;
                     if (c.y >= wl.shift.y) c.y += wl.shift.g; else if (c.y + c.h > wl.shift.y) c.h += wl.shift.g;
+                });
+                if (cut && L && !s.ck) cut.strips.forEach(c => {   // erased lines in the drawer closed up
+                    const mx = c.x + c.w / 2, d0 = at(mx, c.y), d1 = at(mx, c.y + c.h - 1);
+                    const y0 = c.y + (d0 || 0), y1 = c.y + c.h + (d1 == null ? (d0 || 0) : d1);
+                    c.y = y0; c.h = Math.max(20, y1 - y0);
                 });
                 if (cut) {
                     // The closed-up column is shorter by the line it lost.
