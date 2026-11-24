@@ -5816,7 +5816,7 @@ Return ONLY JSON — no markdown, no code fences:
                 <label class="co-sw"><input type="checkbox" ${st.hideLearn ? 'checked' : ''} onchange="coSetV('${id}','hideLearn',this.checked)"><i></i><span>Hide 'Learn More'</span></label>
                 <label class="co-f"><span>Default state</span><select onchange="coSetV('${id}','state',this.value)">${Object.keys(CO_STATES).map(k => opt(k, st.state || 'checked', CO_STATES[k])).join('')}</select></label>
                 <label class="co-sw"><input type="checkbox" ${st.afterRemove ? 'checked' : ''} onchange="coSetV('${id}','afterRemove',this.checked); coRender();"><i></i><span>Show only after the line item is removed</span></label>
-                <div class="co-note">${st.afterRemove ? 'The cart line item comes first. When the shopper clicks its Remove, this widget appears (unchecked) so they can add protection back. Hidden on merchant links until then; the SI Interactive Demo clicks through it.' + (_coHasRemove() ? '' : ' <b>Needs a Remove:</b> switch on Show ‘Remove’ link on the ShipInsure Cart Line Item, or use a mockup whose line has one.') : 'Checkout behavior: ShipInsure Checkbox always appears.'}</div>`;
+                <div class="co-note">${st.afterRemove ? 'The cart line item comes first. Whenever the shopper clicks its Remove, this widget appears (unchecked) so they can add protection back; checking it puts the line back and hides the widget again. Hidden on merchant links (the line is in the order); the SI Interactive Demo clicks through it.' + (_coHasRemove() ? '' : ' <b>Needs a Remove:</b> switch on Show ‘Remove’ link on the ShipInsure Cart Line Item, or use a mockup whose line has one.') : 'Checkout behavior: ShipInsure Checkbox always appears.'}</div>`;
             return `<div class="co-seth"><span>${_escHtml(b.name)}</span></div>
                 <div class="co-meta">${_escHtml(CO_PAGES[f.page])} · <code>${_escHtml(_coUsing(b, f.slot))}</code></div>
                 ${fields}
@@ -6236,9 +6236,10 @@ Return ONLY JSON — no markdown, no code fences:
             return _coSlots('checkout').some(s => s.blocks.some(b => b.type === 'si-line' && (b.set || {}).remove)) ||
                 _mk.pages.some(pg => pg.texts.some(t => !t.add && /^(×|✕|x)?\s*remove$/i.test(String(t.o).trim())));
         }
-        // The widget set to show only once the line item is removed: hidden where shoppers look (merchant links,
-        // the demo) until the demo's Remove is clicked; the editor always shows it.
-        const _coPPWaits = b => !!(b && b.type === 'si-pp' && (b.set || {}).afterRemove && _mkReadOnly && !(DF.on && (DF.revealed || !DF.prot)));   // no line in the order (removed, or skipped in the cart): it shows
+        // The widget set to show only when the line item isn't in the order: hidden where shoppers look (merchant
+        // links, the demo) while the line is there, shown whenever it's gone (Remove, or skipped in the cart), every
+        // time; the editor always shows it.
+        const _coPPWaits = b => !!(b && b.type === 'si-pp' && (b.set || {}).afterRemove && _mkReadOnly && !(DF.on && !DF.prot));
         const _coLook = st => JSON.stringify(Object.assign({}, st, { afterRemove: undefined }));   // how it looks (not when it shows)
         function _coOrigShown(b, s) {
             if (!b.orig || s.id !== b.orig.slot) return false;
@@ -7236,8 +7237,7 @@ Return ONLY JSON — no markdown, no code fences:
         // hasInfo } on every screen and { siExp: 'shop', done: true } after the last one's button; the demo
         // moves it with { siExp: 'shopGo', page }.
         var _mkNoProt = false;   // _mkPrice: the shopper took ShipInsure out (totals without it)
-        // revealed: the shopper clicked Remove (a checkout widget set to show only after that now shows).
-        const DF = { on: false, ex: [], name: '', steps: [], i: 0, shown: false, prot: true, want: null, dev: '', t: 0, sumOpen: true, revealed: false };
+        const DF = { on: false, ex: [], name: '', steps: [], i: 0, shown: false, prot: true, want: null, dev: '', t: 0, sumOpen: true };
         const DF_BTN = /checkout|paynow|placeorder|complete(my)?order|buynow|continueto|revieworder|proceedto/i;
         const DF_INFO = '[data-si-info], .wp-info-btn, .wp-leaf-icon, .mk2-hot';
         const _dfCompact = s => String(s || '').replace(/\s+/g, '');
@@ -7365,8 +7365,8 @@ Return ONLY JSON — no markdown, no code fences:
                 stop();
                 const a = h.dataset.df;
                 if (a === 'go') { if (h.dataset.prot) DF.prot = h.dataset.prot === '1'; _dfNext(); }
-                else if (a === 'rm') { DF.revealed = true; _dfSetProt(false); }
-                else if (a === 'undo') { DF.revealed = false; _dfSetProt(true); }
+                else if (a === 'rm') _dfSetProt(false);
+                else if (a === 'undo') _dfSetProt(true);
                 else if (a === 'tog') _dfSetProt(!DF.prot);
                 else if (a === 'sum') { DF.sumOpen = !DF.sumOpen; _dfPaint(); }
                 return;
