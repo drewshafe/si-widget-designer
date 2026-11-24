@@ -52,7 +52,22 @@
   .msg:empty { display:none; }
   .msg.warn { color:var(--warn); }
   .shot { border:1px dashed var(--line); border-radius:9px; padding:10px; font-size:12px; color:var(--muted); text-align:center; cursor:pointer; background:var(--field); }
-  .shot img { max-width:100%; max-height:120px; display:block; margin:0 auto 6px; border-radius:6px; }
+  .shot.drag { border-color:var(--accent); background:var(--accent-soft); }
+  .shots { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-bottom:6px; }
+  .shots:empty { display:none; }
+  .shots span { position:relative; width:54px; height:54px; border-radius:6px; overflow:hidden; border:1px solid var(--line); background:var(--card); }
+  .shots img { width:100%; height:100%; object-fit:cover; object-position:top; display:block; }
+  .shots b { position:absolute; top:1px; right:1px; width:16px; height:16px; border-radius:50%; background:rgba(0,0,0,.65); color:#fff; font-size:11px; line-height:16px; text-align:center; cursor:pointer; }
+  .more { border:1px solid var(--line); border-radius:9px; padding:8px 10px; display:flex; flex-direction:column; gap:8px; }
+  .more summary { font-size:12px; font-weight:700; cursor:pointer; list-style:none; display:flex; align-items:center; gap:6px; }
+  .more summary::-webkit-details-marker { display:none; }
+  .more summary::before { content:'▸'; color:var(--muted); font-size:11px; }
+  .more[open] summary::before { content:'▾'; }
+  .more summary small { margin-left:auto; font-weight:600; color:var(--muted); }
+  .more > .fld, .more > .chk { margin-top:8px; }
+  .read { display:flex; flex-wrap:wrap; gap:4px; margin-top:6px; }
+  .read span { font-size:11px; font-weight:600; border-radius:20px; padding:2px 8px; background:var(--accent-soft); color:var(--ink); }
+  .read span.no { background:var(--warn-soft); color:var(--warn); }
   .items { display:flex; flex-direction:column; gap:4px; }
   .items label { display:flex; align-items:flex-start; gap:8px; font-size:12.5px; line-height:1.35; cursor:pointer; }
   .items label input { margin-top:2px; }
@@ -146,10 +161,19 @@
     <div class="grp">
       <div class="lbl">Merchant FAQ page</div>
       <div class="fld"><label for="faqUrl">FAQ page link</label><input id="faqUrl" placeholder="allbirds.com/pages/faq" spellcheck="false"></div>
-      <div class="shot" id="shot" tabindex="0" title="Paste (⌘V) or click to pick a screenshot of the FAQ page">📸 Optional: paste or pick a screenshot of the FAQ page so the scan matches its fonts and colors too</div>
-      <input type="file" id="shotIn" accept="image/*" hidden>
-      <div class="btns"><button class="btn p" type="button" id="scanBtn">🔍 Scan FAQ page</button><button class="btn" type="button" id="brandBtn" hidden>📁 Use folder branding</button></div>
+      <details class="more" id="morePg" open>
+        <summary>Also read: shipping, returns, help center <small id="moreN"></small></summary>
+        <div class="fld"><label for="pgShip">Shipping page</label><input id="pgShip" data-pg="ship" placeholder="store.com/policies/shipping-policy" spellcheck="false"></div>
+        <div class="fld"><label for="pgReturns">Returns page</label><input id="pgReturns" data-pg="returns" placeholder="store.com/policies/refund-policy" spellcheck="false"></div>
+        <div class="fld"><label for="pgHelp">Help center</label><input id="pgHelp" data-pg="help" placeholder="help.store.com" spellcheck="false"></div>
+        <div class="fld"><label for="pgMore">Other pages (one link per line)</label><textarea id="pgMore" data-pg="more" rows="2" placeholder="store.com/pages/contact" spellcheck="false"></textarea></div>
+        <label class="chk"><input type="checkbox" id="pgAuto"> Find the store’s shipping, returns and help pages too</label>
+      </details>
+      <div class="shot" id="shot" tabindex="0" title="Paste (⌘V), drop, or click to pick screenshots"><div class="shots" id="shots"></div><span id="shotTxt"></span></div>
+      <input type="file" id="shotIn" accept="image/*" multiple hidden>
+      <div class="btns"><button class="btn p" type="button" id="scanBtn">🔍 Scan pages</button><button class="btn" type="button" id="brandBtn" hidden>📁 Use folder branding</button></div>
       <div class="msg" id="scanMsg"></div>
+      <div class="read" id="readList"></div>
     </div>
 
     <div class="grp">
@@ -333,6 +357,7 @@
     f: { store: '', where: 'checkout', claims: 'https://go.shipinsure.net/claims', firstDay: 'Monday', noShipDays: 'weekends' },
     hide: {}, edits: {},
     merchant: null,   // { title, intro, sections:[{ heading, items:[{q,a}] }] } from the scan
+    pages: { ship: '', returns: '', help: '', more: '', auto: true },   // more of the store's pages the scan reads
     style: { fHead: 'Inherit (system)', fBody: 'Inherit (system)', cHead: '#111111', cText: '#333333', cAccent: '#111111', cBg: '#ffffff', cLine: '#e5e5e5', qWeight: '600', layout: 'lines', icon: 'plus', hAlign: 'center', hCase: 'none' },
     logo: ''
   };
@@ -450,6 +475,9 @@
   // ── Side panel ──
   function renderSide() {
     $('tpl').value = S.tpl; $('stl').checked = !!S.stl; $('faqUrl').value = S.faqUrl || ''; $('markSi').checked = !!S.markSi;
+    document.querySelectorAll('[data-pg]').forEach(el => { if (document.activeElement !== el) el.value = S.pages[el.dataset.pg] || ''; });
+    $('pgAuto').checked = S.pages.auto !== false;
+    const nPg = extraPages().length; $('moreN').textContent = nPg ? nPg + ' link' + (nPg > 1 ? 's' : '') : (S.pages.auto !== false ? 'auto' : '');
     document.querySelectorAll('#place button').forEach(b => b.classList.toggle('on', b.dataset.v === S.place));
     $('placeHint').textContent = S.place === 'only' ? 'A standalone Package Protection page; the merchant links to it from their FAQ.' : 'Added ' + (S.place === 'top' ? 'above' : 'below') + ' the merchant’s own questions.';
     const ks = neededFields();
@@ -488,6 +516,7 @@
     const n = Object.assign(clone(DEFAULTS), d || {});
     n.f = Object.assign(clone(DEFAULTS.f), (d || {}).f || {});
     n.style = Object.assign(clone(DEFAULTS.style), (d || {}).style || {});
+    n.pages = Object.assign(clone(DEFAULTS.pages), (d || {}).pages || {});
     if (!TEMPLATES[n.tpl]) n.tpl = 'pp';
     if (!['top', 'bottom', 'only'].includes(n.place)) n.place = 'top';
     if (!FONTS.includes(n.style.fHead)) n.style.fHead = FONTS[0];
@@ -536,6 +565,8 @@
   }
   $('dev').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (b) { S.device = b.dataset.v; render(); keepDevice(S.device); } });
   $('faqUrl').addEventListener('input', e => { S.faqUrl = e.target.value.trim(); save(); });
+  document.querySelectorAll('[data-pg]').forEach(el => el.addEventListener('input', () => { S.pages[el.dataset.pg] = el.value; render(); }));
+  $('pgAuto').addEventListener('change', e => { S.pages.auto = e.target.checked; render(); });
   $('fields').addEventListener('input', e => { const k = e.target.dataset.f; if (!k) return; S.f[k] = e.target.value; render(); });
   $('fields').addEventListener('change', e => { const k = e.target.dataset.f; if (!k) return; S.f[k] = e.target.value; render(); });
   $('items').addEventListener('change', e => { const id = e.target.dataset.hide; if (!id) return; const key = S.tpl + ':' + id; if (e.target.checked) delete S.hide[key]; else S.hide[key] = true; render(); });
@@ -594,17 +625,47 @@
   $('logoIn').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (f) readImage(f, 400, url => { S.logo = url; render(); }); });
   $('logoClear').addEventListener('click', () => { S.logo = ''; render(); });
 
-  // ── Screenshot for the style scan ──
-  let _shot = null;   // { b64, type } — memory only
-  function setShot(file) {
-    readImage(file, 1400, (url) => { _shot = { type: url.slice(5, url.indexOf(';')), b64: url.split(',')[1] }; $('shot').innerHTML = `<img src="${url}" alt="">Screenshot ready · <a href="#" id="shotX">remove</a>`; });
+  // ── Screenshots of the store's pages: the scan reads their questions and matches their look ──
+  let _shots = [];   // [{ thumb, parts:[{ type, b64 }] }], memory only
+  const SHOT_MAX = 6, PART_MAX = 16;
+  const SHOT_TXT = '📸 Optional: paste, drop or pick screenshots of the FAQ, shipping or help pages. The scan reads their questions (even when the site blocks it) and matches their fonts and colors.';
+  function paintShots() {
+    $('shots').innerHTML = _shots.map((s, i) => `<span><img src="${s.thumb}" alt=""><b data-rm="${i}" title="Remove">×</b></span>`).join('');
+    $('shotTxt').textContent = _shots.length ? _shots.length + ' screenshot' + (_shots.length > 1 ? 's' : '') + ' ready · add more with paste, drop or click' : SHOT_TXT;
   }
-  $('shot').addEventListener('click', e => { if (e.target.id === 'shotX') { e.preventDefault(); _shot = null; $('shot').textContent = '📸 Optional: paste or pick a screenshot of the FAQ page so the scan matches its fonts and colors too'; return; } $('shotIn').click(); });
-  $('shotIn').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (f) setShot(f); });
+  // A tall full-page screenshot is cut into slices the model can still read (it scales big images down).
+  function addShot(file) {
+    if (!file || !/^image\//.test(file.type)) return;
+    if (_shots.length >= SHOT_MAX) { toast('Up to ' + SHOT_MAX + ' screenshots'); return; }
+    const r = new FileReader();
+    r.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        const W = Math.min(1100, img.width), H = Math.round(img.height * W / img.width), SL = 1400, OV = 80, parts = [];
+        for (let y = 0; parts.length < 8; y += SL - OV) {
+          const h = Math.min(SL, H - y), c = document.createElement('canvas'); c.width = W; c.height = h;
+          const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, W, h); x.drawImage(img, 0, -y, W, H);
+          parts.push({ type: 'image/jpeg', b64: c.toDataURL('image/jpeg', 0.85).split(',')[1] });
+          if (y + h >= H) break;
+        }
+        const t = document.createElement('canvas'); t.width = 108; t.height = 108;
+        const tx = t.getContext('2d'); tx.fillStyle = '#fff'; tx.fillRect(0, 0, 108, 108); tx.drawImage(img, 0, 0, 108, img.height * 108 / img.width);
+        _shots.push({ thumb: t.toDataURL('image/jpeg', 0.8), parts }); paintShots();
+      };
+      img.src = ev.target.result;
+    };
+    r.readAsDataURL(file);
+  }
+  paintShots();
+  $('shot').addEventListener('click', e => { const rm = e.target.closest('[data-rm]'); if (rm) { _shots.splice(+rm.dataset.rm, 1); paintShots(); return; } $('shotIn').click(); });
+  $('shot').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('shotIn').click(); } });
+  $('shotIn').addEventListener('change', e => { [...e.target.files].forEach(addShot); e.target.value = ''; });
+  ['dragenter', 'dragover'].forEach(n => $('shot').addEventListener(n, e => { e.preventDefault(); $('shot').classList.add('drag'); }));
+  ['dragleave', 'drop'].forEach(n => $('shot').addEventListener(n, e => { e.preventDefault(); $('shot').classList.remove('drag'); if (n === 'drop') [...(e.dataTransfer || {}).files || []].forEach(addShot); }));
   document.addEventListener('paste', e => {
     if (VIEW || (e.target.closest && e.target.closest('[contenteditable="true"], input, textarea'))) return;
-    const it = [...(e.clipboardData || {}).items || []].find(i => i.type.startsWith('image/'));
-    if (it) { e.preventDefault(); setShot(it.getAsFile()); }
+    const its = [...(e.clipboardData || {}).items || []].filter(i => i.type.startsWith('image/'));
+    if (its.length) { e.preventDefault(); its.forEach(i => addShot(i.getAsFile())); }
   });
 
   // ── Claude: read the FAQ page (server-side web fetch) and, with a screenshot, its look ──
@@ -630,24 +691,52 @@
     if (!/^https?:\/\//i.test(v)) v = 'https://' + v;
     try { const u = new URL(v); return /\./.test(u.hostname) ? u.toString() : ''; } catch (e) { return ''; }
   }
+  // The store's other pages the rep linked: shipping, returns, help center, any others.
+  function extraPages() {
+    const P = S.pages || {};
+    return [['shipping', P.ship], ['returns', P.returns], ['help', P.help]].concat(String(P.more || '').split(/\n+/).map(v => ['other', v]))
+      .map(([kind, v]) => ({ kind, url: pageUrl(v) })).filter(p => p.url);
+  }
+  const KIND_L = { faq: 'FAQ', shipping: 'Shipping', returns: 'Returns', help: 'Help center', other: 'Page' };
   async function scan() {
-    const url = pageUrl($('faqUrl').value);
-    if (!url) { scanSay('Paste the merchant’s FAQ page link first.', true); $('faqUrl').focus(); return; }
-    S.faqUrl = url; $('faqUrl').value = url;
+    const rawUrl = $('faqUrl').value.trim(), url = pageUrl(rawUrl), extra = extraPages(), parts = _shots.flatMap(s => s.parts).slice(0, PART_MAX);
+    if (rawUrl && !url) { scanSay('That FAQ link doesn’t look right. Check it (e.g. store.com/pages/faq).', true); $('faqUrl').focus(); return; }
+    if (!url && !extra.length && !parts.length) { scanSay('Paste the merchant’s FAQ page link, or add screenshots of it, first.', true); $('faqUrl').focus(); return; }
+    if (url) { S.faqUrl = url; $('faqUrl').value = url; }
+    const auto = S.pages.auto !== false && !!(url || extra.length);
+    const origin = new URL(url || extra[0] ? (url || extra[0].url) : location.href).origin;
+    const known = [url].concat(extra.map(p => p.url)).filter(Boolean).map(u => u.replace(/\/$/, ''));
+    const guesses = auto ? [origin + '/policies/shipping-policy', origin + '/policies/refund-policy'].filter(u => !known.includes(u)) : [];
+    const fetches = Math.min(9, (url ? 1 : 0) + extra.length + (auto ? 4 : 0));
     const btn = $('scanBtn'); btn.disabled = true; btn.textContent = 'Scanning…';
-    scanSay('Claude is reading ' + url.replace(/^https?:\/\//, '') + (_shot ? ' and the screenshot' : '') + '… (about 20–40 seconds)');
+    $('readList').innerHTML = '';
+    const nPages = (url ? 1 : 0) + extra.length;
+    scanSay('Claude is reading ' + [nPages ? (url ? url.replace(/^https?:\/\//, '') : '') + (extra.length ? (url ? ' + ' : '') + extra.length + ' more page' + (extra.length > 1 ? 's' : '') : '') : '', auto ? 'looking for the shipping, returns and help pages' : '', parts.length ? _shots.length + ' screenshot' + (_shots.length > 1 ? 's' : '') : ''].filter(Boolean).join(', ') + '… (about ' + (fetches > 2 ? '40–90' : '20–40') + ' seconds)');
     try {
-      const host = new URL(url).hostname.replace(/^www\./, '');
-      const styleAsk = _shot
-        ? '\n\nThe screenshot shows how the FAQ page looks. From it, also return "style": {"headingFont": closest of [' + FONTS.slice(1).join(', ') + '] or "Inherit (system)", "bodyFont": same list, "headingColor": "#hex", "textColor": "#hex", "linkColor": "#hex", "background": "#hex", "dividerColor": "#hex", "questionWeight": 400|500|600|700, "layout": "lines"|"boxed"|"plain", "icon": "plus"|"chevron"|"none" (none = answers always shown), "titleAlign": "center"|"left", "headingCase": "none"|"uppercase"}.'
+      const styleAsk = parts.length
+        ? '\n\nFrom the screenshots (the FAQ page’s, if there is one), also return "style": {"headingFont": closest of [' + FONTS.slice(1).join(', ') + '] or "Inherit (system)", "bodyFont": same list, "headingColor": "#hex", "textColor": "#hex", "linkColor": "#hex", "background": "#hex", "dividerColor": "#hex", "questionWeight": 400|500|600|700, "layout": "lines"|"boxed"|"plain", "icon": "plus"|"chevron"|"none" (none = answers always shown), "titleAlign": "center"|"left", "headingCase": "none"|"uppercase"}.'
         : '';
-      const text = 'Fetch ' + url + ' — an online store’s FAQ page. A ShipInsure sales rep is mocking up how the store’s FAQ would look with ShipInsure shipping-protection questions added.' +
-        '\n\nReturn ONLY JSON, no markdown: {"store":"store name","title":"the page’s main heading","intro":"the short intro under the heading, or empty","sections":[{"heading":"section heading or empty","items":[{"q":"question","a":"answer as plain text"}]}],"unprotected":"what the page says customers should do about a lost, stolen or damaged order (who to contact, carrier claims), as one short clause that could follow “If your order does not have package protection, ”, or empty","protection":"any shipping/package protection provider the page already mentions, or empty"}' +
-        '\n\nKeep the page’s sections and question order. Copy questions exactly; keep answers faithful but trim each to at most 450 characters. At most 8 sections and 40 questions in all. If the page has no FAQ content, return empty sections.' + styleAsk;
-      const content = _shot ? [{ type: 'image', source: { type: 'base64', media_type: _shot.type, data: _shot.b64 } }, { type: 'text', text }] : text;
-      const body = { model: 'claude-sonnet-5-5', max_tokens: 12000, tools: [{ type: 'web_fetch_20260209', name: 'web_fetch', max_uses: 2, allowed_domains: [host] }], messages: [{ role: 'user', content }] };
+      const text = 'A ShipInsure sales rep is mocking up how an online store’s FAQ page would look with ShipInsure shipping-protection questions added, and filling in the store’s details for that copy.' +
+        (url ? '\n\nThe store’s FAQ page: ' + url + ' (fetch it).' : '') +
+        (extra.length ? '\n\nAlso fetch these pages of the store:\n' + extra.map(p => '- ' + KIND_L[p.kind] + ': ' + p.url).join('\n') : '') +
+        (auto ? '\n\nAlso find and fetch the store’s shipping policy or shipping info page, its returns / refund page, and its help center if it has one, by following links on the pages you read.' + (guesses.length ? ' Shopify stores usually have ' + guesses.join(' and ') + '.' : '') + ' Skip any page that fails to load; read at most ' + fetches + ' pages in all.' : '') +
+        (parts.length ? '\n\nThe ' + parts.length + ' attached image' + (parts.length > 1 ? 's are screenshots' : ' is a screenshot') + ' of the store’s pages (a tall page may be cut into consecutive slices that overlap a little). Read the FAQ questions and answers in them too: they can show what a fetch can’t (answers loaded by script, a site that blocks fetching). Don’t list a question twice.' : '') +
+        '\n\nReturn ONLY JSON, no markdown: {"store":"store name","title":"the FAQ page’s main heading","intro":"the short intro under the heading, or empty","sections":[{"heading":"section heading or empty","items":[{"q":"question","a":"answer as plain text"}]}],' +
+        '"unprotected":"what the store says customers should do about a lost, stolen or damaged order (who to contact, carrier claims), as one short clause that could follow “If your order does not have package protection, ”, or empty",' +
+        '"protection":"any shipping/package protection provider the pages already mention, or empty",' +
+        '"details":{"supportEmail":"customer support email, or empty","returnsPortal":"URL of the store’s returns portal / start-a-return page, or empty","shippingPage":"URL of the store’s shipping info page, or empty","holidayPage":"URL of a holiday shipping deadlines page, or empty","noShipDays":"when the store doesn’t ship or fulfill orders, e.g. \"weekends\" or \"weekends and holidays\", or empty","firstDay":"first day of the week it fulfills orders, e.g. \"Monday\", or empty","processing":"how long orders take to process, e.g. \"1–2 business days\", or empty","coverage":"what the store says it isn’t responsible for in shipping (e.g. a wrong address entered at checkout), one short sentence, or empty"},' +
+        '"pages":[{"url":"each page you read or tried","kind":"faq|shipping|returns|help|other","ok":true}]}' +
+        '\n\nSections: the FAQ page’s sections and question order. If the FAQ page has few or no questions but the help center has the store’s FAQ, use the help center’s questions (shipping, delivery, orders and returns topics first). Add a shipping or returns page’s questions as their own section only when that page is written as questions. Copy questions exactly; keep answers faithful but trim each to at most 450 characters. At most 10 sections and 50 questions in all. Fill "details" and "unprotected" from every page you read. If there is no FAQ content, return empty sections.' + styleAsk;
+      const content = parts.length ? parts.map(p => ({ type: 'image', source: { type: 'base64', media_type: p.type, data: p.b64 } })).concat([{ type: 'text', text }]) : text;
+      const body = { model: 'claude-sonnet-5-5', max_tokens: 16000, messages: [{ role: 'user', content }] };
+      if (url || extra.length) {
+        const tool = { type: 'web_fetch_20260209', name: 'web_fetch', max_uses: fetches, max_content_tokens: 40000 };
+        // Linked pages only: their sites. Finding pages too: wherever the store links (help centers often live elsewhere).
+        if (!auto) tool.allowed_domains = [...new Set(known.map(u => new URL(u).hostname.replace(/^www\./, '')))];
+        body.tools = [tool];
+      }
       let data;
-      for (let turn = 0; turn < 4; turn++) {   // a long server-tool turn can pause; send it back to continue
+      for (let turn = 0; turn < 6; turn++) {   // a long server-tool turn can pause; send it back to continue
         const r = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: await claudeHeaders(), body: JSON.stringify(body) });
         if (!r.ok) { const e = await r.json().catch(() => ({})); if (r.status === 401) _claudeTok = null; throw new Error((e.error && e.error.message) || 'HTTP ' + r.status); }
         data = await r.json();
@@ -658,14 +747,25 @@
       const fetchErr = (data.content || []).find(b => b.type === 'web_fetch_tool_result' && b.content && b.content.error_code);
       const raw = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
       let j; try { j = JSON.parse(raw.slice(raw.indexOf('{'), raw.lastIndexOf('}') + 1)); } catch (e) { j = null; }
-      if (!j) throw new Error(fetchErr ? 'the site blocked the page fetch (' + fetchErr.content.error_code + ')' : 'Claude’s answer wasn’t readable');
+      if (!j) throw new Error(fetchErr ? 'the site blocked the page fetch (' + fetchErr.content.error_code + ')' + (parts.length ? '' : '. Add screenshots of the page and scan again.') : 'Claude’s answer wasn’t readable');
       const str = (v, n) => String(v || '').trim().slice(0, n);
-      const sections = (Array.isArray(j.sections) ? j.sections : []).slice(0, 8).map(s => ({ heading: str(s.heading, 120), items: (Array.isArray(s.items) ? s.items : []).map(i => ({ q: str(i.q, 300), a: str(i.a, 900) })).filter(i => i.q) })).filter(s => s.items.length);
-      S.merchant = { store: str(j.store, 80), title: str(j.title, 140), intro: str(j.intro, 400), sections };
-      if (!S.f.store && S.merchant.store) S.f.store = S.merchant.store;
-      if (!S.f.unprotected && j.unprotected) S.f.unprotected = str(j.unprotected, 400).replace(/^[,\s]+/, '');
+      const sections = (Array.isArray(j.sections) ? j.sections : []).slice(0, 10).map(s => ({ heading: str(s.heading, 120), items: (Array.isArray(s.items) ? s.items : []).map(i => ({ q: str(i.q, 300), a: str(i.a, 900) })).filter(i => i.q) })).filter(s => s.items.length);
+      // A scan that found no questions keeps the earlier scan's (e.g. a shipping page read on its own).
+      if (sections.length || !S.merchant) S.merchant = { store: str(j.store, 80), title: str(j.title, 140), intro: str(j.intro, 400), sections };
+      const filled = [], fillF = (k, v) => { v = str(v, 400); if (v && (!isFilled(k) || S.f[k].trim() === DEFAULTS.f[k]) && v !== S.f[k]) { S.f[k] = v; filled.push(FIELDS[k].label.replace(/ \(optional\)/, '')); } };
+      if (!S.f.store && j.store) S.f.store = str(j.store, 80);
+      const d = j.details || {};
+      fillF('unprotected', String(j.unprotected || '').replace(/^[,\s]+/, '') || (/@/.test(d.supportEmail || '') ? 'please contact ' + str(d.supportEmail, 120) + ' and we’ll help you file a claim with the carrier.' : ''));
+      if (goodUrl(d.returnsPortal)) fillF('returns', d.returnsPortal);
+      const sp = [d.holidayPage, d.shippingPage].find(goodUrl); if (sp) fillF('shipPage', sp);
+      if (d.noShipDays && !/^(none|never|n\/a)$/i.test(d.noShipDays)) fillF('noShipDays', d.noShipDays);
+      if (/^(mon|tues|wednes|thurs|fri|satur|sun)day$/i.test(String(d.firstDay || '').trim())) fillF('firstDay', String(d.firstDay).trim().replace(/^./, c => c.toUpperCase()));
+      fillF('coverage', d.coverage);
+      // The pages it found go in the boxes, so the next scan reads them straight away.
+      const read = (Array.isArray(j.pages) ? j.pages : []).filter(p => p && goodUrl(p.url)).slice(0, 10);
+      read.forEach(p => { const k = { shipping: 'ship', returns: 'returns', help: 'help' }[p.kind]; if (k && p.ok !== false && !String(S.pages[k] || '').trim()) S.pages[k] = p.url; });
       const sty = j.style || {}, hex = v => /^#[0-9a-f]{6}$/i.test(v || '') ? v : null, pickF = f => FONTS.includes(f) ? f : null;
-      if (_shot && j.style) Object.assign(S.style, Object.fromEntries(Object.entries({
+      if (parts.length && j.style) Object.assign(S.style, Object.fromEntries(Object.entries({
         fHead: pickF(sty.headingFont), fBody: pickF(sty.bodyFont), cHead: hex(sty.headingColor), cText: hex(sty.textColor), cAccent: hex(sty.linkColor), cBg: hex(sty.background), cLine: hex(sty.dividerColor),
         qWeight: [400, 500, 600, 700].includes(+sty.questionWeight) ? String(+sty.questionWeight) : null,
         layout: ['lines', 'boxed', 'plain'].includes(sty.layout) ? sty.layout : null, icon: ['plus', 'chevron', 'none'].includes(sty.icon) ? sty.icon : null,
@@ -673,11 +773,14 @@
       }).filter(([, v]) => v)));
       const n = sections.reduce((a, s) => a + s.items.length, 0);
       render();
-      scanSay(n ? 'Found ' + n + ' questions in ' + sections.length + ' section' + (sections.length > 1 ? 's' : '') + '.' + (_shot && j.style ? ' Look matched from the screenshot.' : ' Add a screenshot to match fonts and colors too.') + (j.protection ? ' Heads up: the page already mentions “' + str(j.protection, 60) + '”.' : '')
-        : 'No FAQ questions found on that page. Check the link (it should be the FAQ page itself).', !n || !!j.protection);
+      $('readList').innerHTML = read.map(p => `<span class="${p.ok === false ? 'no' : ''}" title="${esc(p.url)}">${p.ok === false ? '✗' : '✓'} ${esc(KIND_L[p.kind] || 'Page')} · ${esc(p.url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '').slice(0, 38))}</span>`).join('') + (parts.length ? `<span>✓ ${_shots.length} screenshot${_shots.length > 1 ? 's' : ''}</span>` : '');
+      scanSay((n ? 'Found ' + n + ' question' + (n > 1 ? 's' : '') + ' in ' + sections.length + ' section' + (sections.length > 1 ? 's' : '') + '.' : 'No FAQ questions found' + (S.merchant && S.merchant.sections.length ? ' (kept the earlier scan’s).' : '. Check the link, or add screenshots of the FAQ.')) +
+        (filled.length ? ' Filled in: ' + filled.join(', ') + '.' : '') +
+        (parts.length && j.style ? ' Look matched from the screenshots.' : !parts.length ? ' Add screenshots to match fonts and colors too.' : '') +
+        (j.protection ? ' Heads up: the store already mentions “' + str(j.protection, 60) + '”.' : ''), !n || !!j.protection);
     } catch (e) {
       scanSay('Couldn’t scan: ' + (e.message || e), true);
-    } finally { btn.disabled = false; btn.textContent = '🔍 Scan FAQ page'; }
+    } finally { btn.disabled = false; btn.textContent = '🔍 Scan pages'; }
   }
   $('scanBtn').addEventListener('click', scan);
   $('faqUrl').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); scan(); } });
