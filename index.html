@@ -667,6 +667,7 @@
         .co-l-img img.si { object-fit: contain; padding: 9px; box-sizing: border-box; }
         .co-l-img b { position: absolute; top: -8px; right: -8px; min-width: 20px; height: 20px; border-radius: 10px; background: #666; color: #fff; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: 600; }
         .co-l-n { flex: 1 1 auto; font-weight: 500; display: flex; flex-direction: column; gap: 3px; }
+        .co-l-s { font-size: 12px; font-weight: 400; color: #707070; line-height: 1.3; }
         .co-l-rm { font-size: 12px; font-weight: 400; color: var(--co-p); text-decoration: underline; cursor: pointer; align-self: flex-start; }
         .co-imgs { display: flex; flex-wrap: wrap; gap: 6px; }
         .co-imgs button { width: 58px; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px; border: 2px solid #e3e3e3; border-radius: 8px; background: #fff; cursor: pointer; font: 600 9.5px/1.15 inherit; color: #4a4a4a; text-align: center; }
@@ -5734,7 +5735,7 @@ Return ONLY JSON — no markdown, no code fences:
             const pp = _coPP(page || _coGet().page), st = b.set || {}, img = st.img || (pp && pp.set.img), fee = _coFee();
             // Remove: in the SI Interactive Demo it takes protection out (data-df="rm").
             return `<div class="co-l" data-cw="${b.id}" style="${_coBrandStyle()}"><span class="co-l-img"><img src="${_escHtml(img || 'si-lock.png')}" alt=""${img ? '' : ' class="si"'}><b>1</b></span>` +
-                `<span class="co-l-n"><span>${_escHtml(CO_PP_HDR)}</span>${st.remove ? '<u class="co-l-rm" data-df="rm">Remove</u>' : ''}</span><span class="co-l-p">${fee != null ? _mkMoneyStr(fee) : ''}</span></div>`;
+                `<span class="co-l-n"><span>${_escHtml(String(st.hdr || '').trim() || CO_PP_HDR)}</span>${String(st.sub || '').trim() ? `<small class="co-l-s">${_escHtml(st.sub.trim())}</small>` : ''}${st.remove ? '<u class="co-l-rm" data-df="rm">Remove</u>' : ''}</span><span class="co-l-p">${fee != null ? _mkMoneyStr(fee) : ''}</span></div>`;
         }
         // The line item's picture: the ShipInsure lock, the widget's image, the folder's brand kit, or an upload.
         const _coKit = { id: null, kit: null, busy: false };
@@ -5800,6 +5801,8 @@ Return ONLY JSON — no markdown, no code fences:
             const fields = (CO_TYPES[b.type] || {}).theme ? '<div class="co-empty">Added in the theme editor (Online Store › Themes › Customize), not the Checkout Editor. How the cart widget looks in this mockup comes from the Dual checkout widget settings.</div>'
                 : b.type === 'app' ? '<div class="co-empty">Another app’s block, from the merchant’s Checkout Editor. It isn’t drawn in the mockup.</div>'
                 : b.type === 'si-line' ? `
+                <label class="co-f"><span>Header Text</span><input type="text" value="${_escHtml(st.hdr || '')}" placeholder="${_escHtml(CO_PP_HDR)}" oninput="coSetV('${id}','hdr',this.value)"></label>
+                <label class="co-f"><span>Body Text</span><input type="text" value="${_escHtml(st.sub || '')}" placeholder="Optional: a line under the header" oninput="coSetV('${id}','sub',this.value)"><small>Shown under the header, like a product's variant line. Leave empty for none.</small></label>
                 <label class="co-sw"><input type="checkbox" ${st.remove ? 'checked' : ''} onchange="coSetV('${id}','remove',this.checked)"><i></i><span>Show ‘Remove’ link</span></label>
                 <div class="co-f"><span>Line item image</span><div class="co-imgs" data-coimgs="${id}">${_coImgTiles(b)}</div>
                     <input type="file" accept="image/*" hidden id="coImgUp-${id}" onchange="coLineUpload('${id}', this.files[0]); this.value='';">
@@ -6184,6 +6187,14 @@ Return ONLY JSON — no markdown, no code fences:
                     if (words.length > 1) b.set.sub = words.slice(1).map(t => String(t.o).trim()).join(' ');
                     b.set.hideLearn = !ts.some(t => /learn more/i.test(t.o));
                 }
+                if (type === 'si-line' && !r.comp) {
+                    // The line's own words: its name, the line under it (a variant / SKU), and its Remove.
+                    const ts = hit.pg.texts.filter(t => !t.add && t.role !== 'fee' && _mkVal(t.o) == null && t.y + t.h / 2 > r.y && t.y + t.h / 2 < r.y + r.h && t.x + t.w / 2 > r.x && t.x + t.w / 2 < r.x + r.w && String(t.o).trim().length > 2).sort((a, b) => a.y - b.y || a.x - b.x);
+                    const rm = ts.filter(t => /^(×|✕|x)?\s*remove$/i.test(String(t.o).trim())), words = ts.filter(t => rm.indexOf(t) < 0);
+                    if (words[0]) b.set.hdr = String(words[0].o).trim();
+                    if (words.length > 1) b.set.sub = words.slice(1).map(t => String(t.o).trim()).join(' ');
+                    if (rm.length) b.set.remove = true;
+                }
                 b.orig = { slot: slotId, set0: JSON.stringify(b.set) };
                 if (!have) slot.blocks.push(b);
                 changed = true;
@@ -6222,7 +6233,7 @@ Return ONLY JSON — no markdown, no code fences:
         function _coOrigShown(b, s) {
             if (!b.orig || s.id !== b.orig.slot) return false;
             if (b.type === 'si-pp') return JSON.stringify(b.set) === b.orig.set0 && b.on !== false;
-            return _coProtOn('checkout');
+            return JSON.stringify(b.set) === b.orig.set0 && _coProtOn('checkout');   // edited: ShipInsure's line takes its place
         }
         const _coMeasureEl = () => {
             let m = document.getElementById('coMeasure');
