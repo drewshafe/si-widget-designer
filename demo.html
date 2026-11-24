@@ -61,6 +61,15 @@
   .xp-dev button { font-size:12px; font-weight:600; color:var(--muted); background:none; border:none; border-radius:30px; padding:5px 11px; cursor:pointer; white-space:nowrap; }
   .xp-dev button.on { background:var(--card); color:var(--ink); box-shadow:0 1px 4px rgba(20,26,60,.12); }
   .xp-replay { flex:0 0 auto; font-size:12px; font-weight:600; color:var(--muted); background:none; border:none; cursor:pointer; white-space:nowrap; }
+  .xp-hide { flex:0 0 auto; width:28px; height:28px; border-radius:50%; border:1px solid var(--line); background:var(--card); color:var(--muted); font-size:13px; line-height:1; cursor:pointer; }
+  .xp-hide:hover { color:var(--ink); }
+  /* Header hidden: a small tab top-right brings it back */
+  .dm-main { position:relative; }
+  body.no-hdr .xp-top { display:none; }
+  .xp-show { display:none; position:absolute; top:8px; right:10px; z-index:5; font-size:11.5px; font-weight:600; color:var(--muted); background:var(--card); border:1px solid var(--line); border-radius:30px; padding:4px 10px; cursor:pointer; opacity:.55; transition:opacity .15s; }
+  .xp-show:hover, .xp-show:focus-visible { opacity:1; color:var(--ink); }
+  body.no-hdr .xp-show { display:block; }
+  .side-chk { display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; cursor:pointer; }
 
   .xp-stage { flex:1; min-height:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:12px; padding:16px; overflow:auto; }
   .xp-phone { position:relative; display:flex; flex-direction:column; background:#fff; overflow:hidden; }
@@ -113,6 +122,7 @@
     <div id="pieces"></div>
     <div class="hint" id="srcHint"></div>
     <div class="btns"><button class="btn p" type="button" id="linkBtn">🔗 Copy demo link</button><button class="btn" type="button" id="openBtn">↗ Open</button></div>
+    <label class="side-chk"><input type="checkbox" id="hdrChk" checked> Show the steps bar</label>
     <div class="hint">The link opens straight into the demo (phone view). Save it to the merchant's folder from the bar above for a short link.</div>
   </aside>
 
@@ -121,7 +131,9 @@
       <nav class="xp-steps" id="steps"></nav>
       <div class="xp-dev" id="devSeg" title="Preview on a phone or desktop"><button type="button" data-dev="mobile">📱 Mobile</button><button type="button" data-dev="desktop">🖥 Desktop</button></div>
       <button class="xp-replay" type="button" id="replay">↺ Replay</button>
+      <button class="xp-hide" type="button" id="hideHdr" title="Hide this bar" aria-label="Hide this bar">⌃</button>
     </header>
+    <button class="xp-show" type="button" id="showHdr" title="Show the steps bar">⌄ Steps</button>
     <main class="xp-stage" id="stage">
       <div class="xp-phone" id="phone">
         <div class="xp-status"><span>9:41</span><span>●●● ▮</span></div>
@@ -359,7 +371,7 @@
   }
   // The rep's pick is saved with the demo (link + folder save). A viewer just switches; a signed-in rep
   // viewing a saved demo's link keeps it on that save (and a #d= link carries it).
-  async function keepDevice(dev) {
+  async function keepSpec(patch, same, msg) {
     if (!VIEW) return;
     if (/[#&]d=/.test(location.hash)) history.replaceState(null, '', location.pathname + location.search + '#d=' + enc(linkSpec()));
     const id = Q.get('asset');
@@ -367,11 +379,12 @@
     try {
       if (!(await SIsb.currentUser())) return;
       const r = await SIsb.getAsset(id);
-      if (((r.data || {}).device || 'mobile') === dev) return;
-      await SIsb.saveAsset({ id, merchant_ref: r.merchant_ref, kind: r.kind, title: r.title || '', data: Object.assign({}, r.data || {}, { device: dev }) });
-      toast('Saved: this link opens on ' + (dev === 'mobile' ? 'a phone' : 'a desktop'));
+      if (same(r.data || {})) return;
+      await SIsb.saveAsset({ id, merchant_ref: r.merchant_ref, kind: r.kind, title: r.title || '', data: Object.assign({}, r.data || {}, patch) });
+      toast(msg);
     } catch (e) {}
   }
+  const keepDevice = dev => keepSpec({ device: dev }, d => (d.device || 'mobile') === dev, 'Saved: this link opens on ' + (dev === 'mobile' ? 'a phone' : 'a desktop'));
   $('devSeg').onclick = e => {
     const b = e.target.closest('[data-dev]'); if (!b) return;
     const dev = b.dataset.dev === 'desktop' ? 'desktop' : 'mobile';
@@ -380,6 +393,22 @@
     keepDevice(dev);
   };
   addEventListener('resize', fit);
+
+  // ── Steps bar: shown (default) or hidden; ?hdr=0 / #hdr=0 first, else what the demo was saved with ──
+  const hdrPref = () => { const v = Q.get('hdr') || hp('hdr'); return v ? v !== '0' : SPEC.header !== 'hide'; };
+  function setHeader(show) {
+    document.body.classList.toggle('no-hdr', !show);
+    if ($('hdrChk')) $('hdrChk').checked = show;
+    fit();
+  }
+  function pickHeader(show) {
+    setHeader(show);
+    if (show) delete SPEC.header; else SPEC.header = 'hide';
+    keepSpec({ header: show ? 'show' : 'hide' }, d => (d.header !== 'hide') === show, show ? 'Saved: this link shows the steps bar' : 'Saved: this link hides the steps bar');
+  }
+  $('hideHdr').onclick = () => pickHeader(false);
+  $('showHdr').onclick = () => pickHeader(true);
+  $('hdrChk').onchange = e => pickHeader(e.target.checked);
 
   // ── Rep panel ──
   function optLabel(r) { const d = r.updated_at ? new Date(r.updated_at) : null; return (r.title || 'Untitled') + (d ? ' · ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''); }
@@ -437,6 +466,7 @@
     Object.entries(SPEC.pieces).forEach(([k, v]) => { if (v) p[k] = v.id ? { id: v.id, title: v.title || '' } : { data: v.data }; });
     const o = { v: 1, name: SPEC.name || '', pieces: p };
     if (SPEC.device) o.device = SPEC.device === 'desktop' ? 'desktop' : 'mobile';
+    if (SPEC.header === 'hide') o.header = 'hide';
     return o;
   }
   const demoLink = () => location.origin + location.pathname + '?view=1#d=' + enc(linkSpec());
@@ -463,6 +493,7 @@
     else if (!VIEW) { await loadFolder(); autoPick(); }
     if (!VIEW && (asset || fromHash)) await loadFolder();
     setDevice(devPref());
+    setHeader(hdrPref());
     await rebuild();
   })();
   if (!VIEW && window.SIsb) SIsb.onActiveFolder(async () => { SPEC.name = ''; await loadFolder(); autoPick(); rebuild(); });
@@ -472,7 +503,7 @@
     SIFolderBar.mount({
       kind: 'demo', tool: 'SI Interactive Demo', before: $('app'),
       getData: () => linkSpec(),
-      applyData: d => { SPEC = Object.assign({ v: 1, name: '', pieces: {} }, d || {}); setDevice(devPref()); rebuild(); },
+      applyData: d => { SPEC = Object.assign({ v: 1, name: '', pieces: {} }, d || {}); setDevice(devPref()); setHeader(hdrPref()); rebuild(); },
       defaultTitle: () => 'Interactive Demo – ' + (SPEC.name || 'Merchant'),
       shortLink: id => location.origin + location.pathname + '?view=1&asset=' + encodeURIComponent(id)
     });
