@@ -640,6 +640,7 @@
         .co-l { display: flex; align-items: center; gap: 14px; font-size: 14px; color: #000; text-align: left; }
         .co-l-img { position: relative; flex: 0 0 64px; width: 64px; height: 64px; border: 1px solid #dedede; border-radius: var(--co-r); background: #fff; display: flex; align-items: center; justify-content: center; font-size: 26px; box-sizing: border-box; }
         .co-l-img img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
+        .co-l-img img.si { object-fit: contain; padding: 9px; box-sizing: border-box; }
         .co-l-img b { position: absolute; top: -8px; right: -8px; min-width: 20px; height: 20px; border-radius: 10px; background: #666; color: #fff; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: 600; }
         .co-l-n { flex: 1 1 auto; font-weight: 500; }
         .co-l-p { font-weight: 500; white-space: nowrap; }
@@ -3497,6 +3498,10 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             return { F, F0, M, man: man != null };
         }
 
+        // Shipping protection in any provider's words, and the other providers by name (their line or
+        // widget in a mockup / screenshot is taken over by ShipInsure's).
+        const MK_PROT_RE = /protect|shipinsure|insur|guarantee|coverage|worry[- ]?free|\broute\b|navidium|corso|\bseel\b|xcover|\bredo\b|onward|shipaid|assurance/i;
+        const MK_COMP_RE = /\b(route|navidium|corso|seel|xcover|redo|onward|shipaid|insureship|extend)\b/i;
         // Tag the prices on a freshly imported page (the rep can retag any of them).
         function _mkAutoRoles(pg) {
             const T = pg.texts;
@@ -3511,9 +3516,11 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 return c[0] ? c[0].o : '';
             };
             money.forEach(t => {
-                if (t.role != null && t.role !== '' && MK_ROLES[t.role]) return;   // the scan already tagged it
                 const own = t.o.toLowerCase(), all = own + ' ' + rowOf(t).toLowerCase(), v = _mkVal(t.o);
-                if (/protect|shipinsure|insure|guarantee/.test(all + ' ' + aboveOf(t).toLowerCase()) && v <= maxV * 0.2) t.role = 'fee';
+                const prot = MK_PROT_RE.test(all + ' ' + aboveOf(t).toLowerCase()) && v <= maxV * 0.2 && !MK_BTN_RE.test(own) && !MK_BTN2_RE.test(own);
+                // The scan's tag stands, except a small price on a protection line it called a product.
+                if (t.role != null && t.role !== '' && MK_ROLES[t.role] && !(t.role === 'item' && prot)) return;
+                if (prot) t.role = 'fee';
                 // The secondary button's amount is the cart WITHOUT protection.
                 else if (MK_BTN2_RE.test(own)) { t.role = 'sub'; if (!t._al) { t.al = 'c'; t._al = true; } }
                 else if (/check ?out|pay now|place order|complete (my )?order|buy now/.test(own)) { t.role = 'total'; if (!t._al) { t.al = 'c'; t._al = true; } }
@@ -3523,6 +3530,12 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                 else if (/ship|tax|discount|sav(e|ing)|\boff\b|free|deliver|estimat|duties|\btip\b|away|reward|points|earn|spend|credit|gift card|\bover\b|pay in|installment|interest|afterpay|klarna|affirm|sezzle/.test(all)) t.role = '';
                 else t.role = 'item';
                 if (!t._al) t.al = 'r';   // prices sit in right-hand columns; button amounts are centered above
+            });
+            // A struck-through "was" price sits right above the price paid (or FREE), in smaller type: not a product price.
+            money.forEach(t => {
+                if (t.role !== 'item') return;
+                const below = T.find(u => u !== t && (_mkVal(u.o) != null || /^free$/i.test(String(u.o).trim())) && u.y >= t.y + t.h * 0.6 && u.y - (t.y + t.h) < Math.max(t.h, u.h) * 1.2 && Math.abs((u.x + u.w) - (t.x + t.w)) < Math.max(8, t.h) && u.sz >= t.sz * 0.98);
+                if (below && (!/^free$/i.test(String(below.o).trim()) ? _mkVal(below.o) < _mkVal(t.o) : true)) t.role = '';
             });
             T.forEach(t => { delete t._al; if (t.role == null) t.role = ''; });
             _mkSubRoles(pg);
@@ -4150,9 +4163,9 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             const fee = T.find(t => t.role === 'fee' && t.y + t.h <= b1.y + 2 && b1.y - t.y < 220);
             // (A PDF can hold stray text under the design; text sitting inside another's box is skipped.)
             const ghost = u => T.some(v => v !== u && v.w > u.w && v.x <= u.x + 1 && v.x + v.w >= u.x + u.w - 1 && Math.abs(cy(v) - cy(u)) < Math.max(u.h, v.h) * 0.6);
-            const kw = u => /protect|insur|guarantee|coverage|shipinsure/i.test(u.o) ? 1 : 0;
+            const kw = u => MK_PROT_RE.test(u.o) ? 1 : 0;
             let hdr = fee ? T.filter(u => u !== fee && !u.part && !money(u) && !ghost(u) && sameRow(fee, u, 600) && u.x < fee.x).sort((a, b) => (kw(b) - kw(a)) || (b.w - a.w))[0] : null;
-            if (!hdr) hdr = T.filter(u => !u.part && !money(u) && !ghost(u) && u.y + u.h <= b1.y && b1.y - u.y < 200 && /protect|insur|guarantee|coverage|shipinsure/i.test(u.o)).sort((a, b) => b.y - a.y)[0];
+            if (!hdr) hdr = T.filter(u => !u.part && !money(u) && !ghost(u) && u.y + u.h <= b1.y && b1.y - u.y < 200 && MK_PROT_RE.test(u.o)).sort((a, b) => b.y - a.y)[0];
             if (hdr) {
                 mark(hdr, 'hdr');
                 // Body: the lines right under the header, down to the button.
@@ -4389,20 +4402,22 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             try {
                 const claudeHeaders = await siClaudeHeaders();
                 _mkStatus(`Finding the text on “${pg.name}”… (about 20–40 seconds)`, 'info');
-                const cv = await _mkPageCanvas(pg);
+                let cv = await _mkPageCanvas(pg);
                 const f = Math.min(1, 1568 / Math.max(pg.w, pg.h));
                 const sw = Math.round(pg.w * f), sh = Math.round(pg.h * f);
                 const c = document.createElement('canvas'); c.width = sw; c.height = sh;
                 c.getContext('2d').drawImage(cv.ctx.canvas, 0, 0, sw, sh);
-                const prompt = `This image is one page of an e-commerce store mockup (cart and/or checkout), ${sw}×${sh} px.
+                const prompt = `This image is one page of an e-commerce store's cart and/or checkout, ${sw}×${sh} px: a design mockup, or a screenshot of the live website (often a Shopify checkout: the form column with Contact / Delivery / Payment and its main button such as "Continue" or "Pay now", and the order summary column with line items, discount code, Subtotal, Shipping and Total).
+If it is a screenshot that includes browser or device UI (tabs, the address bar, bookmarks, OS menu bar or status bar, a browser's developer tools), give "page":{"x":0,"y":0,"w":0,"h":0} as the box of the web page itself, and list only text inside it. Otherwise give the whole image as "page".
 List EVERY piece of visible text, one entry per line. Keep separate things separate: a label on the left and its price on the right are two entries; each button label, menu item, price, badge and line of small print is its own entry.
 Return ONLY JSON — no markdown, no code fences:
-{"texts":[{"text":"exact text","x":0,"y":0,"w":0,"h":0,"size":14,"weight":400,"align":"left","font":"","role":""}]}
+{"page":{"x":0,"y":0,"w":${sw},"h":${sh}},"texts":[{"text":"exact text","x":0,"y":0,"w":0,"h":0,"size":14,"weight":400,"align":"left","font":"","role":""}]}
 - x, y, w, h: a TIGHT pixel box around that line's letters, in this image's coordinates.
 - size: font size in px. weight: 300, 400, 500, 600, 700 or 800.
 - align: how it anchors in its container: "left", "center" (e.g. a centered button label) or "right" (e.g. prices in a right-hand column).
 - font: the closest Google Fonts family, e.g. "Poppins", "Inter", "Montserrat".
-- role: "fee" for the shipping protection / ShipInsure price, "item" for a product's price, "sub" for a subtotal that does NOT include protection, "total" for any amount that includes protection (order total, the checkout button's amount), otherwise "".`;
+- A small ⓘ / info icon after a label is not text: leave it out of "text" (don't turn it into "i", "O" or "@").
+- role: "fee" for the shipping / package / order protection price — ShipInsure's or any other provider's (Route, Navidium, Corso, Seel, a store-branded "Package Protection" line item…), "item" for a product's price, "sub" for a subtotal that does NOT include protection, "total" for any amount that includes protection (order total, the checkout button's amount), otherwise "".`;
                 const resp = await fetch('https://api.anthropic.com/v1/messages', {
                     method: 'POST',
                     headers: claudeHeaders,
@@ -4419,6 +4434,21 @@ Return ONLY JSON — no markdown, no code fences:
                 const raw = ((data.content || []).find(b => b.type === 'text') || {}).text || '';
                 const parsed = JSON.parse(raw.replace(/^[\s\S]*?(\{)/, '$1').replace(/\}[^}]*$/, '}'));
                 const k = 1 / f, AL = { left: 'l', center: 'c', right: 'r' };
+                // A website screenshot with the browser around it: keep just the web page.
+                const P = parsed.page || {}, px0 = Math.max(0, (+P.x || 0) * k), py0 = Math.max(0, (+P.y || 0) * k);
+                const pw = Math.min(pg.w - px0, (+P.w || sw) * k), ph = Math.min(pg.h - py0, (+P.h || sh) * k);
+                if (!pg.texts.length && (px0 > 12 || py0 > 12 || pg.w - (px0 + pw) > 12 || pg.h - (py0 + ph) > 12) && pw > pg.w * 0.4 && ph > pg.h * 0.4) {
+                    const c2 = document.createElement('canvas'), kk = cv.k;
+                    c2.width = Math.round(pw * kk); c2.height = Math.round(ph * kk);
+                    const x2 = c2.getContext('2d', { willReadFrequently: true });
+                    x2.drawImage(cv.ctx.canvas, Math.round(px0 * kk), Math.round(py0 * kk), c2.width, c2.height, 0, 0, c2.width, c2.height);
+                    pg.img = c2.toDataURL('image/jpeg', 0.9); pg.w = Math.round(pw); pg.h = Math.round(ph);
+                    _mkCanvas[pg.img] = { ctx: x2, k: kk };
+                    (parsed.texts || []).forEach(t => { t.x = (+t.x || 0) - px0 / k; t.y = (+t.y || 0) - py0 / k; });
+                    parsed.texts = (parsed.texts || []).filter(t => t.x + (+t.w || 0) > 0 && t.y + (+t.h || 0) > 0 && t.x < pg.w / k && t.y < pg.h / k);
+                    cv = _mkCanvas[pg.img];
+                    _mkStatus('Trimmed the browser bars off the screenshot…', 'info');
+                }
                 pg.texts = (parsed.texts || []).filter(t => t && t.text && String(t.text).trim()).map(t => {
                     const x = (+t.x || 0) * k, y = (+t.y || 0) * k, w = Math.max(2, (+t.w || 0) * k), h = Math.max(2, (+t.h || 0) * k);
                     const s = _mkSample(cv, x - 2, y - 2, w + 4, h + 4);
@@ -5646,7 +5676,7 @@ Return ONLY JSON — no markdown, no code fences:
         // The order-summary line: shown while protection is in the order.
         function _coLineHtml(b, page) {
             const pp = _coPP(page || _coGet().page), img = pp && pp.set.img, fee = _coFee();
-            return `<div class="co-l" data-cw="${b.id}" style="${_coBrandStyle()}"><span class="co-l-img">${img ? `<img src="${_escHtml(img)}" alt="">` : '🛡'}<b>1</b></span>` +
+            return `<div class="co-l" data-cw="${b.id}" style="${_coBrandStyle()}"><span class="co-l-img"><img src="${_escHtml(img || 'si-lock.png')}" alt=""${img ? '' : ' class="si"'}><b>1</b></span>` +
                 `<span class="co-l-n">${_escHtml(CO_PP_HDR)}</span><span class="co-l-p">${fee != null ? _mkMoneyStr(fee) : ''}</span></div>`;
         }
         function _coBlockHtml(b, page) {
@@ -5744,21 +5774,21 @@ Return ONLY JSON — no markdown, no code fences:
         // block closes its gap. Nothing is painted over the mockup's pixels: each column is
         // re-laid as strips of the original image. Only a stored configuration (_mk.co) changes
         // the page, so old saves and untouched mockups render exactly as before. ──
-        const CO_AV = 3;   // anchor detection version: older pg.coA is found again (hand tags kept)
+        const CO_AV = 4;   // anchor detection version: older pg.coA is found again (hand tags kept)
         const CO_ANCH = {
             express:    { l: 'Express checkout', re: /^express checkout$/i, main: 1 },
             contact:    { l: 'Contact', re: /^contact( information)?$/i, main: 1 },
-            delivery:   { l: 'Delivery', re: /^(delivery|shipping address)$/i, main: 1 },
-            shipmethod: { l: 'Shipping method', re: /^shipping method$/i, main: 1 },
-            payment:    { l: 'Payment', re: /^payment$/i, main: 1 },
+            delivery:   { l: 'Delivery', re: /^(delivery|shipping address|delivery address|ship to)$/i, main: 1 },
+            shipmethod: { l: 'Shipping method', re: /^(shipping|delivery) (method|options?)$/i, main: 1 },
+            payment:    { l: 'Payment', re: /^payment( method)?$/i, main: 1 },
             remember:   { l: 'Remember me', re: /^remember me$/i, main: 1 },
             billing:    { l: 'Billing address', re: /^billing address$/i, main: 1 },
-            paynow:     { l: 'Pay now', re: /^(pay now|complete order|place order)$/i, main: 1 },
+            paynow:     { l: 'Pay now', re: /^(pay now|complete (order|purchase)|place order|submit order|review order|continue( to (shipping|delivery|payment|review)( method)?)?)$/i, main: 1 },
             summary:    { l: 'Order summary', re: /^order summary$/i },
             discount:   { l: 'Discount', re: /^(discount( code)?( or gift card)?|gift card or discount code)$/i },
             subtotal:   { l: 'Subtotal', re: /^subtotal\b/i },
             shipping:   { l: 'Shipping', re: /^shipping$/i },
-            total:      { l: 'Total', re: /^total$/i },
+            total:      { l: 'Total', re: /^(total|estimated total|total due( today)?)$/i },
             'si-widget':{ l: 'ShipInsure widget already in the mockup', region: 1 },
             'si-line':  { l: 'ShipInsure line already in the mockup', region: 1 }
         };
@@ -5789,15 +5819,27 @@ Return ONLY JSON — no markdown, no code fences:
         // Section anchors from the page's own text (the same text that's editable), plus hand tags.
         function _coAnchors(pg) {
             if (pg.coA && pg.coA.v === CO_AV) return pg.coA;
-            const A = { v: CO_AV };
+            const A = { v: CO_AV }, T = pg.texts.filter(t => !t.add), crumbs = _coCrumbs(T);
+            const cy = t => t.y + t.h / 2, rowRight = t => T.some(u => u !== t && u.x > t.x + t.w && Math.abs(cy(u) - cy(t)) < Math.max(t.h, u.h) * 0.7);
             Object.keys(CO_ANCH).forEach(key => {
                 const d = CO_ANCH[key]; if (d.region) return;
-                const m = pg.texts.filter(t => !t.add && d.re.test(String(t.o).trim())).sort((a, b) => a.y - b.y)[0];
+                const c = T.filter(t => !crumbs.has(t) && d.re.test(_coClean(t.o)));
+                // A heading in the main column: the first one. A summary row (Subtotal, Shipping, Total): the
+                // one with its amount beside it.
+                const m = (d.main ? c.sort((a, b) => a.y - b.y) : c.sort((a, b) => (rowRight(b) - rowRight(a)) || (a.y - b.y)))[0];
                 if (m) A[key] = { x: m.x, y: m.y, w: m.w, h: m.h };
             });
             if (pg.coA) Object.keys(pg.coA).forEach(k => { const a = pg.coA[k]; if (a && a.hand) A[k] = a; });
             pg.coA = A;
             return A;
+        }
+        // Text as a section heading reads: no trailing ⓘ / ? / colon.
+        const _coClean = s => _mkPlain(s).replace(/\s*(\([iI?]\)|[ⓘℹ①?])\s*$/, '').replace(/\s*[:·•]\s*$/, '').trim();
+        // Shopify's step breadcrumb (Cart › Information › Shipping › Payment): its words aren't sections.
+        function _coCrumbs(T) {
+            const st = T.filter(t => /^(cart|information|shipping|delivery|payment|review)$/i.test(_coClean(t.o)));
+            const cy = t => t.y + t.h / 2;
+            return new Set(st.filter(t => st.filter(u => u !== t && Math.abs(cy(u) - cy(t)) < Math.max(t.h, u.h) * 0.7).length >= 1));
         }
         const _coIsCheckout = A => CO_MAIN.filter(k => A[k]).length >= 2 || ['payment', 'paynow'].some(k => A[k] && A[k].hand);
         function _coScale(pg) {
@@ -5918,6 +5960,25 @@ Return ONLY JSON — no markdown, no code fences:
             if (A._px || !_coIsCheckout(A)) return false;
             let cv; try { cv = await _mkPageCanvas(pg); } catch (e) { return false; }
             ['paynow', 'discount'].forEach(k => { if (A[k] && !A[k].hand) A[k].box = _coBoxOf(cv, A[k]); });
+            // Desktop checkout whose order summary has no heading the text pass knew: the straight edge
+            // between the two columns (the summary's own background or its divider line), with text both sides.
+            if (!A._bx && _coCols(pg, A).length === 1 && pg.w > pg.h * 0.75) {
+                const T = pg.texts.filter(t => !t.add), top = Math.min(pg.h * 0.3, ...T.map(t => t.y)), prof = _dfColProfile(cv, pg, top + 10, Math.min(pg.h - 10, top + pg.h * 0.6));
+                // The widest strip no text crosses (the gutter between the columns), split where its pixels are
+                // flattest (a summary box's border or a divider line sits at one side of it).
+                const cover = new Uint8Array(Math.ceil(pg.w) + 1);
+                T.filter(t => t.y > top - 2 && t.w < pg.w * 0.45).forEach(t => { for (let v = Math.max(0, Math.floor(t.x)); v <= Math.min(pg.w, Math.ceil(t.x + t.w)); v++) cover[v] = 1; });
+                let gap = null;
+                for (let v = Math.round(pg.w * 0.3), run = 0; v <= Math.round(pg.w * 0.8); v++) { if (!cover[v]) { run++; if (run >= 16 && (!gap || run > gap.n)) gap = { n: run, e: v }; } else run = 0; }
+                let x = null;
+                if (gap && prof) {
+                    const flat = i => i > 0 && Math.abs(prof[i][0] - prof[i - 1][0]) + Math.abs(prof[i][1] - prof[i - 1][1]) + Math.abs(prof[i][2] - prof[i - 1][2]) < 6;
+                    let best = null;
+                    for (let i = Math.ceil((gap.e - gap.n) / 2) + 1, run = 0; i <= Math.floor(gap.e / 2); i++) { if (flat(i)) { run++; if (!best || run > best.n) best = { n: run, e: i }; } else run = 0; }
+                    x = best && best.n >= 4 ? Math.round((best.e - best.n / 2) * 2) : Math.round(gap.e - gap.n / 2);
+                }
+                if (x != null && T.filter(t => t.x + t.w < x - 8).length >= 4 && T.filter(t => t.x > x + 8).length >= 4) A._bx = x;
+            }
             const cols = _coCols(pg, A);
             if (cols.length === 2) {   // the summary's own background starts at the divider
                 const c = cols[1], y = Math.round(((A.subtotal || A.total || A.discount || {}).y || pg.h / 2) * cv.k);
@@ -5937,6 +5998,19 @@ Return ONLY JSON — no markdown, no code fences:
                 if (A[key] && (A[key].hand || (t.y >= A[key].y && t.y <= A[key].y + A[key].h))) return;
                 const r = _coRegion(cv, c, t.y + t.h / 2, t.h);
                 if (r && r.h < t.h * 14) A[key] = r;
+            });
+            // A protection widget in the main column that shows no price (a checkbox and its wording).
+            if (!A['si-widget']) {
+                const w = pg.texts.filter(t => !t.add && t.role !== 'fee' && _mkVal(t.o) == null && /(package|shipping|order|delivery|purchase) (protection|insurance|guarantee)|shipinsure|shipping insurance|worry[- ]?free/i.test(t.o)
+                    && !MK_BTN_RE.test(t.o) && !MK_BTN2_RE.test(t.o) && _coColAt(cols2, t.x + t.w / 2).main && (cols2.length === 2 || !(A.subtotal && t.y > A.subtotal.y - t.h * 14))).sort((a, b) => a.y - b.y)[0];
+                if (w) { const r = _coRegion(cv, _coColAt(cols2, w.x + w.w / 2), w.y + w.h / 2, w.h); if (r && r.h < w.h * 12) A['si-widget'] = r; }
+            }
+            // Another provider's line / widget (Route, Navidium, …): ShipInsure's takes its place.
+            ['si-widget', 'si-line'].forEach(key => {
+                const r = A[key]; if (!r || r.hand) return;
+                const words = pg.texts.filter(t => !t.add && t.y + t.h / 2 > r.y && t.y + t.h / 2 < r.y + r.h && t.x + t.w / 2 > r.x && t.x + t.w / 2 < r.x + r.w).map(t => t.o).join(' ');
+                const m = words.match(MK_COMP_RE);
+                if (m && !/shipinsure/i.test(words)) r.comp = m[1].replace(/^./, c => c.toUpperCase()); else delete r.comp;
             });
             if (A.paynow && A.paynow.box) {
                 const b = A.paynow.box, page = _coRows(cv, cols2[0].l - 6, cols2[0].r + 6), bgp = page ? _coBgAt(cv, cols2[0], b.y - 4) : '#ffffff';
@@ -5977,7 +6051,7 @@ Return ONLY JSON — no markdown, no code fences:
                 const blank = JSON.stringify(_coBlock(type).set);
                 if (have && (have.s !== slot || (type === 'si-pp' && JSON.stringify(have.b.set) !== blank))) return;
                 const b = have ? have.b : _coBlock(type);
-                if (type === 'si-pp') {
+                if (type === 'si-pp' && !r.comp) {
                     const ts = hit.pg.texts.filter(t => !t.add && t.role !== 'fee' && t.y + t.h / 2 > r.y && t.y + t.h / 2 < r.y + r.h && t.x + t.w / 2 > r.x && t.x + t.w / 2 < r.x + r.w).sort((a, b) => a.y - b.y || a.x - b.x);
                     const words = ts.filter(t => !/learn more/i.test(t.o));
                     if (words[0]) b.set.hdr = String(words[0].o).trim();
@@ -6042,13 +6116,15 @@ Return ONLY JSON — no markdown, no code fences:
             [['si-widget', 'si-pp'], ['si-line', 'si-line']].forEach(([key, type]) => {
                 const r = A[key]; if (!r) return;
                 const e = all.find(x => x.b.type === type && x.b.orig);
-                if (e && _coOrigShown(e.b, e.s)) { _coPlaced.add(e.b.id); return; }
+                if (e && !r.comp && _coOrigShown(e.b, e.s)) { _coPlaced.add(e.b.id); return; }
                 ops.push({ cut: 1, col: _coColAt(cols, r.x + r.w / 2), y: r.y, y1: r.y + r.h });
             });
             all.forEach(({ b, s }) => {
-                if (b.orig && _coOrigShown(b, s) && A[b.type === 'si-pp' ? 'si-widget' : 'si-line']) return;
+                const orig = A[b.type === 'si-pp' ? 'si-widget' : 'si-line'];
+                if (b.orig && orig && !orig.comp && _coOrigShown(b, s)) return;
                 const html = _coBlockHtml(b, 'checkout');
-                const at = _coSlotAt(pg, A, cols, s.id, cv); if (!at) return;
+                const here = b.orig && orig && orig.comp && s.id === b.orig.slot;
+                const at = here ? { col: _coColAt(cols, orig.x + orig.w / 2), y: orig.y } : _coSlotAt(pg, A, cols, s.id, cv); if (!at) return;
                 _coPlaced.add(b.id);
                 if (!html) return;
                 const w = at.col.r - at.col.l, h = Math.round((_coMeasure(html, w / k) + 2 * M) * k);
