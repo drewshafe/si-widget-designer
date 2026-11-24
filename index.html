@@ -4301,6 +4301,25 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             });
             return made;
         }
+        // Body text where the mockup has none: a new line under the header. The header's row (its text,
+        // ⓘ and price, and everything else on it) moves up into the space above to make room, the way a
+        // cart's pinned footer grows upward; with no room above, what's below moves down instead.
+        const MK_BODY0 = 'Protect your order from loss, damage and theft.';
+        function _mkAddBody() {
+            let made = false;
+            _mk.pages.forEach(pg => {
+                if (_mkPartTexts(pg, 'body').length) return;
+                const H = _mkPartTexts(pg, 'hdr').filter(t => !t.add); if (!H.length) return;
+                const h0 = H[0], cy = t => t.y + t.h / 2;
+                const row = pg.texts.filter(u => !u.add && H.some(t => Math.abs(cy(u) - cy(t)) < Math.max(u.h, t.h) * 0.7));
+                const bot = Math.max(...row.map(u => u.y + u.h).concat(H.filter(t => t.ic).map(t => +t.ic.y + +t.ic.h)));
+                const sz = _mkR(Math.max(9, h0.sz * 0.88)), lh = _mkR(sz * 1.3 + 4), y1 = _mkR(bot + 3);
+                const t = _mkT({ t: _mk.parts.body.tpl || MK_BODY0, x: _mkR(Math.min(...H.map(u => u.x))), y: _mkR(y1 - lh + 2), w: 0, h: _mkR(sz * 1.15), b: _mkR(y1 - lh + 2 + sz * 0.88), sz, add: true, c: h0.c || '#333333', bg: 'transparent', al: 'l', fw: 400, ff: h0.ff || '', fg: h0.fg || '', part: 'body' });
+                t.w = _mkR(_mkMeasure(t, t.t)); t.lift = y1; t.liftH = lh;
+                pg.texts.push(t); made = true;
+            });
+            return made;
+        }
         function mkPartOn(key, on) {
             _mkEnsureParts();
             if (key === 'p1' || key === 'p2') { _mk.parts[key] = !!on; mkRender(); return; }
@@ -4308,10 +4327,11 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             const found = _mk.pages.some(pg => _mkPartTexts(pg, key).length);
             if (on && !found) {
                 if (key === 'disc' && _mkAddDisclaimer()) { mkRender(); return; }
+                if (key === 'body' && _mkAddBody()) { mkRender(); return; }
                 _mk.parts[key].on = true;
                 _mkStatus(`No ${MK_PARTS[key].toLowerCase()} found in this mockup. Click it in the preview and set “Widget part” to ${MK_PARTS[key]}.`, 'error');
             }
-            if (!on && key === 'disc') _mk.pages.forEach(pg => { pg.texts = pg.texts.filter(t => !(t.add && t.part === 'disc')); });
+            if (!on && (key === 'disc' || key === 'body')) _mk.pages.forEach(pg => { pg.texts = pg.texts.filter(t => !(t.add && t.part === key && (key === 'disc' || t.lift != null))); });
             mkRender();
         }
         function mkPartText(key, val) {
@@ -4319,6 +4339,8 @@ For uncertain values make your best visual estimate. Always use valid hex colors
             const orig = _mkPartOrig(key);
             _mk.parts[key].tpl = val === orig ? null : val;
             if (key === 'disc' && val && !_mk.pages.some(pg => _mkPartTexts(pg, 'disc').length)) { _mk.parts.disc.on = true; _mkAddDisclaimer(); }
+            if (key === 'body' && val && !_mk.pages.some(pg => _mkPartTexts(pg, 'body').length)) { _mk.parts.body.on = true; _mkAddBody(); }
+            _mk.pages.forEach(pg => pg.texts.forEach(t => { if (t.add && t.part === key && t.lift != null) t.w = _mkR(_mkMeasure(t, _mk.parts[key].tpl || t.t)); }));
             _mk.pages.forEach(pg => pg.texts.forEach(t => { if (t.add && t.part === key) t.t = _mk.parts[key].tpl || t.t; }));
             mkRender();
         }
@@ -4345,9 +4367,11 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                     ? `<textarea rows="2" oninput="mkPartText('${key}', this.value)" placeholder="${key === 'disc' ? 'Disclaimer text' : ''}">${_escHtml(v)}</textarea>`
                     : `<input type="text" value="${_escHtml(v)}" oninput="mkPartText('${key}', this.value)">`;
             };
+            const addable = k => k === 'disc' || (k === 'body' && found('hdr'));
             const row = (key, label, help, multi) => {
                 const f = found(key), on = f && P[key].on !== false;
-                return `<div class="mk2-prow">${tog(key, label, help, on, !f && key !== 'disc')}${(on || key === 'disc' && P.disc.on !== false && P.disc.tpl) ? field(key, multi) : ''}${!f && key !== 'disc' ? '<div class="mk2-pnote">Not found in this mockup: click it in the preview, then set Widget part.</div>' : ''}<div class="mk2-pnote">${_escHtml(help)}</div></div>`;
+                const note = f ? '' : key === 'body' && found('hdr') ? 'None in this mockup: switch it on to add a line under the header (the header row moves up to make room).' : key !== 'disc' ? 'Not found in this mockup: click it in the preview, then set Widget part.' : '';
+                return `<div class="mk2-prow">${tog(key, label, help, on, !f && !addable(key))}${(on || key === 'disc' && P.disc.on !== false && P.disc.tpl) ? field(key, multi) : ''}${note ? `<div class="mk2-pnote">${note}</div>` : ''}<div class="mk2-pnote">${_escHtml(help)}</div></div>`;
             };
             const p = (key, label, help) => {
                 const btn = key === 'p1' ? 'b1' : 'b2', f = found(btn), on = P[key] == null ? hasPrice(btn) : P[key];
@@ -4693,7 +4717,7 @@ Return ONLY JSON — no markdown, no code fences:
         const _mkIsSel = (k, pi, id) => !!_mkSel && _mkSel.k === k && _mkSel.p === pi && _mkSel.id === id;
         function _mkTextStyle(t, pg) {
             // In a reflowed checkout page the text moves with its column (or was cut away with a block).
-            const dy = _coDy(pg, t.x + t.w / 2, t.y + t.h / 2);
+            const dy = t.lift != null ? _coDy(pg, t.x + 1, +t.lift) : _coDy(pg, t.x + t.w / 2, t.y + t.h / 2);
             if (dy === null) return 'display:none;';
             if (dy) t = Object.assign({}, t, { y: t.y + dy, b: t.b + dy });
             const P = MK_PAD, ff = _mkFam(t);
@@ -6111,7 +6135,8 @@ Return ONLY JSON — no markdown, no code fences:
         function _coLayout(pg) {
             if (!_mk.pages.length) return null;
             const A = _coAnchors(pg), ck = !!_mk.co && _mk.co.plus !== false && _coIsCheckout(A), er = _mkErased(pg);
-            if (!ck && !er.length) return null;
+            const lifts = pg.texts.filter(t => t.add && t.lift != null && t.part === 'body' && _mkPlain(t.t).trim() && ((_mk.parts || {}).body || {}).on !== false);
+            if (!ck && !er.length && !lifts.length) return null;
             const cv = _mkCanvas[pg.img] || null;
             if (!cv) _mkPageCanvas(pg).then(_coSoon, () => {});
             const cols = ck ? _coCols(pg, A) : _mkCols(pg, cv), k = _coScale(pg), M = 10, ops = [], patches = [];
@@ -6137,12 +6162,34 @@ Return ONLY JSON — no markdown, no code fences:
             }
             // Erased lines close up: what's under them moves up into their place.
             if (er.length && cv) _mkCloseUp(pg, cv, cols, er, ops, patches);
+            // Added body text: the block above its line moves up into the empty space above it.
+            lifts.forEach(t => {
+                const c = _coColAt(cols, t.x + 1), y1 = +t.lift, h = +t.liftH || 20, bg = _coBgAt(cv, c, y1);
+                const R = cv && _coRows(cv, c.l - 6, c.r + 6);
+                let y0 = null;
+                if (R) {   // up from the line: past the header's row and the block it's in, to a run of empty rows tall enough
+                    const kk = R.k, need = Math.ceil((h + 4) * kk);
+                    for (let i = Math.floor((y1 - 1) * kk), run = 0, seen = false; i > 0 && i > (y1 - pg.h * 0.6) * kk; i--) {
+                        if (!R.blank[i]) { seen = true; run = 0; continue; }
+                        if (seen && ++run >= need) { y0 = Math.round((i + run) / kk); break; }
+                    }
+                }
+                if (y0 != null && y0 < y1 - 4) ops.push({ lift: 1, col: c, y: y0, y1, h, bg });
+                else ops.push({ col: c, y: y1, h, html: '', bid: null, x: c.l, w: c.r - c.l, k: 1, M: 0, bg });   // no room above: push down
+            });
             if (!ops.length && !patches.length) return null;
             cols.forEach(c => {
                 const ev = ops.filter(o => o.col === c).sort((a, b) => a.y - b.y);
                 let oy = 0, dy = 0;
                 c.segs = []; c.ins = [];
+                c.gaps = [];
                 ev.forEach(o => {
+                    if (o.lift) {
+                        const a = Math.max(Math.round(o.y), oy), b = Math.round(o.y1);
+                        if (a > oy) c.segs.push({ o0: oy, o1: a, dy });
+                        if (b > a) { c.segs.push({ o0: a, o1: b, dy: dy - o.h }); c.gaps.push({ top: b + dy - o.h, h: o.h, bg: o.bg, row: Math.max(0, a - 2) }); oy = b; }
+                        return;
+                    }
                     if (o.cut) {
                         const y0 = Math.max(Math.round(o.y), oy), y1 = Math.round(o.y1);
                         if (y0 > oy) c.segs.push({ o0: oy, o1: y0, dy });
@@ -6296,6 +6343,8 @@ Return ONLY JSON — no markdown, no code fences:
                 c.segs.forEach(s => { if (!s.cut && s.o1 > s.o0) h += `<div class="co-tile" style="left:${c.x0}px;top:${s.o0 + s.dy}px;width:${w}px;height:${s.o1 - s.o0}px;"><img src="${img}" alt="" draggable="false" style="left:${-c.x0}px;top:${-s.o0}px;width:${pg.w}px;height:${pg.h}px;"></div>`; });
                 if (c.end < L.H) h += `<div class="co-fill" style="left:${c.x0}px;top:${c.end}px;width:${w}px;height:${L.H - c.end}px;background:${c.bgEnd};"></div>`;
                 c.ins.forEach(i => { h += `<div class="co-fill" style="left:${c.x0}px;top:${i.top}px;width:${w}px;height:${i.h}px;background:${i.bg};"></div>`; });
+                // The room made for a line: an empty row of the page just above, stretched (edges and shading carry on).
+                (c.gaps || []).forEach(g => { h += `<div class="co-tile" style="left:${c.x0}px;top:${g.top}px;width:${w}px;height:${g.h}px;background:${g.bg};"><img src="${img}" alt="" draggable="false" style="left:${-c.x0}px;top:${-g.row * g.h}px;width:${pg.w}px;height:${pg.h * g.h}px;"></div>`; });
             });
             // A text block that closed up beside a picture: painted over, then its pieces drawn moved up.
             (L.patches || []).forEach(p => {
@@ -6306,7 +6355,7 @@ Return ONLY JSON — no markdown, no code fences:
             return h;
         }
         function _coInsHtml(L) {
-            return L.cols.flatMap(c => c.ins.map(i => `<div class="co-ins${_coSel === i.bid ? ' sel' : ''}" data-coblk="${i.bid}" style="left:${i.x}px;top:${i.top + i.M * i.k}px;width:${_mkR(i.w / i.k)}px;transform:scale(${i.k});">${i.html}</div>`)).join('');
+            return L.cols.flatMap(c => c.ins.filter(i => i.html).map(i => `<div class="co-ins${_coSel === i.bid ? ' sel' : ''}" data-coblk="${i.bid}" style="left:${i.x}px;top:${i.top + i.M * i.k}px;width:${_mkR(i.w / i.k)}px;transform:scale(${i.k});">${i.html}</div>`)).join('');
         }
 
         // ── Hand tags: the rep marks a spot (click) or an area (drag) and says what it is ──
