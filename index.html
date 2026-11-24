@@ -5800,7 +5800,7 @@ Return ONLY JSON — no markdown, no code fences:
         // block closes its gap. Nothing is painted over the mockup's pixels: each column is
         // re-laid as strips of the original image. Only a stored configuration (_mk.co) changes
         // the page, so old saves and untouched mockups render exactly as before. ──
-        const CO_AV = 4;   // anchor detection version: older pg.coA is found again (hand tags kept)
+        const CO_AV = 5;   // anchor detection version: older pg.coA is found again (hand tags kept)
         const CO_ANCH = {
             express:    { l: 'Express checkout', re: /^express checkout$/i, main: 1 },
             contact:    { l: 'Contact', re: /^contact( information)?$/i, main: 1 },
@@ -5816,7 +5816,8 @@ Return ONLY JSON — no markdown, no code fences:
             shipping:   { l: 'Shipping', re: /^shipping$/i },
             total:      { l: 'Total', re: /^(total|estimated total|total due( today)?)$/i },
             'si-widget':{ l: 'ShipInsure widget already in the mockup', region: 1 },
-            'si-line':  { l: 'ShipInsure line already in the mockup', region: 1 }
+            'si-line':  { l: 'ShipInsure line already in the mockup', region: 1 },
+            item1:      { l: 'First line item', calc: 1 }
         };
         const CO_MAIN = ['express', 'contact', 'delivery', 'shipmethod', 'payment', 'remember', 'billing', 'paynow'];
         const CO_SUMK = ['summary', 'discount', 'subtotal', 'shipping', 'total'];
@@ -5833,7 +5834,7 @@ Return ONLY JSON — no markdown, no code fences:
             'pay.after': [['top', 'remember'], ['top', 'billing'], ['top', 'paynow'], ['below', 'payment']],
             'act': [['top', 'paynow']],
             'act.end': [['below', 'paynow']],
-            'lines': [['top', 'discount'], ['top', 'subtotal']],
+            'lines': [['top', 'item1'], ['top', 'discount'], ['top', 'subtotal']],   // ShipInsure's line goes first, above the products
             'red.before': [['top', 'discount']],
             'red.after': [['top', 'subtotal']],
             'sum.end': [['below', 'total']]
@@ -5848,13 +5849,25 @@ Return ONLY JSON — no markdown, no code fences:
             const A = { v: CO_AV }, T = pg.texts.filter(t => !t.add), crumbs = _coCrumbs(T);
             const cy = t => t.y + t.h / 2, rowRight = t => T.some(u => u !== t && u.x > t.x + t.w && Math.abs(cy(u) - cy(t)) < Math.max(t.h, u.h) * 0.7);
             Object.keys(CO_ANCH).forEach(key => {
-                const d = CO_ANCH[key]; if (d.region) return;
+                const d = CO_ANCH[key]; if (d.region || d.calc) return;
                 const c = T.filter(t => !crumbs.has(t) && d.re.test(_coClean(t.o)));
                 // A heading in the main column: the first one. A summary row (Subtotal, Shipping, Total): the
                 // one with its amount beside it.
                 const m = (d.main ? c.sort((a, b) => a.y - b.y) : c.sort((a, b) => (rowRight(b) - rowRight(a)) || (a.y - b.y)))[0];
                 if (m) A[key] = { x: m.x, y: m.y, w: m.w, h: m.h };
             });
+            // The first line item: the topmost product price in the order summary (above Discount / Subtotal,
+            // on the summary's side), held at its row's left so the line goes in across the whole summary.
+            const sumA = ['discount', 'subtotal', 'total'].map(k => A[k]).filter(Boolean);
+            if (sumA.length) {
+                const lim = Math.min(...sumA.map(a => a.y)), sx = Math.min(...sumA.map(a => a.x)) - 40;
+                const p = T.filter(t => (t.role === 'item' || t.role === 'fee') && t.y + t.h <= lim && t.x + t.w / 2 > sx).sort((a, b) => a.y - b.y)[0];
+                if (p) {
+                    const row = T.filter(u => Math.abs(cy(u) - cy(p)) < Math.max(u.h, p.h) * 0.7 && u.x >= sx);
+                    const x0 = Math.min(...row.map(u => u.x)), y0 = Math.min(...row.map(u => u.y));
+                    A.item1 = { x: x0, y: y0, w: Math.max(...row.map(u => u.x + u.w)) - x0, h: Math.max(...row.map(u => u.y + u.h)) - y0 };
+                }
+            }
             if (pg.coA) Object.keys(pg.coA).forEach(k => { const a = pg.coA[k]; if (a && a.hand) A[k] = a; });
             pg.coA = A;
             return A;
