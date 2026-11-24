@@ -439,6 +439,30 @@
         .mvx-bar .hint { font-size: 12px; color: #7a819e; }
         .mvx-bar button { font: 700 12.5px inherit; padding: 7px 13px; border-radius: 8px; border: 1px solid #d5d9f0; background: #fff; color: #2a3050; cursor: pointer; }
         .mvx-bar button.p { background: #6675ff; border-color: #6675ff; color: #fff; }
+        /* On-canvas layout editing (as in the ROI customizer): ⣿ drag · widths · 🎨 style · 👁 hide · ⇄ place */
+        .mv-edit [data-mvblk] { position: relative; }
+        .mv-edit [data-mvblk]:hover { outline: 1px dashed #9aa6ff; outline-offset: 4px; }
+        .mv-edit [data-mvblk].mv-sel { outline: 2px solid #6675ff; outline-offset: 4px; }
+        .mv-edit [data-mvblk].mv-over { outline: 2px dashed #22a06b; outline-offset: 4px; }
+        .mvt { display: none; position: absolute; top: 6px; right: 6px; z-index: 30; align-items: center; gap: 2px; padding: 3px; background: #fff; border: 1px solid #d5d9f0; border-radius: 9px; box-shadow: 0 4px 14px rgba(20,26,60,0.16); font: 700 12px/1 Inter, sans-serif; color: #2a3050; }
+        .mv-edit [data-mvblk]:hover > .mvt, .mv-edit [data-mvblk].mv-sel > .mvt { display: inline-flex; }
+        .mvt button, .mvt .mvt-h { border: 0; background: none; padding: 5px 7px; border-radius: 6px; cursor: pointer; font: inherit; color: inherit; }
+        .mvt .mvt-h { cursor: grab; letter-spacing: -1px; }
+        .mvt button:hover, .mvt .mvt-h:hover { background: #eef0ff; }
+        .mvt button.on { background: #6675ff; color: #fff; }
+        .mvt i { width: 1px; height: 16px; background: #e3e6f3; margin: 0 2px; }
+        .mvt b { font-size: 10px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: #8890b5; padding: 0 6px 0 4px; }
+        .mp-view-header .mvt { top: 50%; transform: translateY(-50%); }
+        .mp-section.th-tint { background: #f4f6ff; }
+        .mp-section.th-dark { background: #151726; border-color: #151726; }
+        .mp-section.th-dark .mp-scol-title { color: #aab4ff; }
+        .mp-section.th-plain { background: transparent; border-color: transparent; box-shadow: none; }
+        .mp-layout.rec-left { flex-direction: row-reverse; }
+        .mp-layout.rec-top { flex-direction: column-reverse; align-items: stretch; }
+        .mp-layout.rec-bottom { flex-direction: column; align-items: stretch; }
+        .mp-layout.rec-top .mp-recommended, .mp-layout.rec-bottom .mp-recommended { flex: 0 0 auto; flex-direction: row; flex-wrap: wrap; align-items: flex-start; }
+        .mp-layout.rec-top .mp-rec-heading, .mp-layout.rec-bottom .mp-rec-heading { flex-basis: 100%; }
+        .mp-layout.rec-top .mp-rec-card, .mp-layout.rec-bottom .mp-rec-card { flex: 0 1 470px; }
         .mv-edit [data-mvt] { outline: 1px dashed rgba(255,255,255,0.55); outline-offset: 3px; border-radius: 3px; cursor: text; }
         .mv-edit [data-mvt]:focus { outline: 2px solid #aab4ff; }
         .mv-edit .mv-off { opacity: 0.35; position: relative; }
@@ -642,7 +666,12 @@
         .co-l-img img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
         .co-l-img img.si { object-fit: contain; padding: 9px; box-sizing: border-box; }
         .co-l-img b { position: absolute; top: -8px; right: -8px; min-width: 20px; height: 20px; border-radius: 10px; background: #666; color: #fff; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: 600; }
-        .co-l-n { flex: 1 1 auto; font-weight: 500; }
+        .co-l-n { flex: 1 1 auto; font-weight: 500; display: flex; flex-direction: column; gap: 3px; }
+        .co-l-rm { font-size: 12px; font-weight: 400; color: var(--co-p); text-decoration: underline; cursor: pointer; align-self: flex-start; }
+        .co-imgs { display: flex; flex-wrap: wrap; gap: 6px; }
+        .co-imgs button { width: 58px; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px; border: 2px solid #e3e3e3; border-radius: 8px; background: #fff; cursor: pointer; font: 600 9.5px/1.15 inherit; color: #4a4a4a; text-align: center; }
+        .co-imgs button.on { border-color: #005bd3; }
+        .co-imgs button i { width: 44px; height: 44px; border-radius: 6px; background: #f3f3f3 center / contain no-repeat; display: flex; align-items: center; justify-content: center; font-style: normal; font-size: 18px; }
         .co-l-p { font-weight: 500; white-space: nowrap; }
         .co-tile { position: absolute; overflow: hidden; pointer-events: none; }
         .co-tile img { position: absolute; max-width: none; display: block; }
@@ -809,6 +838,7 @@
     </style>
 <script src="https://drewshafe.github.io/si-roi-calculator/sb.js"></script>
 <script src="https://drewshafe.github.io/si-rep-hub/folder-bar.js"></script>
+<script src="https://drewshafe.github.io/si-rep-hub/brand-kit.js"></script>
 <script src="https://drewshafe.github.io/si-roi-calculator/portal-templates.js"></script>
 <script src="lightbox.js"></script>
 </head>
@@ -1721,7 +1751,7 @@
                 <div id="lineItemPreviewArea"></div>
             </div>
             <div class="mp-set-card" id="mpSetCard">
-                <div class="mp-set-hd"><div class="mp-set-title">What the merchant sees (<span id="mpCount">0</span>)</div><button type="button" class="mp-add" onclick="mvLayoutOpen()" title="Lay out the merchant link: view header and section banners (hidden by default), their text">🖼 Layout</button><button type="button" class="mp-add" onclick="addCurrentView()" title="Add the design in the editor as a view on the merchant link">+ Add this view</button></div>
+                <div class="mp-set-hd"><div class="mp-set-title">What the merchant sees (<span id="mpCount">0</span>)</div><button type="button" class="mp-add" onclick="mvLayoutOpen()" title="Lay out the merchant link on a canvas: drag, size, style and hide its sections and columns; view header and section banners (hidden by default); edit their text">🖼 Layout</button><button type="button" class="mp-add" onclick="addCurrentView()" title="Add the design in the editor as a view on the merchant link">+ Add this view</button></div>
                 <div class="mp-set-sub">Each view shows on the merchant link (🔗 Copy Link) and saves with the folder. Each uploaded mockup gets its own view. ✏️ Edit opens a view in the editor, and changes save to it as you go.</div>
                 <input type="text" id="mpName" placeholder="Preview name (e.g. Acme Co. — Checkout Preview)" oninput="_previewName=this.value" style="width:100%;box-sizing:border-box;margin-bottom:8px;padding:7px 9px;font-size:0.82em;border:1px solid #d5d9f0;border-radius:7px;">
                 <div class="mp-list" id="mpChips"></div>
@@ -5701,9 +5731,60 @@ Return ONLY JSON — no markdown, no code fences:
         }
         // The order-summary line: shown while protection is in the order.
         function _coLineHtml(b, page) {
-            const pp = _coPP(page || _coGet().page), img = pp && pp.set.img, fee = _coFee();
+            const pp = _coPP(page || _coGet().page), st = b.set || {}, img = st.img || (pp && pp.set.img), fee = _coFee();
+            // Remove: in the SI Interactive Demo it takes protection out (data-df="rm").
             return `<div class="co-l" data-cw="${b.id}" style="${_coBrandStyle()}"><span class="co-l-img"><img src="${_escHtml(img || 'si-lock.png')}" alt=""${img ? '' : ' class="si"'}><b>1</b></span>` +
-                `<span class="co-l-n">${_escHtml(CO_PP_HDR)}</span><span class="co-l-p">${fee != null ? _mkMoneyStr(fee) : ''}</span></div>`;
+                `<span class="co-l-n"><span>${_escHtml(CO_PP_HDR)}</span>${st.remove ? '<u class="co-l-rm" data-df="rm">Remove</u>' : ''}</span><span class="co-l-p">${fee != null ? _mkMoneyStr(fee) : ''}</span></div>`;
+        }
+        // The line item's picture: the ShipInsure lock, the widget's image, the folder's brand kit, or an upload.
+        const _coKit = { id: null, kit: null, busy: false };
+        function _coKitLoad() {
+            const a = window.SIsb && SIsb.getActiveFolder && SIsb.getActiveFolder();
+            if (!a || !window.SIBrand) return null;
+            if (_coKit.id === a.id) return _coKit.kit;
+            if (_coKit.busy === a.id) return null;
+            _coKit.busy = a.id;
+            SIBrand.get(a.id).then(k => { _coKit.id = a.id; _coKit.kit = k; }, () => { _coKit.id = a.id; _coKit.kit = {}; })
+                .finally(() => { _coKit.busy = false; document.querySelectorAll('[data-coimgs]').forEach(el => { const f = _coFind(el.dataset.coimgs); if (f) el.innerHTML = _coImgTiles(f.blk); }); });
+            return null;
+        }
+        function _coImgTiles(b) {
+            const st = b.set || {}, pp = _coPP(_coGet().page), kit = _coKitLoad(), cur = st.img || '';
+            const opts = [{ u: '', l: 'ShipInsure lock', src: 'si-lock.png' }];
+            if (pp && pp.set.img) opts.push({ u: pp.set.img, l: 'Widget image' });
+            if (kit) (window.SIBrand ? SIBrand.SLOTS : []).filter(x => x.k !== 'banner' && kit[x.k]).forEach(x => opts.push({ u: kit[x.k], l: x.label }));
+            if (cur && !opts.some(o => o.u === cur)) opts.push({ u: cur, l: 'Uploaded' });
+            const tile = o => `<button type="button" class="${o.u === cur ? 'on' : ''}" title="${_escHtml(o.l)}" onclick="coLineImg('${b.id}', ${_escHtml(JSON.stringify(o.u))})"><i style="background-image:url('${_escHtml(String(o.src || o.u).replace(/['()\\\s]/g, encodeURIComponent))}')"></i>${_escHtml(o.l)}</button>`;
+            const a = window.SIsb && SIsb.getActiveFolder && SIsb.getActiveFolder();
+            return opts.map(tile).join('') + `<button type="button" title="Upload an image" onclick="document.getElementById('coImgUp-${b.id}').click()"><i>⬆</i>Upload</button>` +
+                (!a ? '<small style="flex-basis:100%">Pick a merchant folder (bar above) to use its brand kit.</small>' : (_coKit.busy ? '<small style="flex-basis:100%">Loading the brand kit…</small>' : ''));
+        }
+        function coLineImg(id, url) {
+            const f = _coFind(id); if (!f) return;
+            _coEnsure();
+            if (url) f.blk.set.img = url; else delete f.blk.set.img;
+            document.querySelectorAll(`[data-coimgs="${id}"]`).forEach(el => { el.innerHTML = _coImgTiles(f.blk); });
+            _coLive();
+        }
+        // An upload: cropped square to 300px; stored as a link when signed in, so merchant links stay short.
+        function coLineUpload(id, file) {
+            if (!file || !/^image\//.test(file.type)) return;
+            const say = m => { _coImgErr[id] = m; document.querySelectorAll(`[data-imgerr="${id}"]`).forEach(e => { e.textContent = m; }); };
+            say('Adding the image…');
+            const r = new FileReader();
+            r.onload = () => {
+                const im = new Image();
+                im.onload = async () => {
+                    const n = Math.min(im.naturalWidth, im.naturalHeight), S = Math.min(300, n), c = document.createElement('canvas'); c.width = c.height = S;
+                    c.getContext('2d').drawImage(im, (im.naturalWidth - n) / 2, (im.naturalHeight - n) / 2, n, n, 0, 0, S, S);
+                    let url = c.toDataURL('image/png');
+                    try { if (window.SIBrand) url = await SIBrand.store(url); } catch (e) {}
+                    say(''); coLineImg(id, url);
+                };
+                im.onerror = () => say('That file isn’t an image this browser can read.');
+                im.src = r.result;
+            };
+            r.readAsDataURL(file);
         }
         function _coBlockHtml(b, page) {
             if (b.type === 'si-pp') return _coPPHtml(b);
@@ -5718,6 +5799,12 @@ Return ONLY JSON — no markdown, no code fences:
             const opt = (v, cur, l) => `<option value="${v}"${v === cur ? ' selected' : ''}>${l}</option>`;
             const fields = (CO_TYPES[b.type] || {}).theme ? '<div class="co-empty">Added in the theme editor (Online Store › Themes › Customize), not the Checkout Editor. How the cart widget looks in this mockup comes from the Dual checkout widget settings.</div>'
                 : b.type === 'app' ? '<div class="co-empty">Another app’s block, from the merchant’s Checkout Editor. It isn’t drawn in the mockup.</div>'
+                : b.type === 'si-line' ? `
+                <label class="co-sw"><input type="checkbox" ${st.remove ? 'checked' : ''} onchange="coSetV('${id}','remove',this.checked)"><i></i><span>Show ‘Remove’ link</span></label>
+                <div class="co-f"><span>Line item image</span><div class="co-imgs" data-coimgs="${id}">${_coImgTiles(b)}</div>
+                    <input type="file" accept="image/*" hidden id="coImgUp-${id}" onchange="coLineUpload('${id}', this.files[0]); this.value='';">
+                    <small>The ShipInsure lock by default. Pick one from the merchant folder’s brand kit, or upload a new one.</small><em class="co-err" data-imgerr="${id}">${_escHtml(_coImgErr[id] || '')}</em></div>
+                <div class="co-note">Shown in the order summary while protection is in the order.</div>`
                 : b.type !== 'si-pp' ? '<div class="co-empty">This block has no settings. It shows the ShipInsure line in the order summary while protection is in the order.</div>' : `
                 <label class="co-f"><span>Disclaimer</span><textarea rows="3" oninput="coSetV('${id}','disc',this.value)">${_escHtml(st.disc || '')}</textarea></label>
                 <label class="co-f"><span>URL for widget image</span><input type="url" value="${_escHtml(st.imgIn != null ? st.imgIn : st.img || '')}" placeholder="https://…" onchange="coSetImg('${id}',this.value)"><small>Square image, at least 150px.</small><em class="co-err" data-imgerr="${id}">${_escHtml(_coImgErr[id] || '')}</em></label>
@@ -6840,9 +6927,21 @@ Return ONLY JSON — no markdown, no code fences:
         // null = the defaults: no view header, no section banners. Set on a canvas (🖼 Layout).
         var _mvLayout = null;
         const MV_BN = { mock: 'Cart & Checkout Mockups', cart: 'Cart Designs', chk: 'Checkout Designs' };
+        const MV_COLS = { cart: [['dual', 'Dual Checkout'], ['checkbox', 'Checkbox Widget'], ['toggleSwitch', 'Toggle Widget']], chk: [['cwidget', 'Checkout Widget'], ['litem', 'Product Line Item']] };
+        const MV_W = [[1, '1'], [0.667, '⅔'], [0.5, '½'], [0.333, '⅓']], MV_TH = ['card', 'tint', 'dark', 'plain'], MV_REC = ['right', 'left', 'top', 'bottom'];
+        // order: the sections top to bottom · cols: each section's columns · hide: { 'sec.x' | 'col.x' | 'rec': true }
+        // w: { 'col.x': share of the row } · th: { 'sec.x': card | tint | dark | plain } · ct: column titles
+        // rec: where Recommended sits · rh: its heading
         function _mvL(l) {
             l = l || {}; const bn = l.bn || {}, o = { header: !!l.header, t1: String(l.t1 || ''), t2: String(l.t2 || ''), bn: {} };
             Object.keys(MV_BN).forEach(k => { o.bn[k] = { on: !!(bn[k] && bn[k].on), t: String((bn[k] && bn[k].t) || '') }; });
+            const ord = Array.isArray(l.order) ? l.order.filter(k => MV_BN[k]) : [];
+            o.order = ord.concat(Object.keys(MV_BN).filter(k => !ord.includes(k)));
+            o.cols = {};
+            Object.keys(MV_COLS).forEach(sk => { const all = MV_COLS[sk].map(c => c[0]), a = ((l.cols || {})[sk] || []).filter(k => all.includes(k)); o.cols[sk] = a.concat(all.filter(k => !a.includes(k))); });
+            const obj = v => (v && typeof v === 'object' && !Array.isArray(v)) ? Object.assign({}, v) : {};
+            o.hide = obj(l.hide); o.w = obj(l.w); o.th = obj(l.th); o.ct = obj(l.ct);
+            o.rec = MV_REC.includes(l.rec) ? l.rec : 'right'; o.rh = String(l.rh || '');
             return o;
         }
         // The banner's last word takes the accent color (as "Cart & Checkout <span>Mockups</span>").
@@ -6864,38 +6963,121 @@ Return ONLY JSON — no markdown, no code fences:
             if (d.siMv === 'done') { _mvLayout = d.layout || null; w.remove(); showToast('Layout kept: Copy Link and folder saves use it'); document.dispatchEvent(new Event('change')); }
             if (d.siMv === 'cancel') w.remove();
         });
-        // Layout canvas (inside the 🖼 Layout iframe): toggles in a bar, text edited in place.
+        // Layout canvas (inside the 🖼 Layout iframe): toggles in a bar, text edited in place, and each block
+        // edited right on the page: ⣿ drag to reorder, 1 ⅔ ½ ⅓ widths, 🎨 style, 👁 hide, ⇄ place. ⌘Z undoes.
         function _mvEditWire(mv, L, rerender) {
+            mv._mvx = { L, rerender };
+            const H = mv._mvH || (mv._mvH = { s: [], i: -1 });
             const bar = document.createElement('div'); bar.className = 'mvx-bar';
             const present = Object.keys(MV_BN).filter(k => mv.querySelector(`[data-mvb="${k}"]`));
             bar.innerHTML = `<b>Merchant view layout</b>
                 <label><input type="checkbox" data-mvk="header"${L.header ? ' checked' : ''}> View header</label>
                 ${present.map(k => `<label><input type="checkbox" data-mvk="bn.${k}"${L.bn[k].on ? ' checked' : ''}> “${_escHtml(L.bn[k].t || MV_BN[k])}” banner</label>`).join('')}
-                <span class="hint">Click the header or a banner's text to edit it.</span><span class="sp"></span>
+                <span class="hint">Hover a block: ⣿ drag · 1 ⅔ ½ ⅓ width · 🎨 style · 👁 hide · ⇄ place. Click any title to edit it.</span><span class="sp"></span>
+                <button type="button" data-mva="undo" title="Undo (⌘Z)"${H.i < 0 ? ' disabled' : ''}>↶</button><button type="button" data-mva="redo" title="Redo (⇧⌘Z)"${H.i >= H.s.length - 1 ? ' disabled' : ''}>↷</button>
                 <button type="button" data-mva="reset">Reset</button><button type="button" data-mva="cancel">Cancel</button><button type="button" class="p" data-mva="done">Done</button>`;
             mv.prepend(bar);
-            bar.addEventListener('change', e => {
-                const k = e.target.dataset.mvk; if (!k) return;
-                if (k === 'header') L.header = e.target.checked; else L.bn[k.slice(3)].on = e.target.checked;
-                const el = k === 'header' ? mv.querySelector('.mp-view-header') : mv.querySelector(`[data-mvb="${k.slice(3)}"]`);
-                if (el) el.classList.toggle('mv-off', !e.target.checked);
+            if (mv._mvSel) { const el = mv.querySelector(`[data-mvblk="${mv._mvSel}"]`); if (el) el.classList.add('mv-sel'); }
+            if (mv._mvWired) return;
+            mv._mvWired = 1;
+            const cur = () => mv._mvx;
+            // Every change: the layout before it goes on the undo stack, then the canvas redraws.
+            const snap = () => { H.s.splice(H.i + 1); H.s.push(JSON.stringify(cur().L)); if (H.s.length > 80) H.s.shift(); H.i = H.s.length - 1; };
+            const commit = fn => { snap(); const L2 = _mvL(JSON.parse(JSON.stringify(cur().L))); fn(L2); H.s.splice(H.i + 1); cur().rerender(L2); };
+            const go = d => {
+                const now = JSON.stringify(cur().L);
+                if (d < 0) { if (H.i < 0) return; const prev = H.s[H.i]; H.s[H.i] = now; H.i--; cur().rerender(_mvL(JSON.parse(prev))); }
+                else { if (H.i >= H.s.length - 1) return; H.i++; const nx = H.s[H.i]; H.s[H.i] = now; cur().rerender(_mvL(JSON.parse(nx))); }
+            };
+            mv.addEventListener('change', e => {
+                const k = e.target.dataset.mvk; if (!k || !e.target.closest('.mvx-bar')) return;
+                const on = e.target.checked;
+                commit(L => { if (k === 'header') L.header = on; else L.bn[k.slice(3)].on = on; });
             });
-            bar.addEventListener('click', e => {
-                const a = e.target.closest('[data-mva]'); if (!a) return;
-                if (a.dataset.mva === 'reset') { if (confirm('Back to the default layout (no header, no banners, default text)?')) rerender(_mvL(null)); return; }
-                parent.postMessage(a.dataset.mva === 'done' ? { siMv: 'done', layout: L } : { siMv: 'cancel' }, '*');
+            mv.addEventListener('click', e => {
+                const a = e.target.closest('.mvx-bar [data-mva]');
+                if (a) {
+                    const v = a.dataset.mva;
+                    if (v === 'undo') return go(-1);
+                    if (v === 'redo') return go(1);
+                    if (v === 'reset') { if (confirm('Back to the default layout (no header, no banners, default order and text)?')) commit(L => { Object.assign(L, _mvL(null)); }); return; }
+                    parent.postMessage(v === 'done' ? { siMv: 'done', layout: cur().L } : { siMv: 'cancel' }, '*');
+                    return;
+                }
+                const b = e.target.closest('.mvt button');
+                if (b) {
+                    const key = b.closest('.mvt').dataset.for, op = b.dataset.mvo;
+                    e.preventDefault(); mv._mvSel = key;
+                    commit(L => {
+                        if (op === 'hide') { if (key === 'header') L.header = false; else if (L.hide[key]) delete L.hide[key]; else L.hide[key] = true; }
+                        else if (op === 'w') { const w = +b.dataset.w; if (w >= 1 || L.w[key] === w) delete L.w[key]; else L.w[key] = w; }
+                        else if (op === 'th') { const nx = MV_TH[(MV_TH.indexOf(L.th[key] || 'card') + 1) % MV_TH.length]; if (nx === 'card') delete L.th[key]; else L.th[key] = nx; }
+                        else if (op === 'rec') L.rec = MV_REC[(MV_REC.indexOf(L.rec) + 1) % MV_REC.length];
+                    });
+                    return;
+                }
+                if (e.target.closest('[data-mvt], .mvx-bar')) return;
+                const blk = e.target.closest('[data-mvblk]');
+                mv.querySelectorAll('.mv-sel').forEach(x => x.classList.remove('mv-sel'));
+                mv._mvSel = blk ? blk.dataset.mvblk : null;
+                if (blk) blk.classList.add('mv-sel');
             });
+            // Text edits: the layout before the first keystroke goes on the undo stack.
+            mv.addEventListener('focusin', e => { if (e.target.closest('[data-mvt]')) snap(); });
             mv.addEventListener('input', e => {
                 const t = e.target.closest('[data-mvt]'); if (!t) return;
-                const v = t.textContent.replace(/\s+/g, ' ').trim(), k = t.dataset.mvt;
-                if (k === 't1' || k === 't2') L[k] = v; else L.bn[k].t = v;
-                if (k !== 't1' && k !== 't2') { const lb = bar.querySelector(`[data-mvk="bn.${k}"]`); if (lb) lb.parentNode.lastChild.textContent = ` “${v || MV_BN[k]}” banner`; }
+                const L = cur().L, v = t.textContent.replace(/\s+/g, ' ').trim(), k = t.dataset.mvt;
+                if (k === 't1' || k === 't2' || k === 'rh') L[k] = v;
+                else if (k.indexOf('ct.') === 0) L.ct[k.slice(3)] = v;
+                else { L.bn[k].t = v; const lb = mv.querySelector(`.mvx-bar [data-mvk="bn.${k}"]`); if (lb) lb.parentNode.lastChild.textContent = ` “${v || MV_BN[k]}” banner`; }
             });
             mv.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.closest('[data-mvt]')) { e.preventDefault(); e.target.blur(); } });
+            mv.ownerDocument.addEventListener('keydown', e => {
+                const t = e.target, typing = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable);
+                if (typing) return;
+                if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); go(e.shiftKey ? 1 : -1); }
+                else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'y') { e.preventDefault(); go(1); }
+                else if (e.key === 'Escape') { mv._mvSel = null; mv.querySelectorAll('.mv-sel').forEach(x => x.classList.remove('mv-sel')); }
+            });
+            // ⣿ drag: sections among sections, a section's columns among themselves.
+            const kindOf = k => k.split('.')[0], groupOf = el => el.closest('.mp-section') || mv;
+            mv.addEventListener('dragstart', e => {
+                const h = e.target.closest && e.target.closest('.mvt-h'); if (!h) return;
+                const blk = h.closest('[data-mvblk]'); mv._mvDrag = blk;
+                try { e.dataTransfer.setData('text/plain', blk.dataset.mvblk); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setDragImage(blk, 20, 20); } catch (er) {}
+            });
+            const target = e => {
+                const d = mv._mvDrag; if (!d) return null;
+                const t = e.target.closest && e.target.closest('[data-mvblk]');
+                let x = t; while (x && (kindOf(x.dataset.mvblk) !== kindOf(d.dataset.mvblk) || x === d)) x = x.parentElement && x.parentElement.closest('[data-mvblk]');
+                return x && (kindOf(d.dataset.mvblk) === 'sec' || groupOf(x) === groupOf(d)) && ['sec', 'col'].includes(kindOf(x.dataset.mvblk)) ? x : null;
+            };
+            mv.addEventListener('dragover', e => { const t = target(e); mv.querySelectorAll('.mv-over').forEach(x => x !== t && x.classList.remove('mv-over')); if (t) { e.preventDefault(); t.classList.add('mv-over'); } });
+            mv.addEventListener('dragend', () => { mv._mvDrag = null; mv.querySelectorAll('.mv-over').forEach(x => x.classList.remove('mv-over')); });
+            mv.addEventListener('drop', e => {
+                const t = target(e), d = mv._mvDrag; if (!t || !d) return;
+                e.preventDefault();
+                const r = t.getBoundingClientRect(), from = d.dataset.mvblk, to = t.dataset.mvblk, kind = kindOf(from);
+                const after = kind === 'sec' ? e.clientY > r.top + r.height / 2 : e.clientX > r.left + r.width / 2;
+                mv._mvSel = from;
+                commit(L => {
+                    const arr = kind === 'sec' ? L.order : L.cols[t.closest('.mp-section').dataset.mvblk.slice(4)];
+                    const a = from.slice(4), b = to.slice(4); if (!arr) return;
+                    arr.splice(arr.indexOf(a), 1); arr.splice(arr.indexOf(b) + (after ? 1 : 0), 0, a);
+                });
+            });
         }
         function renderMerchantView(examples, name, layout, opt) {
             const L = _mvL(layout), ED = !!(opt && opt.edit);
             const ce = k => ED ? ` contenteditable="plaintext-only" spellcheck="false" data-mvt="${k}"` : '';
+            // The on-canvas toolbar of a block (edit only).
+            const tool = (key, kind) => !ED ? '' : `<div class="mvt" data-for="${key}">` +
+                (kind === 'sec' || kind === 'col' ? '<span class="mvt-h" draggable="true" title="Drag to move">⣿</span>' : '') +
+                (kind === 'col' ? '<i></i>' + MV_W.map(([w, l]) => `<button type="button" data-mvo="w" data-w="${w}" class="${(L.w[key] || 1) === w ? 'on' : ''}" title="${l === '1' ? 'Full row' : l + ' of the row'}">${l}</button>`).join('') + '<i></i>' : '') +
+                (kind === 'sec' ? `<button type="button" data-mvo="th" title="Style: ${L.th[key] || 'card'} (click for the next)">🎨</button>` : '') +
+                (kind === 'rec' ? `<button type="button" data-mvo="rec" title="Place: ${L.rec} (click for the next)">⇄ <span style="font-size:10px">${L.rec}</span></button>` : '') +
+                `<button type="button" data-mvo="hide" title="${L.hide[key] ? 'Show on the link' : 'Hide on the link'}">${L.hide[key] ? '🙈' : '👁'}</button></div>`;
+            const off = key => !!L.hide[key];
             _mkReadOnly = true;
             _previewName = name || '';   // mockups default their store name from the preview name
             ['.app-header', '.control-bar', '.designer-body'].forEach(sel => {
@@ -6904,7 +7086,7 @@ Return ONLY JSON — no markdown, no code fences:
             const mv = document.getElementById('merchantView');
             const t1 = _escHtml(L.t1 || ((name && name.trim()) ? name.trim() : 'Shipping Protection — Preview'));
             const t2 = _escHtml(L.t2 || 'How ShipInsure could appear across your store');
-            const headerHtml = (L.header || ED) ? `<div class="mp-view-header${L.header ? '' : ' mv-off'}">
+            const headerHtml = (L.header || ED) ? `<div class="mp-view-header${L.header ? '' : ' mv-off'}" data-mvblk="header">${L.header ? tool('header', 'hdr') : ''}
                 <img src="https://raw.githubusercontent.com/drewshafe/si-roi-calculator/main/si_lock.png" alt="ShipInsure" onerror="this.style.display='none';">
                 <div><div class="t1"${ce('t1')}>${t1}</div><div class="t2"${ce('t2')}>${t2}</div></div>
             </div>` : '';
@@ -6949,32 +7131,31 @@ Return ONLY JSON — no markdown, no code fences:
                 }
             });
 
-            const scol  = (k, title, cells) => `<div class="mp-scol col-${k}"><div class="mp-scol-title">${title}</div>${cells.map(h => `<div class="mp-cell"><div class="mp-widget">${h}</div></div>`).join('')}</div>`;
-            const section = (k, colsHtml) => {
-                const b = L.bn[k], ban = (b.on || ED) ? `<div class="mp-section-banner${b.on ? '' : ' mv-off'}" data-mvb="${k}"><em class="mvb-t"${ce(k)}>${_mvBnHtml(b.t || MV_BN[k])}</em></div>` : '';
-                return `<div class="mp-section">${ban}<div class="mp-section-body">${colsHtml}</div></div>`;
+            const scol  = (k, title, cells) => {
+                const key = 'col.' + k, w = L.w[key], ws = w && w < 1 ? `flex:0 0 calc(${_mkR(w * 100)}% - ${_mkR(26 * (1 - w))}px);min-width:0;` : '';
+                return `<div class="mp-scol col-${k}${off(key) ? ' mv-off' : ''}" data-mvblk="${key}"${ws ? ` style="${ws}"` : ''}>${tool(key, 'col')}<div class="mp-scol-title"${ce('ct.' + k)}>${_escHtml(L.ct[k] || title)}</div>${cells.map(h => `<div class="mp-cell"><div class="mp-widget">${h}</div></div>`).join('')}</div>`;
             };
-
-            const cartCols = [['dual', 'Dual Checkout'], ['checkbox', 'Checkbox Widget'], ['toggleSwitch', 'Toggle Widget']]
-                .filter(([k]) => cart[k].length).map(([k, t]) => scol(k, t, cart[k])).join('');
-            const chkCols  = [['cwidget', 'Checkout Widget'], ['litem', 'Product Line Item']]
-                .filter(([k]) => chk[k].length).map(([k, t]) => scol(k, t, chk[k])).join('');
-
+            const section = (k, colsHtml) => {
+                const key = 'sec.' + k, b = L.bn[k], ban = (b.on || ED) ? `<div class="mp-section-banner${b.on ? '' : ' mv-off'}" data-mvb="${k}"><em class="mvb-t"${ce(k)}>${_mvBnHtml(b.t || MV_BN[k])}</em></div>` : '';
+                return `<div class="mp-section th-${L.th[key] || 'card'}${off(key) ? ' mv-off' : ''}" data-mvblk="${key}">${tool(key, 'sec')}${ban}<div class="mp-section-body">${colsHtml}</div></div>`;
+            };
+            // A column / section hidden on the link is left out of it (the canvas shows it dimmed).
+            const colsOf = (sk, src) => L.cols[sk].map(k => MV_COLS[sk].find(c => c[0] === k)).filter(([k]) => src[k].length && (ED || !off('col.' + k))).map(([k, t]) => scol(k, t, src[k])).join('');
+            const cartCols = colsOf('cart', cart), chkCols = colsOf('chk', chk);
+            const body = { mock: mocks.length ? _mvHtml(mocks) : '', cart: cartCols, chk: chkCols };
             let sectionsHtml = '';
-            if (mocks.length) sectionsHtml += section('mock', _mvHtml(mocks));
-            if (cartCols) sectionsHtml += section('cart', cartCols);
-            if (chkCols)  sectionsHtml += section('chk', chkCols);
+            L.order.forEach(k => { if (body[k] && (ED || !off('sec.' + k))) sectionsHtml += section(k, body[k]); });
 
             let recHtml = '';
-            if (recCart || recChk) {
-                recHtml = '<div class="mp-recommended"><div class="mp-rec-heading">Recommended Deployment Design</div>';
+            if ((recCart || recChk) && (ED || !off('rec'))) {
+                recHtml = `<div class="mp-recommended${off('rec') ? ' mv-off' : ''}" data-mvblk="rec">${tool('rec', 'rec')}<div class="mp-rec-heading"${ce('rh')}>${_escHtml(L.rh || 'Recommended Deployment Design')}</div>`;
                 [recCart, recChk].forEach(r => {
                     if (r) recHtml += `<div class="mp-rec-card"><div class="mp-rec-label">${_escHtml(r.label)}</div><div class="mp-widget">${r.html}</div></div>`;
                 });
                 recHtml += '</div>';
             }
 
-            mv.innerHTML = headerHtml + `<div class="mp-layout"><div class="mp-content">${sectionsHtml}</div>${recHtml}</div>`;
+            mv.innerHTML = headerHtml + `<div class="mp-layout${L.rec !== 'right' ? ' rec-' + L.rec : ''}"><div class="mp-content">${sectionsHtml}</div>${recHtml}</div>`;
             mv.style.display = 'block';
             mv.classList.toggle('mv-edit', ED);
             if (ED) _mvEditWire(mv, L, l => renderMerchantView(examples, name, l, opt));
