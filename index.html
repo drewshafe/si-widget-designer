@@ -7457,6 +7457,12 @@ Return ONLY JSON — no markdown, no code fences:
             ['b1', 'b2'].forEach(p => { const L = T.filter(t => t.part === p); if (L.length) out.push({ b: _dfUnion(L), prot: p === 'b1' ? '1' : '0', pulse: p === 'b1' }); });
             T.filter(t => !t.part && t.y > pg.h * 0.1 && !/express/i.test(t.o) && _dfCompact(t.o).length <= 32 && (DF_BTN.test(_dfCompact(t.o)) || MK_BTN2_RE.test(t.o)))
                 .forEach(t => { if (out.some(o => _dfIn(o.b, t.x + t.w / 2, cy(t)))) return; out.push({ b: _dfUnion(row(t)), prot: MK_BTN2_RE.test(t.o) ? '0' : '', pulse: !MK_BTN2_RE.test(t.o) }); });
+            // A Shopify checkout's own next-step button (Continue, Continue to shipping, Pay now, Complete order, …),
+            // as the checkout scan found it: it moves on (the next checkout page, then the emails).
+            if (_dfIsCk(pg)) {
+                const pn = _coAnchors(pg).paynow;
+                if (pn && !out.some(o => _dfIn(o.b, pn.x + pn.w / 2, pn.y + pn.h / 2))) out.push({ b: { x: pn.x, y: pn.y, w: pn.w, h: pn.h }, prot: '', pulse: true });
+            }
             // Beside a "without protection" button, the main one checks out WITH it.
             if (out.some(o => o.prot === '0')) out.forEach(o => { if (!o.prot) o.prot = '1'; });
             out.forEach(o => {
