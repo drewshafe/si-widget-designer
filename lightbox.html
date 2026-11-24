@@ -496,7 +496,7 @@
   var kit = null, brandCands = [];
   var KIT_LOGOS = [['main', 'Main logo'], ['hero', 'Hero logo'], ['secondary', 'Secondary logo'], ['favicon', 'Favicon'], ['lock', 'Custom SI lock']];
   // Banner: any brand-kit image (the banner first).
-  var KIT_BANS = [['banner', 'Banner'], ['hero', 'Hero logo'], ['main', 'Main logo'], ['secondary', 'Secondary logo'], ['lock', 'Custom SI lock'], ['favicon', 'Favicon']];
+  var KIT_BANS = [['banner', 'Banner'], ['lifestyle', 'Lifestyle photo'], ['product', 'Product photo'], ['hero', 'Hero logo'], ['main', 'Main logo'], ['secondary', 'Secondary logo'], ['lock', 'Custom SI lock'], ['favicon', 'Favicon']];
   function kitBanSlots() { return kit && KIT_BANS ? KIT_BANS.filter(([k]) => kit[k]).map(([k, label]) => ({ k, label, src: kit[k] })) : []; }
   $('banSlot').onchange = e => { const it = kitBanSlots().find(x => x.k === e.target.value); if (it) { S.cfg.banner = it.src; S.cfg.banSrc = 'folder'; lbOpen = true; render(); } };
   function kitSlots() { return kit && KIT_LOGOS ? KIT_LOGOS.filter(([k]) => kit[k]).map(([k, label]) => ({ k, label })) : []; }

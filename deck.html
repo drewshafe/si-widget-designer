@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Custom Deck · ShipInsure</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/drewshafe/si-roi-calculator/main/si_lock.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap">
+<script src="https://drewshafe.github.io/si-roi-calculator/sb.js"></script>
+<script src="https://drewshafe.github.io/si-rep-hub/folder-bar.js"></script>
+<script src="https://drewshafe.github.io/si-rep-hub/brand-kit.js"></script>
+<style>
+  /* Custom Deck: the ShipInsure custom deck template ("ShipInsure custom deck - editable template"), filled from
+     the merchant folder: its brand kit (logos, lifestyle and product photos) and its Checkout Experience save
+     (the real cart and checkout, ShipInsure in them). Each slide is the template's own render (deck/sNN.jpg)
+     with the merchant's pieces laid into its placeholders; anything the template draws over a placeholder is
+     drawn again on top. Share it as a link, present it, print it to PDF, or save it to the folder. */
+  * { margin:0; padding:0; box-sizing:border-box; }
+  [hidden] { display:none !important; }
+  :root { --page:#f4f5fb; --card:#fff; --ink:#1d2240; --muted:#6b7090; --line:#e3e5f2; --accent:#6675ff; --accent-soft:#eef0ff; --stage:#e8eaf4; --warn:#a2470a; --field:#f7f8fc; }
+  body.pm { --page:#07070a; --card:#111116; --ink:#ece6d6; --muted:#9a927f; --line:#26262f; --accent:#d4af37; --accent-soft:#1f1b10; --stage:#0b0b10; --warn:#f0b35a; --field:#16161c; }
+  html, body { height:100%; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:var(--page); color:var(--ink); font-size:14px; display:flex; flex-direction:column; overflow:hidden; }
+  button, input, select { font:inherit; color:inherit; }
+  .dk-app { flex:1; min-height:0; display:grid; grid-template-columns:330px minmax(0,1fr); }
+  .dk-side { background:var(--card); border-right:1px solid var(--line); overflow-y:auto; padding:18px 18px 28px; display:flex; flex-direction:column; gap:18px; }
+  .dk-stage { background:var(--stage); overflow:auto; padding:22px 24px 60px; display:flex; flex-direction:column; align-items:center; gap:18px; }
+  .h1 { font-size:18px; font-weight:800; }
+  .h2 { font-size:12.5px; line-height:1.45; color:var(--muted); margin-top:4px; }
+  .grp { display:flex; flex-direction:column; gap:8px; }
+  .lbl { font-size:10.5px; font-weight:800; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); }
+  .hint { font-size:11.5px; line-height:1.45; color:var(--muted); }
+  .fld input, .fld select { width:100%; border:1px solid var(--line); background:var(--field); border-radius:8px; padding:7px 9px; font-size:13px; }
+  .btn { border:1px solid var(--line); background:var(--card); border-radius:9px; padding:8px 12px; font-size:12.5px; font-weight:700; cursor:pointer; }
+  .btn.p { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .btn:disabled { opacity:.45; cursor:default; }
+  .btns { display:flex; gap:8px; flex-wrap:wrap; }
+  .imgs { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .im { border:1px solid var(--line); border-radius:10px; padding:7px; background:var(--field); cursor:pointer; text-align:left; display:flex; flex-direction:column; gap:5px; }
+  .im i { display:block; height:58px; border-radius:6px; background:#e6e8f2 center / contain no-repeat; }
+  .im.photo i { background-size:cover; }
+  .im.dark i { background-color:#06001e; }
+  .im b { font-size:11.5px; }
+  .im small { font-size:10.5px; color:var(--muted); }
+  .sl { display:flex; flex-direction:column; gap:4px; }
+  .sl-r { display:flex; align-items:center; gap:8px; padding:4px 6px; border:1px solid transparent; border-radius:8px; background:var(--field); font-size:12px; }
+  .sl-r.off { opacity:.5; }
+  .sl-r.over { border-color:var(--accent); }
+  .sl-r .gr { cursor:grab; color:var(--muted); letter-spacing:-1px; }
+  .sl-r img { width:52px; height:29px; border-radius:3px; object-fit:cover; flex:0 0 auto; }
+  .sl-r span { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .sl-r em { font-style:normal; font-size:10px; font-weight:700; color:var(--warn); }
+  .msg { font-size:12px; color:var(--muted); line-height:1.45; }
+  .msg:empty { display:none; }
+
+  /* Slides: drawn at 1600×900, scaled to fit */
+  .sw { position:relative; width:100%; max-width:1180px; aspect-ratio:16 / 9; box-shadow:0 6px 24px rgba(20,26,60,.14); border-radius:6px; overflow:hidden; background:#fff; flex:0 0 auto; }
+  .sw.off { opacity:.35; }
+  .sw .tag { position:absolute; left:8px; top:8px; z-index:40; font:700 11px/1 -apple-system,sans-serif; background:rgba(20,26,60,.7); color:#fff; padding:5px 8px; border-radius:20px; }
+  .slide { position:absolute; left:0; top:0; width:1600px; height:900px; transform-origin:0 0; transform:scale(var(--k,.5)); overflow:hidden; }
+  .slide > .bg { position:absolute; inset:0; width:1600px; height:900px; display:block; }
+  .fill, .lift, .cov, .logo, .frame, .ph { position:absolute; }
+  .fill { background:center / cover no-repeat; }
+  .fill.none { background:linear-gradient(135deg, var(--b1,#e3e6f5), var(--b2,#c9cff0)); }
+  .lift { background-repeat:no-repeat; background-size:1600px 900px; }
+  .logo { display:flex; align-items:center; justify-content:center; }
+  .logo img { max-width:100%; max-height:100%; object-fit:contain; display:block; }
+  .logo.white img { filter:brightness(0) invert(1); }
+  .logo span { font:800 13px/1 Montserrat,sans-serif; letter-spacing:.02em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; color:#14141f; }
+  .logo.white span { color:#fff; }
+  .frame { border:0; background:#fff; overflow:hidden; }
+  .ph { display:none; }
+  body:not(.view) .ph { display:flex; align-items:flex-start; justify-content:flex-start; padding:10px; z-index:30; }
+  .ph button { font:700 20px/1 -apple-system,sans-serif; background:rgba(102,117,255,.92); color:#fff; border:0; border-radius:30px; padding:10px 16px; cursor:pointer; box-shadow:0 4px 14px rgba(20,26,60,.3); opacity:0; transition:opacity .12s; white-space:nowrap; }
+  .ph.sm button { font-size:15px; padding:6px 10px; }
+  .sw:hover .ph button, .ph button:focus { opacity:1; }
+  body:not(.view) .ph.empty { outline:3px dashed rgba(102,117,255,.7); outline-offset:-3px; }
+
+  /* Picker */
+  .pk { position:fixed; z-index:100; width:330px; max-height:70vh; overflow:auto; background:var(--card); border:1px solid var(--line); border-radius:12px; box-shadow:0 14px 40px rgba(20,26,60,.25); padding:12px; display:flex; flex-direction:column; gap:10px; }
+  .pk h4 { font-size:13px; }
+  .pk .tiles { display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; }
+  .pk .tiles button { border:2px solid var(--line); border-radius:8px; background:var(--field); padding:4px; cursor:pointer; display:flex; flex-direction:column; gap:3px; font-size:10px; font-weight:600; color:var(--muted); }
+  .pk .tiles button.on { border-color:var(--accent); }
+  .pk .tiles i { display:block; height:52px; border-radius:5px; background:#e6e8f2 center / contain no-repeat; }
+  .pk label { display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; }
+
+  /* View link + present */
+  body.view .dk-app { grid-template-columns:1fr; }
+  body.view .dk-side { display:none; }
+  .vbar { display:none; position:sticky; top:0; z-index:50; width:100%; max-width:1180px; justify-content:flex-end; gap:8px; }
+  body.view .vbar { display:flex; }
+  .pres { position:fixed; inset:0; z-index:200; background:#000; display:flex; align-items:center; justify-content:center; }
+  .pres .sw { max-width:none; box-shadow:none; border-radius:0; }
+  .pres .pn { position:absolute; bottom:14px; right:18px; color:rgba(255,255,255,.6); font:600 12px/1 -apple-system,sans-serif; }
+  .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(30px); opacity:0; background:#1d2240; color:#fff; padding:10px 16px; border-radius:10px; font-size:13px; font-weight:600; transition:.25s; pointer-events:none; z-index:300; }
+  .toast.show { opacity:1; transform:translateX(-50%); }
+
+  @media print {
+    @page { size:1600px 900px; margin:0; }
+    html, body { height:auto; overflow:visible; background:#fff; display:block; }
+    .dk-side, .vbar, .toast, .pk, .pres, .sw .tag, .ph, #siFolderBar, [data-si-folder-bar] { display:none !important; }
+    .dk-app { display:block; }
+    .dk-stage { display:block; padding:0; overflow:visible; background:#fff; }
+    .sw { width:1600px !important; max-width:none; height:900px; aspect-ratio:auto; box-shadow:none; border-radius:0; page-break-after:always; break-after:page; margin:0; }
+    .sw.off { display:none; }
+    .slide { transform:none !important; }
+  }
+  @media (max-width: 860px) { .dk-app { grid-template-columns:1fr; overflow:auto; } body { overflow:auto; } }
+</style>
+</head>
+<body>
+<div class="dk-app" id="app">
+  <aside class="dk-side">
+    <div>
+      <div class="h1">Custom Deck</div>
+      <div class="h2">The ShipInsure deck, filled in for the merchant from their folder: logos and photos from the brand kit, and their real cart and checkout from Checkout Experience. Click any spot on a slide to change it.</div>
+    </div>
+    <div class="grp">
+      <div class="lbl">Merchant</div>
+      <div class="fld"><input id="nameIn" placeholder="Store name"></div>
+      <div class="hint" id="srcHint"></div>
+    </div>
+    <div class="grp">
+      <div class="lbl">Images</div>
+      <div class="imgs" id="imgs"></div>
+    </div>
+    <div class="grp">
+      <div class="lbl">Cart &amp; checkout (slides 6–7)</div>
+      <div class="fld"><select id="coSel"></select></div>
+      <div class="hint">The merchant's real cart and checkout with ShipInsure in them, from a Checkout Experience save.</div>
+    </div>
+    <div class="grp">
+      <div class="lbl">Slides · drag ⣿ to reorder</div>
+      <div class="sl" id="slides"></div>
+    </div>
+    <div class="grp">
+      <div class="lbl">Share</div>
+      <div class="btns">
+        <button class="btn p" type="button" id="linkBtn">🔗 Copy link</button>
+        <button class="btn" type="button" id="presBtn">▶ Present</button>
+        <button class="btn" type="button" id="pdfBtn">⬇ PDF</button>
+        <button class="btn" type="button" id="gsBtn" disabled title="Comes next: needs the one-time Google sign-in setup for Rep Hub">Google Slides</button>
+      </div>
+      <div class="hint">PDF: in the print dialog pick “Save as PDF”, margins None, Background graphics on. Save to the merchant's folder from the bar above for a short link.</div>
+      <div class="msg" id="msg"></div>
+    </div>
+  </aside>
+  <main class="dk-stage" id="stage">
+    <div class="vbar"><button class="btn" type="button" id="vPres">▶ Present</button><button class="btn" type="button" id="vPdf">⬇ PDF</button></div>
+    <div id="deck" style="display:contents"></div>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const clone = o => JSON.parse(JSON.stringify(o));
+  const Q = new URLSearchParams(location.search), VIEW = Q.get('view') === '1';
+  const enc = o => btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+  const dec = s => { try { return s ? JSON.parse(decodeURIComponent(escape(atob(s)))) : null; } catch (e) { return null; } };
+  const hp = k => (location.hash.match(new RegExp('[#&]' + k + '=([^&]*)')) || [])[1] || '';
+  function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2400); }
+  const cssUrl = u => `url('${String(u).replace(/['"()\\\s]/g, encodeURIComponent)}')`;
+
+  // ── The template ── each slide: its render (deck/sNN.jpg) and the placeholders on it, at 1600×900.
+  // k: lifestyle | product (photos), logo (on light) | logo-dark, cart | checkout (live Checkout Experience).
+  // lifts: what the template draws over a photo placeholder (a card, a widget): drawn again on top of it.
+  const SLIDES = [
+    { n: 1, name: 'Cover', s: [{ id: 'p1_i2', k: 'lifestyle', r: [347, 0, 1253, 900], lifts: [[1, 354, 722, 192], [348, 421, 76, 58], [448, 425, 230, 50]] }, { id: 'p1_i7', k: 'logo', r: [173, 425, 150, 50], bg: '#ffffff' }] },
+    { n: 2, name: 'Our Mission', s: [{ id: 'p2_i27', k: 'lifestyle', r: [0, 337, 432, 514] }] },
+    { n: 3, name: 'Why merchants choose us', s: [] },
+    { n: 4, name: 'Branded Products', s: [] },
+    { n: 5, name: 'Enhance your checkout', s: [{ id: 'p5_i13', k: 'lifestyle', r: [676, 354, 333, 288], lifts: [[711, 298, 557, 110], [722, 314, 89, 89], [816, 351, 21, 21], [849, 351, 338, 36]] }, { id: 'p5_i14', k: 'product', r: [1105, 80, 432, 605], lifts: [[711, 298, 557, 110], [816, 321, 294, 21], [1200, 321, 57, 21], [849, 351, 338, 36]] }, { id: 'p5_i17', k: 'logo', r: [747, 347, 38, 13], bg: '#f4f4f9' }] },
+    { n: 6, name: 'Checkout Experience: cart', s: [{ id: 'p6_i7', k: 'cart', r: [304, 280, 992, 620] }] },
+    { n: 7, name: 'Checkout Experience: checkout', s: [{ id: 'p7_i7', k: 'checkout', r: [313, 291, 974, 609] }] },
+    { n: 8, name: 'Branded Email Automation', s: [{ id: 'p8_i9', k: 'lifestyle', r: [128, 287, 392, 206] }, { id: 'p8_i8', k: 'logo', r: [293, 250, 62, 21], bg: '#ffffff' }, { id: 'p8_i25', k: 'logo', r: [693, 272, 35, 12], bg: '#ffffff' }, { id: 'p8_i27', k: 'logo', r: [1018, 272, 35, 12], bg: '#ffffff' }, { id: 'p8_i29', k: 'logo', r: [1343, 272, 35, 12], bg: '#ffffff' }] },
+    { n: 9, name: 'Branded emails, up close', s: [{ id: 'p9_i9', k: 'logo', r: [240, 166, 54, 18], bg: '#ffffff' }, { id: 'p9_i11', k: 'logo', r: [743, 166, 54, 18], bg: '#ffffff' }, { id: 'p9_i13', k: 'logo', r: [1248, 166, 54, 18], bg: '#ffffff' }] },
+    { n: 10, name: 'Customizable Claims Process', s: [{ id: 'p10_i17', k: 'logo', r: [672, 162, 35, 12], bg: '#ffffff' }, { id: 'p10_i36', k: 'logo', r: [1016, 163, 35, 12], bg: '#ffffff' }, { id: 'p10_i44', k: 'logo', r: [1359, 163, 35, 12], bg: '#ffffff' }] },
+    { n: 11, name: 'Cashback incentives', s: [{ id: 'p11_i2', k: 'lifestyle', r: [733, 294, 410, 351], lifts: [[623, 560, 535, 109], [731, 582, 282, 20], [1098, 582, 56, 20], [731, 610, 347, 35], [1033, 641, 171, 58]] }, { id: 'p11_i15', k: 'product', r: [1175, 223, 425, 349], lifts: [[1196, 569, 404, 161], [1555, 570, 1, 159]] }, { id: 'p11_i5', k: 'logo', r: [658, 608, 38, 13], bg: '#f4f4f9' }, { id: 'p11_i14', k: 'logo', r: [1377, 185, 58, 19], bg: '#ffffff' }] },
+    { n: 12, name: 'Merchant Portal', s: [] },
+    { n: 13, name: 'Integrations', s: [] },
+    { n: 14, name: '90-day Quality Guarantee', s: [] },
+    { n: 15, name: 'Cashback bonus', s: [] },
+    { n: 16, name: 'Thank you', s: [{ id: 'p16_i5', k: 'logo-dark', r: [865, 713, 219, 35], bg: '#06001e' }] }
+  ];
+  const bgOf = n => 'deck/s' + String(n).padStart(2, '0') + '.jpg';
+  // The images the deck uses, and the brand kit slot each one comes from by default.
+  const IMGS = [
+    { k: 'logo', l: 'Logo', sub: 'On light backgrounds', kit: ['main'] },
+    { k: 'logoDark', l: 'Logo on dark', sub: 'Thank-you slide (white if none)', kit: ['secondary'], dark: 1 },
+    { k: 'lifestyle', l: 'Lifestyle photo', sub: 'Slides 1, 2, 5, 8, 11', kit: ['lifestyle', 'banner'], photo: 1 },
+    { k: 'product', l: 'Product photo', sub: 'Slides 5, 11', kit: ['product'], photo: 1 }
+  ];
+  const KIND_IMG = { lifestyle: 'lifestyle', product: 'product', logo: 'logo', 'logo-dark': 'logoDark' };
+  const KIT_SLOT = { logo: 'main', logoDark: 'secondary', lifestyle: 'lifestyle', product: 'product' };
+
+  // S: the deck. img = the images (URLs); by[k] = 'kit' when it came from the brand kit (kept in step with it)
+  // or 'user'; slot = one spot's own image; order / off = the slides; co = the Checkout Experience save.
+  const DEFAULTS = { v: 1, name: '', img: { logo: '', logoDark: '', lifestyle: '', product: '' }, by: {}, slot: {}, order: SLIDES.map(s => s.n), off: {}, co: null, colors: {} };
+  let S = clone(DEFAULTS), KIT = null, CO_ROWS = [];
+  function adopt(d) {
+    const n = Object.assign(clone(DEFAULTS), d || {});
+    n.img = Object.assign(clone(DEFAULTS.img), (d || {}).img || {});
+    const ord = (Array.isArray(n.order) ? n.order : []).filter(x => SLIDES.some(s => s.n === x));
+    n.order = ord.concat(SLIDES.map(s => s.n).filter(x => !ord.includes(x)));
+    ['by', 'slot', 'off', 'colors'].forEach(k => { if (!n[k] || typeof n[k] !== 'object') n[k] = {}; });
+    return n;
+  }
+  const DRAFT = 'si_deck_draft';
+  let _saveT = 0;
+  function save() { if (VIEW) return; clearTimeout(_saveT); _saveT = setTimeout(() => { try { localStorage.setItem(DRAFT, JSON.stringify(S)); } catch (e) {} }, 300); }
+  // A slide that needs something the deck doesn't have (the cart / checkout without a save) is left out of the link.
+  const hasCo = () => !!(S.co && (S.co.id || S.co.data));
+  const ready = sl => !sl.s.some(p => (p.k === 'cart' || p.k === 'checkout') && !hasCo());
+  // The Checkout Experience screens: a folder save by id, or this browser's latest draft carried along.
+  const coSrc = () => 'index.html?view=merchant&flow=1&still=1' + (S.co.id ? '&asset=' + encodeURIComponent(S.co.id) : '#s=' + enc({ name: S.co.data.name || '', examples: S.co.data.examples || [] }));
+  const shown = n => !S.off[n] && ready(SLIDES.find(s => s.n === n));
+
+  // ── A slide ──
+  function slideHtml(sl) {
+    const R = r => `left:${r[0]}px;top:${r[1]}px;width:${r[2]}px;height:${r[3]}px;`;
+    const bg = bgOf(sl.n), b1 = S.colors.primary || '#dfe3f5', b2 = S.colors.accent || '#c3c9ee';
+    let h = `<img class="bg" src="${bg}" alt="" draggable="false">`, top = '';
+    sl.s.forEach(p => {
+      const u = S.slot[p.id] || S.img[KIND_IMG[p.k]] || '';
+      if (p.k === 'lifestyle' || p.k === 'product') {
+        if (u) h += `<div class="fill" style="${R(p.r)}background-image:${cssUrl(u)};"></div>`;
+        else if (VIEW) h += `<div class="fill none" style="${R(p.r)}--b1:${esc(b1)};--b2:${esc(b2)};"></div>`;
+        if (u || VIEW) (p.lifts || []).forEach(l => { h += `<div class="lift" style="${R(l)}background-image:url('${bg}');background-position:${-l[0]}px ${-l[1]}px;"></div>`; });
+        top += `<div class="ph${u ? '' : ' empty'}" style="${R(p.r)}"><button type="button" data-pick="${p.k}" data-slot="${p.id}">🖼 ${p.k === 'lifestyle' ? 'Lifestyle' : 'Product'} photo</button></div>`;
+      } else if (p.k === 'logo' || p.k === 'logo-dark') {
+        // A bit bigger than the template's box (logos need room), on the color around it.
+        const dark = p.k === 'logo-dark', grow = p.r[2] < 80 ? 1.5 : 1.15;
+        const w = p.r[2] * grow, hh = p.r[3] * grow, x = p.r[0] - (w - p.r[2]) / 2, y = p.r[1] - (hh - p.r[3]) / 2;
+        const name = S.name || '';
+        const white = dark && !S.slot[p.id] && !S.img.logoDark;   // no light version: the main logo, made white
+        const src = dark ? (S.slot[p.id] || S.img.logoDark || S.img.logo) : u;
+        if (src || name || VIEW) {
+          h += `<div class="cov" style="${R([x - 2, y - 2, w + 4, hh + 4])}background:${p.bg};"></div>`;
+          h += `<div class="logo${white ? ' white' : ''}" style="${R([x, y, w, hh])}">${src ? `<img src="${esc(src)}" alt="">` : `<span style="font-size:${Math.max(6, Math.round(hh * 0.55))}px">${esc(name)}</span>`}</div>`;
+        }
+        top += `<div class="ph sm${src ? '' : ' empty'}" style="${R([x - 6, y - 6, Math.max(w + 12, 40), hh + 12])}"><button type="button" data-pick="${p.k}" data-slot="${p.id}">🏷</button></div>`;
+      } else if (p.k === 'cart' || p.k === 'checkout') {
+        if (hasCo()) h += `<iframe class="frame" data-want="${p.k}" style="${R(p.r)}" scrolling="no" title="${p.k}" src="${esc(coSrc())}"></iframe>`;
+        else top += `<div class="ph empty" style="${R(p.r)}"><button type="button" data-goco="1">🛒 Pick a Checkout Experience save (left)</button></div>`;
+      }
+    });
+    return `<div class="slide" data-n="${sl.n}">${h}${top}</div>`;
+  }
+  function renderDeck() {
+    const list = S.order.map(n => SLIDES.find(s => s.n === n)).filter(sl => !VIEW || shown(sl.n));
+    $('deck').innerHTML = list.map(sl => `<div class="sw${S.off[sl.n] ? ' off' : ''}" data-n="${sl.n}">${VIEW ? '' : `<span class="tag">${S.order.indexOf(sl.n) + 1} · ${esc(sl.name)}${S.off[sl.n] ? ' · hidden' : ''}</span>`}${slideHtml(sl)}</div>`).join('');
+    fit();
+  }
+  function fit() { document.querySelectorAll('.sw').forEach(w => { w.style.setProperty('--k', w.clientWidth / 1600); }); }
+  addEventListener('resize', fit);
+
+  // The cart / checkout frames: the demo screen reports its pages; each frame goes to the first of its kind.
+  addEventListener('message', e => {
+    const d = e.data; if (!d || d.siExp !== 'shop' || !Array.isArray(d.labels)) return;
+    document.querySelectorAll('iframe.frame').forEach(f => {
+      if (f.contentWindow !== e.source) return;
+      const want = f.dataset.want === 'checkout' ? /^checkout/i : /^cart/i;
+      const i = d.labels.findIndex(l => want.test(l)), sw = f.closest('.sw');
+      if (i >= 0 && i !== d.page) f.contentWindow.postMessage({ siExp: 'shopGo', page: i }, '*');
+      // The save has no page of this kind: the link leaves the slide out; here it says so.
+      if (i < 0 && sw && !sw.querySelector('.nopg')) {
+        if (VIEW) sw.hidden = true;
+        else f.insertAdjacentHTML('afterend', `<div class="ph empty nopg" style="left:${f.style.left};top:${f.style.top};width:${f.style.width};height:${f.style.height};background:rgba(255,255,255,.86);align-items:center;justify-content:center;"><b style="font:700 26px/1.3 -apple-system,sans-serif;color:#1d2240;text-align:center;padding:0 40px">This Checkout Experience save has no ${f.dataset.want} page.<br><span style="font-weight:500;font-size:20px;color:#6b7090">Pick another save, or hide this slide (left).</span></b></div>`);
+      }
+    });
+  });
+
+  // ── Rep panel ──
+  function renderSide() {
+    if (VIEW) return;
+    if (document.activeElement !== $('nameIn')) $('nameIn').value = S.name || '';
+    $('imgs').innerHTML = IMGS.map(o => {
+      const u = S.img[o.k] || (o.k === 'logoDark' && S.img.logo ? S.img.logo : '');
+      return `<button type="button" class="im${o.photo ? ' photo' : ''}${o.dark ? ' dark' : ''}" data-pick="${o.k === 'logoDark' ? 'logo-dark' : o.k === 'logo' ? 'logo' : o.k}"><i style="${u ? `background-image:${cssUrl(u)};${o.k === 'logoDark' && !S.img.logoDark ? 'filter:brightness(0) invert(1);' : ''}` : ''}"></i><b>${esc(o.l)}</b><small>${S.img[o.k] ? (S.by[o.k] === 'kit' ? 'From the brand kit' : 'Chosen here') : esc(o.sub)}</small></button>`;
+    }).join('');
+    const opts = CO_ROWS.map(r => `<option value="${esc(r.id)}">📁 ${esc(r.title || 'Checkout Experience')}</option>`);
+    if (S.co && S.co.id && !CO_ROWS.some(r => r.id === S.co.id)) opts.push(`<option value="${esc(S.co.id)}">📁 ${esc(S.co.title || 'Saved checkout')}</option>`);
+    if (coDraft() || (S.co && S.co.data)) opts.push('<option value="draft">💻 My latest (this browser)</option>');
+    $('coSel').innerHTML = opts.join('') + '<option value="">— None (slides 6–7 left out) —</option>';
+    $('coSel').value = S.co && S.co.id ? S.co.id : S.co && S.co.data ? 'draft' : '';
+    $('slides').innerHTML = S.order.map((n, i) => {
+      const sl = SLIDES.find(s => s.n === n);
+      return `<div class="sl-r${S.off[n] ? ' off' : ''}" draggable="true" data-n="${n}"><span class="gr">⣿</span><input type="checkbox" data-on="${n}"${S.off[n] ? '' : ' checked'} title="Include this slide"><img src="${bgOf(n)}" alt=""><span>${i + 1}. ${esc(sl.name)}</span>${ready(sl) ? '' : '<em>needs a save</em>'}</div>`;
+    }).join('');
+    const a = window.SIsb && SIsb.getActiveFolder();
+    $('srcHint').textContent = a ? (KIT ? `Using ${a.name}’s brand kit${CO_ROWS.length ? ' and Checkout Experience saves' : ''}.` : `Loading ${a.name}’s brand kit…`) : 'Pick a merchant folder (bar above) to fill the deck from its brand kit and saves.';
+  }
+  function render() { renderSide(); renderDeck(); save(); }
+
+  $('nameIn').addEventListener('input', e => { S.name = e.target.value; clearTimeout(render._t); render._t = setTimeout(render, 300); });
+  function coDraft() { try { const d = JSON.parse(localStorage.getItem('si_checkout_draft') || 'null'); return d && Array.isArray(d.examples) && d.examples.length ? d : null; } catch (e) { return null; } }
+  $('coSel').addEventListener('change', e => {
+    const id = e.target.value, r = CO_ROWS.find(x => x.id === id);
+    if (id === 'draft') { const d = coDraft(); S.co = d ? { draft: true, data: { name: d.name || '', examples: d.examples } } : S.co; if (d && JSON.stringify(d).length > 200000) toast('Big draft: save it to the folder in Checkout Experience for a short deck link'); }
+    else S.co = id ? { id, title: r ? r.title : '' } : null;
+    render();
+  });
+  $('slides').addEventListener('change', e => { const n = +e.target.dataset.on; if (!n) return; if (e.target.checked) delete S.off[n]; else S.off[n] = true; render(); });
+  $('slides').addEventListener('click', e => { const r = e.target.closest('.sl-r'); if (!r || e.target.closest('input')) return; const w = document.querySelector(`.sw[data-n="${r.dataset.n}"]`); if (w) w.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+  // ⣿ drag a slide up or down the list
+  let _drag = null;
+  $('slides').addEventListener('dragstart', e => { const r = e.target.closest('.sl-r'); if (r) { _drag = +r.dataset.n; try { e.dataTransfer.setData('text/plain', r.dataset.n); } catch (er) {} } });
+  $('slides').addEventListener('dragover', e => { const r = e.target.closest('.sl-r'); if (!r || !_drag) return; e.preventDefault(); document.querySelectorAll('.sl-r.over').forEach(x => x !== r && x.classList.remove('over')); r.classList.add('over'); });
+  $('slides').addEventListener('dragend', () => { _drag = null; document.querySelectorAll('.sl-r.over').forEach(x => x.classList.remove('over')); });
+  $('slides').addEventListener('drop', e => {
+    const r = e.target.closest('.sl-r'); if (!r || !_drag) return; e.preventDefault();
+    const to = +r.dataset.n, rc = r.getBoundingClientRect(), after = e.clientY > rc.top + rc.height / 2;
+    if (to !== _drag) { S.order.splice(S.order.indexOf(_drag), 1); S.order.splice(S.order.indexOf(to) + (after ? 1 : 0), 0, _drag); }
+    _drag = null; render();
+  });
+
+  // ── Picking an image: the brand kit's images, or an upload (saved to the brand kit if asked) ──
+  function openPicker(kind, slot, at) {
+    closePicker();
+    const k = KIND_IMG[kind], o = IMGS.find(x => x.k === k), cur = (slot && S.slot[slot]) || S.img[k] || '';
+    const kit = KIT || {}, seen = new Set(), tiles = [];
+    const add = (u, l) => { if (u && !seen.has(u)) { seen.add(u); tiles.push({ u, l }); } };
+    (window.SIBrand ? SIBrand.SLOTS : []).forEach(x => add(kit[x.k], x.label));
+    Object.values(S.img).forEach(u => add(u, 'In this deck'));
+    const el = document.createElement('div'); el.className = 'pk'; el.id = 'pk';
+    el.innerHTML = `<h4>${esc(o.l)}</h4>
+      <div class="tiles">${tiles.map(t => `<button type="button" data-u="${esc(t.u)}" class="${t.u === cur ? 'on' : ''}"><i style="background-image:${cssUrl(t.u)};${o.photo ? 'background-size:cover;' : ''}${o.dark ? 'background-color:#06001e;' : ''}"></i>${esc(t.l)}</button>`).join('') || '<div class="hint" style="grid-column:1/-1">No brand kit images yet: pick a merchant folder, or upload one.</div>'}</div>
+      ${slot ? `<label><input type="checkbox" id="pkOnly"> Only this spot (slide ${esc(slot.slice(1, slot.indexOf('_')))})</label>` : ''}
+      ${window.SIsb && SIsb.getActiveFolder() ? `<label><input type="checkbox" id="pkKit" checked> Save uploads to the brand kit (${esc(o.l)})</label>` : ''}
+      <div class="btns"><button class="btn" type="button" data-act="up">⬆ Upload</button><button class="btn" type="button" data-act="clear">Use the brand kit's</button><button class="btn" type="button" data-act="close">Close</button></div>
+      <input type="file" accept="image/*" hidden id="pkFile">`;
+    document.body.appendChild(el);
+    const r = at.getBoundingClientRect();
+    el.style.left = Math.max(8, Math.min(innerWidth - 340, r.left)) + 'px';
+    el.style.top = Math.max(8, Math.min(innerHeight - el.offsetHeight - 8, r.bottom + 6)) + 'px';
+    const only = () => slot && $('pkOnly') && $('pkOnly').checked;
+    const apply = u => {
+      if (only()) { if (u) S.slot[slot] = u; else delete S.slot[slot]; }
+      else { if (slot) delete S.slot[slot]; if (u) { S.img[k] = u; S.by[k] = 'user'; } else { S.by[k] = 'kit'; S.img[k] = kitFor(k); } }
+      closePicker(); render();
+    };
+    el.addEventListener('click', e => {
+      const t = e.target.closest('[data-u]'); if (t) return apply(t.dataset.u);
+      const a = e.target.closest('[data-act]'); if (!a) return;
+      if (a.dataset.act === 'close') closePicker();
+      if (a.dataset.act === 'clear') apply('');
+      if (a.dataset.act === 'up') $('pkFile').click();
+    });
+    $('pkFile').addEventListener('change', async e => {
+      const f = e.target.files[0]; if (!f) return;
+      say('Adding the image…');
+      try {
+        let u = await readImg(f, o.photo ? 1600 : 800);
+        if (window.SIBrand) u = await SIBrand.store(u).catch(() => u);
+        const fo = window.SIsb && SIsb.getActiveFolder();
+        if (fo && $('pkKit') && $('pkKit').checked && !/^data:/.test(u)) { KIT = await SIBrand.set(fo.id, KIT_SLOT[k], u); toast('Saved to ' + fo.name + '’s brand kit'); }
+        say(/^data:/.test(u) ? 'Sign in to keep uploads short in links.' : '');
+        apply(u);
+      } catch (x) { say('Couldn’t add it: ' + (x.message || x)); }
+    });
+  }
+  function closePicker() { const p = $('pk'); if (p) p.remove(); }
+  document.addEventListener('mousedown', e => { const p = $('pk'); if (p && !p.contains(e.target) && !e.target.closest('[data-pick]')) closePicker(); });
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-pick]'); if (b && !VIEW) { e.preventDefault(); openPicker(b.dataset.pick, b.dataset.slot || null, b); return; }
+    if (e.target.closest('[data-goco]')) $('coSel').focus();
+  });
+  function readImg(file, max) {
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => { const im = new Image(); im.onload = () => { const k = Math.min(1, max / Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = Math.round(im.width * k); c.height = Math.round(im.height * k); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); res(c.toDataURL(file.type === 'image/png' ? 'image/png' : 'image/jpeg', 0.88)); }; im.onerror = () => rej(new Error('not an image')); im.src = r.result; };
+      r.onerror = () => rej(new Error('could not read the file')); r.readAsDataURL(file);
+    });
+  }
+  function say(m) { $('msg').textContent = m || ''; }
+
+  // ── The merchant folder: its brand kit fills the images (unless chosen here), its newest Checkout
+  //    Experience save fills slides 6–7, its name the store name. ──
+  function kitFor(k) { const o = IMGS.find(x => x.k === k); return (o.kit.map(s => (KIT || {})[s]).find(Boolean)) || ''; }
+  async function loadFolder() {
+    const a = !VIEW && window.SIsb && SIsb.getActiveFolder();
+    KIT = null; CO_ROWS = [];
+    if (!a) { renderSide(); return; }
+    renderSide();
+    try { KIT = await SIBrand.get(a.id); } catch (e) { KIT = {}; }
+    try { CO_ROWS = (await SIsb.listAssets(a.id)).filter(r => r.kind === 'checkout' && r.source !== 'upload' && r.source !== 'link'); } catch (e) { CO_ROWS = []; }
+    if (!S.name) S.name = a.name || '';
+    IMGS.forEach(o => { if (!S.img[o.k] || S.by[o.k] === 'kit') { S.img[o.k] = kitFor(o.k); S.by[o.k] = 'kit'; } });
+    if (KIT && KIT.colors) S.colors = { primary: KIT.colors.primary || '', accent: KIT.colors.accent || '' };
+    if (!hasCo() && CO_ROWS[0]) S.co = { id: CO_ROWS[0].id, title: CO_ROWS[0].title || '' };
+    render();
+  }
+
+  // ── Share ──
+  const deckLink = () => location.origin + location.pathname + '?view=1#d=' + enc(S);
+  $('linkBtn').onclick = () => { const u = deckLink(); navigator.clipboard.writeText(u).then(() => toast(u.length > 60000 ? 'Link copied (long: save to the folder for a short link)' : 'Deck link copied'), () => prompt('Copy this link:', u)); };
+  const pdf = () => { fit(); setTimeout(() => print(), 150); };
+  $('pdfBtn').onclick = pdf; $('vPdf').onclick = pdf;
+  // Present: one slide at a time, full screen; ← → or click, Esc to leave.
+  function present() {
+    const list = S.order.filter(n => shown(n) && !(document.querySelector(`.sw[data-n="${n}"]`) || {}).hidden); if (!list.length) return;
+    let i = 0;
+    const el = document.createElement('div'); el.className = 'pres'; el.tabIndex = 0;
+    const paint = () => {
+      const sl = SLIDES.find(s => s.n === list[i]), k = Math.min(innerWidth / 1600, innerHeight / 900);
+      el.innerHTML = `<div class="sw" style="width:${1600 * k}px;--k:${k}">${slideHtml(sl)}</div><div class="pn">${i + 1} / ${list.length}</div>`;
+    };
+    const step = d => { i = Math.max(0, Math.min(list.length - 1, i + d)); paint(); };
+    const key = e => { if (e.key === 'Escape') done(); else if (['ArrowRight', 'PageDown', ' '].includes(e.key)) step(1); else if (['ArrowLeft', 'PageUp'].includes(e.key)) step(-1); };
+    const done = () => { removeEventListener('keydown', key); if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); el.remove(); };
+    el.addEventListener('click', e => { if (e.target.closest('iframe')) return; step(e.clientX > innerWidth / 3 ? 1 : -1); });
+    addEventListener('keydown', key);
+    document.body.appendChild(el); paint();
+    if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+    document.addEventListener('fullscreenchange', function f() { if (!document.fullscreenElement) { document.removeEventListener('fullscreenchange', f); if (el.isConnected) done(); } else paint(); });
+  }
+  $('presBtn').onclick = present; $('vPres').onclick = present;
+
+  // ── Start ──
+  (async function init() {
+    if (VIEW) document.body.classList.add('view');
+    const asset = Q.get('asset'), fromHash = dec(hp('d'));
+    if (asset && window.SIsb) { try { const r = await SIsb.getAsset(asset); S = adopt(r.data); } catch (e) { S = adopt(null); } }
+    else if (fromHash) S = adopt(fromHash);
+    else if (!VIEW) { try { S = adopt(JSON.parse(localStorage.getItem(DRAFT) || 'null')); } catch (e) { S = adopt(null); } }
+    render();
+    if (!VIEW) loadFolder();
+  })();
+  if (!VIEW && window.SIsb) SIsb.onActiveFolder(() => { S.name = ''; S.co = null; S.slot = {}; IMGS.forEach(o => { S.img[o.k] = ''; S.by[o.k] = 'kit'; }); loadFolder(); });
+  if (!VIEW && window.SIFolderBar) {
+    // merchant_assets kind 'deck' (needs si-rep-hub/deck-kind.sql; sb.js gets the kind here until its own list has it).
+    if (window.SIsb && Array.isArray(SIsb.ASSET_KINDS) && SIsb.ASSET_KINDS.indexOf('deck') < 0) SIsb.ASSET_KINDS.push('deck');
+    SIFolderBar.mount({
+      kind: 'deck', tool: 'Custom Deck', before: $('app'),
+      getData: () => clone(S),
+      applyData: d => { S = adopt(d); render(); },
+      defaultTitle: () => 'Deck – ' + (S.name || 'Merchant'),
+      shortLink: id => location.origin + location.pathname + '?view=1&asset=' + encodeURIComponent(id)
+    });
+  }
+  // ── Rep Hub theme hand-off ──
+  const setTheme = t => document.body.classList.toggle('pm', t === 'midnight');
+  setTheme(Q.get('theme'));
+  addEventListener('message', e => { const d = e.data || {}; if (d.siHub === 'apply' && d.theme) setTheme(d.theme); });
+</script>
+</body>
+</html>
