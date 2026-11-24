@@ -7192,13 +7192,21 @@ Return ONLY JSON — no markdown, no code fences:
         }
         // The drawer's footer: from the top of its band (a background change just above the subtotal /
         // ShipInsure / checkout rows) to the last button; and where the items above it end.
+        const DF_FOOT_MORE = /^(before savings|savings|you save|total savings|make (this|it) a gift|this is a gift|gift (note|message|wrap|wrapping|options?|receipt)|add (a |an )?(order |gift )?(note|message)|order (note|instructions)|special instructions|discounts?\b|promo|coupon|estimated (tax|shipping|total)|taxes|shipping\b|rewards?\b|premium card)/i;
         function _dfDrawerFoot(pg, cv, T, x0, x1, H) {
             const isFoot = t => t.role === 'sub' || t.role === 'total' || t.role === 'fee' || ['hdr', 'body', 'b1', 'b2', 'disc'].includes(t.part) ||
                 /^(sub-?total|total|estimated total|taxes|shipping|checkout|check out)/i.test(_mkPlain(t.o).trim()) || DF_BTN.test(_dfCompact(t.o)) || MK_BTN2_RE.test(t.o);
             const F = T.filter(t => isFoot(t) && t.y + t.h / 2 > pg.h * 0.35);
             if (!F.length) return null;
-            const fTop = Math.min(...F.map(t => t.y)), fBot = Math.max(...F.map(t => t.y + t.h));
-            const above = T.filter(t => t.y + t.h <= fTop - 2);
+            let fTop = Math.min(...F.map(t => t.y));
+            const fBot = Math.max(...F.map(t => t.y + t.h));
+            // The rest of the totals block sits just above the subtotal: savings, gift options, order notes,
+            // discount codes. Those rows (and anything on the same line as a footer row) join the footer.
+            const more = t => DF_FOOT_MORE.test(_mkPlain(t.o).trim()) || F.some(f => Math.abs(f.y + f.h / 2 - (t.y + t.h / 2)) < Math.max(6, f.h / 2));
+            for (let moved = true; moved;) {
+                moved = false;
+                T.forEach(t => { if (F.indexOf(t) < 0 && t.y < fTop && t.y + t.h / 2 > pg.h * 0.2 && fTop - (t.y + t.h) < 70 && more(t)) { F.push(t); fTop = t.y; moved = true; } });
+            }
             // Rows of pixels across the drawer: average color + how far the row strays from it.
             let row = null;
             if (cv) {
@@ -7214,7 +7222,6 @@ Return ONLY JSON — no markdown, no code fences:
                 } catch (e) { row = null; }
             }
             const dist = (a, b) => Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2]);
-            const lastAbove = above.length ? Math.max(...above.map(t => t.y + t.h)) : 0;
             // Down from a row of letters while the rows still hold something (a product image, a box's or a
             // button's edges): it ends after a run of rows that are one flat color.
             const flat = c => c[3] <= 24;
@@ -7226,6 +7233,23 @@ Return ONLY JSON — no markdown, no code fences:
                 const best = Object.values(cnt).sort((a, b) => b.n - a.n)[0]; if (best) dbg = best.c;
             }
             const blankRow = c => flat(c) && dist(c, dbg) < 14;
+            // A footer box of its own color (white on a beige drawer): it starts where that color does, so
+            // everything inside it (gift options, savings, …) stays in the pinned footer, labelled or not.
+            let band = null;
+            if (row) {
+                const cnt = {};
+                for (let y = fTop; y < fBot; y += 3) { const c = row(y); if (!flat(c)) continue; const key = c.slice(0, 3).map(v => Math.round(v / 8)).join(','); (cnt[key] = cnt[key] || { n: 0, c }).n++; }
+                const fb = (Object.values(cnt).sort((a, b) => b.n - a.n)[0] || {}).c;
+                if (fb && dist(fb, dbg) > 16) {
+                    let run = 0;
+                    for (let y = fTop - 3; y > Math.max(40, fTop - 480); y -= 2) {
+                        const c = row(y);
+                        if (blankRow(c) && dist(c, fb) > 16) { if ((run += 2) >= 8) { band = y + run; fTop = Math.min(fTop, band); break; } } else run = 0;
+                    }
+                }
+            }
+            const above = T.filter(t => t.y + t.h <= fTop - 2);
+            const lastAbove = above.length ? Math.max(...above.map(t => t.y + t.h)) : 0;
             const inkEnd = (from, limit) => {
                 if (!row) return Math.min(limit, from + 30);
                 let y = from, blank = 0;
@@ -7235,8 +7259,8 @@ Return ONLY JSON — no markdown, no code fences:
             // The items end where their pixels do; the footer starts at its band's top edge (flat rows of two
             // different colors, e.g. white → grey), else just above its first row, never above the items' end.
             const topEnd = Math.max(60, Math.min(fTop - 2, inkEnd(lastAbove, fTop - 2)));
-            let fy = Math.max(topEnd, fTop - 14);
-            if (row) {
+            let fy = band != null ? band : Math.max(topEnd, fTop - 14);
+            if (row && band == null) {
                 let prev = row(fTop - 3);
                 for (let y = fTop - 5; y >= topEnd; y -= 2) { const c = row(y); if (flat(c) && flat(prev) && dist(c, prev) > 16) { fy = y + 1; break; } prev = c; }
             }
