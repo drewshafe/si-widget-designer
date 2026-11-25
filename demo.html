@@ -89,6 +89,9 @@
   body.mobile:not(.narrow).nav-left .xp-nav { order:-1; }
   body.mobile:not(.narrow).nav-right .xp-nav { order:2; }
   .xp-nav.swap { opacity:0; }
+  /* Hints hidden: no hint card, just small back / next buttons under the phone. */
+  body.nav-hide .xp-nudge { display:none; }
+  body.nav-hide .xp-nav { justify-content:center; gap:14px; }
   /* Alternating: the other side keeps the same room, so the phone stays put as the hint switches sides. */
   .xp-navsp { display:none; flex:0 0 230px; }
   body.mobile:not(.narrow).nav-alt .xp-navsp { display:block; }
@@ -147,7 +150,7 @@
     <div class="hint" id="srcHint"></div>
     <div class="btns"><button class="btn p" type="button" id="linkBtn">🔗 Copy demo link</button><button class="btn" type="button" id="openBtn">↗ Open</button></div>
     <div class="fld"><div class="lbl">Steps bar</div><div class="seg" id="hdrSeg"><button type="button" data-v="top">Top</button><button type="button" data-v="side">Left of phone</button><button type="button" data-v="hide">Hidden</button></div></div>
-    <div class="fld"><div class="lbl">Hint &amp; buttons</div><div class="seg" id="navSeg"><button type="button" data-v="below">Below</button><button type="button" data-v="left">Left</button><button type="button" data-v="right">Right</button><button type="button" data-v="alt">Alternate</button></div></div>
+    <div class="fld"><div class="lbl">Hint &amp; buttons</div><div class="seg" id="navSeg"><button type="button" data-v="below">Below</button><button type="button" data-v="left">Left</button><button type="button" data-v="right">Right</button><button type="button" data-v="alt">Alternate</button><button type="button" data-v="hide">Hidden</button></div></div>
     <div class="hint">Beside the phone gives it the height, for Aligned and Deal Room embeds. Phone view only; a narrow screen keeps them below.</div>
     <div class="hint">The link opens straight into the demo (phone view). Save it to the merchant's folder from the bar above for a short link.</div>
   </aside>
@@ -393,7 +396,7 @@
     // Too narrow for columns beside the phone (it would shrink below ~45%): they stay above / below it.
     b.classList.toggle('narrow', !!want && st.clientWidth - 24 - want < 414 * 0.45);
     const side = b.classList.contains('narrow') ? 0 : want;
-    ph.style.zoom = mobile ? Math.min(1, (st.clientHeight - (side && b.classList.contains('nav-side') ? 32 : 80)) / 868, (st.clientWidth - 24 - side) / 414) : '';
+    ph.style.zoom = mobile ? Math.min(1, (st.clientHeight - (side && b.classList.contains('nav-side') ? 32 : b.classList.contains('nav-hide') ? 62 : 80)) / 868, (st.clientWidth - 24 - side) / 414) : '';
   }
   function setDevice(dev) {
     mobile = dev !== 'desktop';
@@ -451,11 +454,12 @@
   $('hdrSeg').onclick = e => { const b = e.target.closest('[data-v]'); if (b) pickHeader(b.dataset.v); };
 
   // ── Hint & buttons: below the phone (default), left, right, or alternating with each step. ?nudge= first ──
-  const NAV = { below: 'below the phone', left: 'left of the phone', right: 'right of the phone', alt: 'alternating sides' };
+  const NAV = { below: 'below the phone', left: 'left of the phone', right: 'right of the phone', alt: 'alternating sides', hide: 'hidden (just the ‹ › buttons)' };
   const navPref = () => { const v = Q.get('nudge') || hp('nudge'); return NAV[v] ? v : NAV[SPEC.nudge] ? SPEC.nudge : 'below'; };
   let _nav = 'below';
   function placeNav() {
-    const side = _nav === 'alt' ? (step % 2 ? 'right' : 'left') : _nav, b = document.body;
+    const side = _nav === 'alt' ? (step % 2 ? 'right' : 'left') : _nav === 'hide' ? 'below' : _nav, b = document.body;
+    b.classList.toggle('nav-hide', _nav === 'hide');
     const was = b.classList.contains('nav-left') ? 'left' : b.classList.contains('nav-right') ? 'right' : 'below';
     b.classList.toggle('nav-side', side !== 'below'); b.classList.toggle('nav-left', side === 'left'); b.classList.toggle('nav-right', side === 'right'); b.classList.toggle('nav-alt', _nav === 'alt');
     if (_nav === 'alt' && was !== side && was !== 'below') { const n = document.querySelector('.xp-nav'); n.classList.add('swap'); requestAnimationFrame(() => requestAnimationFrame(() => n.classList.remove('swap'))); }
