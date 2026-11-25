@@ -581,6 +581,28 @@
         .mk2-ptog.off { color: #9aa0b8; }
         .mk2-prow input[type="text"], .mk2-prow textarea { width: 100%; box-sizing: border-box; margin-top: 4px; padding: 6px 8px; border: 1px solid #d0d4e8; border-radius: 5px; font: inherit; font-size: 0.8em; resize: vertical; }
         .mk2-pnote { font-size: 0.7em; color: #8a8fa6; line-height: 1.4; margin-top: 3px; }
+        /* Checkout buttons (found on the page, edited in More tools) */
+        .mk-btn { position: absolute; z-index: 6; display: flex; align-items: center; justify-content: center; text-align: center; box-sizing: border-box; overflow: hidden; line-height: 1.15; padding: 0 0.6em; pointer-events: none; }
+        .mk-edit .mk-btn { pointer-events: auto; cursor: pointer; }
+        .mk-btn span { display: block; max-width: 100%; }
+        .mk-btn.nowrap span { white-space: nowrap; }
+        .mk-btn.link span { text-decoration: underline; }
+        .mk-btn.sel { outline: 2px solid #6675ff; outline-offset: 2px; }
+        .mkb-list { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+        .mkb { border: 1px solid #dfe2f2; border-radius: 8px; padding: 7px 8px; background: #fff; font-size: 0.78em; }
+        .mkb.off { opacity: .55; }
+        .mkb.hl { border-color: #6675ff; box-shadow: 0 0 0 2px rgba(102,117,255,.2); }
+        .mkb-h { display: flex; align-items: center; gap: 6px; font-weight: 700; color: #2d3561; }
+        .mkb-h select { font: inherit; font-size: 0.95em; padding: 2px 4px; border: 1px solid #d0d4e8; border-radius: 5px; }
+        .mkb-h .sp { flex: 1; }
+        .mkb-h button, .mkb-add button { font: 700 11px inherit; padding: 3px 7px; border-radius: 6px; border: 1px solid #d0d4e8; background: #fff; cursor: pointer; color: #2d3561; }
+        .mkb textarea { width: 100%; box-sizing: border-box; margin: 5px 0 4px; padding: 5px 7px; border: 1px solid #d0d4e8; border-radius: 5px; font: inherit; resize: vertical; min-height: 30px; }
+        .mkb-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; color: #5b6380; }
+        .mkb-row label { display: inline-flex; align-items: center; gap: 4px; }
+        .mkb-row select, .mkb-row input[type=number] { font: inherit; padding: 2px 4px; border: 1px solid #d0d4e8; border-radius: 5px; }
+        .mkb-row input[type=number] { width: 46px; }
+        .mkb-row input[type=color] { width: 24px; height: 20px; padding: 0; border: 1px solid #c9c9c9; border-radius: 4px; background: #fff; cursor: pointer; }
+        .mkb-add { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
         /* Checkout Editor (Shopify's checkout editor sidebar) */
         .co-ed { container: coed / inline-size; border: 1px solid #e3e3e3; border-radius: 10px; background: #fff; margin: 10px 0; font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif; color: #303030; }
         .co-ed > summary { padding: 10px 12px; font-size: 0.82em; font-weight: 650; cursor: pointer; border-bottom: 1px solid #ebebeb; }
@@ -1735,6 +1757,7 @@
                     </div>
                     <details class="mk-more" id="mkMore"><summary>More tools <span>· ShipInsure widget text, Checkout Editor, boxes, images, move, add text, tag sections</span></summary>
                         <div id="mkParts"></div>
+                        <div id="mkBtns"></div>
                         <div id="coEditor"></div>
                         <div class="mk2-tools" id="mkTools">
                         <button type="button" data-tool="select" class="on" onclick="mkSetTool('select')" title="Click text to edit · click / drag boxes">↖ Select</button>
@@ -3878,6 +3901,7 @@ For uncertain values make your best visual estimate. Always use valid hex colors
         // Merchant link / demo: the ⓘ beside a ShipInsure text opens the info lightbox.
         const MK_SI_TXT = /protect|shipinsure|insur|guarantee|loss|damage|theft|coverage|green|carbon/i;
         function _mkIconHtml(t, pg) {
+            if (pg.btns && _mkBtnHid(pg).has(t.id)) return '';
             const h = _mkIconHtml0(t, pg), ic = t.ic;
             if (!_mkReadOnly || !ic || t.wrap || !_mkPlain(t.t).trim() || !(t.role === 'fee' || t.part || MK_SI_TXT.test(t.o || t.t))) return h;
             const num = v => +v || 0, m = h.match(/class="mk2-ic" style="left:([\d.-]+)px/);
@@ -4439,6 +4463,9 @@ For uncertain values make your best visual estimate. Always use valid hex colors
                     try { _mkFindIcons(pg, await _mkPageCanvas(pg)); found = true; } catch (e) {}
                 }
                 if (found) _mkPlaceIcons();
+                let nb = false;
+                for (const pg of _mk.pages) { if (pg.btnV === MK_BV || !pg.texts.length) continue; try { _mkBtnScan(pg, await _mkPageCanvas(pg)); nb = true; } catch (e) {} }
+                if (nb) { mkRender(); document.dispatchEvent(new Event('change')); }
                 if (!_mk.fontBy && !_mk.font) await _mkDetectFont();
                 await _mkCalibrate();
             } finally { _mkPostBusy = false; }
@@ -4782,6 +4809,7 @@ Return ONLY JSON — no markdown, no code fences:
         // A widget part whose text holds markup or {{variables}} is edited in the panel, not here.
         const _mkLocked = t => !!t.pm && (t.html != null || (['hdr', 'body', 'disc'].includes(t.part) && _mk.parts && _mkHasMarkup((_mk.parts[t.part] || {}).tpl)));
         function _mkTextHtml(t, pg, pi, ed) {
+            if (pg.btns && _mkBtnHid(pg).has(t.id)) return '';   // drawn again as an edited button, or removed
             const shown = _mkShown(t);
             if (!ed && !shown) return '';
             if (t.add && !t.t && !ed) return '';
@@ -4811,7 +4839,7 @@ Return ONLY JSON — no markdown, no code fences:
             const cls = 'mk2-page' + (ed && _mkTool !== 'select' ? ' tool-' + _mkTool : '') + (ed && _mkOn('mk-tags') ? ' tags' : '');
             const H = L ? L.H : pg.h;
             const inner = (L ? _coPageHtml(pg, L) : `<img class="mk2-base" src="${pg.img}" alt="" draggable="false">`) +
-                `${pg.boxes.map(b => _mkCoverHtml(b, pg)).join('')}${pg.boxes.map(b => _mkBoxHtml(b, pi, ed)).join('')}${pg.texts.map(t => _mkTextHtml(t, pg, pi, ed)).join('')}<div class="mk2-icons">${pg.texts.map(t => _mkIconHtml(t, pg)).join('')}</div>${L ? _coInsHtml(L) : ''}`;
+                `${pg.boxes.map(b => _mkCoverHtml(b, pg)).join('')}${pg.boxes.map(b => _mkBoxHtml(b, pi, ed)).join('')}${pg.texts.map(t => _mkTextHtml(t, pg, pi, ed)).join('')}${_mkBtnsHtml(pg, pi, ed)}<div class="mk2-icons">${pg.texts.map(t => _mkIconHtml(t, pg)).join('')}</div>${L ? _coInsHtml(L) : ''}`;
             const wl = _mkWLayer(pg, pi, ed, inner, H);   // ShipInsure widgets placed on the page (and the page re-flowed under them)
             return `<div class="mk-flabel"><span>${_escHtml(pg.name || 'Page ' + (pi + 1))}</span>${btns}</div>` +
                 `<div class="mk-fit${ed ? ' mk-edit' : ''}"><div class="${cls}" data-p="${pi}" style="width:${pg.w}px;height:${H + wl.addH}px;">` + inner + wl.html +
@@ -4835,10 +4863,12 @@ Return ONLY JSON — no markdown, no code fences:
             area.innerHTML = _mk.pages.length ? (ed ? _mkMergeBanner() : '') + _mk.pages.map((pg, pi) => _mkPageHtml(pg, pi, ed)).join('')
                 : (ed ? `<div class="mk2-empty"><b>Import this merchant's mockup to start.</b><br>Upload the Figma export (PDF, every page), an image or a store screenshot, pick it from the merchant's folder, or paste a Figma link.<br>Every text then becomes editable right here, and the ShipInsure price and totals follow the Pricing template.</div>` : '');
             mkFit(area);
+            _mkBtnFit(area);
             _mkWBarRender();
             _mkFeeInfo(pr);
             _mkInspector();
             _mkPartsPanel();
+            _mkBtnPanel();
             coRender();
             const fi = document.getElementById('mk-font'); if (fi && document.activeElement !== fi) fi.value = _mk.font || '';
             if (_mk.pages.length) { _mkAfterRender(); _coDetectAll(); }
@@ -5277,6 +5307,159 @@ Return ONLY JSON — no markdown, no code fences:
             if (jobs.length) await Promise.race([Promise.all(jobs), new Promise(r => setTimeout(r, 6000))]);
         }
         function mkSetFont(v) { _mk.font = String(v || '').trim(); _mk.fontBy = _mk.font ? 'user' : ''; mkRender(); }
+        // ── Checkout buttons: every button on a page (its box, its look, protected or not), each one editable
+        //    in More tools: label (wraps; {{cartTotalWithFee}} / {{cartTotal}} / {{price}} keep it priced), weight,
+        //    colors, corners, solid / outline / link, what it is, removed, or a new one added under it. ──
+        // pg.btns = [{ id, k: 'main' | 'unprot' | 'other', r: {x,y,w,h}, link, fill, ink, line, pbg, rad, fw, sz, tids,
+        //   ed: { label, fw, sz, fill, ink, line, rad, style, wrap } | null, off, add, ins, insH }]
+        const MK_BV = 1;
+        const MK_BTN_MAIN = /check ?out|pay now|place order|complete (my )?(order|purchase)|buy now|^continue( to [a-z ]+)?$|review order|proceed to|submit order/i;
+        const MK_BTN_K = { main: 'Main checkout (with protection)', unprot: 'Checkout without protection', other: 'Other button' };
+        const _mkHexOf = d => '#' + [0, 1, 2].map(i => d[i].toString(16).padStart(2, '0')).join('');
+        // Find them (once per page; a re-scan keeps each button's edits by where it is).
+        function _mkBtnScan(pg, cv) {
+            const T = pg.texts.filter(t => !t.add && _mkPlain(t.o).trim()), cy = t => t.y + t.h / 2, out = [], used = new Set();
+            const px = (x, y) => { try { return _mkHexOf(cv.ctx.getImageData(Math.max(0, Math.round(x * cv.k)), Math.max(0, Math.round(y * cv.k)), 1, 1).data); } catch (e) { return '#ffffff'; } };
+            const near = (a, b) => { const P = [1, 3, 5].map(i => parseInt(a.slice(i, i + 2), 16)), Q = [1, 3, 5].map(i => parseInt(b.slice(i, i + 2), 16)); return Math.abs(P[0] - Q[0]) + Math.abs(P[1] - Q[1]) + Math.abs(P[2] - Q[2]) < 30; };
+            // A button label is short; "Subtotal (taxes calculated at checkout)" only mentions checkout.
+            const label = t => { const s = _mkPlain(t.o).trim(); return s.length <= 34 && !/[()]|calculated|taxes|subtotal|shipping (is )?calc/i.test(s); };
+            const kindOf = t => t.part === 'b2' || (MK_BTN2_RE.test(t.o) && _mkPlain(t.o).trim().length <= 60) ? 'unprot' : t.part === 'b1' || (MK_BTN_MAIN.test(_mkPlain(t.o).trim()) && label(t)) ? 'main' : '';
+            const add = (lead, k) => {
+                if (used.has(lead.id)) return;
+                const row = T.filter(u => !used.has(u.id) && (u === lead || (Math.abs(cy(u) - cy(lead)) < Math.max(u.h, lead.h) * 0.7 && u.x < lead.x + lead.w + lead.h * 8 && u.x + u.w > lead.x - lead.h * 8 && _mkPlain(u.o).length < 24 && !MK_BTN2_RE.test(u.o) === !MK_BTN2_RE.test(lead.o))));
+                const U = _dfUnion(row), box = cv ? _coBoxOf(cv, U) : null;
+                let r, link = false, inside;
+                if (box && box.w < pg.w * 0.95 && box.h < U.h * 4.5) { r = { x: box.x, y: box.y, w: box.w, h: box.h }; inside = T.filter(u => u.x + u.w / 2 > r.x && u.x + u.w / 2 < r.x + r.w && cy(u) > r.y && cy(u) < r.y + r.h); }
+                else { link = true; inside = row; r = { x: U.x - 6, y: U.y - Math.max(3, U.h * 0.35), w: U.w + 12, h: U.h * 1.7 }; }
+                if (link && (k === 'other' || (k === 'main' && lead.part !== 'b1'))) return;   // a main or other button needs a box to be one
+                inside.forEach(u => used.add(u.id));
+                const pbg = px(r.x - 4, r.y + r.h / 2), fill = link ? pbg : (box.c || pbg), outline = !link && near(fill, pbg);
+                out.push({ id: _mkId('bt'), k, r: { x: _mkR(r.x), y: _mkR(r.y), w: _mkR(r.w), h: _mkR(r.h) }, link, fill, ink: lead.c || '#111111', line: outline ? px(r.x + 1, r.y + r.h / 2) : fill, pbg, rad: _mkR((box && box.r) || 0), fw: lead.fw || 600, sz: lead.sz, ff: lead.ff || '', tids: inside.map(u => u.id), ed: null, off: false, add: false, style: link ? 'link' : outline ? 'outline' : 'solid' });
+            };
+            // Checkout buttons first (the without-protection one, then the main ones), then any other boxed button.
+            T.filter(t => kindOf(t) === 'unprot').forEach(t => add(t, 'unprot'));
+            T.filter(t => kindOf(t) === 'main' && !/^express/i.test(t.o) && t.y > pg.h * 0.08).forEach(t => add(t, 'main'));
+            if (cv) T.filter(t => !used.has(t.id) && _mkPlain(t.o).trim().length <= 30 && _mkVal(t.o) == null).forEach(t => {
+                const b = _coBoxOf(cv, t); if (!b || b.h > t.h * 3.4 || b.w > pg.w * 0.9) return;
+                if (Math.abs((b.x + b.w / 2) - (t.x + t.w / 2)) > b.w * 0.18) return;   // a field's placeholder sits left: not a button
+                if (near(b.c || '#ffffff', px(b.x - 4, b.y + b.h / 2))) return;          // outline-only boxes are usually fields
+                add(t, 'other');
+            });
+            // Keep what the rep did: same spot, same edits.
+            const old = pg.btns || [], ov = (a, b) => { const x = Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x)), y = Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y)); return x * y / Math.max(1, Math.min(a.w * a.h, b.w * b.h)); };
+            out.forEach(b => { const o = old.find(q => !q.add && ov(q.r, b.r) > 0.5); if (o) { b.id = o.id; b.ed = o.ed; b.off = o.off; if (o.kSet) { b.k = o.k; b.kSet = 1; } } });
+            pg.btns = out.concat(old.filter(q => q.add)).sort((a, b) => a.r.y - b.r.y);
+            // The existing checkout-widget tags follow (b1 / b2), when the rep hasn't tagged them.
+            if (!pg.texts.some(t => t.part === 'b1' || t.part === 'b2')) pg.btns.forEach(b => { if (b.k === 'main' || b.k === 'unprot') b.tids.forEach(id => { const t = pg.texts.find(x => x.id === id); if (t && !t.part) t.part = b.k === 'main' ? 'b1' : 'b2'; }); });
+            pg.btnV = MK_BV;
+        }
+        // Texts a button replaces: an edited button is drawn again over them; a removed one takes them away.
+        const _mkBtnGone = pg => new Set((pg.btns || []).filter(b => b.off && !b.add).flatMap(b => b.tids));
+        function _mkBtnHid(pg) {
+            const key = JSON.stringify((pg.btns || []).map(b => [b.off, !!b.ed, b.tids.length]));
+            if (pg._bh && pg._bh.key === key) return pg._bh.set;
+            const set = new Set((pg.btns || []).filter(b => !b.add && (b.off || b.ed)).flatMap(b => b.tids));
+            Object.defineProperty(pg, '_bh', { value: { key, set }, configurable: true, writable: true, enumerable: false });
+            return set;
+        }
+        // Its look: the found look, with the rep's edits on top.
+        function _mkBtnLook(pg, b) {
+            const e = b.ed || {}, T = b.tids.map(id => pg.texts.find(t => t.id === id)).filter(Boolean);
+            const label0 = T.sort((a, c) => a.x - c.x).map(t => _mkPlain(t.t)).filter(Boolean).join(' ');
+            return { label: e.label != null ? e.label : label0, fw: e.fw || b.fw || 600, sz: e.sz || b.sz || 14, fill: e.fill || b.fill, ink: e.ink || b.ink, line: e.line || b.line, rad: e.rad != null ? e.rad : b.rad, style: e.style || b.style || 'solid', wrap: e.wrap !== false, ff: b.ff };
+        }
+        function _mkBtnsHtml(pg, pi, ed) {
+            if (!pg.btns || !pg.btns.length) return '';
+            const pr = _mkLastPr || {};
+            return pg.btns.filter(b => !b.off && (b.ed || b.add)).map(b => {
+                const L = _mkBtnLook(pg, b);
+                const dy = b.add ? (_coDy(pg, b.r.x + 1, +b.ins) || 0) : _coDy(pg, b.r.x + b.r.w / 2, b.r.y + b.r.h / 2);
+                if (dy === null) return '';
+                const fam = (L.ff || _mk.font || '').replace(/['";<>]/g, '');
+                const e = b.ed || {}, bg = L.style === 'solid' ? L.fill : (b.pbg || '#ffffff');
+                const bd = L.style === 'outline' ? `1.5px solid ${L.line || L.ink}` : L.style === 'solid' && e.line ? `1px solid ${e.line}` : '0';   // a solid button's border only when the rep picks one
+                const txt = _escHtml(_mkSubst(String(L.label || ''), pr)).replace(/\n/g, '<br>');
+                return `<div class="mk-btn${L.style === 'link' ? ' link' : ''}${L.wrap ? '' : ' nowrap'}${ed && _mkBtnSel === b.id ? ' sel' : ''}" data-btn="${b.id}" data-p="${pi}" style="left:${b.r.x}px;top:${b.r.y + dy}px;width:${b.r.w}px;height:${b.r.h}px;background:${bg};color:${L.ink};border:${bd};border-radius:${+L.rad || 0}px;font-weight:${L.fw};font-size:${L.sz}px;font-family:${fam ? `'${fam}',` : ''}'Helvetica Neue',Arial,sans-serif;"><span>${txt}</span></div>`;
+            }).join('');
+        }
+        // A wrapped label that doesn't fit its button shrinks until it does.
+        function _mkBtnFit(root) {
+            (root || document).querySelectorAll('.mk-btn').forEach(el => {
+                const sp = el.firstChild; if (!sp) return;
+                let fs = parseFloat(el.style.fontSize) || 14, n = 0;
+                while ((sp.scrollHeight > el.clientHeight + 1 || sp.scrollWidth > el.clientWidth + 1) && fs > 6 && n++ < 30) { fs -= 0.5; el.style.fontSize = fs + 'px'; }
+            });
+        }
+        var _mkBtnSel = null;
+        function _mkBtnFind(id) { for (let p = 0; p < _mk.pages.length; p++) { const b = (_mk.pages[p].btns || []).find(x => x.id === id); if (b) return { pg: _mk.pages[p], p, b }; } return null; }
+        function mkBtnSet(id, key, val) {
+            const f = _mkBtnFind(id); if (!f) return;
+            if (key === 'k') { f.b.k = val; f.b.kSet = 1; }
+            else if (key === 'off') f.b.off = !!val;
+            else { const L = _mkBtnLook(f.pg, f.b); f.b.ed = Object.assign({ label: L.label }, f.b.ed || {}, { [key]: val }); }
+            _mkBtnSel = id; mkRender(); document.dispatchEvent(new Event('change'));
+        }
+        // Start editing a label: the price in it becomes a variable, so it stays priced.
+        function _mkBtnLabel0(pg, b) {
+            const T = b.tids.map(id => pg.texts.find(t => t.id === id)).filter(Boolean).sort((a, c) => a.x - c.x);
+            return T.map(t => { const v = t.role === 'total' ? '{{cartTotalWithFee}}' : t.role === 'sub' ? '{{cartTotal}}' : t.role === 'fee' ? '{{price}}' : null, m = v && _mkMoneyIn(t.o); return m ? t.o.slice(0, m.i).replace(/[$€£]\s?$/, '') + v + t.o.slice(m.i + m.len) : _mkPlain(t.o); }).join(' ').trim();
+        }
+        function mkBtnReset(id) { const f = _mkBtnFind(id); if (!f) return; if (f.b.add) { f.pg.btns = f.pg.btns.filter(x => x !== f.b); } else { f.b.ed = null; f.b.off = false; } mkRender(); document.dispatchEvent(new Event('change')); }
+        // A new button right under the page's last checkout button (the column below makes room).
+        function mkBtnAdd(pi, k) {
+            const pg = _mk.pages[pi]; if (!pg) return;
+            const B = (pg.btns || []).filter(b => !b.off && !b.add);
+            const a = B.filter(b => b.k === 'main' || b.k === 'unprot').sort((x, y) => (y.r.y + y.r.h) - (x.r.y + x.r.h))[0] || B[B.length - 1];
+            if (!a) { _mkStatus('No button found on this page to add one under. Click 🔁 Find buttons again, or tag one with the Select tool.', 'error'); return; }
+            const gap = Math.max(8, a.r.h * 0.3), h = k === 'unprot' ? Math.max(18, a.r.h * 0.6) : a.r.h, y1 = a.r.y + a.r.h + 1, H = h + gap * 2;
+            const unp = k === 'unprot';
+            const b = { id: _mkId('bt'), k, add: true, off: false, link: unp, r: { x: a.r.x, y: _mkR(y1 + gap - H), w: a.r.w, h: _mkR(h) }, ins: _mkR(y1), insH: _mkR(H), fill: a.fill, ink: unp ? a.ink === '#ffffff' ? '#111111' : a.ink : a.ink, line: a.line, pbg: a.pbg, rad: a.rad, fw: unp ? 500 : a.fw, sz: _mkR(a.sz * (unp ? 0.82 : 1)), ff: a.ff, tids: [], style: unp ? 'link' : a.style,
+                ed: { label: unp ? 'Checkout without protection' : 'Button' } };
+            if (unp && b.ink && /^#f/i.test(b.ink)) b.ed.ink = '#111111';
+            pg.btns.push(b); _mkBtnSel = b.id; mkRender(); document.dispatchEvent(new Event('change'));
+        }
+        function mkBtnRescan(pi) { const pg = _mk.pages[pi]; if (!pg) return; pg.btnV = 0; _mkAfterRender(); }
+        function _mkBtnPanel() {
+            const el = document.getElementById('mkBtns'); if (!el) return;
+            if (_mkReadOnly || !_mk.pages.length) { el.innerHTML = ''; return; }
+            if (el.contains(document.activeElement) && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
+            const opt = (v, cur, l) => `<option value="${v}"${String(v) === String(cur) ? ' selected' : ''}>${l}</option>`;
+            const card = (pg, b) => {
+                const L = _mkBtnLook(pg, b), id = b.id;
+                return `<div class="mkb${b.off ? ' off' : ''}${_mkBtnSel === id ? ' hl' : ''}" data-mkb="${id}">
+                    <div class="mkb-h"><select onchange="mkBtnSet('${id}','k',this.value)" title="What this button is (the demo's click-through and the Dual Checkout follow it)">${Object.keys(MK_BTN_K).map(k => opt(k, b.k, MK_BTN_K[k])).join('')}</select><span class="sp"></span>
+                        ${b.ed || b.add ? `<button type="button" onclick="mkBtnReset('${id}')" title="${b.add ? 'Delete this added button' : 'Back to the mockup’s own button'}">${b.add ? '✕ Delete' : '↺'}</button>` : ''}
+                        ${b.add ? '' : `<button type="button" onclick="mkBtnSet('${id}','off',${!b.off})">${b.off ? 'Restore' : '✕ Remove'}</button>`}</div>
+                    ${b.off ? '<div class="mk2-pnote">Removed: what was below it closes up.</div>' : `
+                    <textarea rows="1" placeholder="Button text" title="Enter for a new line. {{cartTotalWithFee}}, {{cartTotal}} and {{price}} keep it priced." oninput="mkBtnSet('${id}','label',this.value)" onfocus="if(!_mkBtnFind('${id}').b.ed){this.value=_mkBtnLabel0(_mkBtnFind('${id}').pg,_mkBtnFind('${id}').b)}">${_escHtml(b.ed && b.ed.label != null ? b.ed.label : L.label)}</textarea>
+                    <div class="mkb-row">
+                        <label>Style <select onchange="mkBtnSet('${id}','style',this.value)">${opt('solid', L.style, 'Solid')}${opt('outline', L.style, 'Outline')}${opt('link', L.style, 'Link')}</select></label>
+                        <label>Weight <select onchange="mkBtnSet('${id}','fw',+this.value)">${[400, 500, 600, 700, 800].map(w => opt(w, L.fw, { 400: 'Regular', 500: 'Medium', 600: 'Semibold', 700: 'Bold', 800: 'Extra bold' }[w])).join('')}</select></label>
+                        <label>Size <input type="number" min="6" max="60" step="0.5" value="${_mkR(L.sz)}" onchange="mkBtnSet('${id}','sz',+this.value)"></label>
+                        <label title="Text">Text <input type="color" value="${_coHex(L.ink) || '#111111'}" onchange="mkBtnSet('${id}','ink',this.value)"></label>
+                        ${L.style === 'solid' ? `<label title="Fill">Fill <input type="color" value="${_coHex(L.fill) || '#ffffff'}" onchange="mkBtnSet('${id}','fill',this.value)"></label>` : ''}
+                        ${L.style !== 'link' ? `<label title="Border">Border <input type="color" value="${_coHex(L.line) || '#cccccc'}" onchange="mkBtnSet('${id}','line',this.value)"></label><label>Corners <input type="number" min="0" max="60" value="${+L.rad || 0}" onchange="mkBtnSet('${id}','rad',+this.value)"></label>` : ''}
+                        <label><input type="checkbox" ${L.wrap ? 'checked' : ''} onchange="mkBtnSet('${id}','wrap',this.checked)"> Wrap</label>
+                    </div>`}</div>`;
+            };
+            const pages = _mk.pages.map((pg, pi) => {
+                const B = pg.btns || [];
+                const hasMain = B.some(b => b.k === 'main' && !b.off), hasUn = B.some(b => b.k === 'unprot' && !b.off);
+                return `<div class="mk2-prow"><div class="mkb-h">${_escHtml(pg.name || 'Page ' + (pi + 1))} <span class="sp"></span><button type="button" onclick="mkBtnRescan(${pi})" title="Look for the buttons on this page again (your edits stay)">🔁 Find buttons</button></div>
+                    ${B.length ? `<div class="mkb-list">${B.map(b => card(pg, b)).join('')}</div>` : `<div class="mk2-pnote">${pg.btnV === MK_BV ? 'No buttons found on this page.' : pg.texts.length ? 'Looking for buttons…' : 'Find the text on this page first (🔎 Find text).'}</div>`}
+                    ${B.length ? `<div class="mkb-add">${hasMain && !hasUn ? `<button type="button" onclick="mkBtnAdd(${pi},'unprot')">＋ Add “without protection”</button>` : ''}<button type="button" onclick="mkBtnAdd(${pi},'other')">＋ Add a button</button></div>` : ''}</div>`;
+            }).join('');
+            el.innerHTML = `<details class="mk2-parts"${_mkBtnSel ? ' open' : ''}><summary>Checkout buttons</summary>
+                <div class="mk2-pnote" style="margin-bottom:4px;">Found on each page, protected or not. Change one and it's drawn again in its place; untouched ones stay exactly as designed. Click a button on the page to jump here.</div>${pages}</details>`;
+        }
+        // Clicking a button on the page opens it here.
+        document.addEventListener('click', e => {
+            const el = e.target.closest && e.target.closest('.mk-edit .mk-btn[data-btn]'); if (!el) return;
+            _mkBtnSel = el.dataset.btn; const mm = document.getElementById('mkMore'); if (mm) mm.open = true;
+            mkRender();
+            const c = document.querySelector(`[data-mkb="${el.dataset.btn}"]`); if (c) c.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        });
+
         // ── Combine pages: a phone checkout taken as two screenshots (the order summary opened, then the
         //    information form) becomes the one tall page a phone scrolls through. ──
         // What a page is: the order summary ('sum'), the information form ('info'), both, or neither.
@@ -6393,7 +6576,8 @@ Return ONLY JSON — no markdown, no code fences:
             if (!_mk.pages.length) return null;
             const A = _coAnchors(pg), ck = !!_mk.co && _mk.co.plus !== false && _coIsCheckout(A), er = _mkErased(pg);
             const lifts = pg.texts.filter(t => t.add && t.lift != null && t.part === 'body' && _mkPlain(t.t).trim() && ((_mk.parts || {}).body || {}).on !== false);
-            if (!ck && !er.length && !lifts.length) return null;
+            const adds = (pg.btns || []).filter(b => b.add && !b.off && b.ins != null);
+            if (!ck && !er.length && !lifts.length && !adds.length) return null;
             const cv = _mkCanvas[pg.img] || null;
             if (!cv) _mkPageCanvas(pg).then(_coSoon, () => {});
             const cols = ck ? _coCols(pg, A) : _mkCols(pg, cv), k = _coScale(pg), M = 10, ops = [], patches = [];
@@ -6436,6 +6620,8 @@ Return ONLY JSON — no markdown, no code fences:
                 if (y0 != null && y0 < y1 - 4) ops.push({ lift: 1, col: c, y: y0, y1, h, bg });
                 else ops.push({ col: c, y: y1, h, html: '', bid: null, x: c.l, w: c.r - c.l, k: 1, M: 0, bg });   // no room above: push down
             });
+            // An added button: what's below its spot moves down to make room.
+            adds.forEach(b => { const c = _coColAt(cols, b.r.x + b.r.w / 2); ops.push({ col: c, y: +b.ins, h: +b.insH, html: '', bid: null, x: c.l, w: c.r - c.l, k: 1, M: 0, bg: b.pbg || _coBgAt(cv, c, +b.ins) }); });
             if (!ops.length && !patches.length) return null;
             cols.forEach(c => {
                 const ev = ops.filter(o => o.col === c).sort((a, b) => a.y - b.y);
@@ -6477,9 +6663,11 @@ Return ONLY JSON — no markdown, no code fences:
         // A text line the rep erased (its text emptied, or its widget part turned off). A widget part whose
         // lines were merged into its first line isn't erased: that line holds them all.
         function _mkErased(pg) {
-            const P = _mk.parts || {};
-            return pg.texts.filter(t => !t.add && _mkPlain(t.o).trim() && !_mkPlain(t.t).trim()
-                && !(t.pm && ['hdr', 'body', 'disc'].includes(t.part) && (P[t.part] || {}).on !== false));
+            const P = _mk.parts || {}, gone = _mkBtnGone(pg);
+            // A removed button: its box and its texts go, and what's below it closes up.
+            const btns = (pg.btns || []).filter(b => b.off && !b.add).map(b => ({ x: b.r.x, y: b.r.y, w: b.r.w, h: b.r.h, o: 'button', t: '', bg: b.pbg || '#ffffff', btn: 1 }));
+            return btns.concat(pg.texts.filter(t => gone.has(t.id) && !t.add)).concat(pg.texts.filter(t => !gone.has(t.id) && !t.add && _mkPlain(t.o).trim() && !_mkPlain(t.t).trim()
+                && !(t.pm && ['hdr', 'body', 'disc'].includes(t.part) && (P[t.part] || {}).on !== false)));
         }
         // A page that isn't a laid-out checkout: a cart drawer is its own column (the store behind it stays
         // put), anything else is one column.
@@ -7587,6 +7775,13 @@ Return ONLY JSON — no markdown, no code fences:
         // The buttons that move on: the two checkout buttons (b1 / b2 widget parts) and any other checkout,
         // pay or continue button, as the box around their text when the pixels show one.
         function _dfButtons(pg, cv) {
+            // The buttons found on the page (Checkout buttons): main → checks out with ShipInsure, without-protection → without.
+            const FB = (pg.btns || []).filter(b => !b.off && (b.k === 'main' || b.k === 'unprot'));
+            if (FB.length) return FB.map(b => {
+                const o = { b: { x: b.r.x, y: b.r.y, w: b.r.w, h: b.r.h }, prot: b.k === 'unprot' ? '0' : FB.some(x => x.k === 'unprot') ? '1' : '', pulse: b.k === 'main' };
+                if (b.add) { const dy = _coDy(pg, b.r.x + 1, +b.ins) || 0; o.abs = { x: b.r.x, y: b.r.y + dy, w: b.r.w, h: b.r.h }; }
+                return o;
+            });
             const T = pg.texts.filter(t => !t.add && _mkPlain(t.t).trim()), cy = t => t.y + t.h / 2, out = [];
             const row = lead => T.filter(u => u === lead || (!u.part && Math.abs(cy(u) - cy(lead)) < Math.max(u.h, lead.h) * 0.7 && u.x < lead.x + lead.w + lead.h * 6 && u.x + u.w > lead.x - lead.h * 6 && _dfCompact(u.o).length < 16));
             ['b1', 'b2'].forEach(p => { const L = T.filter(t => t.part === p); if (L.length) out.push({ b: _dfUnion(L), prot: p === 'b1' ? '1' : '0', pulse: p === 'b1' }); });
@@ -7616,14 +7811,14 @@ Return ONLY JSON — no markdown, no code fences:
             // Taken out: its texts go, and "Subtotal · 2 items" counts one fewer.
             const T = pg.texts.filter(t => !gone.some(o => _dfIn(o, t.x + t.w / 2, t.y + t.h / 2)))
                 .map(t => gone.length && /\b\d+\s+items?\b/i.test(t.t) ? Object.assign({}, t, { t: t.t.replace(/\b(\d+)(\s+)items?\b/i, (m, n, sp) => { const v = Math.max(1, +n - gone.length); return v + sp + (v === 1 ? 'item' : 'items'); }) }) : t);
-            const hot = (b, attrs, cls) => { const dy = at(b.x + b.w / 2, b.y + b.h / 2); return dy === null ? '' : `<button type="button" class="df-hot${cls ? ' ' + cls : ''}" ${attrs} style="left:${_mkR(b.x)}px;top:${_mkR(b.y + dy)}px;width:${_mkR(b.w)}px;height:${_mkR(b.h)}px;"></button>`; };
-            let hots = _dfButtons(pg, cv).map(o => hot(o.b, `data-df="go"${o.prot ? ` data-prot="${o.prot}"` : ''} aria-label="Continue"`, o.pulse ? 'pulse' : '')).join('');
+            const hot = (b, attrs, cls, abs) => { const dy = abs ? 0 : at(b.x + b.w / 2, b.y + b.h / 2); return dy === null ? '' : `<button type="button" class="df-hot${cls ? ' ' + cls : ''}" ${attrs} style="left:${_mkR(b.x)}px;top:${_mkR(b.y + dy)}px;width:${_mkR(b.w)}px;height:${_mkR(b.h)}px;"></button>`; };
+            let hots = _dfButtons(pg, cv).map(o => hot(o.abs || o.b, `data-df="go"${o.prot ? ` data-prot="${o.prot}"` : ''} aria-label="Continue"`, o.pulse ? 'pulse' : '', !!o.abs)).join('');
             if (DF.prot) lines.forEach(o => { const r = o.r; if (r) hots += hot({ x: r.x - 6, y: r.y - r.h * 0.5, w: r.w + 12, h: r.h * 2 }, 'data-df="rm" aria-label="Remove ShipInsure"', 'pulse rm'); });
             const covers = gone.map(o => { const dy = at(o.x + o.w / 2, o.y + 1); return dy === null ? '' : `<div class="mk2-cover df-gone" style="left:${o.x}px;top:${o.y + dy}px;width:${o.w}px;height:${o.h}px;background:${o.bg};"></div>`; }).join('');
             const narrow = _dfPhone(pg) && innerWidth > 700, H = L ? L.H : pg.h;
             const inner = (L ? _coPageHtml(pg, L) : `<img class="mk2-base" src="${pg.img}" alt="" draggable="false">`) +
                 (pg.boxes || []).map(b => _mkCoverHtml(b, pg)).join('') + (pg.boxes || []).map(b => _mkBoxHtml(b, pi, false)).join('') + covers +
-                T.map(t => _mkTextHtml(t, pg, pi, false)).join('') + `<div class="mk2-icons">${T.map(t => _mkIconHtml(t, pg)).join('')}</div>` +
+                T.map(t => _mkTextHtml(t, pg, pi, false)).join('') + _mkBtnsHtml(pg, pi, false) + `<div class="mk2-icons">${T.map(t => _mkIconHtml(t, pg)).join('')}</div>` +
                 (L ? _coInsHtml(L) : '') + hots;
             // ShipInsure taken out: its column closes up (what's below the line moves up into its place).
             const col = gone.length ? _dfCollapse(pg, cv, gone[0], !!s.ck, H, T) : null;
