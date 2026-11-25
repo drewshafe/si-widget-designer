@@ -609,6 +609,14 @@
         .mkb-row input[type=number] { width: 46px; }
         .mkb-row input[type=color] { width: 24px; height: 20px; padding: 0; border: 1px solid #c9c9c9; border-radius: 4px; background: #fff; cursor: pointer; }
         .mkb-add { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+        .mkb-col { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 6px; color: #5b6380; }
+        .mkb-col b { width: 42px; font-weight: 700; color: #2d3561; }
+        .mkb-col select { font: inherit; padding: 2px 4px; border: 1px solid #d0d4e8; border-radius: 5px; }
+        .mkb-col label { display: inline-flex; align-items: center; gap: 4px; }
+        .mkb-sw { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+        .mkb-sw button { width: 18px; height: 18px; border-radius: 50%; border: 0; box-shadow: inset 0 0 0 1px rgba(0,0,0,.2); cursor: pointer; padding: 0; }
+        .mkb-sw button.on { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #005bd3; }
+        .mkb-sw input[type=color] { width: 24px; height: 20px; padding: 0; border: 1px solid #c9c9c9; border-radius: 4px; background: #fff; cursor: pointer; }
         /* Checkout Editor (Shopify's checkout editor sidebar) */
         .co-ed { container: coed / inline-size; border: 1px solid #e3e3e3; border-radius: 10px; background: #fff; margin: 10px 0; font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif; color: #303030; }
         .co-ed > summary { padding: 10px 12px; font-size: 0.82em; font-weight: 650; cursor: pointer; border-bottom: 1px solid #ebebeb; }
@@ -5410,7 +5418,14 @@ Return ONLY JSON — no markdown, no code fences:
         function _mkBtnLook(pg, b) {
             const e = b.ed || {}, T = b.tids.map(id => pg.texts.find(t => t.id === id)).filter(Boolean);
             const label0 = T.sort((a, c) => a.x - c.x).map(t => _mkPlain(t.t)).filter(Boolean).join(' ');
-            return { label: e.label != null ? e.label : label0, fw: e.fw || b.fw || 600, sz: e.sz || b.sz || 14, fill: e.fill || b.fill, ink: e.ink || b.ink, line: e.line || b.line, rad: e.rad != null ? e.rad : b.rad, style: e.style || b.style || 'solid', wrap: e.wrap !== false, ff: b.ff };
+            const style = e.style || b.style || 'solid';
+            // Fill: the button's own (an outline button's is the page behind it). Border: an outline button's own
+            // line; a solid button's matches its fill (so it disappears into it) until the rep says otherwise.
+            const fill = e.fill || (style === 'outline' && b.style !== 'outline' ? (b.pbg || '#ffffff') : style === 'solid' && b.style !== 'solid' ? (b.style === 'outline' ? b.line : b.ink) : b.fill);
+            const match = e.match != null ? !!e.match : style === 'solid' && !e.line;
+            const line = match ? fill : (e.line || (b.style === 'outline' ? b.line : b.line && b.line !== b.fill ? b.line : b.ink));
+            const bw = e.bw != null ? +e.bw : style === 'outline' ? 1.5 : style === 'solid' && !match ? 1 : 0;
+            return { label: e.label != null ? e.label : label0, fw: e.fw || b.fw || 600, sz: e.sz || b.sz || 14, fill, ink: e.ink || b.ink, line, match, bw, rad: e.rad != null ? e.rad : b.rad, style, wrap: e.wrap !== false, ff: b.ff };
         }
         function _mkBtnsHtml(pg, pi, ed) {
             if (!pg.btns || !pg.btns.length) return '';
@@ -5420,8 +5435,8 @@ Return ONLY JSON — no markdown, no code fences:
                 const dy = b.add ? (_coDy(pg, b.r.x + 1, +b.ins) || 0) : _coDy(pg, b.r.x + b.r.w / 2, b.r.y + b.r.h / 2);
                 if (dy === null) return '';
                 const fam = (L.ff || _mk.font || '').replace(/['";<>]/g, '');
-                const e = b.ed || {}, bg = L.style === 'solid' ? L.fill : (b.pbg || '#ffffff');
-                const bd = L.style === 'outline' ? `1.5px solid ${L.line || L.ink}` : L.style === 'solid' && e.line ? `1px solid ${e.line}` : '0';   // a solid button's border only when the rep picks one
+                const bg = L.style === 'link' ? (b.pbg || '#ffffff') : L.fill;
+                const bd = L.style !== 'link' && L.bw > 0 ? `${L.bw}px solid ${L.line}` : '0';
                 const txt = _escHtml(_mkSubst(String(L.label || ''), pr)).replace(/\n/g, '<br>');
                 const sel = ed && _mkBtnSel === b.id;
                 return `<div class="mk-btn${L.style === 'link' ? ' link' : ''}${L.wrap ? '' : ' nowrap'}${sel ? ' sel' : ''}" data-btn="${b.id}" data-p="${pi}" style="left:${b.r.x}px;top:${b.r.y + dy}px;width:${b.r.w}px;height:${b.r.h}px;background:${bg};color:${L.ink};border:${bd};border-radius:${+L.rad || 0}px;font-weight:${L.fw};font-size:${L.sz}px;font-family:${fam ? `'${fam}',` : ''}'Helvetica Neue',Arial,sans-serif;"><span>${txt}</span>${sel ? ['nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se'].map(h => `<i class="mkh" data-h="${h}"></i>`).join('') : ''}</div>`;
@@ -5469,6 +5484,17 @@ Return ONLY JSON — no markdown, no code fences:
             if (_mkReadOnly || !_mk.pages.length) { el.innerHTML = ''; return; }
             if (el.contains(document.activeElement) && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
             const opt = (v, cur, l) => `<option value="${v}"${String(v) === String(cur) ? ' selected' : ''}>${l}</option>`;
+            // Color picks: the button's own colors first (as found), then the page behind it, the merchant's brand
+            // colors and the checkout's, black / white, then any color.
+            const kit = _coKitLoad() || {}, kc = kit.colors || {};
+            const sw = (id, key, cur, b) => {
+                const seen = new Set(), o = [];
+                const add = (u, l) => { u = _coHex(u); if (u && !seen.has(u)) { seen.add(u); o.push({ u, l }); } };
+                add(b.fill, 'Button'); add(b.style === 'outline' ? b.line : b.ink, b.style === 'outline' ? 'Button border' : 'Button text'); add(b.pbg, 'Page');
+                add(kc.primary, 'Brand primary'); add(kc.accent, 'Brand accent'); add((_coBrand() || {}).primary, 'Checkout'); add('#000000', 'Black'); add('#ffffff', 'White');
+                const c = _coHex(cur);
+                return `<span class="mkb-sw">${o.map(x => `<button type="button" class="${x.u === c ? 'on' : ''}" title="${_escHtml(x.l)} ${x.u}" style="background:${x.u}" onclick="mkBtnSet('${id}','${key}','${x.u}')"></button>`).join('')}<input type="color" title="Any color" value="${c || '#ffffff'}" onchange="mkBtnSet('${id}','${key}',this.value)"></span>`;
+            };
             const card = (pg, b) => {
                 const L = _mkBtnLook(pg, b), id = b.id;
                 return `<div class="mkb${b.off ? ' off' : ''}${_mkBtnSel === id ? ' hl' : ''}" data-mkb="${id}">
@@ -5482,10 +5508,12 @@ Return ONLY JSON — no markdown, no code fences:
                         <label>Weight <select onchange="mkBtnSet('${id}','fw',+this.value)">${[400, 500, 600, 700, 800].map(w => opt(w, L.fw, { 400: 'Regular', 500: 'Medium', 600: 'Semibold', 700: 'Bold', 800: 'Extra bold' }[w])).join('')}</select></label>
                         <label>Size <input type="number" min="6" max="60" step="0.5" value="${_mkR(L.sz)}" onchange="mkBtnSet('${id}','sz',+this.value)"></label>
                         <label title="Text">Text <input type="color" value="${_coHex(L.ink) || '#111111'}" onchange="mkBtnSet('${id}','ink',this.value)"></label>
-                        ${L.style === 'solid' ? `<label title="Fill">Fill <input type="color" value="${_coHex(L.fill) || '#ffffff'}" onchange="mkBtnSet('${id}','fill',this.value)"></label>` : ''}
-                        ${L.style !== 'link' ? `<label title="Border">Border <input type="color" value="${_coHex(L.line) || '#cccccc'}" onchange="mkBtnSet('${id}','line',this.value)"></label><label>Corners <input type="number" min="0" max="60" value="${+L.rad || 0}" onchange="mkBtnSet('${id}','rad',+this.value)"></label>` : ''}
+                        ${L.style !== 'link' ? `<label>Corners <input type="number" min="0" max="60" value="${_mkR(+L.rad || 0)}" onchange="mkBtnSet('${id}','rad',+this.value)"></label>` : ''}
                         <label><input type="checkbox" ${L.wrap ? 'checked' : ''} onchange="mkBtnSet('${id}','wrap',this.checked)"> Wrap</label>
-                    </div>`}</div>`;
+                    </div>
+                    ${L.style !== 'link' ? `<div class="mkb-col"><b>Fill</b>${sw(id, 'fill', L.fill, b)}</div>
+                    <div class="mkb-col"><b>Border</b><select title="Border width" onchange="mkBtnSet('${id}','bw',+this.value)">${[0, 1, 1.5, 2, 3].map(v => opt(v, L.bw, v ? v + 'px' : 'None')).join('')}</select>
+                        ${L.bw > 0 ? `<label title="The border is the fill color"><input type="checkbox" ${L.match ? 'checked' : ''} onchange="mkBtnSet('${id}','match',this.checked)"> Match fill</label>${L.match ? '' : sw(id, 'line', L.line, b)}` : ''}</div>` : ''}`}</div>`;
             };
             const pages = _mk.pages.map((pg, pi) => {
                 const B = pg.btns || [];
