@@ -1770,7 +1770,7 @@
                     </div>
                         <div class="mk2-row"><button type="button" onclick="mkClear()" title="Remove the imported mockup">✕ Remove mockup</button></div>
                     </details>
-                    <input type="file" id="mkFileInput" accept=".pdf,application/pdf,image/*" style="display:none;" onchange="if(this.files[0]) mkImportBlob(this.files[0], this.files[0].name); this.value='';">
+                    <input type="file" id="mkFileInput" accept=".pdf,application/pdf,image/*" multiple style="display:none;" onchange="if(this.files.length) mkImportFiles([...this.files]); this.value='';">
                     <input type="file" id="mkImgInput" accept="image/*" style="display:none;" onchange="if(this.files[0]) mkBoxImage(this.files[0]); this.value='';">
                 </div>
             </div><!-- /widgetPreviewSection -->
@@ -4697,6 +4697,19 @@ Return ONLY JSON — no markdown, no code fences:
             } catch (e) { _mkStatus('Import failed: ' + e.message, 'error'); }
         }
 
+        // Several files picked at once: one mockup, a page for each (screenshots of one checkout, say).
+        async function mkImportFiles(files) {
+            if (files.length === 1) return mkImportBlob(files[0], files[0].name);
+            try {
+                _mkStatus(`Importing ${files.length} files…`, 'info');
+                const pages = [];
+                for (const f of files.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))) {
+                    if (/pdf/i.test(f.type) || /\.pdf$/i.test(f.name)) pages.push(...await _mkFromPdf(await f.arrayBuffer()));
+                    else if (/^image\//i.test(f.type) || /\.(png|jpe?g|gif|webp)$/i.test(f.name)) pages.push(await _mkFromImage(await _mkBlobUrl(f), f.name.replace(/\.[^.]+$/, '')));
+                }
+                _mkAdopt(pages, String(files[0].name).replace(/\.[^.]+$/, '').replace(/[\s_-]*\d+$/, '') || 'Mockup');
+            } catch (e) { _mkStatus('Import failed: ' + e.message, 'error'); }
+        }
         async function mkImportBlob(blob, name) {
             try {
                 _mkStatus(`Importing ${name}…`, 'info');
@@ -4835,7 +4848,7 @@ Return ONLY JSON — no markdown, no code fences:
         function _mkPageHtml(pg, pi, ed) {
             const L = _coLayout(pg);
             if (L) _coLays.set(pg, L); else _coLays.delete(pg);
-            const btns = ed ? `<span class="mk2-pbtns">${!pg.texts.length ? `<button type="button" onclick="mkFindText(${pi})" title="Find the text on this image so it can be edited (uses the scan model)">🔎 Find text</button>` : ''}${_dfPhone(pg) ? '' : `<button type="button" onclick="mkMobCrop(${pi})" title="How this desktop page shows on a phone in the SI Interactive Demo">📱 Mobile crop${pg.mob ? ' ✓' : ''}</button>`}${pi < _mk.pages.length - 1 ? `<button type="button" onclick="mkMergePages(${pi})" title="Combine with the next page into one tall page (e.g. a phone checkout's order summary + information screenshots)">⊕ Combine with next</button>` : ''}<button type="button" onclick="mkFullscreen(this)" title="Edit full-size">⤢ Full screen</button><button type="button" onclick="mkRemovePage(${pi})" title="Remove this page">✕</button></span>` : '';
+            const btns = ed ? `<span class="mk2-pbtns">${!pg.texts.length ? `<button type="button" onclick="mkFindText(${pi})" title="Find the text on this image so it can be edited (uses the scan model)">🔎 Find text</button>` : ''}${_dfPhone(pg) ? '' : `<button type="button" onclick="mkMobCrop(${pi})" title="How this desktop page shows on a phone in the SI Interactive Demo">📱 Mobile crop${pg.mob ? ' ✓' : ''}</button>`}${pi === 0 && _mkPrevView() ? `<button type="button" onclick="mkMergeViews()" title="Combine with the view before this one (an earlier upload) into one tall page">⊕ Combine with previous view</button>` : ''}${pi < _mk.pages.length - 1 ? `<button type="button" onclick="mkMergePages(${pi})" title="Combine with the next page into one tall page (e.g. a phone checkout's order summary + information screenshots)">⊕ Combine with next</button>` : ''}<button type="button" onclick="mkFullscreen(this)" title="Edit full-size">⤢ Full screen</button><button type="button" onclick="mkRemovePage(${pi})" title="Remove this page">✕</button></span>` : '';
             const cls = 'mk2-page' + (ed && _mkTool !== 'select' ? ' tool-' + _mkTool : '') + (ed && _mkOn('mk-tags') ? ' tags' : '');
             const H = L ? L.H : pg.h;
             const inner = (L ? _coPageHtml(pg, L) : `<img class="mk2-base" src="${pg.img}" alt="" draggable="false">`) +
@@ -5469,9 +5482,23 @@ Return ONLY JSON — no markdown, no code fences:
             const sum = ['subtotal', 'total'].some(k => A[k]) || pg.texts.some(t => !t.add && /^order summary$/i.test(_coClean(t.o)));
             return main && sum ? 'both' : main ? 'info' : sum ? 'sum' : '';
         }
+        // The merchant view before the one open (an earlier upload): its mockup pages, if it has any.
+        function _mkPrevView() {
+            const L = _merchantExamples || [], cur = _mpEdit != null ? _mpEdit : L.length;
+            for (let i = cur - 1; i >= 0; i--) { const d = L[i] && L[i].design; if (d && d.wtype === 'mockup' && d.mk && (d.mk.pages || []).length) return { i, ex: L[i], pages: d.mk.pages }; }
+            return null;
+        }
         // Two pages side by side that look like one phone checkout: { a, b } with the summary first, or null.
+        // view: the pair is the previous view's last page and this mockup's first.
         function _mkMergePair() {
-            const P = _mk.pages;
+            const P = _mk.pages, pv = _mkPrevView();
+            if (pv && P.length) {
+                const x = pv.pages[pv.pages.length - 1], y = P[0];
+                if (!x.noMerge && !y.noMerge && x.texts.length && y.texts.length && _dfPhone(x) && _dfPhone(y)) {
+                    const kx = _mkCkKind(x), ky = _mkCkKind(y);
+                    if ((kx === 'sum' && ky === 'info') || (kx === 'info' && ky === 'sum')) return { view: pv, sumFirst: kx === 'sum' };
+                }
+            }
             for (let i = 0; i < P.length - 1; i++) {
                 const x = P[i], y = P[i + 1];
                 if (x.noMerge || y.noMerge || !x.texts.length || !y.texts.length || !_dfPhone(x) || !_dfPhone(y)) continue;
@@ -5486,16 +5513,25 @@ Return ONLY JSON — no markdown, no code fences:
             if (_mkMergeUndo) return `<div class="mk-merge"><span>📱 Combined “${_escHtml(_mkMergeUndo.names.join('” + “'))}” into one page.</span><button type="button" onclick="mkMergeUndo()">Undo</button><button type="button" onclick="_mkMergeUndo=null;mkRender()">OK</button></div>`;
             const m = _mkMergePair(); if (!m) return '';
             const P = _mk.pages;
+            if (m.view) {
+                const vx = m.view.pages[m.view.pages.length - 1], nm = `“${_escHtml(m.view.ex.label || 'the previous view')}”`;
+                return `<div class="mk-merge"><span>📱 ${m.sumFirst ? nm + ' (order summary, the view before this one) and this page (information)' : 'This page (order summary) and ' + nm + ' (information, the view before this one)'} look like one phone checkout. Combine them into the one page a shopper scrolls through?</span>` +
+                    `<button type="button" class="p" onclick="mkMergeViews()">⊕ Combine</button><button type="button" onclick="mkMergeNo()">Keep separate</button></div>`;
+            }
             return `<div class="mk-merge"><span>📱 “${_escHtml(P[m.a].name)}” (order summary) and “${_escHtml(P[m.b].name)}” (information) look like one phone checkout. Combine them into the one page a shopper scrolls through?</span>` +
-                `<button type="button" class="p" onclick="mkMergePages(${Math.min(m.a, m.b)}, ${m.a > m.b ? 1 : 0})">⊕ Combine</button><button type="button" onclick="_mk.pages[${m.a}].noMerge=_mk.pages[${m.b}].noMerge=true;mkRender()">Keep separate</button></div>`;
+                `<button type="button" class="p" onclick="mkMergePages(${Math.min(m.a, m.b)}, ${m.a > m.b ? 1 : 0})">⊕ Combine</button><button type="button" onclick="mkMergeNo()">Keep separate</button></div>`;
         }
         // Where the summary page ends (just under its totals) and where the information page starts (its first
         // form section: Express checkout / Contact / Delivery), so the repeated header and the collapsed
         // "Show order summary" bar aren't shown twice.
-        function _mkSumEnd(pg) {
+        function _mkSumEnd(pg, cv) {
             const A = _coAnchors(pg), T = pg.texts.filter(t => !t.add && _mkPlain(t.o).trim());
             let base = A.total ? A.total.y + A.total.h : Math.max(0, ...T.map(t => t.y + t.h));
             T.filter(t => t.y >= base - 2 && t.y - base < 60).forEach(t => { base = Math.max(base, t.y + t.h); });   // a savings line under the total
+            // Whatever the summary shows under its totals (trust badges, a perks strip) is part of it: it ends
+            // where its pixels do, not at the total.
+            const R = cv && _coRows(cv, 0, pg.w);
+            if (R) { let y = R.blank.length - 1; while (y > 0 && R.blank[y]) y--; base = Math.max(base, y / R.k); }
             return Math.min(pg.h, Math.round(base + 28));
         }
         function _mkInfoStart(pg, cv) {
@@ -5514,7 +5550,7 @@ Return ONLY JSON — no markdown, no code fences:
             let ca, cb;
             try { ca = await _mkPageCanvas(top); cb = await _mkPageCanvas(bot); } catch (e) { _mkStatus('Couldn’t read the page images to combine them.', 'error'); return; }
             const smart = _mkCkKind(top) === 'sum' && _mkCkKind(bot) === 'info';
-            const endA = smart ? _mkSumEnd(top) : top.h, startB = smart ? _mkInfoStart(bot, cb) : 0;
+            const endA = smart ? _mkSumEnd(top, ca) : top.h, startB = smart ? _mkInfoStart(bot, cb) : 0;
             const k = top.w / bot.w, kA = ca.k, CW = ca.ctx.canvas.width;
             const H = Math.round(endA + (bot.h - startB) * k);
             const c = document.createElement('canvas'); c.width = CW; c.height = Math.round(H * kA);
@@ -5537,7 +5573,7 @@ Return ONLY JSON — no markdown, no code fences:
             };
             const keepA = o => o.y + (o.h || 0) / 2 < endA, keepB = o => o.y + (o.h || 0) / 2 >= startB;
             const pg = {
-                name: top.name || 'Checkout', w: top.w, h: H, img,
+                name: smart ? 'Checkout' : top.name || 'Checkout', w: top.w, h: H, img,
                 texts: top.texts.filter(keepA).map(t => JSON.parse(JSON.stringify(t))).concat(bot.texts.filter(keepB).map(shift)),
                 boxes: (top.boxes || []).filter(keepA).map(b => JSON.parse(JSON.stringify(b))).concat((bot.boxes || []).filter(keepB).map(shift)),
                 wid: (top.wid || []).filter(keepA).concat((bot.wid || []).filter(keepB).map(shift)),
@@ -5549,8 +5585,38 @@ Return ONLY JSON — no markdown, no code fences:
             _mkSel = null;
             mkRender(); document.dispatchEvent(new Event('change'));
         }
+        // Combine this mockup with the view before it: its pages come in (and that view goes), then the two
+        // pages that meet are combined, summary on top.
+        async function mkMergeViews() {
+            const pv = _mkPrevView(); if (!pv) return;
+            const n = pv.pages.length, prev = JSON.parse(JSON.stringify(pv.ex));
+            const x = pv.pages[n - 1], y = _mk.pages[0], sumFirst = _mkCkKind(x) !== 'info' || _mkCkKind(y) !== 'sum';
+            _mk.pages.unshift(...pv.pages);
+            _merchantExamples.splice(pv.i, 1);
+            if (_mpEdit != null && _mpEdit > pv.i) _mpEdit--;
+            if (!_mk.src && pv.ex.label) _mk.src = pv.ex.label;
+            await mkMergePages(n - 1, sumFirst ? 0 : 1);
+            if (_mkMergeUndo) Object.assign(_mkMergeUndo, { view: prev, viewAt: pv.i, viewPages: n, names: [pv.ex.label || 'the previous view', _mk.src || 'this page'] });
+            renderMerchantChips();
+        }
+        function mkMergeNo() {
+            const m = _mkMergePair(); if (!m) return;
+            if (m.view) { m.view.pages[m.view.pages.length - 1].noMerge = true; _mk.pages[0].noMerge = true; }
+            else { _mk.pages[m.a].noMerge = _mk.pages[m.b].noMerge = true; }
+            mkRender();
+        }
         function mkMergeUndo() {
             const u = _mkMergeUndo; if (!u) return;
+            if (u.view) {   // it came from the view before: that view comes back with its own pages
+                _mk.pages.splice(u.i, 1, ...u.pages);
+                _mk.pages.splice(0, u.viewPages);
+                _merchantExamples.splice(u.viewAt, 0, u.view);
+                if (_mpEdit != null && _mpEdit >= u.viewAt) _mpEdit++;
+                _mk.pages.forEach(p => { p.noMerge = true; }); (u.view.design.mk.pages || []).forEach(p => { p.noMerge = true; });
+                _mkMergeUndo = null; _mkSel = null;
+                mkRender(); renderMerchantChips(); document.dispatchEvent(new Event('change'));
+                return;
+            }
             _mk.pages.splice(u.i, 1, ...u.pages);
             u.pages.forEach(p => { p.noMerge = true; });
             _mkMergeUndo = null; _mkSel = null;
