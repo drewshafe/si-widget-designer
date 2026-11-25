@@ -544,6 +544,10 @@
         .mk2-import .scan-widget-btn, .mk2-row button, .mk2-tools button, .mk2-pick button { margin: 0; }
         .mk2-status { font-size: 0.76em; line-height: 1.45; margin: 0 0 8px; color: #4a5fc1; }
         .mk2-status:empty { display: none; }
+        .mk-merge { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 12px; padding: 10px 12px; border: 1px solid #c8ccff; background: #f3f4ff; border-radius: 10px; font-size: 0.82em; color: #2a3050; line-height: 1.4; }
+        .mk-merge span { flex: 1 1 260px; }
+        .mk-merge button { font: 700 12px inherit; padding: 6px 11px; border-radius: 7px; border: 1px solid #c8ccff; background: #fff; color: #2a3050; cursor: pointer; }
+        .mk-merge button.p { background: #6675ff; border-color: #6675ff; color: #fff; }
         .mk2-status.error { color: #c0392b; }
         .mk2-status.ok { color: #1f8a5b; }
         .mk2-figma { display: none; background: #f7f8fc; border: 1px solid #e0e3f0; border-radius: 8px; padding: 8px; margin-bottom: 8px; }
@@ -4803,7 +4807,7 @@ Return ONLY JSON — no markdown, no code fences:
         function _mkPageHtml(pg, pi, ed) {
             const L = _coLayout(pg);
             if (L) _coLays.set(pg, L); else _coLays.delete(pg);
-            const btns = ed ? `<span class="mk2-pbtns">${!pg.texts.length ? `<button type="button" onclick="mkFindText(${pi})" title="Find the text on this image so it can be edited (uses the scan model)">🔎 Find text</button>` : ''}${_dfPhone(pg) ? '' : `<button type="button" onclick="mkMobCrop(${pi})" title="How this desktop page shows on a phone in the SI Interactive Demo">📱 Mobile crop${pg.mob ? ' ✓' : ''}</button>`}<button type="button" onclick="mkFullscreen(this)" title="Edit full-size">⤢ Full screen</button><button type="button" onclick="mkRemovePage(${pi})" title="Remove this page">✕</button></span>` : '';
+            const btns = ed ? `<span class="mk2-pbtns">${!pg.texts.length ? `<button type="button" onclick="mkFindText(${pi})" title="Find the text on this image so it can be edited (uses the scan model)">🔎 Find text</button>` : ''}${_dfPhone(pg) ? '' : `<button type="button" onclick="mkMobCrop(${pi})" title="How this desktop page shows on a phone in the SI Interactive Demo">📱 Mobile crop${pg.mob ? ' ✓' : ''}</button>`}${pi < _mk.pages.length - 1 ? `<button type="button" onclick="mkMergePages(${pi})" title="Combine with the next page into one tall page (e.g. a phone checkout's order summary + information screenshots)">⊕ Combine with next</button>` : ''}<button type="button" onclick="mkFullscreen(this)" title="Edit full-size">⤢ Full screen</button><button type="button" onclick="mkRemovePage(${pi})" title="Remove this page">✕</button></span>` : '';
             const cls = 'mk2-page' + (ed && _mkTool !== 'select' ? ' tool-' + _mkTool : '') + (ed && _mkOn('mk-tags') ? ' tags' : '');
             const H = L ? L.H : pg.h;
             const inner = (L ? _coPageHtml(pg, L) : `<img class="mk2-base" src="${pg.img}" alt="" draggable="false">`) +
@@ -4828,7 +4832,7 @@ Return ONLY JSON — no markdown, no code fences:
             const pr = _mkLastPr = _mkPrice();
             if (_mk.pages.length) _mkApplyParts(pr);
             _coPlaced = new Set();
-            area.innerHTML = _mk.pages.length ? _mk.pages.map((pg, pi) => _mkPageHtml(pg, pi, ed)).join('')
+            area.innerHTML = _mk.pages.length ? (ed ? _mkMergeBanner() : '') + _mk.pages.map((pg, pi) => _mkPageHtml(pg, pi, ed)).join('')
                 : (ed ? `<div class="mk2-empty"><b>Import this merchant's mockup to start.</b><br>Upload the Figma export (PDF, every page), an image or a store screenshot, pick it from the merchant's folder, or paste a Figma link.<br>Every text then becomes editable right here, and the ShipInsure price and totals follow the Pricing template.</div>` : '');
             mkFit(area);
             _mkWBarRender();
@@ -5273,6 +5277,102 @@ Return ONLY JSON — no markdown, no code fences:
             if (jobs.length) await Promise.race([Promise.all(jobs), new Promise(r => setTimeout(r, 6000))]);
         }
         function mkSetFont(v) { _mk.font = String(v || '').trim(); _mk.fontBy = _mk.font ? 'user' : ''; mkRender(); }
+        // ── Combine pages: a phone checkout taken as two screenshots (the order summary opened, then the
+        //    information form) becomes the one tall page a phone scrolls through. ──
+        // What a page is: the order summary ('sum'), the information form ('info'), both, or neither.
+        function _mkCkKind(pg) {
+            const A = _coAnchors(pg);
+            const main = ['express', 'contact', 'delivery', 'shipmethod', 'payment', 'paynow'].some(k => A[k]);
+            const sum = ['subtotal', 'total'].some(k => A[k]) || pg.texts.some(t => !t.add && /^order summary$/i.test(_coClean(t.o)));
+            return main && sum ? 'both' : main ? 'info' : sum ? 'sum' : '';
+        }
+        // Two pages side by side that look like one phone checkout: { a, b } with the summary first, or null.
+        function _mkMergePair() {
+            const P = _mk.pages;
+            for (let i = 0; i < P.length - 1; i++) {
+                const x = P[i], y = P[i + 1];
+                if (x.noMerge || y.noMerge || !x.texts.length || !y.texts.length || !_dfPhone(x) || !_dfPhone(y)) continue;
+                const kx = _mkCkKind(x), ky = _mkCkKind(y);
+                if (kx === 'sum' && ky === 'info') return { a: i, b: i + 1 };
+                if (kx === 'info' && ky === 'sum') return { a: i + 1, b: i };
+            }
+            return null;
+        }
+        let _mkMergeUndo = null;
+        function _mkMergeBanner() {
+            if (_mkMergeUndo) return `<div class="mk-merge"><span>📱 Combined “${_escHtml(_mkMergeUndo.names.join('” + “'))}” into one page.</span><button type="button" onclick="mkMergeUndo()">Undo</button><button type="button" onclick="_mkMergeUndo=null;mkRender()">OK</button></div>`;
+            const m = _mkMergePair(); if (!m) return '';
+            const P = _mk.pages;
+            return `<div class="mk-merge"><span>📱 “${_escHtml(P[m.a].name)}” (order summary) and “${_escHtml(P[m.b].name)}” (information) look like one phone checkout. Combine them into the one page a shopper scrolls through?</span>` +
+                `<button type="button" class="p" onclick="mkMergePages(${Math.min(m.a, m.b)}, ${m.a > m.b ? 1 : 0})">⊕ Combine</button><button type="button" onclick="_mk.pages[${m.a}].noMerge=_mk.pages[${m.b}].noMerge=true;mkRender()">Keep separate</button></div>`;
+        }
+        // Where the summary page ends (just under its totals) and where the information page starts (its first
+        // form section: Express checkout / Contact / Delivery), so the repeated header and the collapsed
+        // "Show order summary" bar aren't shown twice.
+        function _mkSumEnd(pg) {
+            const A = _coAnchors(pg), T = pg.texts.filter(t => !t.add && _mkPlain(t.o).trim());
+            let base = A.total ? A.total.y + A.total.h : Math.max(0, ...T.map(t => t.y + t.h));
+            T.filter(t => t.y >= base - 2 && t.y - base < 60).forEach(t => { base = Math.max(base, t.y + t.h); });   // a savings line under the total
+            return Math.min(pg.h, Math.round(base + 28));
+        }
+        function _mkInfoStart(pg, cv) {
+            const A = _coAnchors(pg), first = ['express', 'contact', 'delivery'].map(k => A[k]).filter(Boolean).sort((a, b) => a.y - b.y)[0];
+            if (!first) return 0;
+            let gap = 0;
+            const R = cv && _coRows(cv, 0, pg.w);
+            if (R) { for (let y = Math.round((first.y - 1) * R.k); y > 0 && R.blank[y] && gap < 40 * R.k; y--) gap++; gap /= R.k; }
+            return Math.max(0, Math.round(first.y - Math.min(28, gap || 20)));
+        }
+        // Combine page i with the next (or, swap: the next goes on top). A pair from the scan is cut where the
+        // summary ends and the form starts; any other pair is just stacked.
+        async function mkMergePages(i, swap) {
+            const P = _mk.pages, top = P[swap ? i + 1 : i], bot = P[swap ? i : i + 1];
+            if (!top || !bot) return;
+            let ca, cb;
+            try { ca = await _mkPageCanvas(top); cb = await _mkPageCanvas(bot); } catch (e) { _mkStatus('Couldn’t read the page images to combine them.', 'error'); return; }
+            const smart = _mkCkKind(top) === 'sum' && _mkCkKind(bot) === 'info';
+            const endA = smart ? _mkSumEnd(top) : top.h, startB = smart ? _mkInfoStart(bot, cb) : 0;
+            const k = top.w / bot.w, kA = ca.k, CW = ca.ctx.canvas.width;
+            const H = Math.round(endA + (bot.h - startB) * k);
+            const c = document.createElement('canvas'); c.width = CW; c.height = Math.round(H * kA);
+            const x = c.getContext('2d', { willReadFrequently: true });
+            x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height);
+            x.drawImage(ca.ctx.canvas, 0, 0, CW, Math.round(endA * kA), 0, 0, CW, Math.round(endA * kA));
+            x.drawImage(cb.ctx.canvas, 0, Math.round(startB * cb.k), cb.ctx.canvas.width, Math.round((bot.h - startB) * cb.k), 0, Math.round(endA * kA), CW, c.height - Math.round(endA * kA));
+            const img = c.toDataURL('image/jpeg', 0.9);
+            // Everything on the lower page moves with its picture: down by the upper page, scaled to its width.
+            const mv = v => Math.round(((v - startB) * k + endA) * 100) / 100, sc = v => Math.round(v * k * 100) / 100;
+            const shift = o => {
+                const r = JSON.parse(JSON.stringify(o));
+                ['x', 'w', 'sz', 'lh', 'ls', 'wsp', 'x0', 'x1'].forEach(f => { if (typeof r[f] === 'number') r[f] = sc(r[f]); });
+                ['y', 'b'].forEach(f => { if (typeof r[f] === 'number') r[f] = mv(r[f]); });
+                if (typeof r.h === 'number') r.h = sc(r.h);
+                if (r.ic) r.ic = Object.assign({}, r.ic, { x: sc(+r.ic.x), y: mv(+r.ic.y), w: sc(+r.ic.w), h: sc(+r.ic.h) });
+                if (r.os && typeof r.os.sz === 'number') r.os.sz = sc(r.os.sz);
+                ['cover', 'col'].forEach(f => { if (r[f]) r[f] = shift(r[f]); });
+                return r;
+            };
+            const keepA = o => o.y + (o.h || 0) / 2 < endA, keepB = o => o.y + (o.h || 0) / 2 >= startB;
+            const pg = {
+                name: top.name || 'Checkout', w: top.w, h: H, img,
+                texts: top.texts.filter(keepA).map(t => JSON.parse(JSON.stringify(t))).concat(bot.texts.filter(keepB).map(shift)),
+                boxes: (top.boxes || []).filter(keepA).map(b => JSON.parse(JSON.stringify(b))).concat((bot.boxes || []).filter(keepB).map(shift)),
+                wid: (top.wid || []).filter(keepA).concat((bot.wid || []).filter(keepB).map(shift)),
+                icV: top.icV, noMerge: true
+            };
+            _mkCanvas[img] = { ctx: x, k: kA };
+            _mkMergeUndo = { i, pages: [P[i], P[i + 1]], names: [top.name || 'Page', bot.name || 'Page'] };
+            P.splice(i, 2, pg);
+            _mkSel = null;
+            mkRender(); document.dispatchEvent(new Event('change'));
+        }
+        function mkMergeUndo() {
+            const u = _mkMergeUndo; if (!u) return;
+            _mk.pages.splice(u.i, 1, ...u.pages);
+            u.pages.forEach(p => { p.noMerge = true; });
+            _mkMergeUndo = null; _mkSel = null;
+            mkRender(); document.dispatchEvent(new Event('change'));
+        }
         function mkRemovePage(pi) {
             if (!confirm(`Remove “${(_mk.pages[pi] || {}).name || 'this page'}” from the mockup?`)) return;
             _mk.pages.splice(pi, 1); _mkSel = null; mkRender();
