@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ROI (hybrid)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 816px; height: 1056px; box-sizing: border-box; display: flex; flex-direction: column; background: #F4F4F9; color: #1E1E2E; font-family: 'Montserrat', system-ui, sans-serif; overflow: hidden; position: relative">
+
+<div style="position: relative; flex: none; height: 262px; background: {{heroBg}}; overflow: hidden">
+<img src="onepager-assets/dc/hero-phone.png" alt="" style="position: absolute; left: 0; bottom: 0; width: 816px; height: auto; display: block">
+<div style="position: absolute; left: 36px; top: 26px; display: flex; align-items: center; gap: 14px; padding: 11px 26px 11px 22px; border-radius: 999px; background: rgba(255,255,255,0.7); -webkit-backdrop-filter: blur(16px) saturate(1.6); backdrop-filter: blur(16px) saturate(1.6); border: 1px solid rgba(255,255,255,0.65); box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), inset 0 -1px 0 rgba(255,255,255,0.12), 0 6px 20px rgba(10,10,40,0.18)">
+<img src="{{siSrc}}" alt="ShipInsure" style="display: block; height: {{siLogoH}}px; width: auto">
+<sc-if value="{{showMerchantLogo}}" hint-placeholder-val="{{ true }}"><div style="display: flex; align-items: center; gap: 14px"><div style="font-size: 18px; font-weight: 600; color: #6B73FF">+</div><img src="onepager-assets/dc/merchant-logo-placeholder.png" alt="Merchant logo" style="display: block; height: {{merchantLogoH}}px; width: auto"></div></sc-if>
+</div>
+<sc-if value="{{showTag}}" hint-placeholder-val="{{ true }}">
+<div style="position: absolute; right: 36px; top: 34px; padding: 8px 15px; border-radius: 999px; background: rgba(255,255,255,0.72); -webkit-backdrop-filter: blur(16px) saturate(1.6); backdrop-filter: blur(16px) saturate(1.6); border: 1px solid rgba(255,255,255,0.65); font-size: 10.5px; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; color: #17152B; box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -1px 0 rgba(255,255,255,0.15), 0 4px 14px rgba(10,10,40,0.16)">For: {{audience}}</div>
+</sc-if>
+<div style="position: absolute; left: 40px; top: 98px; width: 470px; display: flex; flex-direction: column; gap: 12px; color: #FFFFFF">
+<div style="font-size: 40px; line-height: 1.08; letter-spacing: -0.02em"><span style="font-weight: 300">{{headlineA}}</span><br><span style="font-weight: 800">{{headlineB}}</span></div>
+<div style="font-size: 14.5px; line-height: 1.45; font-weight: 500; text-shadow: 0 1px 8px rgba(10,10,40,0.35)">{{merchant}} × ShipInsure · {{meetingDate}}</div>
+</div>
+</div>
+
+<div style="flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-evenly; gap: 12px; padding: 14px 36px 0">
+
+<sc-if value="{{showBaseline}}" hint-placeholder-val="{{ true }}">
+<section style="border: 1px solid #DADCEE; border-radius: 22px; background: #FFFFFF; padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 6px 24px rgba(23,21,43,0.05)">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 2px 4px 0"><div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: {{accent}}">Your baseline</div><div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 5px 11px; border-radius: 999px; background: #EEF0FF; color: {{accent}}">From your store data</div></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+<div style="border-radius: 12px; background: #F4F6FB; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; min-width: 0">
+<div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #4A4960">Monthly orders</div>
+<div style="font-size: 34px; font-weight: 800; line-height: 1; letter-spacing: -0.02em; color: {{accent}}">[0,000]</div>
+<div style="font-size: 12px; font-weight: 600; color: #4A4960">[Source or time window]</div>
+</div>
+<div style="border-radius: 12px; background: #F4F6FB; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; min-width: 0">
+<div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #4A4960">Average order value</div>
+<div style="font-size: 34px; font-weight: 800; line-height: 1; letter-spacing: -0.02em; color: {{accent}}">$[000]</div>
+<div style="font-size: 12px; font-weight: 600; color: #4A4960">[Source or time window]</div>
+</div>
+<div style="border-radius: 12px; background: #F4F6FB; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; min-width: 0">
+<div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #4A4960">Claim / reship rate</div>
+<div style="font-size: 34px; font-weight: 800; line-height: 1; letter-spacing: -0.02em; color: {{accent}}">[0.0%]</div>
+<div style="font-size: 12px; font-weight: 600; color: #4A4960">[Current protection cost]</div>
+</div>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{showImpact}}" hint-placeholder-val="{{ true }}">
+<section style="border-radius: 22px; background: radial-gradient(ellipse 70% 120% at 50% 0%, rgba(70,82,230,0.55), rgba(70,82,230,0) 75%), #15123B; padding: 16px 22px 18px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap"><div style="font-size: 16px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.01em">Modeled annual impact</div><div style="font-size: 10.5px; color: #AEB3E8">[Inputs behind the model]</div></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 4px; min-width: 0"><div style="font-size: 34px; font-weight: 800; line-height: 1; letter-spacing: -0.02em; color: #FFFFFF">$[000K]</div><div style="font-size: 12.5px; font-weight: 700; color: #E6E8FF">claims cost avoided</div><div style="font-size: 11px; color: #AEB3E8">[Modeled value and the inputs]</div></div><div style="display: flex; flex-direction: column; gap: 4px; min-width: 0"><div style="font-size: 34px; font-weight: 800; line-height: 1; letter-spacing: -0.02em; color: #FFFFFF">$[000K]</div><div style="font-size: 12.5px; font-weight: 700; color: #E6E8FF">revenue share</div><div style="font-size: 11px; color: #AEB3E8">[Attach rate and fee used]</div></div><div style="display: flex; flex-direction: column; gap: 4px; min-width: 0"><div style="font-size: 34px; font-weight: 800; line-height: 1; letter-spacing: -0.02em; color: #FFFFFF">$[000K]</div><div style="font-size: 12.5px; font-weight: 700; color: #E6E8FF">net modeled value</div><div style="font-size: 11px; color: #AEB3E8">[Total, assumptions below]</div></div>
+</div>
+</section>
+</sc-if>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: start; padding: 0 6px">
+<sc-if value="{{showInputs}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; gap: 14px; align-items: flex-start; min-width: 0">
+<div style="flex: none; width: 40px; padding-top: 1px"><svg width="40" height="40" viewBox="0 0 44 44" aria-hidden="true"><circle cx="15" cy="27" r="12" fill="#CDD0FF"/><circle cx="26" cy="19" r="12" fill="#6B73FF"/></svg></div>
+<div style="display: flex; flex-direction: column; gap: 6px; min-width: 0; flex: 1">
+<div style="font-size: 18px; font-weight: 700; letter-spacing: -0.01em; color: #1E1E2E">Calculator inputs</div>
+<ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; line-height: 1.4; color: #2C2C3E"><li style="font-weight: 700"><span style="font-weight: 700">Attach rate:</span> [%]</li><li><span style="font-weight: 700">Fee:</span> [% of order value, minimum]</li><li><span style="font-weight: 700">Revenue share:</span> [%]</li><li><span style="font-weight: 700">Link:</span> [Calculator link]</li></ul>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{showAssumptions}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; gap: 14px; align-items: flex-start; min-width: 0">
+<div style="flex: none; width: 40px; padding-top: 1px"><svg width="40" height="40" viewBox="0 0 44 44" aria-hidden="true"><path d="M22 4l18 9-18 9-18-9z" fill="#C9CCFF"/><path d="M4 22l18 9 18-9" fill="none" stroke="#8A91FF" stroke-width="4" stroke-linejoin="round"/><path d="M4 31l18 9 18-9" fill="none" stroke="#6B73FF" stroke-width="4" stroke-linejoin="round"/></svg></div>
+<div style="display: flex; flex-direction: column; gap: 6px; min-width: 0; flex: 1">
+<div style="font-size: 18px; font-weight: 700; letter-spacing: -0.01em; color: #1E1E2E">Assumptions</div>
+<ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; line-height: 1.4; color: #2C2C3E"><li style="font-weight: 700">[Attach rate used and where it came from]</li><li>[Fee structure used in the model]</li><li>[What is not included in the model]</li></ul>
+</div>
+</div>
+</sc-if>
+</div>
+</div>
+
+<sc-if value="{{showCta}}" hint-placeholder-val="{{ true }}">
+<div style="position: relative; flex: none; margin: 0 36px; height: 106px"><div style="position: absolute; left: -26px; top: -22px; width: 210px; height: 150px; border-radius: 999px; background: #6B73FF; opacity: 0.6; filter: blur(36px)"></div><div style="position: absolute; right: 150px; bottom: -28px; width: 230px; height: 90px; border-radius: 999px; background: #2FC9B8; opacity: 0.5; filter: blur(34px)"></div><div style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; border-radius: 24px; background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0) 45%), rgba(21,36,74,0.78); -webkit-backdrop-filter: blur(22px) saturate(1.7); backdrop-filter: blur(22px) saturate(1.7); border: 1px solid rgba(255,255,255,0.22); box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(255,255,255,0.08), 0 10px 30px rgba(21,36,74,0.28)"></div><div style="position: relative; height: 106px; display: flex; align-items: center; gap: 12px; padding: 0 0 0 24px">
+<div style="flex: none; width: 112px; font-size: 22px; line-height: 1.12; font-weight: 300; color: #FFFFFF">Keeping merchants the <span style="font-weight: 800; color: #6B73FF">hero</span></div>
+<div style="flex: none; width: 1px; height: 54px; background: #3A4A74"></div>
+<div style="flex: none; width: 176px; display: flex; flex-direction: column; gap: 3px"><div style="font-size: 15px; font-weight: 700; color: #FFFFFF">{{ctaTitle}}</div><div style="font-size: 12.5px; color: #C9D0EA">{{ctaSub}}</div></div>
+<div style="flex: none; display: flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 999px; background: linear-gradient(180deg, #8A90FF, #6B73FF); border: 1px solid rgba(255,255,255,0.4); color: #FFFFFF; font-size: 13px; font-weight: 700; box-shadow: inset 0 1px 0 rgba(255,255,255,0.55), 0 4px 14px rgba(107,115,255,0.45)">{{ctaButton}}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4l8 8-8 8"></path></svg></div>
+<img src="onepager-assets/dc/cta-package.png" alt="" style="position: absolute; right: 6px; bottom: 2px; height: 112px; width: auto; display: block">
+</div>
+</div>
+</sc-if>
+<sc-if value="{{showContact}}" hint-placeholder-val="{{ true }}">
+<div style="flex: none; padding: 9px 48px 18px; font-size: 10.5px; color: #7A84A6">Questions? {{repName}} · {{repEmail}} · {{repPhone}}</div>
+</sc-if>
+<div style="flex: none; height: 4px"></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;merchant&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;[Merchant]&quot;,&quot;section&quot;:&quot;Version&quot;},&quot;meetingDate&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;[Date]&quot;,&quot;section&quot;:&quot;Version&quot;},&quot;audience&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;[Recipient name]&quot;,&quot;section&quot;:&quot;Version&quot;},&quot;headlineA&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Your ROI&quot;,&quot;section&quot;:&quot;Version&quot;},&quot;headlineB&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;model&quot;,&quot;section&quot;:&quot;Version&quot;},&quot;heroTone&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;Navy&quot;,&quot;section&quot;:&quot;Header&quot;,&quot;options&quot;:[&quot;Purple / teal&quot;,&quot;Blue&quot;,&quot;Navy&quot;]},&quot;siLogo&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;Auto&quot;,&quot;section&quot;:&quot;Header&quot;,&quot;options&quot;:[&quot;Auto&quot;,&quot;Horizontal · blue&quot;,&quot;Horizontal · blue/white&quot;,&quot;Horizontal · light grey&quot;,&quot;Horizontal · dark&quot;,&quot;Horizontal · black&quot;,&quot;Vertical · blue&quot;,&quot;Vertical · blue/white&quot;,&quot;Vertical · light grey&quot;,&quot;Vertical · dark&quot;]},&quot;siLogoH&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:26,&quot;section&quot;:&quot;Header&quot;,&quot;min&quot;:16,&quot;max&quot;:96,&quot;step&quot;:2,&quot;unit&quot;:&quot;px&quot;},&quot;showTag&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Header&quot;},&quot;showMerchantLogo&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Header&quot;},&quot;merchantLogoH&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:26,&quot;section&quot;:&quot;Header&quot;,&quot;min&quot;:12,&quot;max&quot;:64,&quot;step&quot;:2,&quot;unit&quot;:&quot;px&quot;},&quot;showBaseline&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Sections&quot;},&quot;showImpact&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Sections&quot;},&quot;showInputs&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Sections&quot;},&quot;showAssumptions&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Sections&quot;},&quot;showContact&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Sections&quot;},&quot;repName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Drew Shafer&quot;,&quot;section&quot;:&quot;Contact&quot;},&quot;repEmail&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;drew@shipinsure.io&quot;,&quot;section&quot;:&quot;Contact&quot;},&quot;repPhone&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;(801) 368 - 1134&quot;,&quot;section&quot;:&quot;Contact&quot;},&quot;showCta&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Call to action&quot;},&quot;ctaTitle&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;See your numbers&quot;,&quot;section&quot;:&quot;Call to action&quot;},&quot;ctaSub&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Open your calculator&quot;,&quot;section&quot;:&quot;Call to action&quot;},&quot;ctaButton&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Open calculator&quot;,&quot;section&quot;:&quot;Call to action&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#4652E6&quot;,&quot;section&quot;:&quot;Look&quot;,&quot;options&quot;:[&quot;#4652E6&quot;,&quot;#15123B&quot;,&quot;#0F766E&quot;,&quot;#B45309&quot;]},&quot;$preview&quot;:{&quot;width&quot;:816,&quot;height&quot;:1056}}">
+class Component extends DCLogic {
+  renderVals() {
+    var p = this.props;
+    var siLogos = {
+      'Horizontal · blue': 'onepager-assets/si2-logo-h-blue.png', 'Horizontal · blue/white': 'onepager-assets/si2-logo-h-blue-white.png',
+      'Horizontal · light grey': 'onepager-assets/si2-logo-h-grey.png', 'Horizontal · dark': 'onepager-assets/si2-logo-h-dark.png',
+      'Horizontal · black': 'onepager-assets/si2-logo-h-black.png', 'Vertical · blue': 'onepager-assets/si2-logo-v-blue.png',
+      'Vertical · blue/white': 'onepager-assets/si2-logo-v-blue-white.png', 'Vertical · light grey': 'onepager-assets/si2-logo-v-grey.png',
+      'Vertical · dark': 'onepager-assets/si2-logo-v-dark.png'
+    };
+    var heroes = {
+      'Purple / teal': 'linear-gradient(115deg, #46285f 0%, #2c6f94 48%, #9ce2d8 100%)',
+      'Blue': 'linear-gradient(115deg, #0a3fa0 0%, #2a6fd6 50%, #a8c8f5 100%)',
+      'Navy': 'linear-gradient(115deg, #15123B 0%, #3A3FA8 55%, #A9AEFF 100%)'
+    };
+    var siLogo = p.siLogo ?? 'Auto';
+    return {
+      heroBg: heroes[p.heroTone ?? 'Navy'] || heroes['Navy'],
+      siSrc: siLogo === 'Auto' ? siLogos['Horizontal · blue'] : (siLogos[siLogo] || siLogos['Horizontal · blue']),
+      siLogoH: p.siLogoH ?? 26,
+      showTag: p.showTag ?? true,
+      showMerchantLogo: p.showMerchantLogo ?? true,
+      merchantLogoH: p.merchantLogoH ?? 26,
+      headlineA: p.headlineA ?? 'Your ROI',
+      headlineB: p.headlineB ?? 'model',
+      merchant: p.merchant ?? '[Merchant]',
+      meetingDate: p.meetingDate ?? '[Date]',
+      audience: p.audience ?? '[Recipient name]',
+      showBaseline: p.showBaseline ?? true,
+      showImpact: p.showImpact ?? true,
+      showInputs: p.showInputs ?? true,
+      showAssumptions: p.showAssumptions ?? true,
+      showContact: p.showContact ?? true,
+      repName: p.repName ?? 'Drew Shafer',
+      repEmail: p.repEmail ?? 'drew@shipinsure.io',
+      repPhone: p.repPhone ?? '(801) 368 - 1134',
+      showCta: p.showCta ?? true,
+      ctaTitle: p.ctaTitle ?? 'See your numbers',
+      ctaSub: p.ctaSub ?? 'Open your calculator',
+      ctaButton: p.ctaButton ?? 'Open calculator',
+      accent: p.accent ?? '#4652E6'
+    };
+  }
+}
+</script>
+</body>
+</html>

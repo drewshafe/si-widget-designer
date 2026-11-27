@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Proactive resolutions one-sheeter</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 816px; height: 1056px; box-sizing: border-box; display: flex; flex-direction: column; background: #F4F4F9; color: #1E1E2E; font-family: 'Montserrat', system-ui, sans-serif; overflow: hidden; position: relative">
+
+<div style="position: relative; flex: none; height: 318px; background: {{heroBg}}; overflow: hidden">
+<img src="onepager-assets/dc/hero-phone.png" alt="" style="position: absolute; left: 0; bottom: 0; width: 816px; height: auto; display: block">
+<div style="position: absolute; left: 36px; top: 26px; display: flex; align-items: center; gap: 14px; padding: 11px 26px 11px 22px; border-radius: 999px; background: rgba(255,255,255,0.7); -webkit-backdrop-filter: blur(16px) saturate(1.6); backdrop-filter: blur(16px) saturate(1.6); border: 1px solid rgba(255,255,255,0.65); box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), inset 0 -1px 0 rgba(255,255,255,0.12), 0 6px 20px rgba(10,10,40,0.18)">
+<img src="{{siSrc}}" alt="ShipInsure" style="display: block; height: {{siLogoH}}px; width: auto">
+<sc-if value="{{showMerchantLogo}}" hint-placeholder-val="{{ false }}"><div style="display: flex; align-items: center; gap: 14px"><div style="font-size: 18px; font-weight: 600; color: #6B73FF">+</div><img src="onepager-assets/dc/merchant-logo-placeholder.png" alt="Merchant logo" style="display: block; height: {{merchantLogoH}}px; width: auto"></div></sc-if>
+</div>
+<sc-if value="{{showTag}}" hint-placeholder-val="{{ true }}">
+<div style="position: absolute; right: 36px; top: 34px; padding: 8px 15px; border-radius: 999px; background: rgba(255,255,255,0.72); -webkit-backdrop-filter: blur(16px) saturate(1.6); backdrop-filter: blur(16px) saturate(1.6); border: 1px solid rgba(255,255,255,0.65); font-size: 10.5px; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; color: #17152B; box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -1px 0 rgba(255,255,255,0.15), 0 4px 14px rgba(10,10,40,0.16)">{{tag}}</div>
+</sc-if>
+<div style="position: absolute; left: 40px; top: 118px; width: 430px; display: flex; flex-direction: column; gap: 14px; color: #FFFFFF">
+<div style="font-size: 40px; line-height: 1.08; letter-spacing: -0.02em"><span style="font-weight: 300">{{h1a}}</span><br><span style="font-weight: 800">{{h1b}}</span></div>
+<div style="font-size: 14.5px; line-height: 1.45; font-weight: 500; text-shadow: 0 1px 8px rgba(10,10,40,0.35)">{{sub}}</div>
+</div>
+</div>
+
+<div style="flex: 1; display: flex; flex-direction: column; justify-content: space-evenly; padding: 0 48px">
+<div style="display: flex; gap: 22px; align-items: flex-start">
+<div style="flex: none; width: 44px; padding-top: 2px"><svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><rect x="2" y="12" width="20" height="20" rx="6" fill="#B9BEFF"/><rect x="22" y="2" width="18" height="18" rx="5" fill="#8A91FF"/><rect x="16" y="20" width="20" height="20" rx="5" fill="#6B73FF"/></svg></div>
+<div style="display: flex; flex-direction: column; gap: 7px; min-width: 0">
+<div style="font-size: 20px; font-weight: 700; letter-spacing: -0.01em; color: #1E1E2E">{{f1t}}</div>
+<ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 5px; font-size: 13.5px; line-height: 1.4; color: #2C2C3E"><li style="font-weight: 700">{{f1l}}</li><sc-if value="{{f1aShow}}" hint-placeholder-val="{{ true }}"><li>{{f1a}}</li></sc-if><sc-if value="{{f1bShow}}" hint-placeholder-val="{{ true }}"><li>{{f1b}}</li></sc-if></ul>
+</div>
+</div>
+<div style="display: flex; gap: 22px; align-items: flex-start">
+<div style="flex: none; width: 44px; padding-top: 2px"><svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><path d="M22 3c6 5 8 13 6 22H16c-2-9 0-17 6-22z" fill="#6B73FF"/><circle cx="22" cy="16" r="3.4" fill="#fff"/><path d="M16 22l-7 8 8-1zM28 22l7 8-8-1z" fill="#B9BEFF"/><path d="M19 28h6l-3 10z" fill="#8A91FF"/></svg></div>
+<div style="display: flex; flex-direction: column; gap: 7px; min-width: 0">
+<div style="font-size: 20px; font-weight: 700; letter-spacing: -0.01em; color: #1E1E2E">{{f2t}}</div>
+<ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 5px; font-size: 13.5px; line-height: 1.4; color: #2C2C3E"><li style="font-weight: 700">{{f2l}}</li><sc-if value="{{f2aShow}}" hint-placeholder-val="{{ true }}"><li>{{f2a}}</li></sc-if><sc-if value="{{f2bShow}}" hint-placeholder-val="{{ true }}"><li>{{f2b}}</li></sc-if></ul>
+</div>
+</div>
+<div style="display: flex; gap: 22px; align-items: flex-start">
+<div style="flex: none; width: 44px; padding-top: 2px"><svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><path d="M22 4l18 9-18 9-18-9z" fill="#C9CCFF"/><path d="M4 22l18 9 18-9" fill="none" stroke="#8A91FF" stroke-width="4" stroke-linejoin="round"/><path d="M4 31l18 9 18-9" fill="none" stroke="#6B73FF" stroke-width="4" stroke-linejoin="round"/></svg></div>
+<div style="display: flex; flex-direction: column; gap: 7px; min-width: 0">
+<div style="font-size: 20px; font-weight: 700; letter-spacing: -0.01em; color: #1E1E2E">{{f3t}}</div>
+<ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 5px; font-size: 13.5px; line-height: 1.4; color: #2C2C3E"><li style="font-weight: 700">{{f3l}}</li><sc-if value="{{f3aShow}}" hint-placeholder-val="{{ true }}"><li>{{f3a}}</li></sc-if><sc-if value="{{f3bShow}}" hint-placeholder-val="{{ true }}"><li>{{f3b}}</li></sc-if></ul>
+</div>
+</div>
+<div style="display: flex; gap: 22px; align-items: flex-start">
+<div style="flex: none; width: 44px; padding-top: 2px"><svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><circle cx="15" cy="27" r="12" fill="#CDD0FF"/><circle cx="26" cy="19" r="12" fill="#6B73FF"/></svg></div>
+<div style="display: flex; flex-direction: column; gap: 7px; min-width: 0">
+<div style="font-size: 20px; font-weight: 700; letter-spacing: -0.01em; color: #1E1E2E">{{f4t}}</div>
+<ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 5px; font-size: 13.5px; line-height: 1.4; color: #2C2C3E"><li style="font-weight: 700">{{f4l}}</li><sc-if value="{{f4aShow}}" hint-placeholder-val="{{ true }}"><li>{{f4a}}</li></sc-if><sc-if value="{{f4bShow}}" hint-placeholder-val="{{ true }}"><li>{{f4b}}</li></sc-if></ul>
+</div>
+</div>
+</div>
+
+<sc-if value="{{showCta}}" hint-placeholder-val="{{ true }}">
+<div style="position: relative; flex: none; margin: 0 36px; height: 106px"><div style="position: absolute; left: -26px; top: -22px; width: 210px; height: 150px; border-radius: 999px; background: #6B73FF; opacity: 0.6; filter: blur(36px)"></div><div style="position: absolute; right: 150px; bottom: -28px; width: 230px; height: 90px; border-radius: 999px; background: #2FC9B8; opacity: 0.5; filter: blur(34px)"></div><div style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; border-radius: 24px; background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0) 45%), rgba(21,36,74,0.78); -webkit-backdrop-filter: blur(22px) saturate(1.7); backdrop-filter: blur(22px) saturate(1.7); border: 1px solid rgba(255,255,255,0.22); box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(255,255,255,0.08), 0 10px 30px rgba(21,36,74,0.28)"></div><div style="position: relative; height: 106px; display: flex; align-items: center; gap: 12px; padding: 0 0 0 24px">
+<div style="flex: none; width: 112px; font-size: 22px; line-height: 1.12; font-weight: 300; color: #FFFFFF">Keeping merchants the <span style="font-weight: 800; color: #6B73FF">hero</span></div>
+<div style="flex: none; width: 1px; height: 54px; background: #3A4A74"></div>
+<div style="flex: none; width: 176px; display: flex; flex-direction: column; gap: 3px"><div style="font-size: 15px; font-weight: 700; color: #FFFFFF">{{ctaTitle}}</div><div style="font-size: 12.5px; color: #C9D0EA">{{ctaSub}}</div></div>
+<div style="flex: none; display: flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 999px; background: linear-gradient(180deg, #8A90FF, #6B73FF); border: 1px solid rgba(255,255,255,0.4); color: #FFFFFF; font-size: 13px; font-weight: 700; box-shadow: inset 0 1px 0 rgba(255,255,255,0.55), 0 4px 14px rgba(107,115,255,0.45)">{{ctaButton}}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4l8 8-8 8"></path></svg></div>
+<img src="onepager-assets/dc/cta-package.png" alt="" style="position: absolute; right: 6px; bottom: 2px; height: 112px; width: auto; display: block">
+</div>
+</div>
+</sc-if>
+<div style="flex: none; padding: 9px 48px 18px; font-size: 10px; line-height: 1.4; color: #7A84A6; min-height: 14px">{{footnote}}</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;heroTone&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;Navy&quot;,&quot;section&quot;:&quot;Header&quot;,&quot;options&quot;:[&quot;Purple / teal&quot;,&quot;Blue&quot;,&quot;Navy&quot;]},&quot;siLogo&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;Auto&quot;,&quot;section&quot;:&quot;Header&quot;,&quot;options&quot;:[&quot;Auto&quot;,&quot;Horizontal · blue&quot;,&quot;Horizontal · blue/white&quot;,&quot;Horizontal · light grey&quot;,&quot;Horizontal · dark&quot;,&quot;Horizontal · black&quot;,&quot;Vertical · blue&quot;,&quot;Vertical · blue/white&quot;,&quot;Vertical · light grey&quot;,&quot;Vertical · dark&quot;]},&quot;siLogoH&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:26,&quot;section&quot;:&quot;Header&quot;,&quot;min&quot;:16,&quot;max&quot;:96,&quot;step&quot;:2,&quot;unit&quot;:&quot;px&quot;},&quot;showMerchantLogo&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Header&quot;},&quot;merchantLogoH&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:26,&quot;section&quot;:&quot;Header&quot;,&quot;min&quot;:12,&quot;max&quot;:64,&quot;step&quot;:2,&quot;unit&quot;:&quot;px&quot;},&quot;showTag&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Header&quot;},&quot;tag&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Build it with us&quot;,&quot;section&quot;:&quot;Header&quot;},&quot;h1a&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Resolved before&quot;,&quot;section&quot;:&quot;Headline&quot;},&quot;h1b&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;they ask.&quot;,&quot;section&quot;:&quot;Headline&quot;},&quot;sub&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;ShipInsure spots a lost or stalled package and reships it. The customer never files a claim.&quot;,&quot;section&quot;:&quot;Headline&quot;},&quot;f1t&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;It watches every shipment&quot;,&quot;section&quot;:&quot;Block 1&quot;},&quot;f1l&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Carrier marks it lost, or no scan inside your window.&quot;,&quot;section&quot;:&quot;Block 1&quot;},&quot;f1a&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;You set the window, for example 5 to 8 days without a scan.&quot;,&quot;section&quot;:&quot;Block 1&quot;},&quot;f1b&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Return-to-sender scans trigger it too.&quot;,&quot;section&quot;:&quot;Block 1&quot;},&quot;f2t&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;It fixes it before they notice&quot;,&quot;section&quot;:&quot;Block 2&quot;},&quot;f2l&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Reorders automatically and tells the customer a replacement is on the way.&quot;,&quot;section&quot;:&quot;Block 2&quot;},&quot;f2a&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Or tells them it is lost and lets them pick replacement, refund or store credit.&quot;,&quot;section&quot;:&quot;Block 2&quot;},&quot;f2b&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;You choose the rule for each case.&quot;,&quot;section&quot;:&quot;Block 2&quot;},&quot;f3t&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;It sounds like your brand&quot;,&quot;section&quot;:&quot;Block 3&quot;},&quot;f3l&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Customer messages use your macros and your wording.&quot;,&quot;section&quot;:&quot;Block 3&quot;},&quot;f3a&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;AI handles the simple cases. U.S.-based people handle the complex ones.&quot;,&quot;section&quot;:&quot;Block 3&quot;},&quot;f3b&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Fraud checks run on email, address, IP and cross-merchant signals.&quot;,&quot;section&quot;:&quot;Block 3&quot;},&quot;f4t&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Your team skips the claim&quot;,&quot;section&quot;:&quot;Block 4&quot;},&quot;f4l&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Resolve an order straight from your helpdesk with a toggle.&quot;,&quot;section&quot;:&quot;Block 4&quot;},&quot;f4a&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Works inside Gorgias and Freshdesk, with full visibility into the conversation.&quot;,&quot;section&quot;:&quot;Block 4&quot;},&quot;f4b&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;No claim form, no back-and-forth with the customer.&quot;,&quot;section&quot;:&quot;Block 4&quot;},&quot;showCta&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Call to action&quot;},&quot;ctaTitle&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Help us build it&quot;,&quot;section&quot;:&quot;Call to action&quot;},&quot;ctaSub&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Join the design-partner group&quot;,&quot;section&quot;:&quot;Call to action&quot;},&quot;ctaButton&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Book a call&quot;,&quot;section&quot;:&quot;Call to action&quot;},&quot;footnote&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;About one in three customers with a lost package never file a claim.&quot;,&quot;section&quot;:&quot;Call to action&quot;},&quot;$preview&quot;:{&quot;width&quot;:816,&quot;height&quot;:1056}}">
+class Component extends DCLogic {
+  renderVals() {
+    var p = this.props;
+    var siLogos = {
+      'Horizontal · blue': 'onepager-assets/si2-logo-h-blue.png', 'Horizontal · blue/white': 'onepager-assets/si2-logo-h-blue-white.png',
+      'Horizontal · light grey': 'onepager-assets/si2-logo-h-grey.png', 'Horizontal · dark': 'onepager-assets/si2-logo-h-dark.png',
+      'Horizontal · black': 'onepager-assets/si2-logo-h-black.png', 'Vertical · blue': 'onepager-assets/si2-logo-v-blue.png',
+      'Vertical · blue/white': 'onepager-assets/si2-logo-v-blue-white.png', 'Vertical · light grey': 'onepager-assets/si2-logo-v-grey.png',
+      'Vertical · dark': 'onepager-assets/si2-logo-v-dark.png'
+    };
+    var heroes = {
+      'Purple / teal': 'linear-gradient(115deg, #46285f 0%, #2c6f94 48%, #9ce2d8 100%)',
+      'Blue': 'linear-gradient(115deg, #0a3fa0 0%, #2a6fd6 50%, #a8c8f5 100%)',
+      'Navy': 'linear-gradient(115deg, #15123B 0%, #3A3FA8 55%, #A9AEFF 100%)'
+    };
+    var siLogo = p.siLogo ?? 'Auto';
+    return {
+      heroBg: heroes[p.heroTone ?? 'Navy'] || heroes['Navy'],
+      siSrc: siLogo === 'Auto' ? siLogos['Horizontal · blue'] : (siLogos[siLogo] || siLogos['Horizontal · blue']),
+      siLogoH: p.siLogoH ?? 26,
+      showMerchantLogo: p.showMerchantLogo ?? false,
+      merchantLogoH: p.merchantLogoH ?? 26,
+      showTag: (p.showTag ?? true) && ((p.tag ?? "Build it with us") !== ''),
+      tag: p.tag ?? "Build it with us",
+      h1a: p.h1a ?? "Resolved before", h1b: p.h1b ?? "they ask.", sub: p.sub ?? "ShipInsure spots a lost or stalled package and reships it. The customer never files a claim.",
+      showCta: p.showCta ?? true,
+      ctaTitle: p.ctaTitle ?? "Help us build it", ctaSub: p.ctaSub ?? "Join the design-partner group", ctaButton: p.ctaButton ?? "Book a call",
+      footnote: p.footnote ?? "About one in three customers with a lost package never file a claim.",
+      f1t: p.f1t ?? "It watches every shipment",
+      f1l: p.f1l ?? "Carrier marks it lost, or no scan inside your window.",
+      f1a: p.f1a ?? "You set the window, for example 5 to 8 days without a scan.",
+      f1b: p.f1b ?? "Return-to-sender scans trigger it too.",
+      f2t: p.f2t ?? "It fixes it before they notice",
+      f2l: p.f2l ?? "Reorders automatically and tells the customer a replacement is on the way.",
+      f2a: p.f2a ?? "Or tells them it is lost and lets them pick replacement, refund or store credit.",
+      f2b: p.f2b ?? "You choose the rule for each case.",
+      f3t: p.f3t ?? "It sounds like your brand",
+      f3l: p.f3l ?? "Customer messages use your macros and your wording.",
+      f3a: p.f3a ?? "AI handles the simple cases. U.S.-based people handle the complex ones.",
+      f3b: p.f3b ?? "Fraud checks run on email, address, IP and cross-merchant signals.",
+      f4t: p.f4t ?? "Your team skips the claim",
+      f4l: p.f4l ?? "Resolve an order straight from your helpdesk with a toggle.",
+      f4a: p.f4a ?? "Works inside Gorgias and Freshdesk, with full visibility into the conversation.",
+      f4b: p.f4b ?? "No claim form, no back-and-forth with the customer.",
+      f1aShow: (p.f1a ?? "You set the window, for example 5 to 8 days without a scan.") !== '',
+      f1bShow: (p.f1b ?? "Return-to-sender scans trigger it too.") !== '',
+      f2aShow: (p.f2a ?? "Or tells them it is lost and lets them pick replacement, refund or store credit.") !== '',
+      f2bShow: (p.f2b ?? "You choose the rule for each case.") !== '',
+      f3aShow: (p.f3a ?? "AI handles the simple cases. U.S.-based people handle the complex ones.") !== '',
+      f3bShow: (p.f3b ?? "Fraud checks run on email, address, IP and cross-merchant signals.") !== '',
+      f4aShow: (p.f4a ?? "Works inside Gorgias and Freshdesk, with full visibility into the conversation.") !== '',
+      f4bShow: (p.f4b ?? "No claim form, no back-and-forth with the customer.") !== '',
+    };
+  }
+}
+</script>
+</body>
+</html>

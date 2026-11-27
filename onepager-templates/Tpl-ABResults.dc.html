@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>A/B test results</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 816px; height: 1056px; box-sizing: border-box; display: flex; flex-direction: column; background: #FFFFFF; color: #17152B; font-family: 'Montserrat', system-ui, sans-serif; overflow: hidden; position: relative">
+
+<div style="position: absolute; left: 0; right: 0; top: 0; height: 330px; background: radial-gradient(ellipse 60% 90% at 88% 0%, rgba(120,132,255,0.38), rgba(120,132,255,0) 70%), radial-gradient(ellipse 50% 80% at 5% 30%, rgba(15,169,88,0.14), rgba(15,169,88,0) 70%), linear-gradient(180deg, #EEF0FF 0%, #FFFFFF 100%)"></div>
+
+<div style="position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 28px 56px 0">
+<img src="{{siLogoSrc}}" alt="ShipInsure" style="display: block; height: {{siLogoH}}px; width: auto">
+<div style="display: flex; align-items: center; gap: 8px">
+<sc-if value="{{showBadge}}" hint-placeholder-val="{{ true }}">
+<div style="background: rgba(255,255,255,0.55); -webkit-backdrop-filter: blur(14px) saturate(1.5); backdrop-filter: blur(14px) saturate(1.5); border: 1px solid rgba(255,255,255,0.75); box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 2px 10px rgba(23,21,43,0.07); font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 7px 14px; border-radius: 999px; color: #17152B">{{partnerName}} · A/B test</div>
+</sc-if>
+<div style="background: rgba(255,255,255,0.55); -webkit-backdrop-filter: blur(14px) saturate(1.5); backdrop-filter: blur(14px) saturate(1.5); border: 1px solid rgba(255,255,255,0.75); box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 2px 10px rgba(23,21,43,0.07); display: flex; align-items: center; gap: 7px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 7px 14px; border-radius: 999px; color: #17152B"><span style="width: 7px; height: 7px; border-radius: 999px; background: {{statusColor}}"></span>{{statusLabel}}</div>
+</div>
+</div>
+
+<div style="position: relative; padding: 40px 56px 0; display: flex; flex-direction: column; gap: 12px">
+<h1 style="margin: 0; font-size: 36px; font-weight: 800; line-height: 1.12; letter-spacing: -0.025em">[The result, in one line,]<br><span style="color: {{accent}}">[with the proof point. Measured.]</span></h1>
+<p style="margin: 0; max-width: 620px; font-size: 14px; line-height: 1.55; color: #4A4960">[What was tested, on whose store, how many orders and visitors. Not a projection.]</p>
+</div>
+
+<sc-if value="{{showFacts}}" hint-placeholder-val="{{ true }}">
+<div style="position: relative; padding: 18px 56px 0; font-size: 12px; font-weight: 700; color: #17152B; display: flex; gap: 8px; flex-wrap: wrap"><span>[0,000+] orders</span> <span style="color: #B9B9CF">·</span> <span>[000K+] visitors</span> <span style="color: #B9B9CF">·</span> <span>[50 / 50] split</span> <span style="color: #B9B9CF">·</span> <span>[Methodology]</span></div>
+</sc-if>
+
+<section style="position: relative; margin: 22px 56px 0; border: 1px solid #DADCEE; border-radius: 22px; background: #FFFFFF; padding: 14px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 6px 24px rgba(23,21,43,0.05)">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 4px 0">
+<div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap"><div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: {{positive}}">Winner</div><div style="font-size: 18px; font-weight: 800; letter-spacing: -0.01em">[Winning variant]</div></div>
+<div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 5px 11px; border-radius: 999px; background: #E8F7EF; color: {{positive}}">[00.0%] to beat control</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+<div style="border-radius: 12px; background: #F4F6FB; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; min-width: 0">
+<div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #4A4960">Conversion rate</div>
+<div style="display: flex; align-items: center; gap: 7px"><div style="font-size: 34px; font-weight: 800; line-height: 1; letter-spacing: -0.02em; color: {{positive}}">[+0.00%]</div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="{{positive}}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"></path><path d="M15 7h6v6"></path></svg></div>
+<div style="font-size: 12px; font-weight: 600; color: #4A4960">[0.00%] <span style="color: #8A8AA8">→</span> <span style="color: #17152B">[0.00%]</span></div>
+</div><div style="border-radius: 12px; background: #F4F6FB; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; min-width: 0">
+<div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #4A4960">Revenue / visitor</div>
+<div style="display: flex; align-items: center; gap: 7px"><div style="font-size: 34px; font-weight: 800; line-height: 1; letter-spacing: -0.02em; color: {{positive}}">[+0.00%]</div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="{{positive}}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"></path><path d="M15 7h6v6"></path></svg></div>
+<div style="font-size: 12px; font-weight: 600; color: #4A4960">$[0.00] <span style="color: #8A8AA8">→</span> <span style="color: #17152B">$[0.00]</span></div>
+</div><div style="border-radius: 12px; background: #F4F6FB; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; min-width: 0">
+<div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #4A4960">Profit / visitor</div>
+<div style="display: flex; align-items: center; gap: 7px"><div style="font-size: 34px; font-weight: 800; line-height: 1; letter-spacing: -0.02em; color: {{positive}}">[+0.00%]</div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="{{positive}}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"></path><path d="M15 7h6v6"></path></svg></div>
+<div style="font-size: 12px; font-weight: 600; color: #4A4960">$[0.00] <span style="color: #8A8AA8">→</span> <span style="color: #17152B">$[0.00]</span></div>
+</div></div>
+<div style="padding: 0 4px 4px; font-size: 12.5px; line-height: 1.5; color: #4A4960">[What the winner beat, dates, visitors, orders. Say what stayed flat (e.g. AOV) in a few words.]</div>
+</section>
+
+<sc-if value="{{showRateTest}}" hint-placeholder-val="{{ true }}">
+<section style="position: relative; margin: 12px 56px 0; border-radius: 16px; background: #FFF6E8; padding: 12px 16px; display: flex; align-items: flex-start; gap: 12px">
+<div style="flex: none; margin-top: 1px; font-size: 10.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: {{warn}}; white-space: nowrap">[Status]</div>
+<div style="font-size: 12px; line-height: 1.5; color: #4A4960">[Separate or follow-on test: what it compares, which way it leans, confidence. Say plainly if directional only.]</div>
+</section>
+</sc-if>
+
+<sc-if value="{{showImpact}}" hint-placeholder-val="{{ true }}">
+<section style="position: relative; margin: 12px 56px 0; border-radius: 22px; background: radial-gradient(ellipse 70% 120% at 50% 0%, rgba(70,82,230,0.55), rgba(70,82,230,0) 75%), #15123B; padding: 20px 24px 22px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap"><div style="font-size: 16px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.01em">Projected monthly impact at [full deployment]</div><div style="font-size: 10.5px; color: #AEB3E8">[Winning variant lifts × test traffic]</div></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 4px; min-width: 0"><div style="font-size: 36px; font-weight: 800; line-height: 1; letter-spacing: -0.02em; color: #FFFFFF">+[000]</div><div style="font-size: 12.5px; font-weight: 700; color: #E6E8FF">orders / month</div><div style="font-size: 11px; color: #AEB3E8">+[0.00]% conversion</div></div><div style="display: flex; flex-direction: column; gap: 4px; min-width: 0"><div style="font-size: 36px; font-weight: 800; line-height: 1; letter-spacing: -0.02em; color: #FFFFFF">+$[00K]</div><div style="font-size: 12.5px; font-weight: 700; color: #E6E8FF">revenue / month</div><div style="font-size: 11px; color: #AEB3E8">+[0.00]% revenue / visitor</div></div><div style="display: flex; flex-direction: column; gap: 4px; min-width: 0"><div style="font-size: 36px; font-weight: 800; line-height: 1; letter-spacing: -0.02em; color: #FFFFFF">+$[00K]</div><div style="font-size: 12.5px; font-weight: 700; color: #E6E8FF">profit / month</div><div style="font-size: 11px; color: #AEB3E8">+[0.00]% profit / visitor</div></div></div>
+</section>
+</sc-if>
+
+<div style="flex: 1"></div>
+<sc-if value="{{showCta}}" hint-placeholder-val="{{ true }}">
+<div style="position: relative; flex: none; margin: 0 56px 14px; height: 106px"><div style="position: absolute; left: -26px; top: -22px; width: 210px; height: 150px; border-radius: 999px; background: #6B73FF; opacity: 0.6; filter: blur(36px)"></div><div style="position: absolute; right: 150px; bottom: -28px; width: 230px; height: 90px; border-radius: 999px; background: #2FC9B8; opacity: 0.5; filter: blur(34px)"></div><div style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; border-radius: 24px; background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0) 45%), rgba(21,36,74,0.78); -webkit-backdrop-filter: blur(22px) saturate(1.7); backdrop-filter: blur(22px) saturate(1.7); border: 1px solid rgba(255,255,255,0.22); box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(255,255,255,0.08), 0 10px 30px rgba(21,36,74,0.28)"></div><div style="position: relative; height: 106px; display: flex; align-items: center; gap: 12px; padding: 0 0 0 24px">
+<div style="flex: none; width: 112px; font-size: 22px; line-height: 1.12; font-weight: 300; color: #FFFFFF">Keeping merchants the <span style="font-weight: 800; color: #6B73FF">hero</span></div>
+<div style="flex: none; width: 1px; height: 54px; background: #3A4A74"></div>
+<div style="flex: none; width: 176px; display: flex; flex-direction: column; gap: 3px"><div style="font-size: 15px; font-weight: 700; color: #FFFFFF">{{ctaTitle}}</div><div style="font-size: 12.5px; color: #C9D0EA">{{ctaSub}}</div></div>
+<div style="flex: none; display: flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 999px; background: linear-gradient(180deg, #8A90FF, #6B73FF); border: 1px solid rgba(255,255,255,0.4); color: #FFFFFF; font-size: 13px; font-weight: 700; box-shadow: inset 0 1px 0 rgba(255,255,255,0.55), 0 4px 14px rgba(107,115,255,0.45)">{{ctaButton}}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4l8 8-8 8"></path></svg></div>
+<img src="onepager-assets/dc/cta-package.png" alt="" style="position: absolute; right: 6px; bottom: 2px; height: 112px; width: auto; display: block">
+</div>
+</div>
+</sc-if>
+<div style="position: relative; margin: 0 56px; padding: 14px 0 24px; border-top: 1px solid #E1E1EC; display: flex; align-items: center; justify-content: space-between; gap: 16px">
+<div style="font-size: 10.5px; line-height: 1.5; color: #4A4960; max-width: 440px">Source: [Partner]. [0,000+] orders, [000K+] visitors. Lifts shown vs control.</div>
+<div style="display: flex; align-items: center; gap: 10px">
+<img src="{{siLogoSrc}}" alt="ShipInsure" style="display: block; height: 20px; width: auto">
+<sc-if value="{{showPartnerLogo}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; align-items: center; gap: 10px"><div style="font-size: 12px; font-weight: 600; color: #8A8AA8">×</div><img src="{{partnerLogoSrc}}" alt="{{partnerName}}" style="display: block; height: {{partnerLogoH}}px; width: auto"></div>
+</sc-if>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;partnerName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Intelligems&quot;,&quot;section&quot;:&quot;Version&quot;},&quot;statusLabel&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Statistically significant&quot;,&quot;Directional&quot;,&quot;Still running&quot;,&quot;Inconclusive&quot;],&quot;default&quot;:&quot;Statistically significant&quot;,&quot;section&quot;:&quot;Version&quot;},&quot;showBadge&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Version&quot;},&quot;siLogo&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Auto&quot;,&quot;Horizontal · blue&quot;,&quot;Horizontal · blue/white&quot;,&quot;Horizontal · light grey&quot;,&quot;Horizontal · dark&quot;,&quot;Horizontal · black&quot;,&quot;Vertical · blue&quot;,&quot;Vertical · blue/white&quot;,&quot;Vertical · light grey&quot;,&quot;Vertical · dark&quot;],&quot;default&quot;:&quot;Auto&quot;,&quot;section&quot;:&quot;Header&quot;},&quot;siLogoH&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:16,&quot;max&quot;:96,&quot;step&quot;:2,&quot;unit&quot;:&quot;px&quot;,&quot;default&quot;:30,&quot;section&quot;:&quot;Header&quot;},&quot;showPartnerLogo&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Partner logo&quot;},&quot;partnerLogo&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Intelligems&quot;,&quot;Custom (replace image)&quot;,&quot;None&quot;],&quot;default&quot;:&quot;Intelligems&quot;,&quot;section&quot;:&quot;Partner logo&quot;},&quot;partnerLogoH&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:12,&quot;max&quot;:48,&quot;step&quot;:2,&quot;unit&quot;:&quot;px&quot;,&quot;default&quot;:20,&quot;section&quot;:&quot;Partner logo&quot;},&quot;showFacts&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Sections&quot;},&quot;showRateTest&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Sections&quot;},&quot;showImpact&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Sections&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#4652E6&quot;,&quot;options&quot;:[&quot;#4652E6&quot;,&quot;#15123B&quot;,&quot;#0F766E&quot;,&quot;#B45309&quot;],&quot;section&quot;:&quot;Look&quot;},&quot;positive&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#0FA958&quot;,&quot;options&quot;:[&quot;#0FA958&quot;,&quot;#4652E6&quot;,&quot;#0F766E&quot;],&quot;section&quot;:&quot;Look&quot;},&quot;warn&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#D97706&quot;,&quot;options&quot;:[&quot;#D97706&quot;,&quot;#B45309&quot;],&quot;section&quot;:&quot;Look&quot;},&quot;showCta&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Call to action&quot;},&quot;ctaTitle&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Want results like these?&quot;,&quot;section&quot;:&quot;Call to action&quot;},&quot;ctaSub&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Start your own A/B test&quot;,&quot;section&quot;:&quot;Call to action&quot;},&quot;ctaButton&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Plan my test&quot;,&quot;section&quot;:&quot;Call to action&quot;},&quot;$preview&quot;:{&quot;width&quot;:816,&quot;height&quot;:1056}}">
+class Component extends DCLogic {
+  renderVals() {
+    var p = this.props;
+    var siLogos = {
+      'Horizontal · blue': 'onepager-assets/si2-logo-h-blue.png', 'Horizontal · blue/white': 'onepager-assets/si2-logo-h-blue-white.png',
+      'Horizontal · light grey': 'onepager-assets/si2-logo-h-grey.png', 'Horizontal · dark': 'onepager-assets/si2-logo-h-dark.png',
+      'Horizontal · black': 'onepager-assets/si2-logo-h-black.png', 'Vertical · blue': 'onepager-assets/si2-logo-v-blue.png',
+      'Vertical · blue/white': 'onepager-assets/si2-logo-v-blue-white.png', 'Vertical · light grey': 'onepager-assets/si2-logo-v-grey.png',
+      'Vertical · dark': 'onepager-assets/si2-logo-v-dark.png'
+    };
+    // Auto = Horizontal dark (light header)
+    var siLogo = p.siLogo ?? 'Auto';
+    // Partner logos: upload a file, add one line here and one option in the props.
+    var partners = {
+      'Intelligems': 'onepager-assets/dc/partner-intelligems.png',
+      'Custom (replace image)': 'onepager-assets/dc/merchant-logo-placeholder.png'
+    };
+    var partner = p.partnerLogo ?? 'Intelligems';
+    var tones = { 'Statistically significant': '#0FA958', 'Directional': '#D97706', 'Still running': '#D97706', 'Inconclusive': '#8A8AA8' };
+    var status = p.statusLabel ?? 'Statistically significant';
+    return {
+      showCta: p.showCta ?? true,
+      ctaTitle: p.ctaTitle ?? "Want results like these?",
+      ctaSub: p.ctaSub ?? "Start your own A/B test",
+      ctaButton: p.ctaButton ?? "Plan my test",
+      partnerName: p.partnerName ?? 'Intelligems',
+      statusLabel: status,
+      statusColor: tones[status] || '#0FA958',
+      showBadge: p.showBadge ?? true,
+      siLogoSrc: siLogo === 'Auto' ? siLogos['Horizontal · dark'] : (siLogos[siLogo] || siLogos['Horizontal · dark']),
+      siLogoH: p.siLogoH ?? 30,
+      showPartnerLogo: (p.showPartnerLogo ?? true) && partner !== 'None',
+      partnerLogoSrc: partners[partner] || partners['Intelligems'],
+      partnerLogoH: p.partnerLogoH ?? 20,
+      showFacts: p.showFacts ?? true,
+      showRateTest: p.showRateTest ?? true,
+      showImpact: p.showImpact ?? true,
+      accent: p.accent ?? '#4652E6',
+      positive: p.positive ?? '#0FA958',
+      warn: p.warn ?? '#D97706'
+    };
+  }
+}
+</script>
+</body>
+</html>

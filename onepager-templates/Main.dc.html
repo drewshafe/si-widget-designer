@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ShipInsure draft order one-pager</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 816px; height: 1056px; box-sizing: border-box; display: flex; flex-direction: column; background: #FFFFFF; color: #17152B; font-family: 'Montserrat', system-ui, sans-serif; overflow: hidden">
+
+<header style="background: #15123B; color: #FFFFFF; padding: 36px 56px 32px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 16px">
+<div style="font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #C9CBFF">SHIPINSURE × [MERCHANT]</div>
+<div style="font-size: 12px; font-weight: 600; padding: 6px 12px; border: 1px solid #5B58A8; border-radius: 999px; color: #E6E7FF">For: {{audience}}</div>
+</div>
+<sc-if value="{{isSales}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h1 style="margin: 0; font-size: 34px; font-weight: 800; line-height: 1.15; letter-spacing: -0.01em">Adding ShipInsure to draft orders</h1>
+<p style="margin: 0; font-size: 16px; line-height: 1.45; color: #D5D6F5">What to tell the customer, and how to add protection in four steps.</p>
+</div>
+</sc-if>
+<sc-if value="{{isLeads}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h1 style="margin: 0; font-size: 34px; font-weight: 800; line-height: 1.15; letter-spacing: -0.01em">ShipInsure on draft orders</h1>
+<p style="margin: 0; font-size: 16px; line-height: 1.45; color: #D5D6F5">Why it matters for the store, and what your team needs to do on every manual order.</p>
+</div>
+</sc-if>
+<sc-if value="{{isSupport}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h1 style="margin: 0; font-size: 34px; font-weight: 800; line-height: 1.15; letter-spacing: -0.01em">ShipInsure on manual orders</h1>
+<p style="margin: 0; font-size: 16px; line-height: 1.45; color: #D5D6F5">How coverage works on draft orders, and where to send a customer with a problem.</p>
+</div>
+</sc-if>
+</header>
+
+<main style="flex: 1; display: flex; flex-direction: column; gap: 20px; padding: 24px 56px 0">
+
+<sc-if value="{{isSales}}" hint-placeholder-val="{{ true }}">
+<section style="display: flex; flex-direction: column; gap: 14px">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: {{accent}}">What to tell the customer</div>
+<p style="margin: 0; font-size: 19px; font-weight: 600; line-height: 1.45">“I can add shipping protection to your order. If the package is lost, stolen or damaged in transit, ShipInsure will take care of it.”</p>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
+<div style="border: 1px solid #E1E1EC; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 14px; font-weight: 700">Lost, stolen, damaged</div>
+<div style="font-size: 13px; line-height: 1.45; color: #4A4960">Covers the package in transit, from the moment the order is placed.</div>
+</div>
+<div style="border: 1px solid #E1E1EC; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 14px; font-weight: 700">One place to file</div>
+<div style="font-size: 13px; line-height: 1.45; color: #4A4960">Claims go straight to ShipInsure. No back-and-forth with the store.</div>
+</div>
+<div style="border: 1px solid #E1E1EC; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 14px; font-weight: 700">Priced by order value</div>
+<div style="font-size: 13px; line-height: 1.45; color: #4A4960">A small fee based on the merchandise total, shown as its own line.</div>
+</div>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{isLeads}}" hint-placeholder-val="{{ false }}">
+<section style="display: flex; flex-direction: column; gap: 14px">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: {{accent}}">Why it matters for the store</div>
+<p style="margin: 0; font-size: 19px; font-weight: 600; line-height: 1.45">Phone and in-person orders get the same protection as online checkout, but only if the team adds it to the draft.</p>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
+<div style="border: 1px solid #E1E1EC; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 14px; font-weight: 700">Claims off your plate</div>
+<div style="font-size: 13px; line-height: 1.45; color: #4A4960">Customers file with ShipInsure, not your support inbox.</div>
+</div>
+<div style="border: 1px solid #E1E1EC; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 14px; font-weight: 700">Stop eating reships</div>
+<div style="font-size: 13px; line-height: 1.45; color: #4A4960">Lost, stolen and damaged packages are covered, not absorbed by the store.</div>
+</div>
+<div style="border: 1px solid #E1E1EC; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 14px; font-weight: 700">Same on every channel</div>
+<div style="font-size: 13px; line-height: 1.45; color: #4A4960">Online, by phone, in store: one program, one claims process.</div>
+</div>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{isSupport}}" hint-placeholder-val="{{ false }}">
+<section style="display: flex; flex-direction: column; gap: 14px">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: {{accent}}">When a customer reports a problem</div>
+<p style="margin: 0; font-size: 19px; font-weight: 600; line-height: 1.45">If the order has a ShipInsure line, send them to ShipInsure to file a claim. No ShipInsure line means no coverage.</p>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
+<div style="border: 1px solid #E1E1EC; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 14px; font-weight: 700">Check the order</div>
+<div style="font-size: 13px; line-height: 1.45; color: #4A4960">Look for the ShipInsure line item (SKU starts with SI_LEVEL).</div>
+</div>
+<div style="border: 1px solid #E1E1EC; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 14px; font-weight: 700">Send them to file</div>
+<div style="font-size: 13px; line-height: 1.45; color: #4A4960">Claims link: [CLAIMS LINK]</div>
+</div>
+<div style="border: 1px solid #E1E1EC; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 14px; font-weight: 700">Still a draft?</div>
+<div style="font-size: 13px; line-height: 1.45; color: #4A4960">Drafts never converted to orders aren't covered. Flag it to [ESCALATION CONTACT].</div>
+</div>
+</div>
+</section>
+</sc-if>
+
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 272px; gap: 28px; align-items: start">
+
+<section style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-bottom: 8px">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: {{accent}}">Add it to a draft order</div>
+<div style="font-size: 12px; font-weight: 600; color: #5E5D73">4 steps</div>
+</div>
+<ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column">
+<li style="display: flex; gap: 16px; padding: 16px 0; border-top: 1px solid #E1E1EC">
+<div style="flex: none; width: 34px; height: 34px; border-radius: 999px; background: {{accent}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">1</div>
+<div style="display: flex; flex-direction: column; gap: 4px; padding-top: 6px">
+<div style="font-size: 16px; font-weight: 700; line-height: 1.35">Build the draft with the customer's items.</div>
+</div>
+</li>
+<li style="display: flex; gap: 16px; padding: 16px 0; border-top: 1px solid #E1E1EC">
+<div style="flex: none; width: 34px; height: 34px; border-radius: 999px; background: {{accent}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">2</div>
+<div style="display: flex; flex-direction: column; gap: 4px; padding-top: 6px">
+<div style="font-size: 16px; font-weight: 700; line-height: 1.35">Search products for “ShipInsure.”</div>
+</div>
+</li>
+<li style="display: flex; gap: 16px; padding: 16px 0; border-top: 1px solid #E1E1EC">
+<div style="flex: none; width: 34px; height: 34px; border-radius: 999px; background: {{accent}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">3</div>
+<div style="display: flex; flex-direction: column; gap: 10px; padding-top: 6px">
+<div style="font-size: 16px; font-weight: 700; line-height: 1.35">Pick the variant whose SKU matches the merchandise total.</div>
+<div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
+<div style="font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace; font-size: 13px; font-weight: 600; padding: 6px 10px; border-radius: 6px; background: #EEEEFB; color: #15123B">SI_LEVEL_0-100</div>
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E5D73" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg>
+<div style="font-size: 14px; font-weight: 600">$0–$100 orders</div>
+</div>
+<div style="font-size: 14px; line-height: 1.45; color: #4A4960">That variant's price is the protection fee.</div>
+</div>
+</li>
+<li style="display: flex; gap: 16px; padding: 16px 0; border-top: 1px solid #E1E1EC">
+<div style="flex: none; width: 34px; height: 34px; border-radius: 999px; background: {{accent}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">4</div>
+<div style="display: flex; flex-direction: column; gap: 4px; padding-top: 6px">
+<div style="font-size: 16px; font-weight: 700; line-height: 1.35">Add one unit, then convert the draft to an order.</div>
+<div style="font-size: 14px; line-height: 1.45; color: #4A4960">Coverage starts the moment it's an order.</div>
+</div>
+</li>
+</ol>
+</section>
+
+<aside style="background: #F3F3FC; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: {{accent}}">Before you convert</div>
+<div style="display: flex; flex-direction: column; gap: 4px; padding-top: 12px; border-top: 1px solid #DCDCEE">
+<div style="font-size: 14px; font-weight: 700">Drafts aren't protected</div>
+<div style="font-size: 13px; line-height: 1.45; color: #4A4960">Coverage starts once the draft becomes an order. Left as a draft, it's not covered.</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px; padding-top: 12px; border-top: 1px solid #DCDCEE">
+<div style="font-size: 14px; font-weight: 700">Match the SKU to the total</div>
+<div style="font-size: 13px; line-height: 1.45; color: #4A4960">Shopify won't block the wrong band. Check it before you convert.</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px; padding-top: 12px; border-top: 1px solid #DCDCEE">
+<div style="font-size: 14px; font-weight: 700">Auto-fulfill on?</div>
+<div style="font-size: 13px; line-height: 1.45; color: #4A4960">The ShipInsure line fulfills automatically. No shipping email is sent for it.</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px; padding-top: 12px; border-top: 1px solid #DCDCEE">
+<div style="font-size: 14px; font-weight: 700">Your currency</div>
+<div style="font-size: 13px; line-height: 1.45; color: #4A4960">Pricing bands reflect your store's currency.</div>
+</div>
+</aside>
+
+</div>
+</main>
+
+<sc-if value="{{showCta}}" hint-placeholder-val="{{ true }}">
+<div style="position: relative; flex: none; margin: 12px 56px 0; height: 106px"><div style="position: absolute; left: -26px; top: -22px; width: 210px; height: 150px; border-radius: 999px; background: #6B73FF; opacity: 0.6; filter: blur(36px)"></div><div style="position: absolute; right: 150px; bottom: -28px; width: 230px; height: 90px; border-radius: 999px; background: #2FC9B8; opacity: 0.5; filter: blur(34px)"></div><div style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; border-radius: 24px; background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0) 45%), rgba(21,36,74,0.78); -webkit-backdrop-filter: blur(22px) saturate(1.7); backdrop-filter: blur(22px) saturate(1.7); border: 1px solid rgba(255,255,255,0.22); box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(255,255,255,0.08), 0 10px 30px rgba(21,36,74,0.28)"></div><div style="position: relative; height: 106px; display: flex; align-items: center; gap: 12px; padding: 0 0 0 24px">
+<div style="flex: none; width: 112px; font-size: 22px; line-height: 1.12; font-weight: 300; color: #FFFFFF">Keeping merchants the <span style="font-weight: 800; color: #6B73FF">hero</span></div>
+<div style="flex: none; width: 1px; height: 54px; background: #3A4A74"></div>
+<div style="flex: none; width: 176px; display: flex; flex-direction: column; gap: 3px"><div style="font-size: 15px; font-weight: 700; color: #FFFFFF">{{ctaTitle}}</div><div style="font-size: 12.5px; color: #C9D0EA">{{ctaSub}}</div></div>
+<div style="flex: none; display: flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 999px; background: linear-gradient(180deg, #8A90FF, #6B73FF); border: 1px solid rgba(255,255,255,0.4); color: #FFFFFF; font-size: 13px; font-weight: 700; box-shadow: inset 0 1px 0 rgba(255,255,255,0.55), 0 4px 14px rgba(107,115,255,0.45)">{{ctaButton}}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4l8 8-8 8"></path></svg></div>
+<img src="onepager-assets/dc/cta-package.png" alt="" style="position: absolute; right: 6px; bottom: 2px; height: 112px; width: auto; display: block">
+</div>
+</div>
+</sc-if>
+
+<footer style="margin: 0 56px; padding: 12px 0 20px; border-top: 1px solid #E1E1EC; display: flex; justify-content: space-between; align-items: center; gap: 16px; font-size: 13px; color: #4A4960">
+<div>Questions? Message&nbsp;<span style="font-weight: 700; color: #17152B">{{repName}}</span>, · {{repEmail}}</div>
+<div style="font-weight: 700; color: {{accent}}">shipinsure.io</div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"audience":{"editor":"enum","options":["Sales team","Store leads","Support team"],"default":"Sales team","section":"Version"},"merchant":{"editor":"text","default":"[Merchant]","section":"Version"},"repName":{"editor":"text","default":"Drew","section":"Contact"},"repEmail":{"editor":"text","default":"drew@shipinsure.io","section":"Contact"},"accent":{"editor":"color","default":"#4F46E5","options":["#4F46E5","#2563EB","#0F766E","#15123B"],"section":"Look"},"showCta":{"editor":"boolean","default":true,"section":"Call to action"},"ctaTitle":{"editor":"text","default":"Need a hand?","section":"Call to action"},"ctaSub":{"editor":"text","default":"Message your ShipInsure contact","section":"Call to action"},"ctaButton":{"editor":"text","default":"Get help","section":"Call to action"},"$preview":{"width":816,"height":1056}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const audience = this.props.audience ?? 'Sales team';
+    return {
+      showCta: this.props.showCta ?? true,
+      ctaTitle: this.props.ctaTitle ?? "Need a hand?",
+      ctaSub: this.props.ctaSub ?? "Message your ShipInsure contact",
+      ctaButton: this.props.ctaButton ?? "Get help",
+      audience: audience,
+      isSales: audience === 'Sales team',
+      isLeads: audience === 'Store leads',
+      isSupport: audience === 'Support team',
+      merchant: this.props.merchant ?? '[Merchant]',
+      repName: this.props.repName ?? 'Drew',
+      repEmail: this.props.repEmail ?? 'drew@shipinsure.io',
+      accent: this.props.accent ?? '#4F46E5'
+    };
+  }
+}
+</script>
+</body>
+</html>

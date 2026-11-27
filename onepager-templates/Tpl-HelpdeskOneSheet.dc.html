@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Helpdesk one-sheeter</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 816px; height: 1056px; box-sizing: border-box; display: flex; flex-direction: column; background: #F4F4F9; color: #1E1E2E; font-family: 'Montserrat', system-ui, sans-serif; overflow: hidden; position: relative">
+
+<div style="position: relative; flex: none; height: 318px; background: {{heroBg}}; overflow: hidden">
+<img src="onepager-assets/dc/hero-phone.png" alt="" style="position: absolute; left: 0; bottom: 0; width: 816px; height: auto; display: block">
+<div style="position: absolute; left: 36px; top: 26px; display: flex; align-items: center; gap: 14px; padding: 11px 26px 11px 22px; border-radius: 999px; background: {{pillBg}}; -webkit-backdrop-filter: blur(16px) saturate(1.6); backdrop-filter: blur(16px) saturate(1.6); border: 1px solid {{pillEdge}}; box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), inset 0 -1px 0 rgba(255,255,255,0.12), 0 6px 20px rgba(10,10,40,0.18)">
+<img src="{{siSrc}}" alt="ShipInsure" style="display: block; height: {{siLogoH}}px; width: auto">
+<div style="font-size: 18px; font-weight: 600; color: {{plusColor}}">+</div>
+<img src="{{partnerSrc}}" alt="{{partnerName}}" style="display: block; height: {{partnerH}}px; width: auto">
+</div>
+<sc-if value="{{showTag}}" hint-placeholder-val="{{ true }}">
+<div style="position: absolute; right: 36px; top: 34px; padding: 8px 15px; border-radius: 999px; background: rgba(255,255,255,0.72); -webkit-backdrop-filter: blur(16px) saturate(1.6); backdrop-filter: blur(16px) saturate(1.6); border: 1px solid rgba(255,255,255,0.65); font-size: 10.5px; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; color: #17152B; box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -1px 0 rgba(255,255,255,0.15), 0 4px 14px rgba(10,10,40,0.16)">{{tag}}</div>
+</sc-if>
+<div style="position: absolute; left: 40px; top: 118px; width: 430px; display: flex; flex-direction: column; gap: 14px; color: #FFFFFF">
+<div style="font-size: 40px; line-height: 1.08; letter-spacing: -0.02em"><span style="font-weight: 300">{{h1a}}</span><br><span style="font-weight: 800">{{h1b}}</span></div>
+<div style="font-size: 14.5px; line-height: 1.45; font-weight: 500; text-shadow: 0 1px 8px rgba(10,10,40,0.35)">{{sub}}</div>
+</div>
+</div>
+
+<div style="flex: 1; display: flex; flex-direction: column; justify-content: space-evenly; padding: 0 48px">
+<div style="display: flex; gap: 22px; align-items: flex-start">
+<div style="flex: none; width: 44px; padding-top: 2px"><svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><rect x="2" y="12" width="20" height="20" rx="6" fill="#B9BEFF"/><rect x="22" y="2" width="18" height="18" rx="5" fill="#8A91FF"/><rect x="16" y="20" width="20" height="20" rx="5" fill="#6B73FF"/></svg></div>
+<div style="display: flex; flex-direction: column; gap: 7px; min-width: 0">
+<div style="font-size: 20px; font-weight: 700; letter-spacing: -0.01em; color: #1E1E2E">{{f1t}}</div>
+<ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 5px; font-size: 13.5px; line-height: 1.4; color: #2C2C3E"><li style="font-weight: 700">{{f1l}}</li><sc-if value="{{f1aShow}}" hint-placeholder-val="{{ true }}"><li>{{f1a}}</li></sc-if><sc-if value="{{f1bShow}}" hint-placeholder-val="{{ true }}"><li>{{f1b}}</li></sc-if></ul>
+</div>
+</div>
+<div style="display: flex; gap: 22px; align-items: flex-start">
+<div style="flex: none; width: 44px; padding-top: 2px"><svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><path d="M22 3c6 5 8 13 6 22H16c-2-9 0-17 6-22z" fill="#6B73FF"/><circle cx="22" cy="16" r="3.4" fill="#fff"/><path d="M16 22l-7 8 8-1zM28 22l7 8-8-1z" fill="#B9BEFF"/><path d="M19 28h6l-3 10z" fill="#8A91FF"/></svg></div>
+<div style="display: flex; flex-direction: column; gap: 7px; min-width: 0">
+<div style="font-size: 20px; font-weight: 700; letter-spacing: -0.01em; color: #1E1E2E">{{f2t}}</div>
+<ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 5px; font-size: 13.5px; line-height: 1.4; color: #2C2C3E"><li style="font-weight: 700">{{f2l}}</li><sc-if value="{{f2aShow}}" hint-placeholder-val="{{ true }}"><li>{{f2a}}</li></sc-if><sc-if value="{{f2bShow}}" hint-placeholder-val="{{ true }}"><li>{{f2b}}</li></sc-if></ul>
+</div>
+</div>
+<div style="display: flex; gap: 22px; align-items: flex-start">
+<div style="flex: none; width: 44px; padding-top: 2px"><svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><path d="M22 4l18 9-18 9-18-9z" fill="#C9CCFF"/><path d="M4 22l18 9 18-9" fill="none" stroke="#8A91FF" stroke-width="4" stroke-linejoin="round"/><path d="M4 31l18 9 18-9" fill="none" stroke="#6B73FF" stroke-width="4" stroke-linejoin="round"/></svg></div>
+<div style="display: flex; flex-direction: column; gap: 7px; min-width: 0">
+<div style="font-size: 20px; font-weight: 700; letter-spacing: -0.01em; color: #1E1E2E">{{f3t}}</div>
+<ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 5px; font-size: 13.5px; line-height: 1.4; color: #2C2C3E"><li style="font-weight: 700">{{f3l}}</li><sc-if value="{{f3aShow}}" hint-placeholder-val="{{ true }}"><li>{{f3a}}</li></sc-if><sc-if value="{{f3bShow}}" hint-placeholder-val="{{ true }}"><li>{{f3b}}</li></sc-if></ul>
+</div>
+</div>
+<div style="display: flex; gap: 22px; align-items: flex-start">
+<div style="flex: none; width: 44px; padding-top: 2px"><svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><circle cx="15" cy="27" r="12" fill="#CDD0FF"/><circle cx="26" cy="19" r="12" fill="#6B73FF"/></svg></div>
+<div style="display: flex; flex-direction: column; gap: 7px; min-width: 0">
+<div style="font-size: 20px; font-weight: 700; letter-spacing: -0.01em; color: #1E1E2E">{{f4t}}</div>
+<ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 5px; font-size: 13.5px; line-height: 1.4; color: #2C2C3E"><li style="font-weight: 700">{{f4l}}</li><sc-if value="{{f4aShow}}" hint-placeholder-val="{{ true }}"><li>{{f4a}}</li></sc-if><sc-if value="{{f4bShow}}" hint-placeholder-val="{{ true }}"><li>{{f4b}}</li></sc-if></ul>
+</div>
+</div>
+</div>
+
+<sc-if value="{{showCta}}" hint-placeholder-val="{{ true }}">
+<div style="position: relative; flex: none; margin: 0 36px; height: 106px"><div style="position: absolute; left: -26px; top: -22px; width: 210px; height: 150px; border-radius: 999px; background: #6B73FF; opacity: 0.6; filter: blur(36px)"></div><div style="position: absolute; right: 150px; bottom: -28px; width: 230px; height: 90px; border-radius: 999px; background: #2FC9B8; opacity: 0.5; filter: blur(34px)"></div><div style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; border-radius: 24px; background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0) 45%), rgba(21,36,74,0.78); -webkit-backdrop-filter: blur(22px) saturate(1.7); backdrop-filter: blur(22px) saturate(1.7); border: 1px solid rgba(255,255,255,0.22); box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(255,255,255,0.08), 0 10px 30px rgba(21,36,74,0.28)"></div><div style="position: relative; height: 106px; display: flex; align-items: center; gap: 12px; padding: 0 0 0 24px">
+<div style="flex: none; width: 112px; font-size: 22px; line-height: 1.12; font-weight: 300; color: #FFFFFF">Keeping merchants the <span style="font-weight: 800; color: #6B73FF">hero</span></div>
+<div style="flex: none; width: 1px; height: 54px; background: #3A4A74"></div>
+<div style="flex: none; width: 176px; display: flex; flex-direction: column; gap: 3px"><div style="font-size: 15px; font-weight: 700; color: #FFFFFF">{{ctaTitle}}</div><div style="font-size: 12.5px; color: #C9D0EA">{{ctaSub}}</div></div>
+<div style="flex: none; display: flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 999px; background: linear-gradient(180deg, #8A90FF, #6B73FF); border: 1px solid rgba(255,255,255,0.4); color: #FFFFFF; font-size: 13px; font-weight: 700; box-shadow: inset 0 1px 0 rgba(255,255,255,0.55), 0 4px 14px rgba(107,115,255,0.45)">{{ctaButton}}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4l8 8-8 8"></path></svg></div>
+<img src="onepager-assets/dc/cta-package.png" alt="" style="position: absolute; right: 6px; bottom: 2px; height: 112px; width: auto; display: block">
+</div>
+</div>
+</sc-if>
+<div style="flex: none; padding: 9px 48px 18px; font-size: 10px; line-height: 1.4; color: #7A84A6; min-height: 14px">{{footnote}}</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;partner&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Kustomer&quot;,&quot;Chatbase&quot;,&quot;Gladly&quot;,&quot;Intercom&quot;,&quot;Richpanel&quot;,&quot;Zendesk&quot;,&quot;Gorgias&quot;,&quot;Freshdesk&quot;,&quot;Seal Subscriptions&quot;,&quot;Custom (replace image)&quot;],&quot;default&quot;:&quot;Custom (replace image)&quot;,&quot;section&quot;:&quot;Partner&quot;},&quot;partnerScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:60,&quot;max&quot;:160,&quot;step&quot;:5,&quot;unit&quot;:&quot;%&quot;,&quot;default&quot;:100,&quot;section&quot;:&quot;Partner&quot;},&quot;pillTone&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Auto&quot;,&quot;Light&quot;,&quot;Dark&quot;],&quot;default&quot;:&quot;Auto&quot;,&quot;section&quot;:&quot;Partner&quot;},&quot;siLogo&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Auto&quot;,&quot;Horizontal · blue&quot;,&quot;Horizontal · blue/white&quot;,&quot;Horizontal · light grey&quot;,&quot;Horizontal · dark&quot;,&quot;Horizontal · black&quot;,&quot;Vertical · blue&quot;,&quot;Vertical · blue/white&quot;,&quot;Vertical · light grey&quot;,&quot;Vertical · dark&quot;],&quot;default&quot;:&quot;Auto&quot;,&quot;section&quot;:&quot;Partner&quot;},&quot;siLogoH&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:16,&quot;max&quot;:48,&quot;step&quot;:2,&quot;unit&quot;:&quot;px&quot;,&quot;default&quot;:26,&quot;section&quot;:&quot;Partner&quot;},&quot;heroTone&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Auto&quot;,&quot;Purple / teal&quot;,&quot;Blue&quot;,&quot;Navy&quot;],&quot;default&quot;:&quot;Auto&quot;,&quot;section&quot;:&quot;Hero&quot;},&quot;showTag&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Hero&quot;},&quot;tag&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;section&quot;:&quot;Hero&quot;},&quot;h1a&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;section&quot;:&quot;Hero&quot;},&quot;h1b&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;section&quot;:&quot;Hero&quot;},&quot;sub&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;section&quot;:&quot;Hero&quot;},&quot;showCta&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Call to action&quot;},&quot;ctaTitle&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;section&quot;:&quot;Call to action&quot;},&quot;ctaSub&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;section&quot;:&quot;Call to action&quot;},&quot;ctaButton&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;section&quot;:&quot;Call to action&quot;},&quot;footnote&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;section&quot;:&quot;Call to action&quot;},&quot;f1t&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;section&quot;:&quot;Feature 1&quot;},&quot;f1l&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;section&quot;:&quot;Feature 1&quot;},&quot;f1a&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;section&quot;:&quot;Feature 1&quot;},&quot;f1b&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;section&quot;:&quot;Feature 1&quot;},&quot;f2t&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;section&quot;:&quot;Feature 2&quot;},&quot;f2l&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;section&quot;:&quot;Feature 2&quot;},&quot;f2a&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;section&quot;:&quot;Feature 2&quot;},&quot;f2b&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;section&quot;:&quot;Feature 2&quot;},&quot;f3t&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;section&quot;:&quot;Feature 3&quot;},&quot;f3l&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;section&quot;:&quot;Feature 3&quot;},&quot;f3a&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;section&quot;:&quot;Feature 3&quot;},&quot;f3b&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;section&quot;:&quot;Feature 3&quot;},&quot;f4t&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;section&quot;:&quot;Feature 4&quot;},&quot;f4l&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;section&quot;:&quot;Feature 4&quot;},&quot;f4a&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;section&quot;:&quot;Feature 4&quot;},&quot;f4b&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;section&quot;:&quot;Feature 4&quot;},&quot;$preview&quot;:{&quot;width&quot;:816,&quot;height&quot;:1056}}">
+class Component extends DCLogic {
+  renderVals() {
+    var p = this.props;
+    var siLogos = {
+      'Horizontal · blue': 'onepager-assets/si2-logo-h-blue.png', 'Horizontal · blue/white': 'onepager-assets/si2-logo-h-blue-white.png',
+      'Horizontal · light grey': 'onepager-assets/si2-logo-h-grey.png', 'Horizontal · dark': 'onepager-assets/si2-logo-h-dark.png',
+      'Horizontal · black': 'onepager-assets/si2-logo-h-black.png', 'Vertical · blue': 'onepager-assets/si2-logo-v-blue.png',
+      'Vertical · blue/white': 'onepager-assets/si2-logo-v-blue-white.png', 'Vertical · light grey': 'onepager-assets/si2-logo-v-grey.png',
+      'Vertical · dark': 'onepager-assets/si2-logo-v-dark.png'
+    };
+    // Add a partner: upload the logo, add one line here (src, height px, dark pill?) and one option in the props.
+    var partners = {
+      'Kustomer':  { src: 'onepager-assets/dc/partner-kustomer.png', h: 27, dark: false },
+      'Chatbase':  { src: 'onepager-assets/dc/partner-chatbase.png', h: 18, dark: false },
+      'Gladly':    { src: 'onepager-assets/dc/partner-gladly.png', h: 27, dark: false },
+      'Intercom':  { src: 'onepager-assets/dc/partner-intercom.png', h: 27, dark: false },
+      'Richpanel': { src: 'onepager-assets/dc/partner-richpanel.png', h: 22, dark: false },
+      'Zendesk':   { src: 'onepager-assets/dc/partner-zendesk.png', h: 27, dark: false },
+      'Gorgias':   { src: 'onepager-assets/dc/partner-gorgias.png', h: 28, dark: true },
+      'Freshdesk': { src: 'onepager-assets/dc/partner-freshdesk.png', h: 30, dark: true },
+      'Seal Subscriptions': { src: 'onepager-assets/dc/partner-seal.png', h: 27, dark: false },
+      'Custom (replace image)': { src: 'onepager-assets/dc/merchant-logo-placeholder.png', h: 27, dark: false }
+    };
+    var name = p.partner ?? 'Kustomer';
+    var part = partners[name] || partners['Custom (replace image)'];
+    var tone = p.pillTone ?? 'Auto';
+    var dark = tone === 'Auto' ? part.dark : tone === 'Dark';
+    var siLogo = p.siLogo ?? 'Auto';
+    var siSrc = siLogo === 'Auto' ? siLogos[dark ? 'Horizontal · blue/white' : 'Horizontal · blue'] : (siLogos[siLogo] || siLogos['Horizontal · blue']);
+    // Copy follows the partner (from the partner one-sheeters). Any field you type in Tweaks overrides it.
+    var copies = {
+ "Kustomer": {
+  "tag": "Beta for Kustomer merchants",
+  "hero": "Purple / teal",
+  "h1a": "2 Trusted Platforms,",
+  "h1b": "1 Easy Solution",
+  "sub": "Agents see orders, protection, and claim status on the insight panel, and file or view a claim without retyping the order.",
+  "ctaTitle": "Want it on your queue?",
+  "ctaSub": "We'll install it with you.",
+  "ctaButton": "Book a 15-minute walkthrough",
+  "footnote": "No developer. If ShipInsure is not in your app directory, ask us and we'll help you install it.",
+  "f1t": "On the insight panel",
+  "f1l": "See ShipInsure orders without leaving the Kustomer conversation",
+  "f1a": "The Orders card shows Protected, Has Claim, and the claim status and reason.",
+  "f1b": "No email on the customer? Search by email right on the card.",
+  "f2t": "File the claim in one click",
+  "f2l": "View Order, File Claim, and View Claim open from the card.",
+  "f2a": "Lost, stolen, or damaged: the agent starts the claim without retyping the order.",
+  "f2b": "",
+  "f3t": "No developer needed",
+  "f3l": "Generate a key in the portal under Integrations, Helpdesk, Kustomer.",
+  "f3a": "Paste it into Settings, Apps, ShipInsure, then open a conversation and check the card.",
+  "f3b": "",
+  "f4t": "Answer on the first reply",
+  "f4l": "Protection and claim status are on the card before the agent writes back.",
+  "f4a": "That first reply can close the question, which means fewer follow-up tickets.",
+  "f4b": ""
+ },
+ "Chatbase": {
+  "tag": "Setup with ShipInsure",
+  "hero": "Purple / teal",
+  "h1a": "2 Trusted Platforms,",
+  "h1b": "1 Easy Solution",
+  "sub": "The ChatBase agent answers whether an order is protected and where a claim stands, and shares the file-a-claim link in the chat.",
+  "ctaTitle": "Want it on your chat?",
+  "ctaSub": "ShipInsure sends the values. You paste them in.",
+  "ctaButton": "Book a 15-minute walkthrough",
+  "footnote": "No developer. Lookup needs the shopper's email and order number. The key is never shown to customers.",
+  "f1t": "In the chat",
+  "f1l": "Shoppers ask about protection and a claim without waiting on an agent.",
+  "f1a": "The agent asks for the email and the order number before it looks anything up.",
+  "f1b": "It says whether the order is protected and where a claim stands.",
+  "f2t": "The claim link",
+  "f2l": "Lost, stolen, or damaged: the agent shares the File a Claim link.",
+  "f2a": "An open claim gets a link to view it.",
+  "f2b": "An order that is not protected gets an offer to reach the team.",
+  "f3t": "No developer needed",
+  "f3l": "Paste the values ShipInsure sends into ChatBase.",
+  "f3a": "Add a short note on protection, the agent instructions, and one custom action.",
+  "f3b": "The key is generated at Integrations, Helpdesk, ChatBase.",
+  "f4t": "Fewer status tickets",
+  "f4l": "Routine protection and claim-status questions are answered in the chat.",
+  "f4a": "Your team keeps the conversations that need a person.",
+  "f4b": ""
+ },
+ "Gladly": {
+  "tag": "Assisted install",
+  "hero": "Purple / teal",
+  "h1a": "2 Trusted Platforms,",
+  "h1b": "1 Easy Solution",
+  "sub": "Agents see each order, whether it is protected, and the claim, on the Gladly customer profile, and start a claim in one click.",
+  "ctaTitle": "Want it on your queue?",
+  "ctaSub": "ShipInsure installs the app. You generate the key.",
+  "ctaButton": "Book a 15-minute walkthrough",
+  "footnote": "No developer. The card is only visible to your team. Your key is never shown to customers.",
+  "f1t": "On the customer profile",
+  "f1l": "A ShipInsure Orders card for the customer in the conversation.",
+  "f1a": "Each order shows Protected and Has Claim.",
+  "f1b": "The most recent order is expanded. The rest stay on the card.",
+  "f2t": "One click from the card",
+  "f2l": "View order, File a claim, or View claim, without retyping the order.",
+  "f2a": "The card shows the claim type, status, and resolution.",
+  "f2b": "Lost, stolen, or damaged: the agent starts the claim from that profile.",
+  "f3t": "No developer needed",
+  "f3l": "ShipInsure installs the app for you.",
+  "f3a": "Generate a key at Integrations, Helpdesk, Gladly.",
+  "f3b": "A Gladly admin asks Gladly Support to turn on App Platform, then creates a token.",
+  "f4t": "Answer on the first reply",
+  "f4l": "Protection and claim status are on the card before the agent writes back.",
+  "f4a": "That first reply can close the question, so fewer follow-ups on the same order.",
+  "f4b": ""
+ },
+ "Intercom": {
+  "tag": "Live for Intercom merchants",
+  "hero": "Purple / teal",
+  "h1a": "2 Trusted Platforms,",
+  "h1b": "1 Easy Solution",
+  "sub": "Fin answers protection and claim status in the chat. Agents see the order and a file-a-claim link right beside it.",
+  "ctaTitle": "Turn it on for your team",
+  "ctaSub": "Fin, the sidebar, or both.",
+  "ctaButton": "Enable in Merchant Portal",
+  "footnote": "Fin needs an Intercom plan with Fin and the Messenger. Nothing extra to host.",
+  "f1t": "Effortless workflow",
+  "f1l": "Handle protection and claims without leaving Intercom",
+  "f1a": "Fin answers whether an order is protected and where a claim stands, in the chat.",
+  "f1b": "Agents see that customer's orders, protection, and claims beside the conversation.",
+  "f2t": "Claims filing made easy",
+  "f2l": "Lost, stolen, or damaged: Fin shares the file-a-claim link in the chat.",
+  "f2a": "Agents open View claim or File a claim from the sidebar, one click from the card.",
+  "f2b": "",
+  "f3t": "No developer needed",
+  "f3l": "Copy the values from Integrations, Helpdesk, Intercom in the merchant portal.",
+  "f3a": "About 15 minutes for Fin, about 5 for the sidebar. Each tab shows Working once Intercom connects.",
+  "f3b": "",
+  "f4t": "Fewer status tickets",
+  "f4l": "Fin takes routine protection and claim-status questions.",
+  "f4a": "Your team keeps the conversations that need a person, instead of looking up the same order twice.",
+  "f4b": ""
+ },
+ "Seal Subscriptions": {
+  "tag": "New for Seal merchants",
+  "hero": "Blue",
+  "h1a": "2 Trusted Platforms,",
+  "h1b": "1 Easy Solution",
+  "sub": "Protection stays on every Seal renewal when the shopper chose it at checkout, and the price follows the subscription.",
+  "ctaTitle": "Want it on renewals?",
+  "ctaSub": "Copy the key and secret in Seal, then add them in ShipInsure.",
+  "ctaButton": "Book a 15-minute walkthrough",
+  "footnote": "Shopify only. One subscription platform per merchant. Added only when the first order included protection.",
+  "f1t": "On every renewal",
+  "f1l": "If the first order included ShipInsure, protection is added to the subscription.",
+  "f1a": "It is a recurring item, so each renewal stays covered.",
+  "f1b": "If the shopper did not choose it, ShipInsure does not add it.",
+  "f2t": "The price follows the box",
+  "f2l": "Update, resume, or reactivate, and protection moves to the right price.",
+  "f2a": "Remove protection, and it stays off.",
+  "f2b": "If only protection is left, that subscription is cancelled.",
+  "f3t": "No developer needed",
+  "f3l": "Copy the API key and API secret from Seal, and add both in ShipInsure.",
+  "f3a": "ShipInsure checks the pair before saving.",
+  "f3b": "Turn on notifications. The seven Seal events show as active or missing.",
+  "f4t": "Stays out of tax and shipping",
+  "f4l": "Protection is a non-taxable item that does not need shipping.",
+  "f4a": "It does not change shipping rates or the tax setup.",
+  "f4b": "Each Seal notification is checked for a valid signature first."
+ },
+ "Zendesk": {
+  "tag": "",
+  "hero": "Purple / teal",
+  "h1a": "2 Trusted Platforms,",
+  "h1b": "1 Easy Solution",
+  "sub": "File claims for customers from the Zendesk dashboard, without switching platforms.",
+  "ctaTitle": "Want it on your queue?",
+  "ctaSub": "We'll install it with you.",
+  "ctaButton": "Book a 15-minute walkthrough",
+  "footnote": "",
+  "f1t": "Effortless workflow",
+  "f1l": "Handle all claims without leaving the Zendesk platform",
+  "f1a": "Simplify the entire claims handling process, reducing manual steps.",
+  "f1b": "Respond to customer inquiries swiftly, saving time and improving the customer experience.",
+  "f2t": "Claims filing made easy",
+  "f2l": "File claims on behalf of customers effortlessly.",
+  "f2a": "Specify issues (lost or damaged) and choose between refund or reshipment with ease.",
+  "f2b": "",
+  "f3t": "Streamlined claims initiation",
+  "f3l": "No more platform switching! Access ShipInsure claims management right from your Zendesk dashboard.",
+  "f3a": "Every customer order displays a dedicated \"File a claim\" button.",
+  "f3b": "",
+  "f4t": "Double revenue",
+  "f4l": "ShipInsure shoulders the expenses and logistics of refunds and repurchases for customers who opt for package protection at checkout.",
+  "f4a": "",
+  "f4b": ""
+ },
+ "Richpanel": {
+  "tag": "",
+  "hero": "Purple / teal",
+  "h1a": "2 Trusted Platforms,",
+  "h1b": "1 Easy Solution",
+  "sub": "File claims for customers from the Richpanel dashboard, without switching platforms.",
+  "ctaTitle": "Want it on your queue?",
+  "ctaSub": "We'll install it with you.",
+  "ctaButton": "Book a 15-minute walkthrough",
+  "footnote": "",
+  "f1t": "Effortless workflow",
+  "f1l": "Handle all claims without leaving the Richpanel platform",
+  "f1a": "Simplify the entire claims handling process, reducing manual steps.",
+  "f1b": "Respond to customer inquiries swiftly, saving time and improving the customer experience.",
+  "f2t": "Claims filing made easy",
+  "f2l": "File claims on behalf of customers effortlessly.",
+  "f2a": "Specify issues (lost or damaged) and choose between refund or reshipment with ease.",
+  "f2b": "",
+  "f3t": "Streamlined claims initiation",
+  "f3l": "No more platform switching! Access ShipInsure claims management right from your Richpanel dashboard.",
+  "f3a": "Every customer order displays a dedicated \"File a claim\" button.",
+  "f3b": "",
+  "f4t": "Double revenue",
+  "f4l": "ShipInsure shoulders the expenses and logistics of refunds and repurchases for customers who opt for package protection at checkout.",
+  "f4a": "",
+  "f4b": ""
+ },
+ "Gorgias": {
+  "tag": "",
+  "hero": "Purple / teal",
+  "h1a": "2 Trusted Platforms,",
+  "h1b": "1 Easy Solution",
+  "sub": "File claims for customers from the Gorgias dashboard, without switching platforms.",
+  "ctaTitle": "Want it on your queue?",
+  "ctaSub": "We'll install it with you.",
+  "ctaButton": "Book a 15-minute walkthrough",
+  "footnote": "",
+  "f1t": "Streamlined claims initiation",
+  "f1l": "No more platform switching! Access ShipInsure claims management right from your Gorgias dashboard.",
+  "f1a": "Every customer order displays a dedicated \"File a claim\" button.",
+  "f1b": "",
+  "f2t": "Effortless workflow",
+  "f2l": "Handle all claims without leaving the Gorgias platform.",
+  "f2a": "Simplify the entire claims handling process, reducing manual steps.",
+  "f2b": "Respond to customer inquiries swiftly, saving time and improving the customer experience.",
+  "f3t": "Dedicated support and maintenance",
+  "f3l": "We've got your back with ongoing support and maintenance.",
+  "f3a": "Address issues, bugs, or updates promptly for uninterrupted service.",
+  "f3b": "",
+  "f4t": "Real-time customer notifications",
+  "f4l": "Customers receive instant updates on the status of their claims, enhancing transparency and trust.",
+  "f4a": "",
+  "f4b": ""
+ },
+ "Freshdesk": {
+  "tag": "",
+  "hero": "Purple / teal",
+  "h1a": "2 Trusted Platforms,",
+  "h1b": "1 Easy Solution",
+  "sub": "Order and claim information, right inside your FreshDesk environment.",
+  "ctaTitle": "Want it on your queue?",
+  "ctaSub": "We'll install it with you.",
+  "ctaButton": "Book a 15-minute walkthrough",
+  "footnote": "",
+  "f1t": "Orders and claims in FreshDesk",
+  "f1l": "Access order and claim information directly within the FreshDesk environment.",
+  "f1a": "Resolve issues faster with real-time data.",
+  "f1b": "",
+  "f2t": "File the claim from the ticket",
+  "f2l": "Look up the order, describe the situation, and submit, all in the Resolution Center.",
+  "f2a": "Select the item and describe the situation.",
+  "f2b": "",
+  "f3t": "No developer needed",
+  "f3l": "[Setup: where to generate the key in the portal.]",
+  "f3a": "[Where to paste it, and how to check it works.]",
+  "f3b": "",
+  "f4t": "Better customer satisfaction",
+  "f4l": "Faster issue resolution for your support team and agents.",
+  "f4a": "",
+  "f4b": ""
+ },
+ "Custom (replace image)": {
+  "tag": "[Status] for [Platform] merchants",
+  "hero": "Purple / teal",
+  "h1a": "2 Trusted Platforms,",
+  "h1b": "1 Easy Solution",
+  "sub": "[One sentence: what agents see in the helpdesk and what they can do without retyping the order.]",
+  "ctaTitle": "[Want it on your queue?]",
+  "ctaSub": "[We'll install it with you.]",
+  "ctaButton": "[Book a 15-minute walkthrough]",
+  "footnote": "[Footnote: install note, platform limits, or availability.]",
+  "f1t": "[Where it shows up]",
+  "f1l": "[Bold lead: what the agent sees without leaving the helpdesk]",
+  "f1a": "[Supporting detail on the card or panel.]",
+  "f1b": "[Edge case, e.g. no email on the customer.]",
+  "f2t": "[The one-click action]",
+  "f2l": "[Bold lead: actions available from the card.]",
+  "f2a": "[Lost, stolen, or damaged: what the agent can start from here.]",
+  "f2b": "",
+  "f3t": "No developer needed",
+  "f3l": "[Bold lead: where to generate the key in the portal.]",
+  "f3a": "[Where to paste it, and how to check it works.]",
+  "f3b": "",
+  "f4t": "[The payoff]",
+  "f4l": "[Bold lead: what is on the card before the agent writes back.]",
+  "f4a": "[Outcome: fewer follow-up tickets.]",
+  "f4b": ""
+ }
+};
+    var copy = copies[name] || copies['Custom (replace image)'];
+    var tagText = (p.tag && p.tag.trim()) ? p.tag : (copy.tag || '');
+    var pick = function (k) { var v = p[k]; return (v && String(v).trim()) ? v : (copy[k] || ''); };
+    var heroes = {
+      'Purple / teal': 'linear-gradient(115deg, #46285f 0%, #2c6f94 48%, #9ce2d8 100%)',
+      'Blue': 'linear-gradient(115deg, #0a3fa0 0%, #2a6fd6 50%, #a8c8f5 100%)',
+      'Navy': 'linear-gradient(115deg, #15123B 0%, #3A3FA8 55%, #A9AEFF 100%)'
+    };
+    return {
+      heroBg: heroes[(p.heroTone && p.heroTone !== 'Auto') ? p.heroTone : (copy.hero || 'Purple / teal')] || heroes['Purple / teal'],
+      pillBg: dark ? 'rgba(6,0,30,0.92)' : 'rgba(255,255,255,0.7)',
+      pillEdge: dark ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.65)',
+      plusColor: dark ? '#FFFFFF' : '#6B73FF',
+      siSrc: siSrc,
+      siLogoH: p.siLogoH ?? 26,
+      partnerSrc: part.src,
+      partnerName: name,
+      partnerH: Math.round(part.h * (p.partnerScale ?? 100) / 100),
+      showTag: (p.showTag ?? true) && tagText !== '',
+      tag: tagText,
+      h1a: pick('h1a'), h1b: pick('h1b'), sub: pick('sub'),
+      showCta: p.showCta ?? true,
+      ctaTitle: pick('ctaTitle'), ctaSub: pick('ctaSub'), ctaButton: pick('ctaButton'),
+      footnote: pick('footnote'),
+      f1t: pick('f1t'), f1l: pick('f1l'), f1a: pick('f1a'), f1b: pick('f1b'), f1aShow: pick('f1a') !== '', f1bShow: pick('f1b') !== '',
+      f2t: pick('f2t'), f2l: pick('f2l'), f2a: pick('f2a'), f2b: pick('f2b'), f2aShow: pick('f2a') !== '', f2bShow: pick('f2b') !== '',
+      f3t: pick('f3t'), f3l: pick('f3l'), f3a: pick('f3a'), f3b: pick('f3b'), f3aShow: pick('f3a') !== '', f3bShow: pick('f3b') !== '',
+      f4t: pick('f4t'), f4l: pick('f4l'), f4a: pick('f4a'), f4b: pick('f4b'), f4aShow: pick('f4a') !== '', f4bShow: pick('f4b') !== ''
+    };
+  }
+}
+</script>
+</body>
+</html>

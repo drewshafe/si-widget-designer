@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Subscriptions</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 816px; height: 1056px; box-sizing: border-box; display: flex; flex-direction: column; background: #FFFFFF; color: #17152B; font-family: 'Montserrat', system-ui, sans-serif; overflow: hidden; position: relative">
+
+<header style="position: relative; flex: none; box-sizing: border-box; min-height: 152px; background: #FFFFFF; border-bottom: 1px solid #E1E1EC; overflow: hidden">
+<sc-if value="{{showHero}}" hint-placeholder-val="{{ true }}">
+<img src="onepager-assets/si2-hero-grey.png" alt="" aria-hidden="true" style="position: absolute; right: 56px; top: 34px; height: {{heroSize}}px; width: auto">
+</sc-if>
+<div style="position: relative; box-sizing: border-box; min-height: 152px; padding: 26px 56px 24px; display: flex; flex-direction: column; justify-content: space-between; gap: 18px">
+<div style="display: flex; align-items: center; gap: 16px">
+<img src="{{siLogoSrc}}" alt="ShipInsure" style="display: block; height: {{siLogoH}}px; width: auto">
+<sc-if value="{{showMerchantLogo}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; align-items: center; gap: 16px">
+<div style="width: 1px; height: 38px; background: #C9C9DA"></div>
+<img src="onepager-assets/dc/merchant-logo-placeholder.png" alt="Merchant logo" style="display: block; height: 28px; width: auto">
+</div>
+</sc-if>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<h1 style="margin: 0; font-size: 34px; font-weight: 800; line-height: 1.12; letter-spacing: -0.015em; color: #17152B">Subscriptions fit</h1>
+<div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap">
+<div style="font-size: 15px; font-weight: 500; color: #4A4960">{{merchant}} × ShipInsure · {{meetingDate}}</div>
+<div style="font-size: 12px; font-weight: 600; padding: 5px 11px; border: 1px solid #C9C9DA; border-radius: 6px; background: #FFFFFF; color: #17152B">For: {{audience}}</div>
+</div>
+</div>
+</div>
+</header>
+
+<main style="flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 236px; gap: 28px; align-items: start; padding: 26px 56px 32px">
+
+<div style="display: flex; flex-direction: column; gap: 22px; min-width: 0">
+
+<section style="display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: {{accent}}">What we heard</div>
+<ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px">
+<li style="display: flex; gap: 12px; align-items: baseline">
+<div style="flex: none; width: 7px; height: 7px; border-radius: 2px; background: {{accent}}; transform: translateY(-2px)"></div>
+<div style="font-size: 15px; line-height: 1.5">[Subscription platform and how renewals are created]</div>
+</li>
+<li style="display: flex; gap: 12px; align-items: baseline">
+<div style="flex: none; width: 7px; height: 7px; border-radius: 2px; background: {{accent}}; transform: translateY(-2px)"></div>
+<div style="font-size: 15px; line-height: 1.5">[Share of orders that are recurring]</div>
+</li>
+<li style="display: flex; gap: 12px; align-items: baseline">
+<div style="flex: none; width: 7px; height: 7px; border-radius: 2px; background: {{accent}}; transform: translateY(-2px)"></div>
+<div style="font-size: 15px; line-height: 1.5">[Concern about protection on repeat shipments]</div>
+</li>
+</ul>
+</section>
+<section style="display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: {{accent}}">How protection fits recurring orders</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 10px; background: #F3F3FC">
+<div style="font-size: 14.5px; font-weight: 700">First order</div>
+<div style="font-size: 13px; line-height: 1.45; color: #4A4960">[How protection is offered at the initial checkout]</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 10px; background: #F3F3FC">
+<div style="font-size: 14.5px; font-weight: 700">Renewals</div>
+<div style="font-size: 13px; line-height: 1.45; color: #4A4960">[How protection applies to each recurring shipment. Confirm with the team before sending.]</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 10px; background: #F3F3FC">
+<div style="font-size: 14.5px; font-weight: 700">Open questions</div>
+<div style="font-size: 13px; line-height: 1.45; color: #4A4960">[Anything still being confirmed, with an owner and date]</div>
+</div>
+</div>
+</section>
+<section style="display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: {{accent}}">Agreed next steps</div>
+<table style="width: 100%; border-collapse: collapse; font-size: 14px; line-height: 1.4">
+<thead><tr><th style="text-align: left; font-size: 12px; font-weight: 700; color: #4A4960; border-bottom: 1px solid #C9C9DA; padding: 0 12px 8px 0">Step</th><th style="text-align: left; font-size: 12px; font-weight: 700; color: #4A4960; border-bottom: 1px solid #C9C9DA; padding: 0 12px 8px 0; width: 90px">Owner</th><th style="text-align: left; font-size: 12px; font-weight: 700; color: #4A4960; border-bottom: 1px solid #C9C9DA; padding: 0 0 8px 0; width: 72px">Date</th></tr></thead>
+<tbody>
+<tr><td style="padding: 10px 12px 10px 0; border-bottom: 1px solid #E1E1EC; font-weight: 700">[Next step]</td><td style="padding: 10px 12px 10px 0; border-bottom: 1px solid #E1E1EC">[Owner]</td><td style="padding: 10px 0 10px 0; border-bottom: 1px solid #E1E1EC">[Date]</td></tr>
+<tr><td style="padding: 10px 12px 10px 0; border-bottom: 1px solid #E1E1EC; font-weight: 700">[Next step]</td><td style="padding: 10px 12px 10px 0; border-bottom: 1px solid #E1E1EC">[Owner]</td><td style="padding: 10px 0 10px 0; border-bottom: 1px solid #E1E1EC">[Date]</td></tr>
+<tr><td style="padding: 10px 12px 10px 0; border-bottom: 1px solid #E1E1EC; font-weight: 700">[Next step]</td><td style="padding: 10px 12px 10px 0; border-bottom: 1px solid #E1E1EC">[Owner]</td><td style="padding: 10px 0 10px 0; border-bottom: 1px solid #E1E1EC">[Date]</td></tr>
+</tbody>
+</table>
+</section>
+
+</div>
+
+<aside style="display: flex; flex-direction: column; gap: 16px">
+<div style="background: #F3F3FC; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: {{accent}}">Subscription setup</div>
+<div style="display: flex; flex-direction: column; gap: 2px"><div style="font-size: 12px; font-weight: 600; color: #4A4960">Platform</div><div style="font-size: 14px; font-weight: 600; line-height: 1.4">[Recharge / Skio / Loop / other]</div></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><div style="font-size: 12px; font-weight: 600; color: #4A4960">Billing cadence</div><div style="font-size: 14px; font-weight: 600; line-height: 1.4">[Monthly / custom]</div></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><div style="font-size: 12px; font-weight: 600; color: #4A4960">Recurring share of orders</div><div style="font-size: 14px; font-weight: 600; line-height: 1.4">[%]</div></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><div style="font-size: 12px; font-weight: 600; color: #4A4960">Target go-live</div><div style="font-size: 14px; font-weight: 600; line-height: 1.4">[Date]</div></div>
+</div>
+<div style="border: 1px solid #3C3A7A; border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 6px; background: radial-gradient(ellipse 110% 130% at 85% 105%, rgba(70, 82, 230, 0.75) 0%, rgba(70, 82, 230, 0) 70%), #15123B">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #C5C7F6">Your ShipInsure contact</div>
+<div style="font-size: 16px; font-weight: 700; color: #FFFFFF">{{repName}}</div>
+<div style="font-size: 13px; color: #D5D6F5">{{repEmail}}</div>
+<div style="font-size: 13px; color: #D5D6F5">{{repPhone}}</div>
+</div>
+</aside>
+
+</main>
+
+<sc-if value="{{showCta}}" hint-placeholder-val="{{ true }}">
+<div style="position: relative; flex: none; margin: 14px 56px 22px; height: 106px"><div style="position: absolute; left: -26px; top: -22px; width: 210px; height: 150px; border-radius: 999px; background: #6B73FF; opacity: 0.6; filter: blur(36px)"></div><div style="position: absolute; right: 150px; bottom: -28px; width: 230px; height: 90px; border-radius: 999px; background: #2FC9B8; opacity: 0.5; filter: blur(34px)"></div><div style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; border-radius: 24px; background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0) 45%), rgba(21,36,74,0.78); -webkit-backdrop-filter: blur(22px) saturate(1.7); backdrop-filter: blur(22px) saturate(1.7); border: 1px solid rgba(255,255,255,0.22); box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(255,255,255,0.08), 0 10px 30px rgba(21,36,74,0.28)"></div><div style="position: relative; height: 106px; display: flex; align-items: center; gap: 12px; padding: 0 0 0 24px">
+<div style="flex: none; width: 112px; font-size: 22px; line-height: 1.12; font-weight: 300; color: #FFFFFF">Keeping merchants the <span style="font-weight: 800; color: #6B73FF">hero</span></div>
+<div style="flex: none; width: 1px; height: 54px; background: #3A4A74"></div>
+<div style="flex: none; width: 176px; display: flex; flex-direction: column; gap: 3px"><div style="font-size: 15px; font-weight: 700; color: #FFFFFF">{{ctaTitle}}</div><div style="font-size: 12.5px; color: #C9D0EA">{{ctaSub}}</div></div>
+<div style="flex: none; display: flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 999px; background: linear-gradient(180deg, #8A90FF, #6B73FF); border: 1px solid rgba(255,255,255,0.4); color: #FFFFFF; font-size: 13px; font-weight: 700; box-shadow: inset 0 1px 0 rgba(255,255,255,0.55), 0 4px 14px rgba(107,115,255,0.45)">{{ctaButton}}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4l8 8-8 8"></path></svg></div>
+<img src="onepager-assets/dc/cta-package.png" alt="" style="position: absolute; right: 6px; bottom: 2px; height: 112px; width: auto; display: block">
+</div>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;merchant&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;[Merchant]&quot;,&quot;section&quot;:&quot;Version&quot;},&quot;meetingDate&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;[Date]&quot;,&quot;section&quot;:&quot;Version&quot;},&quot;audience&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;[Recipient name]&quot;,&quot;section&quot;:&quot;Version&quot;},&quot;showMerchantLogo&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Header&quot;},&quot;siLogo&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Auto&quot;,&quot;Horizontal · blue&quot;,&quot;Horizontal · blue/white&quot;,&quot;Horizontal · light grey&quot;,&quot;Horizontal · dark&quot;,&quot;Horizontal · black&quot;,&quot;Vertical · blue&quot;,&quot;Vertical · blue/white&quot;,&quot;Vertical · light grey&quot;,&quot;Vertical · dark&quot;],&quot;default&quot;:&quot;Auto&quot;,&quot;section&quot;:&quot;Header&quot;},&quot;siLogoH&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:16,&quot;max&quot;:96,&quot;step&quot;:2,&quot;unit&quot;:&quot;px&quot;,&quot;default&quot;:30,&quot;section&quot;:&quot;Header&quot;},&quot;showHero&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Header&quot;},&quot;heroSize&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:40,&quot;max&quot;:200,&quot;step&quot;:4,&quot;unit&quot;:&quot;px&quot;,&quot;default&quot;:100,&quot;section&quot;:&quot;Header&quot;},&quot;repName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Drew Shafer&quot;,&quot;section&quot;:&quot;Contact&quot;},&quot;repEmail&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;drew@shipinsure.io&quot;,&quot;section&quot;:&quot;Contact&quot;},&quot;repPhone&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;(801) 368 - 1134&quot;,&quot;section&quot;:&quot;Contact&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#4652E6&quot;,&quot;options&quot;:[&quot;#4652E6&quot;,&quot;#15123B&quot;,&quot;#0F766E&quot;,&quot;#B45309&quot;],&quot;section&quot;:&quot;Look&quot;},&quot;showCta&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Call to action&quot;},&quot;ctaTitle&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Cover every subscriber&quot;,&quot;section&quot;:&quot;Call to action&quot;},&quot;ctaSub&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Pick an install time&quot;,&quot;section&quot;:&quot;Call to action&quot;},&quot;ctaButton&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Book install&quot;,&quot;section&quot;:&quot;Call to action&quot;},&quot;$preview&quot;:{&quot;width&quot;:816,&quot;height&quot;:1056}}">
+class Component extends DCLogic {
+  renderVals() {
+    var p = this.props;
+    var siLogos = {
+      'Horizontal · blue': 'onepager-assets/si2-logo-h-blue.png', 'Horizontal · blue/white': 'onepager-assets/si2-logo-h-blue-white.png',
+      'Horizontal · light grey': 'onepager-assets/si2-logo-h-grey.png', 'Horizontal · dark': 'onepager-assets/si2-logo-h-dark.png',
+      'Horizontal · black': 'onepager-assets/si2-logo-h-black.png', 'Vertical · blue': 'onepager-assets/si2-logo-v-blue.png',
+      'Vertical · blue/white': 'onepager-assets/si2-logo-v-blue-white.png', 'Vertical · light grey': 'onepager-assets/si2-logo-v-grey.png',
+      'Vertical · dark': 'onepager-assets/si2-logo-v-dark.png'
+    };
+    // Auto = Horizontal dark (these pages use a light header)
+    var siLogo = p.siLogo ?? 'Auto';
+    return {
+      showCta: p.showCta ?? true,
+      ctaTitle: p.ctaTitle ?? "Cover every subscriber",
+      ctaSub: p.ctaSub ?? "Pick an install time",
+      ctaButton: p.ctaButton ?? "Book install",
+      siLogoSrc: siLogo === 'Auto' ? siLogos['Horizontal · dark'] : (siLogos[siLogo] || siLogos['Horizontal · dark']),
+      siLogoH: p.siLogoH ?? 30,
+      merchant: p.merchant ?? '[Merchant]',
+      meetingDate: p.meetingDate ?? '[Date]',
+      audience: p.audience ?? '[Recipient name]',
+      showMerchantLogo: p.showMerchantLogo ?? true,
+      showHero: p.showHero ?? true,
+      heroSize: p.heroSize ?? 100,
+      repName: p.repName ?? 'Drew Shafer',
+      repEmail: p.repEmail ?? 'drew@shipinsure.io',
+      repPhone: p.repPhone ?? '(801) 368 - 1134',
+      accent: p.accent ?? '#4652E6'
+    };
+  }
+}
+</script>
+</body>
+</html>
