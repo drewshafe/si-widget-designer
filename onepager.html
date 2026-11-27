@@ -442,6 +442,10 @@
           <div class="roi-dd" id="roiDD" role="menu" hidden></div>
         </div>
         <div class="roi-on" id="roiOn" hidden></div>
+        <div class="seg" id="roiView" role="tablist" aria-label="Show the ROI numbers per month or per year" hidden>
+          <button type="button" data-view="monthly" role="tab">Monthly</button>
+          <button type="button" data-view="annual" role="tab">Annual</button>
+        </div>
         <div class="fx-msg" id="roiMsg" role="status" aria-live="polite"></div>
       </div>
       <div class="fld" data-only="recap">
@@ -1413,7 +1417,7 @@
   const MERCHANT_LINK = 'https://drewshafe.github.io/si-roi-calculator/proposal.html';
   const n0 = v => Math.round(v).toLocaleString('en-US');
   const pctT = v => num(v) + '%';
-  const money = v => { const a = Math.abs(v), sg = v < 0 ? '−' : ''; return sg + (a >= 1e6 ? '$' + (a / 1e6).toFixed(1).replace(/\.0$/, '') + 'M' : a >= 1000 ? '$' + (a / 1000).toFixed(a >= 1e5 ? 0 : 1).replace(/\.0$/, '') + 'K' : '$' + Math.round(a)); };
+  const money = v => { const a = Math.abs(v), sg = v < 0 ? '−' : ''; return sg + (a >= 1e6 ? '$' + Math.round(a / 1e5) / 10 + 'M' : a >= 1000 ? '$' + (a >= 1e5 ? Math.round(a / 1000) : Math.round(a / 100) / 10) + 'K' : '$' + Math.round(a)); };
   const okN = v => typeof v === 'number' && isFinite(v);
   // Run the calculator on a scenario's query string; resolves with its results, rejects when it can't (other site, timeout).
   function calcRun(qs) {
@@ -1443,61 +1447,82 @@
       document.body.appendChild(fr);
     });
   }
-  // A scenario's numbers, from the calculator's results (or from its inputs alone when the calculator can't run here).
+  // A scenario's numbers, per the calculator's view period (monthly or annual, the link's / scenario's `view`), from
+  // the calculator's results, or from its inputs alone when the calculator can't run here.
   function roiValues(qs, run) {
     const q = new URLSearchParams(qs), n = k => parseFloat(String(q.get(k) || '').replace(/,/g, ''));
     // Pricing as the calculator ran it (its merchant link carries the defaults it filled in, e.g. the minimum fee).
     const lq = run && run.link && run.link.indexOf('?') > 0 ? new URLSearchParams(run.link.slice(run.link.indexOf('?') + 1)) : null;
     const feeTxt = (lq && pricingText(pricingOf(lq))) || pricingText(pricingOf(q));
     if (run) {
-      const b = run.bd, per = run.view === 'annual' ? 1 : 12, cov = b.coverageType || 'standard';
+      const b = run.bd, cov = b.coverageType || 'standard';
       const avoided = cov === 'full' ? b.coveredClaimLossAvoided : cov === 'hybrid' ? b.hybOptInClaimsFunded + b.hybMerchantClaimsCov : b.siFundedReships + (b.guaranteeEnabled ? b.gSiFundedClaims : 0);
       const rev = cov === 'full' ? 0 : cov === 'hybrid' ? b.revShareEarnedOptIn : b.revenueShareAmount;
       const net = cov === 'full' ? -b.netCostOfSI : cov === 'hybrid' ? b.hybridNetValue : b.extraRevenue;
       return {
-        computed: true, view: run.view, cov, feeTxt, link: run.link,
-        orders: b.orders, aov: b.aov, claimP: b.claimsP * 100, attach: b.attachP * 100, share: b.revShareP * 100, avgPremium: b.avgPremium,
-        claimsTodayYr: (b.csCostTotal + b.cogsAmount) * per, protClaimsYr: b.protectedClaims * per,
+        computed: true, view: run.view === 'annual' ? 'annual' : 'monthly', cov, feeTxt, link: run.link,
+        ordersP: b.orders, aov: b.aov, claimP: b.claimsP * 100, attach: b.attachP * 100, share: b.revShareP * 100, avgPremium: b.avgPremium,
+        claimsTodayP: b.csCostTotal + b.cogsAmount, protClaimsP: b.protectedClaims,
         claimAtAov: Math.abs(b.siClaimValue - b.aov) < 0.005, siClaimValue: b.siClaimValue,
-        avoidedYr: avoided * per, revYr: rev * per, netYr: net * per, gross: !!b.grossRevShare,
+        avoidedP: avoided, revP: rev, netP: net, gross: !!b.grossRevShare,
         returns: !!b.returnsEnabled, cashback: !!b.cashbackEnabled, guarantee: !!b.guaranteeEnabled
       };
     }
     const ct = q.get('claimstype') || 'pct';
     return {
       computed: false, view: (q.get('view') || 'monthly') === 'annual' ? 'annual' : 'monthly', feeTxt,
-      orders: n('orders'), aov: n('aov'), claimP: ct === 'pct' ? n('claims') : NaN, attach: okN(n('attach')) ? n('attach') : 68, share: okN(n('share')) ? n('share') : 25,
+      ordersP: n('orders'), aov: n('aov'), claimP: ct === 'pct' ? n('claims') : NaN, attach: okN(n('attach')) ? n('attach') : 68, share: okN(n('share')) ? n('share') : 25,
       avgPremium: n('avg_premium')
     };
   }
+  // Numbers saved before the view switch were annual totals (…Yr) with orders per the calculator's view.
+  function roiNorm(R) {
+    const v = R && R.v; if (!v) return R;
+    if (v.ordersP == null && v.orders != null) {
+      const f = v.view === 'annual' ? 1 : 1 / 12;
+      v.ordersP = v.orders;
+      ['claimsToday', 'protClaims', 'avoided', 'rev', 'net'].forEach(k => { if (okN(v[k + 'Yr'])) v[k + 'P'] = v[k + 'Yr'] * f; });
+    }
+    if (R.show !== 'monthly' && R.show !== 'annual') R.show = v.view === 'annual' ? 'annual' : 'monthly';
+    return R;
+  }
+  // The view the page shows (the calculator's own unless the rep switched), and a period value in it.
+  const roiShow = R => (R && (R.show === 'annual' || R.show === 'monthly')) ? R.show : (R && R.v && R.v.view === 'annual' ? 'annual' : 'monthly');
+  const inView = (v, show, x) => okN(x) ? x * (show === v.view ? 1 : show === 'annual' ? 12 : 1 / 12) : x;
+  const cnt = x => x < 10 ? num(Math.round(x * 10) / 10) : n0(x);
   // Placeholder → its value, in page order for placeholders that repeat ('[Value]', '[%]', '$[000K]').
-  let _roiT = null, _roiN = {};
+  let _roiT = null, _roiN = {}, _roiPh = null;
   function roiTokens() {
-    const R = S.roi; if (!isRoi() || !R || !R.v) return null;
-    const v = R.v, hyb = /ROI-Hybrid/.test(dcId()), mo = v.view !== 'annual';
+    const R = roiNorm(S.roi); _roiPh = null; if (!isRoi() || !R || !R.v) return null;
+    const v = R.v, hyb = /ROI-Hybrid/.test(dcId()), show = roiShow(R), mo = show === 'monthly';
+    const P = x => inView(v, show, x), per = mo ? 'a month' : 'a year', perW = mo ? 'per month' : 'per year';
     const has = x => okN(x) && !(x === 0 && !v.computed);
     const src = R.title ? 'the ROI scenario “' + R.title + '”' : 'the ROI calculator', srcShort = R.title ? 'from the ROI scenario' : 'from the calculator';
     const basis = v.claimAtAov ? 'the order value (' + usd(Math.round(v.aov)) + ')' : 'the reship cost (' + usd(Math.round(v.siClaimValue)) + ')';
-    const claimsLine = has(v.protClaimsYr) ? n0(v.protClaimsYr) + ' claims a year on protected orders, each covered at ' + basis : null;
+    const claimsLine = has(v.protClaimsP) ? cnt(P(v.protClaimsP)) + ' claims ' + per + ' on protected orders, each covered at ' + basis : null;
     const fee = v.feeTxt || (has(v.avgPremium) ? 'about ' + fee2(v.avgPremium) + ' per protected order' : null);
     const revLine = v.cov === 'full' ? 'Merchant-paid coverage, so no revenue share'
       : has(v.share) && has(v.attach) ? pctT(v.share) + ' of the premium pool' + (v.gross ? '' : ' after claims') + ', at ' + pctT(v.attach) + ' attach' + (fee ? ' and ' + fee : '') : null;
     const extras = [v.returns && 'returns offset', v.cashback && 'cashback', v.guarantee && 'guarantee claims'].filter(Boolean);
     const totalLine = v.computed ? (v.cov === 'full' ? 'Claims, returns and support time covered, minus the premium' : ['Claims covered', 'revenue share'].concat(extras).join(' + ')) : null;
     const notIn = ['repeat purchases', 'conversion lift'].concat(v.cov === 'full' ? [] : ['support time saved'], v.returns ? [] : ['returns'], v.cashback ? [] : ['cashback']);
-    const link = R.link || v.link;
+    let link = R.link || v.link;
+    // A full calculator link opens in the view the page shows (a short ?id= link opens as saved).
+    if (link && /[?&]orders=/.test(link)) { try { const u = new URL(link); u.searchParams.set('view', show); link = u.href; } catch (e) {} }
     const linkH = link ? { html: '<a href="' + esc(link) + '" style="color:inherit;text-decoration:underline" target="_blank" rel="noopener">Your ROI calculator</a>' } : null;
-    const T = {
+    // Fixed template wording that names a period follows the view too.
+    _roiPh = mo ? [['Modeled annual impact', 'Modeled monthly impact']] : [['Monthly orders', 'Annual orders']];
+    return {
       '[Monthly orders]': [mo ? 'Monthly orders' : 'Annual orders'],
       '[Average order value]': ['Average order value'],
       '[Claim or reship rate]': ['Claim rate'],
-      '[Current protection cost]': [hyb ? (v.computed ? money(v.claimsTodayYr) + ' a year in claims today' : null) : 'Claims cost today, per year'],
-      '[Value]': [has(v.orders) ? n0(v.orders) : null, has(v.aov) ? usd(Math.round(v.aov * 100) / 100) : null, has(v.claimP) ? pctT(v.claimP) : null, v.computed ? money(v.claimsTodayYr) : null],
-      '[Annual claims cost avoided]': [v.computed ? money(v.avoidedYr) + ' a year in claims covered' : null],
+      '[Current protection cost]': [hyb ? (v.computed ? money(P(v.claimsTodayP)) + ' ' + per + ' in claims today' : null) : 'Claims cost today, ' + perW],
+      '[Value]': [has(v.ordersP) ? n0(P(v.ordersP)) : null, has(v.aov) ? usd(Math.round(v.aov * 100) / 100) : null, has(v.claimP) ? pctT(v.claimP) : null, v.computed ? money(P(v.claimsTodayP)) : null],
+      '[Annual claims cost avoided]': [v.computed ? money(P(v.avoidedP)) + ' ' + per + ' in claims covered' : null],
       '[Modeled value and the inputs behind it]': [claimsLine],
-      '[Revenue share]': [v.computed ? money(v.revYr) + ' a year in revenue share' : null],
+      '[Revenue share]': [v.computed ? money(P(v.revP)) + ' ' + per + ' in revenue share' : null],
       '[Modeled value, attach rate and fee used]': [revLine],
-      '[Net modeled value]': [v.computed ? money(v.netYr) + ' a year, net modeled value' : null],
+      '[Net modeled value]': [v.computed ? money(P(v.netP)) + ' ' + per + ', net modeled value' : null],
       '[Total, with the assumptions listed below]': [totalLine],
       '[Attach rate used and where it came from]': [has(v.attach) ? pctT(v.attach) + ' attach rate, from ' + src : null],
       '[Fee structure used in the model]': [fee ? fee.charAt(0).toUpperCase() + fee.slice(1) + (v.feeTxt && has(v.avgPremium) ? ', about ' + fee2(v.avgPremium) + ' per protected order' : '') : null],
@@ -1505,25 +1530,27 @@
       '[%]': [has(v.attach) ? pctT(v.attach) : null, has(v.share) ? pctT(v.share) : null],
       '[% of order value, minimum]': [v.feeTxt || null],
       '[Link]': [linkH], '[Calculator link]': [linkH],
-      '[0,000]': [has(v.orders) ? n0(v.orders) : null],
+      '[0,000]': [has(v.ordersP) ? n0(P(v.ordersP)) : null],
       '[Source or time window]': [(mo ? 'Per month, ' : 'Per year, ') + srcShort, 'Per order, ' + srcShort],
       '$[000]': [has(v.aov) ? usd(Math.round(v.aov * 100) / 100) : null],
       '[0.0%]': [has(v.claimP) ? pctT(v.claimP) : null],
       '[Inputs behind the model]': [[v.feeTxt, has(v.attach) && pctT(v.attach) + ' attach', has(v.share) && pctT(v.share) + ' revenue share'].filter(Boolean).join(', ') || null],
-      '$[000K]': v.computed ? [money(v.avoidedYr), money(v.revYr), money(v.netYr)] : [],
+      '$[000K]': v.computed ? [money(P(v.avoidedP)), money(P(v.revP)), money(P(v.netP))] : [],
       '[Modeled value and the inputs]': [claimsLine],
       '[Attach rate and fee used]': [has(v.attach) ? pctT(v.attach) + ' attach' + (fee ? ', ' + fee : '') : null],
       '[Total, assumptions below]': [totalLine]
     };
-    return T;
   }
   function roiFill(h) {
-    if (!_roiT || h.indexOf('[') < 0) return h;
-    return h.replace(/\$?\[[^\]<]{1,60}\]/g, m => {
+    if (!_roiT) return h;
+    // Placeholders first, then the template's fixed wording that names a period (outside [brackets]).
+    if (h.indexOf('[') >= 0) h = h.replace(/\$?\[[^\]<]{1,60}\]/g, m => {
       const list = _roiT[m]; if (!list) return m;
       const i = _roiN[m] = (_roiN[m] || 0) + 1, val = list[i - 1];
       return val == null ? m : typeof val === 'object' ? val.html : esc(val);
     });
+    if (_roiPh) _roiPh.forEach(([from, to]) => { h = h.replace(new RegExp('(^|[^\\[])' + from, 'g'), '$1' + to); });
+    return h;
   }
   // Side panel: ROI numbers (only on ROI templates)
   function paintRoi() {
@@ -1533,13 +1560,18 @@
     const f = window.SIsb ? SIsb.getActiveFolder() : null;
     $('roiFolder').hidden = !f;
     $('roiFolder').title = f ? 'Pick an ROI scenario saved in ' + f.name + '’s Brand Folder' : '';
-    const R = S.roi, v = R && R.v;
-    $('roiOn').hidden = !v;
+    const R = roiNorm(S.roi), v = R && R.v;
+    $('roiOn').hidden = !v; $('roiView').hidden = !v;
     if (v) {
-      const bits = [okN(v.orders) && v.orders ? n0(v.orders) + (v.view === 'annual' ? ' orders/yr' : ' orders/mo') : '', okN(v.aov) && v.aov ? usd(Math.round(v.aov)) + ' AOV' : '', okN(v.attach) ? pctT(v.attach) + ' attach' : ''].filter(Boolean);
+      const show = roiShow(R), ord = inView(v, show, v.ordersP);
+      const bits = [okN(ord) && ord ? n0(ord) + (show === 'annual' ? ' orders/yr' : ' orders/mo') : '', okN(v.aov) && v.aov ? usd(Math.round(v.aov)) + ' AOV' : '', okN(v.attach) ? pctT(v.attach) + ' attach' : ''].filter(Boolean);
       $('roiOn').innerHTML = '<span>📈 <b>' + esc(R.title || 'ROI Calculator link') + '</b>' + (bits.length ? ' · ' + esc(bits.join(' · ')) : '') +
         (v.computed ? '' : '<br>Inputs only: the calculator couldn’t run here, so the modeled values stay as placeholders.') + '</span>' +
         '<button type="button" id="roiClear" title="Stop using these numbers (the template’s placeholders come back)" aria-label="Clear the ROI numbers">✕</button>';
+      $('roiView').querySelectorAll('[data-view]').forEach(b => {
+        const on = b.dataset.view === show; b.classList.toggle('on', on); b.setAttribute('aria-selected', on);
+        b.textContent = (b.dataset.view === 'annual' ? 'Annual' : 'Monthly') + (b.dataset.view === v.view ? ' · as saved' : '');
+      });
     }
   }
   const roiMsg = (t, warn) => { $('roiMsg').textContent = t || ''; $('roiMsg').classList.toggle('warn', !!warn); };
@@ -1548,12 +1580,14 @@
     let run = null, err = null;
     try { run = await calcRun(qs); } catch (e) { err = e; }
     const v = roiValues(qs, run);
-    if (!okN(v.orders) || !v.orders) { roiMsg('That scenario has no order volume to model.', true); return; }
-    S.roi = { title: meta.title || '', link: meta.link || '', id: meta.id || '', q: String(qs).replace(/^\?/, ''), at: new Date().toISOString(), v };
+    if (!okN(v.ordersP) || !v.ordersP) { roiMsg('That scenario has no order volume to model.', true); return; }
+    S.roi = { title: meta.title || '', link: meta.link || '', id: meta.id || '', q: String(qs).replace(/^\?/, ''), at: new Date().toISOString(), v, show: v.view };
     const mname = new URLSearchParams(qs).get('mname');
     if (mname && !S.merchant) S.merchant = mname;
     paintAll(); checkFit(); saveDraft();
-    roiMsg(err ? 'Filled the inputs. The calculator couldn’t run here (' + (err.message || err) + '), so the modeled values stay as placeholders.' : 'Filled from the calculator. Click any number on the page to adjust it.', !!err);
+    const vw = v.view === 'annual' ? 'annual' : 'monthly';
+    roiMsg(err ? 'Filled the inputs (' + vw + ' view). The calculator couldn’t run here (' + (err.message || err) + '), so the modeled values stay as placeholders.'
+      : 'Filled from the calculator in its ' + vw + ' view, as saved. Switch to ' + (vw === 'annual' ? 'Monthly' : 'Annual') + ' below. Click any number on the page to adjust it.', !!err);
   }
   async function roiFromLink() {
     const raw = ($('f-roi').value || '').trim(); if (!raw) { $('f-roi').focus(); return; }
@@ -1603,6 +1637,10 @@
   $('f-roi').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); roiFromLink(); } });
   $('roiFolder').addEventListener('click', roiMenu);
   $('roiDD').addEventListener('click', e => { const it = e.target.closest('.it'); if (it) roiFromScenario(it.dataset.id); });
+  $('roiView').addEventListener('click', e => {
+    const b = e.target.closest('[data-view]'); if (!b || !S.roi || roiShow(S.roi) === b.dataset.view) return;
+    S.roi.show = b.dataset.view; roiMsg(''); paintAll(); checkFit(); saveDraft();
+  });
   $('roiOn').addEventListener('click', e => { if (e.target.closest('#roiClear')) { S.roi = null; roiMsg(''); paintAll(); checkFit(); saveDraft(); } });
   document.addEventListener('click', e => { const dd = $('roiDD'); if (!dd.hidden && !dd.contains(e.target) && !e.target.closest('#roiFolder')) dd.hidden = true; });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') $('roiDD').hidden = true; });
