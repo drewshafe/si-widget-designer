@@ -1325,6 +1325,38 @@
       im.title = 'Click to replace this image';
     });
     Array.prototype.forEach.call(page.children, ch => markEditable(ch, st));
+    fitNums();
+    if (document.fonts && document.fonts.status !== 'loaded') document.fonts.ready.then(() => { if (isDc()) fitNums(); });
+  }
+  // Big numbers (stat cards: only text that is a number, like 480,000, $824K or 1.25%) shrink to fit their box when a value is wider than the design's placeholder, e.g. 480,000
+  // annual orders in a card drawn for 0,000. Numbers side by side in one row shrink together, so the row stays even.
+  function fitNums(only) {
+    const els = Array.prototype.filter.call(page.querySelectorAll('[data-dct], [data-dcp]'), el => {
+      const cs = getComputedStyle(el);
+      if (!el.dataset.fs0) { el.dataset.fs0 = parseFloat(cs.fontSize) || 0; el.dataset.fsi = el.style.fontSize || ''; }
+      return +el.dataset.fs0 >= 20 && cs.display !== 'inline' && /^[~≈$€£−+\-\s]*[\d.,]+\s*[%KkMmBb]?\+?$/.test(el.textContent.trim());
+    });
+    const fits = el => el.scrollWidth <= el.clientWidth + 1;
+    const groups = new Map();
+    els.forEach(el => {
+      const row = el.parentElement && el.parentElement.parentElement, k = row || el;
+      if (!groups.has(k)) groups.set(k, []);
+      groups.get(k).push(el);
+    });
+    groups.forEach(list => {
+      if (only && list.indexOf(only) < 0) return;
+      const reset = el => { el.style.fontSize = el.dataset.fsi || ''; };   // the template's own size
+      list.forEach(reset);
+      let size = Infinity;
+      list.forEach(el => {
+        const f0 = +el.dataset.fs0, min = Math.max(12, Math.round(f0 * 0.5));
+        let f = f0;
+        while (!fits(el) && f > min) { f -= 1; el.style.fontSize = f + 'px'; }
+        size = Math.min(size, f / f0);
+        reset(el);
+      });
+      if (size < 1) list.forEach(el => { const fs = el.dataset.fs0 * size; el.style.fontSize = (Math.floor(fs * 2) / 2) + 'px'; });
+    });
   }
   // Side panel: the template's Tweaks, grouped by section like the canvas.
   const DC_LABEL = { siLogo: 'ShipInsure logo', siLogoH: 'Logo size', merchantLogoH: 'Merchant logo size', showMerchantLogo: 'Merchant logo', merchantPlate: 'White plate',
@@ -1395,6 +1427,7 @@
   // In-page edits on a canvas template
   function dcInput(el) {
     const id = dcId(), st = dcSt(id);
+    if (+el.dataset.fs0 >= 20) fitNums(el);
     if (el.hasAttribute('data-dcp')) {
       const k = el.getAttribute('data-dcp'), v = el.textContent.replace(/\s*\n\s*/g, ' ');
       if (DEAL_PROPS[k]) { S[DEAL_PROPS[k]] = v; const inp = document.querySelector('.op-side input[data-b="' + DEAL_PROPS[k] + '"]'); if (inp) inp.value = v; }
