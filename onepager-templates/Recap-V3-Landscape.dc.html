@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ShipInsure meeting recap · V3 · landscape</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1056px; height: 816px; box-sizing: border-box; display: flex; flex-direction: column; background: #F4F4F9; color: #1E1E2E; font-family: 'Montserrat', system-ui, sans-serif; overflow: hidden; position: relative">
+
+<div style="position: relative; flex: none; height: 208px; background: {{heroBg}}; overflow: hidden">
+<img src="onepager-assets/dc/hero-phone.png" alt="" style="position: absolute; right: 0; bottom: 0; height: 100%; width: auto; display: block">
+<div style="position: absolute; left: 36px; top: 26px; display: flex; align-items: center; gap: 14px; padding: 11px 26px 11px 22px; border-radius: 999px; background: rgba(255,255,255,0.7); -webkit-backdrop-filter: blur(16px) saturate(1.6); backdrop-filter: blur(16px) saturate(1.6); border: 1px solid rgba(255,255,255,0.65); box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), inset 0 -1px 0 rgba(255,255,255,0.12), 0 6px 20px rgba(10,10,40,0.18)">
+<img src="{{siSrc}}" alt="ShipInsure" style="display: block; height: {{siLogoH}}px; width: auto">
+<sc-if value="{{showMerchantLogo}}" hint-placeholder-val="{{ true }}"><div style="display: flex; align-items: center; gap: 14px"><div style="font-size: 18px; font-weight: 600; color: #6B73FF">+</div>
+<img src="onepager-assets/dc/merchant-logo-placeholder.png" alt="Merchant logo" style="display: block; height: {{merchantLogoH}}px; width: auto"></div></sc-if>
+</div>
+<sc-if value="{{showTag}}" hint-placeholder-val="{{ true }}">
+<div style="position: absolute; right: 36px; top: 34px; padding: 8px 15px; border-radius: 999px; background: rgba(255,255,255,0.72); -webkit-backdrop-filter: blur(16px) saturate(1.6); backdrop-filter: blur(16px) saturate(1.6); border: 1px solid rgba(255,255,255,0.65); font-size: 10.5px; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; color: #17152B; box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -1px 0 rgba(255,255,255,0.15), 0 4px 14px rgba(10,10,40,0.16)">For: {{audience}}</div>
+</sc-if>
+<div style="position: absolute; left: 40px; top: 84px; width: 560px; display: flex; flex-direction: column; gap: 10px; color: #FFFFFF">
+<div style="font-size: 36px; line-height: 1.06; letter-spacing: -0.02em"><span style="font-weight: 300">{{meetingType}}</span><br><span style="font-weight: 800">recap</span></div>
+<div style="font-size: 14.5px; line-height: 1.45; font-weight: 500; text-shadow: 0 1px 8px rgba(10,10,40,0.35)">{{merchant}} × ShipInsure · {{meetingDate}}</div>
+</div>
+</div>
+
+<div style="flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: min-content; gap: 12px 16px; align-content: center; padding: 12px 36px 10px">
+<sc-if value="{{showHeard}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; gap: 14px; align-items: flex-start; min-width: 0; padding: 12px 18px 14px; border-radius: 18px; background: #FFFFFF; border: 1px solid #E3E4F2; box-shadow: 0 6px 20px rgba(23,21,43,0.05)">
+<div style="flex: none; width: 34px; padding-top: 1px"><svg width="34" height="34" viewBox="0 0 44 44" aria-hidden="true"><rect x="2" y="12" width="20" height="20" rx="6" fill="#B9BEFF"/><rect x="22" y="2" width="18" height="18" rx="5" fill="#8A91FF"/><rect x="16" y="20" width="20" height="20" rx="5" fill="#6B73FF"/></svg></div>
+<div style="display: flex; flex-direction: column; gap: 7px; min-width: 0; flex: 1">
+<div style="font-size: 18px; font-weight: 700; letter-spacing: -0.01em; color: #1E1E2E">What we heard</div>
+<ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; line-height: 1.4; color: #2C2C3E"><li style="font-weight: 700">[Priority or pain point #1, in their words]</li><li>[Priority or pain point #2]</li><li>[Priority or pain point #3]</li></ul>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{showLens}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; gap: 14px; align-items: flex-start; min-width: 0; padding: 12px 18px 14px; border-radius: 18px; background: #FFFFFF; border: 1px solid #E3E4F2; box-shadow: 0 6px 20px rgba(23,21,43,0.05)">
+<div style="flex: none; width: 34px; padding-top: 1px"><svg width="34" height="34" viewBox="0 0 44 44" aria-hidden="true"><path d="M22 3c6 5 8 13 6 22H16c-2-9 0-17 6-22z" fill="#6B73FF"/><circle cx="22" cy="16" r="3.4" fill="#fff"/><path d="M16 22l-7 8 8-1zM28 22l7 8-8-1z" fill="#B9BEFF"/><path d="M19 28h6l-3 10z" fill="#8A91FF"/></svg></div>
+<div style="display: flex; flex-direction: column; gap: 7px; min-width: 0; flex: 1">
+<div style="font-size: 18px; font-weight: 700; letter-spacing: -0.01em; color: #1E1E2E">{{lensTitle}}</div>
+<ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; line-height: 1.4; color: #2C2C3E"><sc-for list="{{lensPoints}}" as="pt" hint-placeholder-count="3"><li><span style="font-weight: 700">{{pt.t}}.</span> {{pt.d}}</li></sc-for></ul>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{showSteps}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; gap: 14px; align-items: flex-start; min-width: 0; padding: 12px 18px 14px; border-radius: 18px; background: #FFFFFF; border: 1px solid #E3E4F2; box-shadow: 0 6px 20px rgba(23,21,43,0.05)">
+<div style="flex: none; width: 34px; padding-top: 1px"><svg width="34" height="34" viewBox="0 0 44 44" aria-hidden="true"><path d="M22 4l18 9-18 9-18-9z" fill="#C9CCFF"/><path d="M4 22l18 9 18-9" fill="none" stroke="#8A91FF" stroke-width="4" stroke-linejoin="round"/><path d="M4 31l18 9 18-9" fill="none" stroke="#6B73FF" stroke-width="4" stroke-linejoin="round"/></svg></div>
+<div style="display: flex; flex-direction: column; gap: 7px; min-width: 0; flex: 1">
+<div style="font-size: 18px; font-weight: 700; letter-spacing: -0.01em; color: #1E1E2E">Agreed next steps</div>
+<ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; line-height: 1.4; color: #2C2C3E"><li style="font-weight: 700">[Next step]<sc-if value="{{showStepOwner}}" hint-placeholder-val="{{ true }}"> · [Owner]</sc-if><sc-if value="{{showStepDate}}" hint-placeholder-val="{{ true }}"> · [Date]</sc-if><sc-if value="{{showStepExtra}}" hint-placeholder-val="{{ true }}"> · [{{stepExtra}}]</sc-if><sc-if value="{{showStepExtra2}}" hint-placeholder-val="{{ true }}"> · [{{stepExtra2}}]</sc-if></li><li>[Next step]<sc-if value="{{showStepOwner}}" hint-placeholder-val="{{ true }}"> · [Owner]</sc-if><sc-if value="{{showStepDate}}" hint-placeholder-val="{{ true }}"> · [Date]</sc-if><sc-if value="{{showStepExtra}}" hint-placeholder-val="{{ true }}"> · [{{stepExtra}}]</sc-if><sc-if value="{{showStepExtra2}}" hint-placeholder-val="{{ true }}"> · [{{stepExtra2}}]</sc-if></li><li>[Next step]<sc-if value="{{showStepOwner}}" hint-placeholder-val="{{ true }}"> · [Owner]</sc-if><sc-if value="{{showStepDate}}" hint-placeholder-val="{{ true }}"> · [Date]</sc-if><sc-if value="{{showStepExtra}}" hint-placeholder-val="{{ true }}"> · [{{stepExtra}}]</sc-if><sc-if value="{{showStepExtra2}}" hint-placeholder-val="{{ true }}"> · [{{stepExtra2}}]</sc-if></li></ul>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{showProgram}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; gap: 14px; align-items: flex-start; min-width: 0; padding: 12px 18px 14px; border-radius: 18px; background: #FFFFFF; border: 1px solid #E3E4F2; box-shadow: 0 6px 20px rgba(23,21,43,0.05)">
+<div style="flex: none; width: 34px; padding-top: 1px"><svg width="34" height="34" viewBox="0 0 44 44" aria-hidden="true"><circle cx="15" cy="27" r="12" fill="#CDD0FF"/><circle cx="26" cy="19" r="12" fill="#6B73FF"/></svg></div>
+<div style="display: flex; flex-direction: column; gap: 7px; min-width: 0; flex: 1">
+<div style="font-size: 18px; font-weight: 700; letter-spacing: -0.01em; color: #1E1E2E">Program at a glance</div>
+<ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; line-height: 1.4; color: #2C2C3E"><li><span style="font-weight: 700">Coverage:</span> Lost, stolen and damaged in transit</li><li><span style="font-weight: 700">Claims:</span> Filed by the customer with ShipInsure</li><li><span style="font-weight: 700">Pricing:</span> [Fee structure discussed]</li><li><span style="font-weight: 700">Target go-live:</span> [Date]</li></ul>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{showDetails}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; gap: 14px; align-items: flex-start; min-width: 0; padding: 12px 18px 14px; border-radius: 18px; background: #FFFFFF; border: 1px solid #E3E4F2; box-shadow: 0 6px 20px rgba(23,21,43,0.05)">
+<div style="flex: none; width: 34px; padding-top: 1px"><svg width="34" height="34" viewBox="0 0 44 44" aria-hidden="true"><rect x="2" y="12" width="20" height="20" rx="6" fill="#B9BEFF"/><rect x="22" y="2" width="18" height="18" rx="5" fill="#8A91FF"/><rect x="16" y="20" width="20" height="20" rx="5" fill="#6B73FF"/></svg></div>
+<div style="display: flex; flex-direction: column; gap: 7px; min-width: 0; flex: 1">
+<div style="font-size: 18px; font-weight: 700; letter-spacing: -0.01em; color: #1E1E2E">Meeting details</div>
+<ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; line-height: 1.4; color: #2C2C3E"><li><span style="font-weight: 700">Date:</span> {{meetingDate}}</li><li><span style="font-weight: 700">Attendees:</span> [Names, titles]</li><li><span style="font-weight: 700">Platform:</span> [Shopify / Shopify Plus]</li><li><span style="font-weight: 700">Current setup:</span> [Current provider, or none]</li></ul>
+</div>
+</div>
+</sc-if>
+</div>
+
+<sc-if value="{{showCta}}" hint-placeholder-val="{{ true }}">
+<div style="position: relative; flex: none; margin: 0 36px; height: 106px"><div style="position: absolute; left: -26px; top: -22px; width: 210px; height: 150px; border-radius: 999px; background: #6B73FF; opacity: 0.6; filter: blur(36px)"></div><div style="position: absolute; right: 150px; bottom: -28px; width: 230px; height: 90px; border-radius: 999px; background: #2FC9B8; opacity: 0.5; filter: blur(34px)"></div><div style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; border-radius: 24px; background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0) 45%), rgba(21,36,74,0.78); -webkit-backdrop-filter: blur(22px) saturate(1.7); backdrop-filter: blur(22px) saturate(1.7); border: 1px solid rgba(255,255,255,0.22); box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(255,255,255,0.08), 0 10px 30px rgba(21,36,74,0.28)"></div><div style="position: relative; height: 106px; display: flex; align-items: center; gap: 12px; padding: 0 0 0 24px">
+<div style="flex: none; width: 112px; font-size: 22px; line-height: 1.12; font-weight: 300; color: #FFFFFF">Keeping merchants the <span style="font-weight: 800; color: #6B73FF">hero</span></div>
+<div style="flex: none; width: 1px; height: 54px; background: #3A4A74"></div>
+<div style="flex: none; width: 176px; display: flex; flex-direction: column; gap: 3px"><div style="font-size: 15px; font-weight: 700; color: #FFFFFF">{{ctaTitle}}</div><div style="font-size: 12.5px; color: #C9D0EA">{{ctaSub}}</div></div>
+<div style="flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center"><div style="flex: none; display: flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 999px; background: linear-gradient(180deg, #8A90FF, #6B73FF); border: 1px solid rgba(255,255,255,0.4); color: #FFFFFF; font-size: 13px; font-weight: 700; box-shadow: inset 0 1px 0 rgba(255,255,255,0.55), 0 4px 14px rgba(107,115,255,0.45)">{{ctaButton}}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4l8 8-8 8"></path></svg></div></div><img src="onepager-assets/dc/cta-package.png" alt="" style="flex: none; align-self: flex-end; margin: 0 6px 2px 0; height: 112px; width: auto; display: block">
+</div>
+</div>
+</sc-if>
+<sc-if value="{{showContact}}" hint-placeholder-val="{{ true }}">
+<div style="flex: none; padding: 9px 48px 18px; font-size: 10.5px; color: #7A84A6">Questions? {{repName}} · {{repEmail}} · {{repPhone}}</div>
+</sc-if>
+<div style="flex: none; height: 4px"></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;audience&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Executive summary&quot;,&quot;Founder / Exec&quot;,&quot;Ecommerce / Growth&quot;,&quot;Operations&quot;,&quot;Customer experience&quot;,&quot;Finance&quot;,&quot;Store sales team&quot;,&quot;Support team&quot;],&quot;default&quot;:&quot;Executive summary&quot;,&quot;section&quot;:&quot;Version&quot;},&quot;meetingType&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Discovery call&quot;,&quot;Demo&quot;,&quot;Follow-up&quot;,&quot;Pricing review&quot;,&quot;Onboarding kickoff&quot;,&quot;Business review&quot;],&quot;default&quot;:&quot;Discovery call&quot;,&quot;section&quot;:&quot;Version&quot;},&quot;merchant&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;[Merchant]&quot;,&quot;section&quot;:&quot;Version&quot;},&quot;meetingDate&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;[Meeting date]&quot;,&quot;section&quot;:&quot;Version&quot;},&quot;heroTone&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Purple / teal&quot;,&quot;Blue&quot;,&quot;Navy&quot;],&quot;default&quot;:&quot;Navy&quot;,&quot;section&quot;:&quot;Header&quot;},&quot;siLogo&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Auto&quot;,&quot;Horizontal · blue&quot;,&quot;Horizontal · blue/white&quot;,&quot;Horizontal · light grey&quot;,&quot;Horizontal · dark&quot;,&quot;Horizontal · black&quot;,&quot;Vertical · blue&quot;,&quot;Vertical · blue/white&quot;,&quot;Vertical · light grey&quot;,&quot;Vertical · dark&quot;],&quot;default&quot;:&quot;Auto&quot;,&quot;section&quot;:&quot;Header&quot;},&quot;siLogoH&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:16,&quot;max&quot;:96,&quot;step&quot;:2,&quot;unit&quot;:&quot;px&quot;,&quot;default&quot;:26,&quot;section&quot;:&quot;Header&quot;},&quot;showTag&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Header&quot;},&quot;showMerchantLogo&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Header&quot;},&quot;merchantLogoH&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:12,&quot;max&quot;:64,&quot;step&quot;:2,&quot;unit&quot;:&quot;px&quot;,&quot;default&quot;:26,&quot;section&quot;:&quot;Header&quot;},&quot;showHeard&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Sections&quot;},&quot;showLens&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Sections&quot;},&quot;showSteps&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Sections&quot;},&quot;showProgram&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Sections&quot;},&quot;showDetails&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;section&quot;:&quot;Sections&quot;},&quot;showContact&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Sections&quot;},&quot;repName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Drew&quot;,&quot;section&quot;:&quot;Contact&quot;},&quot;repEmail&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;drew@shipinsure.io&quot;,&quot;section&quot;:&quot;Contact&quot;},&quot;repPhone&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;(801) 368 - 1134&quot;,&quot;section&quot;:&quot;Contact&quot;},&quot;showCta&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Call to action&quot;},&quot;ctaTitle&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Ready when you are&quot;,&quot;section&quot;:&quot;Call to action&quot;},&quot;ctaSub&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Pick a time to start your install&quot;,&quot;section&quot;:&quot;Call to action&quot;},&quot;ctaButton&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Book install&quot;,&quot;section&quot;:&quot;Call to action&quot;},&quot;showStepOwner&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Next steps&quot;},&quot;showStepDate&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Next steps&quot;},&quot;stepExtra&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;section&quot;:&quot;Next steps&quot;},&quot;stepExtra2&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;section&quot;:&quot;Next steps&quot;},&quot;$preview&quot;:{&quot;width&quot;:1056,&quot;height&quot;:816}}">
+class Component extends DCLogic {
+  renderVals() {
+    var p = this.props;
+    var siLogos = {
+      'Horizontal · blue': 'onepager-assets/si2-logo-h-blue.png', 'Horizontal · blue/white': 'onepager-assets/si2-logo-h-blue-white.png',
+      'Horizontal · light grey': 'onepager-assets/si2-logo-h-grey.png', 'Horizontal · dark': 'onepager-assets/si2-logo-h-dark.png',
+      'Horizontal · black': 'onepager-assets/si2-logo-h-black.png', 'Vertical · blue': 'onepager-assets/si2-logo-v-blue.png',
+      'Vertical · blue/white': 'onepager-assets/si2-logo-v-blue-white.png', 'Vertical · light grey': 'onepager-assets/si2-logo-v-grey.png',
+      'Vertical · dark': 'onepager-assets/si2-logo-v-dark.png'
+    };
+    var heroes = {
+      'Purple / teal': 'linear-gradient(115deg, #46285f 0%, #2c6f94 48%, #9ce2d8 100%)',
+      'Blue': 'linear-gradient(115deg, #0a3fa0 0%, #2a6fd6 50%, #a8c8f5 100%)',
+      'Navy': 'linear-gradient(115deg, #15123B 0%, #3A3FA8 55%, #A9AEFF 100%)'
+    };
+    var siLogo = p.siLogo ?? 'Auto';
+    var audience = p.audience ?? 'Executive summary';
+    var lenses = {
+      'Executive summary': { k: 'Executive summary', title: 'The short version', pts: [
+        { t: 'Where they are today', d: '[Current setup and the core problem, in one line]' },
+        { t: 'What changes with ShipInsure', d: '[The fix, in one line]' },
+        { t: 'What it is worth', d: '[Modeled annual value and the inputs behind it]' },
+        { t: 'Decision needed', d: '[What, from whom, by when]' } ] },
+      'Founder / Exec': { k: 'For founders and execs', title: 'What this means for the business', pts: [
+        { t: 'Carrier problems stop hitting margin', d: 'Lost, stolen and damaged packages are covered by ShipInsure.' },
+        { t: 'Paid per order, priced by order value', d: 'Protection is a small fee on the order, shown as its own line.' },
+        { t: 'One program on every channel', d: 'Online checkout and manual or draft orders run through the same coverage.' } ] },
+      'Ecommerce / Growth': { k: 'For ecommerce and growth', title: 'What this means for checkout and retention', pts: [
+        { t: 'Confidence before they pay', d: 'Customers see protection on the order at checkout.' },
+        { t: 'A bad delivery gets resolved', d: 'Covered customers file with ShipInsure instead of stalling in your inbox.' },
+        { t: 'Built for Shopify', d: 'Runs inside your existing Shopify store and orders.' } ] },
+      'Operations': { k: 'For operations and fulfillment', title: 'What this means for fulfillment', pts: [
+        { t: 'Claims leave your queue', d: 'Lost, stolen and damaged claims run through ShipInsure.' },
+        { t: 'Clean order data', d: 'Protection is its own SKU and line item on every covered order.' },
+        { t: 'Fits your current flow', d: '[Fulfillment detail from the call: 3PL, auto-fulfill, carriers]' } ] },
+      'Customer experience': { k: 'For customer experience', title: 'What this means for your support team', pts: [
+        { t: 'One answer for a missing package', d: 'Covered customers file their claim with ShipInsure directly.' },
+        { t: 'Coverage is easy to check', d: 'If the order has the ShipInsure line, it is covered.' },
+        { t: 'Where it helps most', d: '[Ticket volume or delivery-issue detail from the call]' } ] },
+      'Finance': { k: 'For finance', title: 'What this means for the numbers', pts: [
+        { t: 'Loss stops being a surprise cost', d: 'Lost, stolen and damaged packages are covered by ShipInsure.' },
+        { t: 'Clean reporting', d: 'The protection fee sits on its own SKU, separate from merchandise.' },
+        { t: 'Your baseline', d: '[Current monthly reship and refund cost from the call]' } ] },
+      'Store sales team': { k: 'For the sales team', title: 'What to tell the customer', pts: [
+        { t: 'Lost, stolen, damaged', d: 'If the package has a problem in transit, the customer is covered.' },
+        { t: 'One place to file', d: 'Claims go straight to ShipInsure, with no back-and-forth with the store.' },
+        { t: 'Priced by order value', d: 'A small fee based on the merchandise total, shown as its own line.' } ] },
+      'Support team': { k: 'For the support team', title: 'When a customer reports a problem', pts: [
+        { t: 'Check the order', d: 'Look for the ShipInsure line item. No line means no coverage.' },
+        { t: 'Send them to file', d: 'Claims link: [CLAIMS LINK]' },
+        { t: 'Still a draft?', d: 'Drafts never converted to orders are not covered. Flag it to [ESCALATION CONTACT].' } ] }
+    };
+    var audience = p.audience ?? 'Founder / Exec';
+    var lens = lenses[audience] || lenses['Founder / Exec'];
+    return {
+      showStepOwner: p.showStepOwner ?? true,
+      showStepDate: p.showStepDate ?? true,
+      showStepExtra: !!(p.stepExtra && String(p.stepExtra).trim()),
+      stepExtra: p.stepExtra ?? '',
+      showStepExtra2: !!(p.stepExtra2 && String(p.stepExtra2).trim()),
+      stepExtra2: p.stepExtra2 ?? '',
+      heroBg: heroes[p.heroTone ?? 'Navy'] || heroes['Navy'],
+      siSrc: siLogo === 'Auto' ? siLogos['Horizontal · blue'] : (siLogos[siLogo] || siLogos['Horizontal · blue']),
+      siLogoH: p.siLogoH ?? 26,
+      showTag: p.showTag ?? true,
+      showCta: p.showCta ?? true,
+      ctaTitle: p.ctaTitle ?? 'Ready when you are',
+      ctaSub: p.ctaSub ?? 'Pick a time to start your install',
+      ctaButton: p.ctaButton ?? 'Book install',
+      audience: audience,
+      meetingType: p.meetingType ?? 'Discovery call',
+      merchant: p.merchant ?? '[Merchant]',
+      meetingDate: p.meetingDate ?? '[Meeting date]',
+      showMerchantLogo: p.showMerchantLogo ?? true,
+      merchantLogoH: p.merchantLogoH ?? 26,
+      showHeard: p.showHeard ?? (audience !== 'Executive summary'),
+      showLens: p.showLens ?? true,
+      showSteps: p.showSteps ?? true,
+      showProgram: p.showProgram ?? true,
+      showDetails: p.showDetails ?? false,
+      showContact: p.showContact ?? true,
+      lensTitle: lens.title, lensPoints: lens.pts,
+      repName: p.repName ?? 'Drew',
+      repEmail: p.repEmail ?? 'drew@shipinsure.io',
+      repPhone: p.repPhone ?? '(801) 368 - 1134',
+    };
+  }
+}
+</script>
+</body>
+</html>

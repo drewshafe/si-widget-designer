@@ -1,0 +1,353 @@
+{
+ "source": "Post-Meeting One-Pager",
+ "synced": "2026-11-27T20:04:07+00:00",
+ "groups": [
+  "Meeting recap",
+  "One-sheeters",
+  "Topic pages",
+  "Draft orders"
+ ],
+ "templates": [
+  {
+   "id": "Recap",
+   "label": "Meeting recap · Master V1",
+   "group": "Meeting recap",
+   "w": 816,
+   "h": 1056,
+   "hash": "da49a71903d5",
+   "added": "2026-11-10"
+  },
+  {
+   "id": "Recap-di18",
+   "label": "Meeting recap · Master V2",
+   "group": "Meeting recap",
+   "w": 816,
+   "h": 1056,
+   "hash": "05702eefb70c",
+   "added": "2026-11-10"
+  },
+  {
+   "id": "Recap-V3",
+   "label": "Meeting recap · Master V3",
+   "group": "Meeting recap",
+   "w": 816,
+   "h": 1056,
+   "hash": "5cdf15957e18",
+   "added": "2026-11-10"
+  },
+  {
+   "id": "Recap-V4",
+   "label": "Meeting recap · Master V4",
+   "group": "Meeting recap",
+   "w": 816,
+   "h": 1056,
+   "hash": "bce313f78766",
+   "added": "2026-11-10"
+  },
+  {
+   "id": "Recap-Landscape",
+   "label": "Meeting recap · Master V1 · landscape",
+   "group": "Meeting recap",
+   "w": 1056,
+   "h": 816,
+   "hash": "6c7a818c9ad4",
+   "added": "2026-11-27",
+   "landscapeOf": "Recap"
+  },
+  {
+   "id": "Recap-di18-Landscape",
+   "label": "Meeting recap · Master V2 · landscape",
+   "group": "Meeting recap",
+   "w": 1056,
+   "h": 816,
+   "hash": "c7e2044ca090",
+   "added": "2026-11-27",
+   "landscapeOf": "Recap-di18"
+  },
+  {
+   "id": "Recap-V3-Landscape",
+   "label": "Meeting recap · Master V3 · landscape",
+   "group": "Meeting recap",
+   "w": 1056,
+   "h": 816,
+   "hash": "8c270f65655f",
+   "added": "2026-11-27",
+   "landscapeOf": "Recap-V3"
+  },
+  {
+   "id": "Recap-V4-Landscape",
+   "label": "Meeting recap · Master V4 · landscape",
+   "group": "Meeting recap",
+   "w": 1056,
+   "h": 816,
+   "hash": "74b2de521053",
+   "added": "2026-11-27",
+   "landscapeOf": "Recap-V4"
+  },
+  {
+   "id": "Tpl-PreCallAgenda",
+   "label": "Pre-call agenda",
+   "group": "Meeting recap",
+   "w": 816,
+   "h": 1056,
+   "hash": "3733ccb768d6",
+   "added": "2026-11-10"
+  },
+  {
+   "id": "Tpl-PreCallAgenda-Landscape",
+   "label": "Pre-call agenda · landscape",
+   "group": "Meeting recap",
+   "w": 1056,
+   "h": 816,
+   "hash": "9856f762c6f1",
+   "added": "2026-11-27",
+   "landscapeOf": "Tpl-PreCallAgenda"
+  },
+  {
+   "id": "Tpl-ProactiveOneSheet",
+   "label": "Proactive resolutions",
+   "group": "One-sheeters",
+   "w": 816,
+   "h": 1056,
+   "hash": "23758dce75b4",
+   "added": "2026-11-10"
+  },
+  {
+   "id": "Tpl-ProactiveOneSheet-V2",
+   "label": "Proactive resolutions V2 (landscape)",
+   "group": "One-sheeters",
+   "w": 1056,
+   "h": 816,
+   "hash": "9e5254de8dc1",
+   "added": "2026-11-27"
+  },
+  {
+   "id": "Tpl-ABResults",
+   "label": "A/B test results",
+   "group": "One-sheeters",
+   "w": 816,
+   "h": 1056,
+   "hash": "0fd2c6bc126a",
+   "added": "2026-11-10"
+  },
+  {
+   "id": "Tpl-ABResults-Landscape",
+   "label": "A/B test results · landscape",
+   "group": "One-sheeters",
+   "w": 1056,
+   "h": 816,
+   "hash": "f66c8714304b",
+   "added": "2026-11-27",
+   "landscapeOf": "Tpl-ABResults"
+  },
+  {
+   "id": "Tpl-HelpdeskOneSheet",
+   "label": "Helpdesk one-sheeter (by partner)",
+   "group": "One-sheeters",
+   "w": 816,
+   "h": 1056,
+   "hash": "0f386b65f396",
+   "added": "2026-11-10"
+  },
+  {
+   "id": "Tpl-HelpdeskOneSheet-Landscape",
+   "label": "Helpdesk one-sheeter (by partner) · landscape",
+   "group": "One-sheeters",
+   "w": 1056,
+   "h": 816,
+   "hash": "b594bf4d952e",
+   "added": "2026-11-27",
+   "landscapeOf": "Tpl-HelpdeskOneSheet"
+  },
+  {
+   "id": "Tpl-SubscriptionsOneSheet",
+   "label": "Subscriptions one-sheeter (by partner)",
+   "group": "One-sheeters",
+   "w": 816,
+   "h": 1056,
+   "hash": "15757759b056",
+   "added": "2026-11-10"
+  },
+  {
+   "id": "Tpl-SubscriptionsOneSheet-Landscape",
+   "label": "Subscriptions one-sheeter (by partner) · landscape",
+   "group": "One-sheeters",
+   "w": 1056,
+   "h": 816,
+   "hash": "3b49fff4615d",
+   "added": "2026-11-27",
+   "landscapeOf": "Tpl-SubscriptionsOneSheet"
+  },
+  {
+   "id": "Tpl-ABTests",
+   "label": "A/B tests",
+   "group": "Topic pages",
+   "w": 816,
+   "h": 1056,
+   "hash": "394da6118200",
+   "added": "2026-11-10"
+  },
+  {
+   "id": "Tpl-ABTests-Landscape",
+   "label": "A/B tests · landscape",
+   "group": "Topic pages",
+   "w": 1056,
+   "h": 816,
+   "hash": "1274f05c472f",
+   "added": "2026-11-27",
+   "landscapeOf": "Tpl-ABTests"
+  },
+  {
+   "id": "Tpl-Helpdesk",
+   "label": "Helpdesk",
+   "group": "Topic pages",
+   "w": 816,
+   "h": 1056,
+   "hash": "9dabb0870c85",
+   "added": "2026-11-10"
+  },
+  {
+   "id": "Tpl-Helpdesk-Landscape",
+   "label": "Helpdesk · landscape",
+   "group": "Topic pages",
+   "w": 1056,
+   "h": 816,
+   "hash": "ac3c76262892",
+   "added": "2026-11-27",
+   "landscapeOf": "Tpl-Helpdesk"
+  },
+  {
+   "id": "Tpl-Subscriptions",
+   "label": "Subscriptions",
+   "group": "Topic pages",
+   "w": 816,
+   "h": 1056,
+   "hash": "e4b5344c9bac",
+   "added": "2026-11-10"
+  },
+  {
+   "id": "Tpl-Subscriptions-Landscape",
+   "label": "Subscriptions · landscape",
+   "group": "Topic pages",
+   "w": 1056,
+   "h": 816,
+   "hash": "383d8faa76a7",
+   "added": "2026-11-27",
+   "landscapeOf": "Tpl-Subscriptions"
+  },
+  {
+   "id": "Tpl-Partners",
+   "label": "Partners",
+   "group": "Topic pages",
+   "w": 816,
+   "h": 1056,
+   "hash": "518de6719909",
+   "added": "2026-11-10"
+  },
+  {
+   "id": "Tpl-Partners-Landscape",
+   "label": "Partners · landscape",
+   "group": "Topic pages",
+   "w": 1056,
+   "h": 816,
+   "hash": "1cfe738cdcef",
+   "added": "2026-11-27",
+   "landscapeOf": "Tpl-Partners"
+  },
+  {
+   "id": "Tpl-OnboardingPortal",
+   "label": "Onboarding & Merchant Portal",
+   "group": "Topic pages",
+   "w": 816,
+   "h": 1056,
+   "hash": "543e6b19a0e5",
+   "added": "2026-11-10"
+  },
+  {
+   "id": "Tpl-OnboardingPortal-Landscape",
+   "label": "Onboarding & Merchant Portal · landscape",
+   "group": "Topic pages",
+   "w": 1056,
+   "h": 816,
+   "hash": "9fb52c08b1c2",
+   "added": "2026-11-27",
+   "landscapeOf": "Tpl-OnboardingPortal"
+  },
+  {
+   "id": "Tpl-ROI",
+   "label": "ROI",
+   "group": "Topic pages",
+   "w": 816,
+   "h": 1056,
+   "hash": "da75d353f733",
+   "added": "2026-11-10"
+  },
+  {
+   "id": "Tpl-ROI-Hybrid",
+   "label": "ROI (hybrid)",
+   "group": "Topic pages",
+   "w": 816,
+   "h": 1056,
+   "hash": "e0dd4b717795",
+   "added": "2026-11-10"
+  },
+  {
+   "id": "Tpl-ROI-Landscape",
+   "label": "ROI · landscape",
+   "group": "Topic pages",
+   "w": 1056,
+   "h": 816,
+   "hash": "a13eacf7de62",
+   "added": "2026-11-27",
+   "landscapeOf": "Tpl-ROI"
+  },
+  {
+   "id": "Tpl-ROI-Hybrid-Landscape",
+   "label": "ROI (hybrid) · landscape",
+   "group": "Topic pages",
+   "w": 1056,
+   "h": 816,
+   "hash": "708ec2cbfac5",
+   "added": "2026-11-27",
+   "landscapeOf": "Tpl-ROI-Hybrid"
+  },
+  {
+   "id": "Tpl-ShopperExperience",
+   "label": "Shopper experience",
+   "group": "Topic pages",
+   "w": 816,
+   "h": 1056,
+   "hash": "79c81b564451",
+   "added": "2026-11-10"
+  },
+  {
+   "id": "Tpl-ShopperExperience-Landscape",
+   "label": "Shopper experience · landscape",
+   "group": "Topic pages",
+   "w": 1056,
+   "h": 816,
+   "hash": "e07d897d30d9",
+   "added": "2026-11-27",
+   "landscapeOf": "Tpl-ShopperExperience"
+  },
+  {
+   "id": "Main",
+   "label": "Draft-order guide · with call to action",
+   "group": "Draft orders",
+   "w": 816,
+   "h": 1056,
+   "hash": "7a12de2e4bf6",
+   "added": "2026-11-10"
+  },
+  {
+   "id": "Main-Landscape",
+   "label": "Draft-order guide · with call to action · landscape",
+   "group": "Draft orders",
+   "w": 1056,
+   "h": 816,
+   "hash": "f2216052736c",
+   "added": "2026-11-27",
+   "landscapeOf": "Main"
+  }
+ ]
+}

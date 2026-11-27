@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pre-Call Agenda · landscape</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1056px; height: 816px; box-sizing: border-box; display: flex; flex-direction: column; background: #FFFFFF; color: #17152B; font-family: 'Montserrat', system-ui, sans-serif; overflow: hidden; position: relative">
+
+<header style="position: relative; flex: none; box-sizing: border-box; min-height: 104px; background: #FFFFFF; border-bottom: 1px solid #E1E1EC; overflow: hidden">
+<sc-if value="{{showHero}}" hint-placeholder-val="{{ true }}">
+<img src="onepager-assets/si2-hero-grey.png" alt="" aria-hidden="true" style="position: absolute; right: 56px; top: 50%; transform: translateY(-50%); height: {{heroSize}}px; width: auto">
+</sc-if>
+<div style="position: relative; box-sizing: border-box; min-height: 104px; padding: 16px 56px; display: flex; flex-direction: row; align-items: center; gap: 28px">
+<div style="display: flex; align-items: center; gap: 16px">
+<img src="{{siLogoSrc}}" alt="ShipInsure" style="display: block; height: {{siLogoH}}px; width: auto">
+<sc-if value="{{showMerchantLogo}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; align-items: center; gap: 16px">
+<div style="width: 1px; height: 38px; background: #C9C9DA"></div>
+<img src="onepager-assets/dc/merchant-logo-placeholder.png" alt="Merchant logo" style="display: block; height: 28px; width: auto">
+</div>
+</sc-if>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h1 style="margin: 0; font-size: 30px; font-weight: 800; line-height: 1.12; letter-spacing: -0.015em; color: #17152B">Call agenda</h1>
+<div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap">
+<div style="font-size: 15px; font-weight: 500; color: #4A4960">{{merchant}} × ShipInsure · {{meetingDate}}</div>
+<div style="font-size: 12px; font-weight: 600; padding: 5px 11px; border: 1px solid #C9C9DA; border-radius: 6px; background: #FFFFFF; color: #17152B">For: {{audience}}</div>
+</div>
+</div>
+</div>
+</header>
+
+<main style="flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 250px; grid-template-rows: auto auto; column-gap: 28px; row-gap: 18px; align-content: start; align-items: start; padding: 20px 56px 12px">
+
+<div style="display: contents">
+
+<section style="display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: {{accent}}">What we want out of this call</div>
+<ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px">
+<li style="display: flex; gap: 12px; align-items: baseline">
+<div style="flex: none; width: 7px; height: 7px; border-radius: 2px; background: {{accent}}; transform: translateY(-2px)"></div>
+<div style="font-size: 15px; line-height: 1.5">[Outcome #1, e.g. confirm how you ship and who owns claims today]</div>
+</li>
+<li style="display: flex; gap: 12px; align-items: baseline">
+<div style="flex: none; width: 7px; height: 7px; border-radius: 2px; background: {{accent}}; transform: translateY(-2px)"></div>
+<div style="font-size: 15px; line-height: 1.5">[Outcome #2, e.g. agree on a next step and date]</div>
+</li>
+<li style="display: flex; gap: 12px; align-items: baseline">
+<div style="flex: none; width: 7px; height: 7px; border-radius: 2px; background: {{accent}}; transform: translateY(-2px)"></div>
+<div style="font-size: 15px; line-height: 1.5">[Outcome #3]</div>
+</li>
+</ul>
+</section>
+<section style="display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: {{accent}}">Agenda</div>
+<table style="width: 100%; border-collapse: collapse; font-size: 14px; line-height: 1.4">
+<thead><tr><th style="text-align: left; font-size: 12px; font-weight: 700; color: #4A4960; border-bottom: 1px solid #C9C9DA; padding: 0 12px 8px 0">Topic</th><th style="text-align: left; font-size: 12px; font-weight: 700; color: #4A4960; border-bottom: 1px solid #C9C9DA; padding: 0 12px 8px 0; width: 72px">Time</th><th style="text-align: left; font-size: 12px; font-weight: 700; color: #4A4960; border-bottom: 1px solid #C9C9DA; padding: 0 0 8px 0; width: 90px">Lead</th></tr></thead>
+<tbody>
+<tr><td style="padding: 10px 12px 10px 0; border-bottom: 1px solid #E1E1EC; font-weight: 700">[Intro and goals]</td><td style="padding: 10px 12px 10px 0; border-bottom: 1px solid #E1E1EC">[5 min]</td><td style="padding: 10px 0 10px 0; border-bottom: 1px solid #E1E1EC">[Name]</td></tr>
+<tr><td style="padding: 10px 12px 10px 0; border-bottom: 1px solid #E1E1EC; font-weight: 700">[Your current setup]</td><td style="padding: 10px 12px 10px 0; border-bottom: 1px solid #E1E1EC">[10 min]</td><td style="padding: 10px 0 10px 0; border-bottom: 1px solid #E1E1EC">[Name]</td></tr>
+<tr><td style="padding: 10px 12px 10px 0; border-bottom: 1px solid #E1E1EC; font-weight: 700">[How ShipInsure fits]</td><td style="padding: 10px 12px 10px 0; border-bottom: 1px solid #E1E1EC">[15 min]</td><td style="padding: 10px 0 10px 0; border-bottom: 1px solid #E1E1EC">[Name]</td></tr>
+<tr><td style="padding: 10px 12px 10px 0; border-bottom: 1px solid #E1E1EC; font-weight: 700">[Next steps]</td><td style="padding: 10px 12px 10px 0; border-bottom: 1px solid #E1E1EC">[5 min]</td><td style="padding: 10px 0 10px 0; border-bottom: 1px solid #E1E1EC">[Name]</td></tr>
+</tbody>
+</table>
+</section>
+<section style="grid-column: 1 / span 2; display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: {{accent}}">Helpful to have on hand</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 10px; background: #F3F3FC">
+<div style="font-size: 14.5px; font-weight: 700">Order and shipping volume</div>
+<div style="font-size: 13px; line-height: 1.45; color: #4A4960">[Monthly orders, average order value]</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 10px; background: #F3F3FC">
+<div style="font-size: 14.5px; font-weight: 700">Current protection or claims process</div>
+<div style="font-size: 13px; line-height: 1.45; color: #4A4960">[Provider, who handles claims]</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 10px; background: #F3F3FC">
+<div style="font-size: 14.5px; font-weight: 700">Who else should join</div>
+<div style="font-size: 13px; line-height: 1.45; color: #4A4960">[Roles that decide or implement]</div>
+</div>
+</div>
+</section>
+
+</div>
+
+<aside style="grid-column: 3; grid-row: 1 / span 2; display: flex; flex-direction: column; gap: 16px">
+<div style="background: #F3F3FC; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: {{accent}}">Call details</div>
+<div style="display: flex; flex-direction: column; gap: 2px"><div style="font-size: 12px; font-weight: 600; color: #4A4960">Date and time</div><div style="font-size: 14px; font-weight: 600; line-height: 1.4">{{meetingDate}}</div></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><div style="font-size: 12px; font-weight: 600; color: #4A4960">Length</div><div style="font-size: 14px; font-weight: 600; line-height: 1.4">[30 min]</div></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><div style="font-size: 12px; font-weight: 600; color: #4A4960">Join link</div><div style="font-size: 14px; font-weight: 600; line-height: 1.4">[Meeting link]</div></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><div style="font-size: 12px; font-weight: 600; color: #4A4960">Attendees</div><div style="font-size: 14px; font-weight: 600; line-height: 1.4">[Names, titles]</div></div>
+</div>
+<div style="border: 1px solid #3C3A7A; border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 6px; background: radial-gradient(ellipse 110% 130% at 85% 105%, rgba(70, 82, 230, 0.75) 0%, rgba(70, 82, 230, 0) 70%), #15123B">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #C5C7F6">Your ShipInsure contact</div>
+<div style="font-size: 16px; font-weight: 700; color: #FFFFFF">{{repName}}</div>
+<div style="font-size: 13px; color: #D5D6F5">{{repEmail}}</div>
+<div style="font-size: 13px; color: #D5D6F5">{{repPhone}}</div>
+</div>
+</aside>
+
+</main>
+
+<sc-if value="{{showCta}}" hint-placeholder-val="{{ true }}">
+<div style="position: relative; flex: none; margin: 4px 56px 20px; height: 106px"><div style="position: absolute; left: -26px; top: -22px; width: 210px; height: 150px; border-radius: 999px; background: #6B73FF; opacity: 0.6; filter: blur(36px)"></div><div style="position: absolute; right: 150px; bottom: -28px; width: 230px; height: 90px; border-radius: 999px; background: #2FC9B8; opacity: 0.5; filter: blur(34px)"></div><div style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; border-radius: 24px; background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0) 45%), rgba(21,36,74,0.78); -webkit-backdrop-filter: blur(22px) saturate(1.7); backdrop-filter: blur(22px) saturate(1.7); border: 1px solid rgba(255,255,255,0.22); box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(255,255,255,0.08), 0 10px 30px rgba(21,36,74,0.28)"></div><div style="position: relative; height: 106px; display: flex; align-items: center; gap: 12px; padding: 0 0 0 24px">
+<div style="flex: none; width: 112px; font-size: 22px; line-height: 1.12; font-weight: 300; color: #FFFFFF">Keeping merchants the <span style="font-weight: 800; color: #6B73FF">hero</span></div>
+<div style="flex: none; width: 1px; height: 54px; background: #3A4A74"></div>
+<div style="flex: none; width: 176px; display: flex; flex-direction: column; gap: 3px"><div style="font-size: 15px; font-weight: 700; color: #FFFFFF">{{ctaTitle}}</div><div style="font-size: 12.5px; color: #C9D0EA">{{ctaSub}}</div></div>
+<div style="flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center"><div style="flex: none; display: flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 999px; background: linear-gradient(180deg, #8A90FF, #6B73FF); border: 1px solid rgba(255,255,255,0.4); color: #FFFFFF; font-size: 13px; font-weight: 700; box-shadow: inset 0 1px 0 rgba(255,255,255,0.55), 0 4px 14px rgba(107,115,255,0.45)">{{ctaButton}}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4l8 8-8 8"></path></svg></div></div><img src="onepager-assets/dc/cta-package.png" alt="" style="flex: none; align-self: flex-end; margin: 0 6px 2px 0; height: 112px; width: auto; display: block">
+</div>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;merchant&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;[Merchant]&quot;,&quot;section&quot;:&quot;Version&quot;},&quot;meetingDate&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;[Date]&quot;,&quot;section&quot;:&quot;Version&quot;},&quot;audience&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;[Recipient name]&quot;,&quot;section&quot;:&quot;Version&quot;},&quot;showMerchantLogo&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Header&quot;},&quot;siLogo&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Auto&quot;,&quot;Horizontal · blue&quot;,&quot;Horizontal · blue/white&quot;,&quot;Horizontal · light grey&quot;,&quot;Horizontal · dark&quot;,&quot;Horizontal · black&quot;,&quot;Vertical · blue&quot;,&quot;Vertical · blue/white&quot;,&quot;Vertical · light grey&quot;,&quot;Vertical · dark&quot;],&quot;default&quot;:&quot;Auto&quot;,&quot;section&quot;:&quot;Header&quot;},&quot;siLogoH&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:16,&quot;max&quot;:96,&quot;step&quot;:2,&quot;unit&quot;:&quot;px&quot;,&quot;default&quot;:30,&quot;section&quot;:&quot;Header&quot;},&quot;showHero&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Header&quot;},&quot;heroSize&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:40,&quot;max&quot;:200,&quot;step&quot;:4,&quot;unit&quot;:&quot;px&quot;,&quot;default&quot;:100,&quot;section&quot;:&quot;Header&quot;},&quot;repName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Drew Shafer&quot;,&quot;section&quot;:&quot;Contact&quot;},&quot;repEmail&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;drew@shipinsure.io&quot;,&quot;section&quot;:&quot;Contact&quot;},&quot;repPhone&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;(801) 368 - 1134&quot;,&quot;section&quot;:&quot;Contact&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#4652E6&quot;,&quot;options&quot;:[&quot;#4652E6&quot;,&quot;#15123B&quot;,&quot;#0F766E&quot;,&quot;#B45309&quot;],&quot;section&quot;:&quot;Look&quot;},&quot;showCta&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;section&quot;:&quot;Call to action&quot;},&quot;ctaTitle&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Pick a time&quot;,&quot;section&quot;:&quot;Call to action&quot;},&quot;ctaSub&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Confirm your call slot&quot;,&quot;section&quot;:&quot;Call to action&quot;},&quot;ctaButton&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Confirm time&quot;,&quot;section&quot;:&quot;Call to action&quot;},&quot;$preview&quot;:{&quot;width&quot;:1056,&quot;height&quot;:816}}">
+class Component extends DCLogic {
+  renderVals() {
+    var p = this.props;
+    var siLogos = {
+      'Horizontal · blue': 'onepager-assets/si2-logo-h-blue.png', 'Horizontal · blue/white': 'onepager-assets/si2-logo-h-blue-white.png',
+      'Horizontal · light grey': 'onepager-assets/si2-logo-h-grey.png', 'Horizontal · dark': 'onepager-assets/si2-logo-h-dark.png',
+      'Horizontal · black': 'onepager-assets/si2-logo-h-black.png', 'Vertical · blue': 'onepager-assets/si2-logo-v-blue.png',
+      'Vertical · blue/white': 'onepager-assets/si2-logo-v-blue-white.png', 'Vertical · light grey': 'onepager-assets/si2-logo-v-grey.png',
+      'Vertical · dark': 'onepager-assets/si2-logo-v-dark.png'
+    };
+    // Auto = Horizontal dark (these pages use a light header)
+    var siLogo = p.siLogo ?? 'Auto';
+    return {
+      showCta: p.showCta ?? true,
+      ctaTitle: p.ctaTitle ?? "Pick a time",
+      ctaSub: p.ctaSub ?? "Confirm your call slot",
+      ctaButton: p.ctaButton ?? "Confirm time",
+      siLogoSrc: siLogo === 'Auto' ? siLogos['Horizontal · dark'] : (siLogos[siLogo] || siLogos['Horizontal · dark']),
+      siLogoH: p.siLogoH ?? 30,
+      merchant: p.merchant ?? '[Merchant]',
+      meetingDate: p.meetingDate ?? '[Date]',
+      audience: p.audience ?? '[Recipient name]',
+      showMerchantLogo: p.showMerchantLogo ?? true,
+      showHero: p.showHero ?? true,
+      heroSize: p.heroSize ?? 100,
+      repName: p.repName ?? 'Drew Shafer',
+      repEmail: p.repEmail ?? 'drew@shipinsure.io',
+      repPhone: p.repPhone ?? '(801) 368 - 1134',
+      accent: p.accent ?? '#4652E6'
+    };
+  }
+}
+</script>
+</body>
+</html>

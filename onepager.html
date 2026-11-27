@@ -68,6 +68,22 @@
   .fx-msg { font-size:11.5px; line-height:1.4; color:var(--muted); }
   .fx-msg:empty { display:none; }
   .fx-msg.warn { color:var(--warn); }
+  .tpl-row { display:flex; gap:6px; }
+  .tpl-row select { flex:1; min-width:0; }
+  .tpl-row .btn { flex:0 0 auto; }
+  .tip.sync { margin-top:-2px; }
+  /* ROI numbers (ROI templates): calc link or a saved scenario */
+  .roi-wrap { position:relative; }
+  .roi-dd { position:absolute; z-index:40; left:0; right:0; top:calc(100% + 4px); max-height:260px; overflow:auto; background:var(--card); border:1px solid var(--line); border-radius:10px; box-shadow:0 12px 30px rgba(20,24,60,.18); padding:6px; display:flex; flex-direction:column; gap:2px; }
+  .roi-dd .hd { font-size:11px; font-weight:700; color:var(--muted); padding:4px 8px 6px; }
+  .roi-dd .em { font-size:12px; color:var(--muted); padding:6px 8px; line-height:1.4; }
+  .roi-dd .it { display:flex; flex-direction:column; align-items:flex-start; gap:1px; border:0; background:transparent; text-align:left; padding:7px 8px; border-radius:7px; cursor:pointer; color:var(--ink); font-size:12.5px; }
+  .roi-dd .it:hover, .roi-dd .it:focus { background:var(--field); outline:none; }
+  .roi-dd .it span { font-size:11px; color:var(--muted); }
+  .roi-on { display:flex; gap:8px; align-items:flex-start; justify-content:space-between; font-size:11.8px; line-height:1.4; color:var(--muted); background:var(--field); border:1px solid var(--line); border-radius:9px; padding:8px 10px; }
+  .roi-on b { color:var(--ink); font-weight:600; }
+  .roi-on button { flex:0 0 auto; border:0; background:transparent; color:var(--muted); cursor:pointer; font-size:12px; padding:0 2px; }
+  .roi-on button:hover { color:var(--ink); }
 
   .sw { display:flex; flex-wrap:wrap; gap:7px; align-items:center; }
   .sw button { width:28px; height:28px; border-radius:999px; border:2px solid var(--card); box-shadow:0 0 0 1px var(--line); cursor:pointer; position:relative; }
@@ -93,7 +109,7 @@
   .acts { display:grid; grid-template-columns:1fr auto; gap:8px; }
   .tip { font-size:11.5px; line-height:1.45; color:var(--muted); }
 
-  .op-warn { width:100%; max-width:816px; display:flex; gap:8px; align-items:center; font-size:12.5px; font-weight:600; color:var(--warn); background:var(--warn-soft); border:1px solid #efc89a; border-radius:9px; padding:8px 12px; }
+  .op-warn { width:100%; max-width:var(--pw,816px); display:flex; gap:8px; align-items:center; font-size:12.5px; font-weight:600; color:var(--warn); background:var(--warn-soft); border:1px solid #efc89a; border-radius:9px; padding:8px 12px; }
   body.pm .op-warn { border-color:#4a3714; }
   .op-warn.ok { color:var(--ink); background:var(--accent-soft); border-color:var(--line); }
   .op-fit { flex:0 0 auto; position:relative; overflow:hidden; border-radius:4px; box-shadow:0 1px 2px rgba(20,24,60,.10), 0 14px 40px rgba(20,24,60,.16); background:#fff; }
@@ -103,7 +119,7 @@
   .op-toast.show { transform:translateX(-50%) translateY(0); }
 
   /* ── The page: shared ── */
-  .op-page { position:relative; width:816px; height:1056px; display:flex; flex-direction:column; background:#FFFFFF; color:#17152B; font-family:'Montserrat', system-ui, sans-serif; overflow:hidden; overflow-wrap:break-word; transform-origin:0 0; --ac:#4652E6; -webkit-font-smoothing:antialiased; text-align:left; }
+  .op-page { position:relative; width:var(--pw,816px); height:var(--ph,1056px); display:flex; flex-direction:column; background:#FFFFFF; color:#17152B; font-family:'Montserrat', system-ui, sans-serif; overflow:hidden; overflow-wrap:break-word; transform-origin:0 0; --ac:#4652E6; -webkit-font-smoothing:antialiased; text-align:left; }
   .pg-lbl { font-size:12px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--ac); }
 
   /* ── Draft-order guide (Main.dc.html) ── */
@@ -349,12 +365,12 @@
   /* ── Export: one Letter page, edge to edge ── */
   @page { size:8.5in 11in; margin:0; }
   @media print {
-    html, body { width:816px !important; height:1056px !important; min-height:0 !important; margin:0 !important; padding:0 !important; overflow:hidden !important; background:#FFFFFF !important; display:block !important; }
+    html, body { width:var(--pw,816px) !important; height:var(--ph,1056px) !important; min-height:0 !important; margin:0 !important; padding:0 !important; overflow:hidden !important; background:#FFFFFF !important; display:block !important; }
     body > :not(.op-app) { display:none !important; }
     .op-app { display:block !important; height:auto !important; }
     .op-side, .op-warn, .op-hint, .op-dl, .ph-box, .ph-only { display:none !important; }
     .op-stage { display:block !important; padding:0 !important; margin:0 !important; overflow:visible !important; background:none !important; }
-    .op-fit { width:816px !important; height:1056px !important; box-shadow:none !important; border-radius:0 !important; overflow:hidden !important; }
+    .op-fit { width:var(--pw,816px) !important; height:var(--ph,1056px) !important; box-shadow:none !important; border-radius:0 !important; overflow:hidden !important; }
     .op-page { transform:none !important; break-after:avoid; break-inside:avoid; }
     .op-page [contenteditable] { box-shadow:none !important; background-color:transparent !important; }
     .op-page [contenteditable]:empty::before { content:none !important; }
@@ -377,7 +393,12 @@
 
     <div class="grp">
       <label class="lbl" for="tplSel">Template</label>
-      <select id="tplSel"></select>
+      <div class="tpl-row"><select id="tplSel"></select><button type="button" class="btn small" id="tplUpd" title="Get the templates newly added or updated in the Post-Meeting One-Pager design project">↻ Update</button></div>
+      <div class="seg" id="orient" role="tablist" aria-label="Page orientation" hidden>
+        <button type="button" data-o="p" role="tab">Portrait</button>
+        <button type="button" data-o="l" role="tab">Landscape</button>
+      </div>
+      <div class="tip sync" id="tplSync"></div>
     </div>
 
     <!-- Meeting recap: version -->
@@ -414,6 +435,15 @@
         <div class="fld"><label for="f-repEmail">Rep email</label><input id="f-repEmail" data-b="repEmail" type="email" placeholder="you@shipinsure.io" autocomplete="off"></div>
       </div>
       <ul class="src" id="src"></ul>
+      <div class="fld" id="roiFld" hidden>
+        <label for="f-roi">ROI numbers</label>
+        <div class="roi-wrap">
+          <div class="fx-row"><input id="f-roi" type="url" placeholder="Paste an ROI Calculator link…" autocomplete="off"><button type="button" class="btn small primary" id="roiGo" title="Fill the page's numbers from this calculator link">Load</button><button type="button" class="btn small" id="roiFolder" aria-haspopup="true" title="Pick an ROI scenario saved in this merchant's Brand Folder">📁 Saved ▾</button></div>
+          <div class="roi-dd" id="roiDD" role="menu" hidden></div>
+        </div>
+        <div class="roi-on" id="roiOn" hidden></div>
+        <div class="fx-msg" id="roiMsg" role="status" aria-live="polite"></div>
+      </div>
       <div class="fld" data-only="recap">
         <label for="f-fathom">Fathom call</label>
         <div class="fx-row"><input id="f-fathom" type="url" placeholder="Call, share or call-folder link" autocomplete="off"><button type="button" class="btn small primary" id="fathomGo" title="Read the call from Fathom and draft this recap from it: meeting type and date, attendees, what we heard, next steps, setup, pricing and go-live">🎙 Draft</button></div>
@@ -550,20 +580,45 @@
   const ASSET = 'onepager-assets/';
   const DEF_ACCENT = { recap: '#4652E6', guide: '#4F46E5', gift: '#4F46E5' };
   const SWATCHES = { recap: ['#4652E6', '#15123B', '#0F766E', '#B45309'], guide: ['#4F46E5', '#2563EB', '#0F766E', '#15123B'], gift: ['#4F46E5', '#2563EB', '#0F766E', '#15123B'] };
-  // Template picker. 'dc:<file>' = a template from the Post-Meeting One-Pager design canvas, copied as-is into
-  // onepager-templates/<file>.dc.html (its /_blob/ images point at onepager-assets/) and rendered by dcRender().
-  // The rest are built by hand here (Fathom drafting, block styling, deal SKU bands).
-  const TPL_MENU = [
-    ['Meeting recap', [['recap', 'Meeting recap · Fathom draft + blocks'], ['dc:Recap', 'Meeting recap · Master V1'], ['dc:Recap-di18', 'Meeting recap · Master V2'],
-      ['dc:Recap-V3', 'Meeting recap · Master V3'], ['dc:Recap-V4', 'Meeting recap · Master V4'], ['dc:Tpl-PreCallAgenda', 'Pre-call agenda']]],
-    ['One-sheeters', [['dc:Tpl-ProactiveOneSheet', 'Proactive resolutions'], ['dc:Tpl-HelpdeskOneSheet', 'Helpdesk one-sheeter (by partner)'],
-      ['dc:Tpl-SubscriptionsOneSheet', 'Subscriptions one-sheeter (by partner)'], ['dc:Tpl-ABResults', 'A/B test results']]],
-    ['Topic pages', [['dc:Tpl-ABTests', 'A/B tests'], ['dc:Tpl-Helpdesk', 'Helpdesk'], ['dc:Tpl-Subscriptions', 'Subscriptions'], ['dc:Tpl-Partners', 'Partners'],
-      ['dc:Tpl-OnboardingPortal', 'Onboarding & Merchant Portal'], ['dc:Tpl-ROI', 'ROI'], ['dc:Tpl-ROI-Hybrid', 'ROI (hybrid)'], ['dc:Tpl-ShopperExperience', 'Shopper experience']]],
-    ['Draft orders', [['guide', 'Draft-order guide · SKU from the deal'], ['dc:Main', 'Draft-order guide · with call to action'], ['gift', 'Gifted coverage']]]
-  ];
-  const TPL_NAME = {};
-  TPL_MENU.forEach(g => g[1].forEach(t => { TPL_NAME[t[0]] = t[1]; }));
+  // Template picker. 'dc:<file>' = a template from the Post-Meeting One-Pager design canvas, copied into
+  // onepager-templates/<file>.dc.html by onepager-templates/sync.py and listed in onepager-templates/manifest.json
+  // (its /_blob/ images point at onepager-assets/), rendered by renderDc(). "<file>-Landscape" is the landscape
+  // version of <file> (the Portrait / Landscape switch). The rest are built by hand here (Fathom drafting, block
+  // styling, deal SKU bands).
+  const TPL_BUILTIN = [['recap', 'Meeting recap', 'Meeting recap · Fathom draft + blocks', 'first'],
+    ['guide', 'Draft orders', 'Draft-order guide · SKU from the deal', 'first'], ['gift', 'Draft orders', 'Gifted coverage', 'last']];
+  const TPL_GROUPS = ['Meeting recap', 'One-sheeters', 'Topic pages', 'Draft orders'];
+  let MAN = { templates: [] };   // onepager-templates/manifest.json
+  let TPL_MENU = [];             // [group, [[value, label], …]] for the dropdown (landscape versions aren't listed)
+  const TPL_NAME = {}, TPL_INFO = {}, LAND = {};
+  const NEW_DAYS = 14;
+  function buildMenu() {
+    Object.keys(TPL_NAME).forEach(k => delete TPL_NAME[k]);
+    Object.keys(TPL_INFO).forEach(k => delete TPL_INFO[k]);
+    Object.keys(LAND).forEach(k => delete LAND[k]);
+    const groups = {}, order = TPL_GROUPS.slice();
+    const add = (g, item, first) => { if (!groups[g]) { groups[g] = []; if (order.indexOf(g) < 0) order.push(g); } groups[g][first ? 'unshift' : 'push'](item); };
+    const fresh = d => { const t = Date.parse(d); return t > 0 && Date.now() - t < NEW_DAYS * 864e5; };
+    (MAN.templates || []).forEach(t => {
+      const v = 'dc:' + t.id;
+      TPL_INFO[t.id] = t;
+      TPL_NAME[v] = t.label;
+      if (t.landscapeOf) { LAND[t.landscapeOf] = t.id; return; }
+      add(t.group || 'Topic pages', [v, t.label + (fresh(t.added) ? ' · New' : '')]);
+    });
+    TPL_BUILTIN.filter(b => b[3] === 'first').reverse().forEach(b => { TPL_NAME[b[0]] = b[2]; add(b[1], [b[0], b[2]], true); });
+    TPL_BUILTIN.filter(b => b[3] === 'last').forEach(b => { TPL_NAME[b[0]] = b[2]; add(b[1], [b[0], b[2]]); });
+    TPL_MENU = order.filter(g => groups[g] && groups[g].length).map(g => [g, groups[g]]);
+  }
+  buildMenu();
+  const MAN_URL = 'onepager-templates/manifest.json';
+  // bust: skip every cache (the Update button), so a sync pushed a minute ago shows up.
+  function loadManifest(bust) {
+    return fetch(MAN_URL + (bust ? '?t=' + Date.now() : ''), { cache: bust ? 'no-store' : 'no-cache' })
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(m => { if (!m || !Array.isArray(m.templates)) throw new Error('no template list'); return m; });
+  }
+  const tplBase = v => { const id = String(v || '').replace(/^dc:/, ''); const t = TPL_INFO[id]; return t && t.landscapeOf ? 'dc:' + t.landscapeOf : v; };
   const AUD = { sales: 'Sales team', leads: 'Store leads', support: 'Support team' };
   const EX_SKU = { code: 'SI_LEVEL_0-100', label: '$0–$100 orders' };
 
@@ -780,14 +835,16 @@
     merchant: '', repName: '', repEmail: '', logo: '', showLogo: true, meetingDate: todayStr(),
     accent: DEF_ACCENT.recap, accentSet: false, brandAccent: '',
     skuCode: EX_SKU.code, skuLabel: EX_SKU.label, band: 'ex', bands: [], pricing: null, econ: null,
-    claimsLink: '', escalation: '', contactName: '', dc: {},
+    claimsLink: '', escalation: '', contactName: '', dc: {}, roi: null,
     copy: { sales: {}, leads: {}, support: {}, shared: {}, recap: {}, gift: {} }, src: {}, r: blankR()
   });
   function hydrate(d) {
     const S = Object.assign(blank(), d || {});
     // Saves and drafts from before the recap template are draft-order guides.
     if (d && !d.template) { S.template = 'guide'; if (!d.meetingDate) S.meetingDate = todayStr(); }
-    if (!TPL_NAME[S.template]) S.template = 'recap';
+    // Canvas templates come from the manifest, which may still be loading: any dc:<id> is kept (a missing one says so).
+    if (!TPL_NAME[S.template] && !/^dc:[\w-]+$/.test(String(S.template))) S.template = 'recap';
+    if (S.roi && typeof S.roi !== 'object') S.roi = null;
     S.dc = (S.dc && typeof S.dc === 'object') ? S.dc : {};
     S.copy = Object.assign({ sales: {}, leads: {}, support: {}, shared: {}, recap: {}, gift: {} }, (d && d.copy) || {});
     S.r = Object.assign(blankR(), (d && d.r) || {});
@@ -1142,7 +1199,8 @@
   function dcLoad(id) {
     if (DC[id]) return;
     DC[id] = { loading: true, props: {} };
-    fetch('onepager-templates/' + encodeURIComponent(id) + '.dc.html', { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }).then(t => {
+    const info = TPL_INFO[id];
+    fetch('onepager-templates/' + encodeURIComponent(id) + '.dc.html' + (info && info.hash ? '?v=' + info.hash : ''), { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }).then(t => {
       // <sc-if>/<sc-for> become <template> so the HTML parser leaves them where they are (inside tables too).
       const src = t.replace(/<sc-(if|for)\b/g, '<template data-sc="$1"').replace(/<\/sc-(if|for)>/g, '</template>');
       const doc = new DOMParser().parseFromString(src, 'text/html');
@@ -1151,7 +1209,9 @@
       const h = x.querySelector('helmet'); if (h) h.remove();
       let props = {}; try { props = JSON.parse(sc.getAttribute('data-props') || '{}'); } catch (e) {}
       const Comp = new Function('DCLogic', sc.textContent + '\n;return Component;')(class { constructor(p) { this.props = p; } });
-      DC[id] = { props, Comp, root: x, title: doc.title };
+      // Page size: the template's own page box (its first element's width/height), which is what the canvas exports.
+      const pg = x.firstElementChild, pw = pg && parseFloat(pg.style.width), ph = pg && parseFloat(pg.style.height);
+      DC[id] = { props, Comp, root: x, title: doc.title, size: pw > 300 && ph > 300 && /px/.test(pg.style.width + pg.style.height) ? [pw, ph] : null };
       if (isDc() && dcId() === id) { if (!S.accentSet && !S.brandAccent) S.accent = defAcc(); paintAll(); }
     }).catch(e => { DC[id] = { error: String(e.message || e), props: {} }; if (isDc() && dcId() === id) paintAll(); });
   }
@@ -1214,7 +1274,9 @@
     if (el.tagName !== 'IMG' && textBlock(el)) {
       const k = el.getAttribute('data-dck'), ov = st.txt[k];
       el._o = el.innerHTML;
+      const filled = roiFill(el._o);   // always run: it numbers repeated placeholders in page order
       if (ov && ov.o === el._o) el.innerHTML = cleanInline(ov.h);
+      else if (filled !== el._o) el.innerHTML = filled;
       el.setAttribute('data-dct', k);
       el.setAttribute('contenteditable', el.children.length ? 'true' : PLAIN);
       el.setAttribute('spellcheck', 'true');
@@ -1229,7 +1291,7 @@
       Array.prototype.slice.call(n.childNodes).forEach(c => {
         if (c.nodeType === 1) {
           if (!INLINE.test(c.tagName)) { c.replaceWith(document.createTextNode(c.textContent)); return; }
-          Array.prototype.slice.call(c.attributes).forEach(a => { if (a.name !== 'style') c.removeAttribute(a.name); });
+          Array.prototype.slice.call(c.attributes).forEach(a => { if (a.name !== 'style' && !(c.tagName === 'A' && a.name === 'href' && /^https:\/\//i.test(a.value))) c.removeAttribute(a.name); });
           walk(c);
         } else if (c.nodeType !== 3) c.remove();
       });
@@ -1239,12 +1301,13 @@
   function renderDc() {
     const id = dcId(), d = DC[id];
     page.className = 'op-page t-dc';
-    if (!d || d.loading) { dcLoad(id); page.innerHTML = '<div class="dc-wait">Loading ' + esc(TPL_NAME[S.template]) + '…</div>'; return; }
+    if (!d || d.loading) { dcLoad(id); page.innerHTML = '<div class="dc-wait">Loading ' + esc(TPL_NAME[S.template] || id) + '…</div>'; return; }
     if (d.error) { page.innerHTML = '<div class="dc-wait">Couldn’t load this template (' + esc(d.error) + '). Pick another one, or reload.</div>'; return; }
     const st = dcSt(id), p = dcProps(id);
     let vals = {};
     try { vals = new d.Comp(p).renderVals() || {}; } catch (e) { page.innerHTML = '<div class="dc-wait">This template’s script failed: ' + esc(e.message) + '</div>'; return; }
     const keys = {}; Object.keys(d.props).forEach(k => { if (k[0] !== '$') keys[k] = 1; });
+    _roiT = roiTokens(); _roiN = {};
     const frag = document.createDocumentFragment();
     dcBuild(frag, d.root, Object.assign({}, vals), 'r', keys);
     page.innerHTML = '';
@@ -1339,6 +1402,211 @@
     if (h === el._o) delete st.txt[k]; else st.txt[k] = { o: el._o, h: h };
   }
 
+  // ═════ ROI numbers (ROI templates): from an ROI Calculator link or an ROI scenario saved in the Brand Folder ═════
+  // The calculator itself does the math: it loads hidden on this same site (drewshafe.github.io) with the scenario's
+  // settings, and its results (_bd, per view period) are read back, so the page always matches the calculator.
+  const isRoi = () => isDc() && /(^|-)ROI(-|$)/.test(dcId());
+  const CALC_BASE = (() => {
+    const m = /^(.*\/)si-widget-designer\//.exec(location.pathname);
+    return m ? location.origin + m[1] + 'si-roi-calculator/' : 'https://drewshafe.github.io/si-roi-calculator/';
+  })();
+  const MERCHANT_LINK = 'https://drewshafe.github.io/si-roi-calculator/proposal.html';
+  const n0 = v => Math.round(v).toLocaleString('en-US');
+  const pctT = v => num(v) + '%';
+  const money = v => { const a = Math.abs(v), sg = v < 0 ? '−' : ''; return sg + (a >= 1e6 ? '$' + (a / 1e6).toFixed(1).replace(/\.0$/, '') + 'M' : a >= 1000 ? '$' + (a / 1000).toFixed(a >= 1e5 ? 0 : 1).replace(/\.0$/, '') + 'K' : '$' + Math.round(a)); };
+  const okN = v => typeof v === 'number' && isFinite(v);
+  // Run the calculator on a scenario's query string; resolves with its results, rejects when it can't (other site, timeout).
+  function calcRun(qs) {
+    return new Promise((resolve, reject) => {
+      const fr = document.createElement('iframe');
+      fr.setAttribute('aria-hidden', 'true'); fr.tabIndex = -1;
+      fr.style.cssText = 'position:fixed;left:-3000px;top:0;width:1280px;height:900px;border:0;visibility:hidden;pointer-events:none';
+      const q = new URLSearchParams(qs); q.delete('id'); q.delete('ids'); q.delete('t');
+      const want = parseFloat(String(q.get('aov') || '').replace(/,/g, ''));
+      let done = false, last = null, stable = 0;
+      const end = (err, val) => { if (done) return; done = true; clearInterval(iv); clearTimeout(to); fr.remove(); err ? reject(err) : resolve(val); };
+      const read = () => {
+        let w; try { w = fr.contentWindow; if (!w || !w.document || w.document.readyState === 'loading') return; } catch (e) { return end(new Error('the calculator is on another site here')); }
+        let bd; try { bd = w.Function('return (typeof _bd !== "undefined" && _bd && _bd.ready) ? _bd : null')(); } catch (e) { return end(new Error('the calculator is on another site here')); }
+        if (!bd || (okN(want) && want > 0 && Math.abs(bd.aov - want) > 0.01)) return;
+        const snap = JSON.stringify([bd.orders, bd.aov, bd.premiumPool, bd.extraRevenue]);
+        stable = snap === last ? stable + 1 : 0; last = snap;
+        if (stable < 2) return;   // the calculator recalculates as its inputs load: wait for two identical reads
+        let view = 'monthly', link = '';
+        try { view = (w.document.getElementById('timeframe') || {}).value || 'monthly'; } catch (e) {}
+        try { link = typeof w.buildMerchantLink === 'function' ? w.buildMerchantLink() : ''; } catch (e) {}
+        end(null, { bd: JSON.parse(JSON.stringify(bd)), view, link });
+      };
+      const iv = setInterval(read, 250);
+      const to = setTimeout(() => end(new Error('the calculator took too long to load')), 25000);
+      fr.src = CALC_BASE + 'index.html?' + q.toString();
+      document.body.appendChild(fr);
+    });
+  }
+  // A scenario's numbers, from the calculator's results (or from its inputs alone when the calculator can't run here).
+  function roiValues(qs, run) {
+    const q = new URLSearchParams(qs), n = k => parseFloat(String(q.get(k) || '').replace(/,/g, ''));
+    // Pricing as the calculator ran it (its merchant link carries the defaults it filled in, e.g. the minimum fee).
+    const lq = run && run.link && run.link.indexOf('?') > 0 ? new URLSearchParams(run.link.slice(run.link.indexOf('?') + 1)) : null;
+    const feeTxt = (lq && pricingText(pricingOf(lq))) || pricingText(pricingOf(q));
+    if (run) {
+      const b = run.bd, per = run.view === 'annual' ? 1 : 12, cov = b.coverageType || 'standard';
+      const avoided = cov === 'full' ? b.coveredClaimLossAvoided : cov === 'hybrid' ? b.hybOptInClaimsFunded + b.hybMerchantClaimsCov : b.siFundedReships + (b.guaranteeEnabled ? b.gSiFundedClaims : 0);
+      const rev = cov === 'full' ? 0 : cov === 'hybrid' ? b.revShareEarnedOptIn : b.revenueShareAmount;
+      const net = cov === 'full' ? -b.netCostOfSI : cov === 'hybrid' ? b.hybridNetValue : b.extraRevenue;
+      return {
+        computed: true, view: run.view, cov, feeTxt, link: run.link,
+        orders: b.orders, aov: b.aov, claimP: b.claimsP * 100, attach: b.attachP * 100, share: b.revShareP * 100, avgPremium: b.avgPremium,
+        claimsTodayYr: (b.csCostTotal + b.cogsAmount) * per, protClaimsYr: b.protectedClaims * per,
+        claimAtAov: Math.abs(b.siClaimValue - b.aov) < 0.005, siClaimValue: b.siClaimValue,
+        avoidedYr: avoided * per, revYr: rev * per, netYr: net * per, gross: !!b.grossRevShare,
+        returns: !!b.returnsEnabled, cashback: !!b.cashbackEnabled, guarantee: !!b.guaranteeEnabled
+      };
+    }
+    const ct = q.get('claimstype') || 'pct';
+    return {
+      computed: false, view: (q.get('view') || 'monthly') === 'annual' ? 'annual' : 'monthly', feeTxt,
+      orders: n('orders'), aov: n('aov'), claimP: ct === 'pct' ? n('claims') : NaN, attach: okN(n('attach')) ? n('attach') : 68, share: okN(n('share')) ? n('share') : 25,
+      avgPremium: n('avg_premium')
+    };
+  }
+  // Placeholder → its value, in page order for placeholders that repeat ('[Value]', '[%]', '$[000K]').
+  let _roiT = null, _roiN = {};
+  function roiTokens() {
+    const R = S.roi; if (!isRoi() || !R || !R.v) return null;
+    const v = R.v, hyb = /ROI-Hybrid/.test(dcId()), mo = v.view !== 'annual';
+    const has = x => okN(x) && !(x === 0 && !v.computed);
+    const src = R.title ? 'the ROI scenario “' + R.title + '”' : 'the ROI calculator', srcShort = R.title ? 'from the ROI scenario' : 'from the calculator';
+    const basis = v.claimAtAov ? 'the order value (' + usd(Math.round(v.aov)) + ')' : 'the reship cost (' + usd(Math.round(v.siClaimValue)) + ')';
+    const claimsLine = has(v.protClaimsYr) ? n0(v.protClaimsYr) + ' claims a year on protected orders, each covered at ' + basis : null;
+    const fee = v.feeTxt || (has(v.avgPremium) ? 'about ' + fee2(v.avgPremium) + ' per protected order' : null);
+    const revLine = v.cov === 'full' ? 'Merchant-paid coverage, so no revenue share'
+      : has(v.share) && has(v.attach) ? pctT(v.share) + ' of the premium pool' + (v.gross ? '' : ' after claims') + ', at ' + pctT(v.attach) + ' attach' + (fee ? ' and ' + fee : '') : null;
+    const extras = [v.returns && 'returns offset', v.cashback && 'cashback', v.guarantee && 'guarantee claims'].filter(Boolean);
+    const totalLine = v.computed ? (v.cov === 'full' ? 'Claims, returns and support time covered, minus the premium' : ['Claims covered', 'revenue share'].concat(extras).join(' + ')) : null;
+    const notIn = ['repeat purchases', 'conversion lift'].concat(v.cov === 'full' ? [] : ['support time saved'], v.returns ? [] : ['returns'], v.cashback ? [] : ['cashback']);
+    const link = R.link || v.link;
+    const linkH = link ? { html: '<a href="' + esc(link) + '" style="color:inherit;text-decoration:underline" target="_blank" rel="noopener">Your ROI calculator</a>' } : null;
+    const T = {
+      '[Monthly orders]': [mo ? 'Monthly orders' : 'Annual orders'],
+      '[Average order value]': ['Average order value'],
+      '[Claim or reship rate]': ['Claim rate'],
+      '[Current protection cost]': [hyb ? (v.computed ? money(v.claimsTodayYr) + ' a year in claims today' : null) : 'Claims cost today, per year'],
+      '[Value]': [has(v.orders) ? n0(v.orders) : null, has(v.aov) ? usd(Math.round(v.aov * 100) / 100) : null, has(v.claimP) ? pctT(v.claimP) : null, v.computed ? money(v.claimsTodayYr) : null],
+      '[Annual claims cost avoided]': [v.computed ? money(v.avoidedYr) + ' a year in claims covered' : null],
+      '[Modeled value and the inputs behind it]': [claimsLine],
+      '[Revenue share]': [v.computed ? money(v.revYr) + ' a year in revenue share' : null],
+      '[Modeled value, attach rate and fee used]': [revLine],
+      '[Net modeled value]': [v.computed ? money(v.netYr) + ' a year, net modeled value' : null],
+      '[Total, with the assumptions listed below]': [totalLine],
+      '[Attach rate used and where it came from]': [has(v.attach) ? pctT(v.attach) + ' attach rate, from ' + src : null],
+      '[Fee structure used in the model]': [fee ? fee.charAt(0).toUpperCase() + fee.slice(1) + (v.feeTxt && has(v.avgPremium) ? ', about ' + fee2(v.avgPremium) + ' per protected order' : '') : null],
+      '[What is not included in the model]': ['Not modeled: ' + notIn.join(', ')],
+      '[%]': [has(v.attach) ? pctT(v.attach) : null, has(v.share) ? pctT(v.share) : null],
+      '[% of order value, minimum]': [v.feeTxt || null],
+      '[Link]': [linkH], '[Calculator link]': [linkH],
+      '[0,000]': [has(v.orders) ? n0(v.orders) : null],
+      '[Source or time window]': [(mo ? 'Per month, ' : 'Per year, ') + srcShort, 'Per order, ' + srcShort],
+      '$[000]': [has(v.aov) ? usd(Math.round(v.aov * 100) / 100) : null],
+      '[0.0%]': [has(v.claimP) ? pctT(v.claimP) : null],
+      '[Inputs behind the model]': [[v.feeTxt, has(v.attach) && pctT(v.attach) + ' attach', has(v.share) && pctT(v.share) + ' revenue share'].filter(Boolean).join(', ') || null],
+      '$[000K]': v.computed ? [money(v.avoidedYr), money(v.revYr), money(v.netYr)] : [],
+      '[Modeled value and the inputs]': [claimsLine],
+      '[Attach rate and fee used]': [has(v.attach) ? pctT(v.attach) + ' attach' + (fee ? ', ' + fee : '') : null],
+      '[Total, assumptions below]': [totalLine]
+    };
+    return T;
+  }
+  function roiFill(h) {
+    if (!_roiT || h.indexOf('[') < 0) return h;
+    return h.replace(/\$?\[[^\]<]{1,60}\]/g, m => {
+      const list = _roiT[m]; if (!list) return m;
+      const i = _roiN[m] = (_roiN[m] || 0) + 1, val = list[i - 1];
+      return val == null ? m : typeof val === 'object' ? val.html : esc(val);
+    });
+  }
+  // Side panel: ROI numbers (only on ROI templates)
+  function paintRoi() {
+    const on = isRoi();
+    $('roiFld').hidden = !on;
+    if (!on) { $('roiDD').hidden = true; return; }
+    const f = window.SIsb ? SIsb.getActiveFolder() : null;
+    $('roiFolder').hidden = !f;
+    $('roiFolder').title = f ? 'Pick an ROI scenario saved in ' + f.name + '’s Brand Folder' : '';
+    const R = S.roi, v = R && R.v;
+    $('roiOn').hidden = !v;
+    if (v) {
+      const bits = [okN(v.orders) && v.orders ? n0(v.orders) + (v.view === 'annual' ? ' orders/yr' : ' orders/mo') : '', okN(v.aov) && v.aov ? usd(Math.round(v.aov)) + ' AOV' : '', okN(v.attach) ? pctT(v.attach) + ' attach' : ''].filter(Boolean);
+      $('roiOn').innerHTML = '<span>📈 <b>' + esc(R.title || 'ROI Calculator link') + '</b>' + (bits.length ? ' · ' + esc(bits.join(' · ')) : '') +
+        (v.computed ? '' : '<br>Inputs only: the calculator couldn’t run here, so the modeled values stay as placeholders.') + '</span>' +
+        '<button type="button" id="roiClear" title="Stop using these numbers (the template’s placeholders come back)" aria-label="Clear the ROI numbers">✕</button>';
+    }
+  }
+  const roiMsg = (t, warn) => { $('roiMsg').textContent = t || ''; $('roiMsg').classList.toggle('warn', !!warn); };
+  async function useRoi(qs, meta) {
+    roiMsg('Running the ROI calculator…');
+    let run = null, err = null;
+    try { run = await calcRun(qs); } catch (e) { err = e; }
+    const v = roiValues(qs, run);
+    if (!okN(v.orders) || !v.orders) { roiMsg('That scenario has no order volume to model.', true); return; }
+    S.roi = { title: meta.title || '', link: meta.link || '', id: meta.id || '', q: String(qs).replace(/^\?/, ''), at: new Date().toISOString(), v };
+    const mname = new URLSearchParams(qs).get('mname');
+    if (mname && !S.merchant) S.merchant = mname;
+    paintAll(); checkFit(); saveDraft();
+    roiMsg(err ? 'Filled the inputs. The calculator couldn’t run here (' + (err.message || err) + '), so the modeled values stay as placeholders.' : 'Filled from the calculator. Click any number on the page to adjust it.', !!err);
+  }
+  async function roiFromLink() {
+    const raw = ($('f-roi').value || '').trim(); if (!raw) { $('f-roi').focus(); return; }
+    let u; try { u = new URL(raw); } catch (e) { u = null; }
+    if (!u || !(/(^|\.)drewshafe\.github\.io$/i.test(u.hostname) || u.hostname === location.hostname) || !/si-roi-calculator|si-rep-hub/i.test(u.pathname + u.hash)) { roiMsg('Paste a link from the ROI Calculator (drewshafe.github.io/si-roi-calculator/…).', true); return; }
+    let qs = u.search.replace(/^\?/, '');
+    if (!qs && u.hash.indexOf('?') >= 0) qs = u.hash.slice(u.hash.indexOf('?') + 1);
+    const p = new URLSearchParams(qs), id = p.get('id');
+    let title = '', link = /proposal\.html/i.test(u.pathname) ? u.href : '';
+    if (id && !p.get('orders')) {
+      // Short link: the scenario saved in the cloud
+      if (!window.SIsb) { roiMsg('This short link needs the Rep Hub sign-in to read.', true); return; }
+      roiMsg('Reading the saved scenario…');
+      try { const row = await SIsb.loadConfig(id); qs = String(((row && row.data) || {}).q || '').replace(/^\?/, ''); title = (row && row.title) || ''; link = MERCHANT_LINK + '?id=' + encodeURIComponent(id); }
+      catch (e) { roiMsg('Couldn’t read that scenario (' + (e.message || e) + '). Sign in from the folder bar and try again.', true); return; }
+      if (!qs) { roiMsg('That scenario has no calculator settings.', true); return; }
+    }
+    await useRoi(qs, { title, link, id: id || '' });
+    $('f-roi').value = '';
+  }
+  async function roiMenu() {
+    const dd = $('roiDD');
+    if (!dd.hidden) { dd.hidden = true; return; }
+    const f = window.SIsb ? SIsb.getActiveFolder() : null; if (!f) return;
+    dd.hidden = false; dd.innerHTML = '<div class="em">Loading…</div>';
+    try {
+      const u = await SIsb.currentUser();
+      if (!u) throw new Error('Sign in from the folder bar to see this folder’s ROI scenarios.');
+      const rows = ((await SIsb.folderContents(f.id)).scenarios || []).filter(r => r.kind === 'roi' || r.kind === 'proposal')
+        .sort((a, b) => (Date.parse(b.updated_at) || 0) - (Date.parse(a.updated_at) || 0));
+      const ago = t => { const x = (Date.now() - Date.parse(t)) / 1000; return !(x >= 0) ? '' : x < 3600 ? Math.max(1, Math.round(x / 60)) + 'm ago' : x < 86400 ? Math.round(x / 3600) + 'h ago' : Math.round(x / 86400) + 'd ago'; };
+      dd.innerHTML = '<div class="hd">ROI scenarios in ' + esc(f.name) + '</div>' + (rows.length
+        ? rows.map(r => '<button type="button" class="it" role="menuitem" data-id="' + esc(r.id) + '"><b>' + esc(r.title || 'ROI scenario') + '</b><span>' + (r.kind === 'proposal' ? 'Custom Build' : 'ROI Builder') + ' · ' + esc(ago(r.updated_at)) + '</span></button>').join('')
+        : '<div class="em">No ROI scenarios in ' + esc(f.name) + ' yet. Save one from the ROI Builder to this merchant, or paste a calculator link.</div>');
+    } catch (e) { dd.innerHTML = '<div class="em">' + esc(e.message || e) + '</div>'; }
+  }
+  async function roiFromScenario(id) {
+    $('roiDD').hidden = true;
+    roiMsg('Reading the saved scenario…');
+    try {
+      const row = await SIsb.loadConfig(id), qs = String(((row && row.data) || {}).q || '').replace(/^\?/, '');
+      if (!qs) throw new Error('that scenario has no calculator settings');
+      await useRoi(qs, { title: row.title || 'ROI scenario', link: MERCHANT_LINK + '?id=' + encodeURIComponent(id), id });
+    } catch (e) { roiMsg('Couldn’t load it: ' + (e.message || e), true); }
+  }
+  $('roiGo').addEventListener('click', roiFromLink);
+  $('f-roi').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); roiFromLink(); } });
+  $('roiFolder').addEventListener('click', roiMenu);
+  $('roiDD').addEventListener('click', e => { const it = e.target.closest('.it'); if (it) roiFromScenario(it.dataset.id); });
+  $('roiOn').addEventListener('click', e => { if (e.target.closest('#roiClear')) { S.roi = null; roiMsg(''); paintAll(); checkFit(); saveDraft(); } });
+  document.addEventListener('click', e => { const dd = $('roiDD'); if (!dd.hidden && !dd.contains(e.target) && !e.target.closest('#roiFolder')) dd.hidden = true; });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') $('roiDD').hidden = true; });
+
   // How far the page's content (not its decorations: blurred glows sit absolutely, past the edge) runs past the bottom.
   function dcOverBy() {
     const r = page.firstElementChild; if (!r || r.classList.contains('dc-wait')) return 0;
@@ -1358,8 +1626,31 @@
     return Math.max(0, max - r.clientHeight);
   }
 
+  // Page size: the canvas template's own artboard (Letter portrait 816×1056 or landscape 1056×816).
+  const PAGE = { w: 816, h: 1056 };
+  let _pageSz = '';
+  function pageSize() {
+    let w = 816, h = 1056;
+    if (isDc()) {
+      const d = DC[dcId()], pv = d && d.props && d.props.$preview, info = TPL_INFO[dcId()];
+      if (d && d.size) { w = d.size[0]; h = d.size[1]; }
+      else if (info && info.w && info.h) { w = +info.w; h = +info.h; }
+      else if (pv && pv.width && pv.height) { w = +pv.width; h = +pv.height; }
+    }
+    PAGE.w = w; PAGE.h = h;
+    const k = w + 'x' + h;
+    if (k === _pageSz) return;
+    _pageSz = k;
+    document.documentElement.style.setProperty('--pw', w + 'px');
+    document.documentElement.style.setProperty('--ph', h + 'px');
+    let st = document.getElementById('pageSz');
+    if (!st) { st = document.createElement('style'); st.id = 'pageSz'; document.head.appendChild(st); }
+    st.textContent = '@page { size:' + (w / 96) + 'in ' + (h / 96) + 'in; margin:0; }';
+    if (fit.s) fit();
+  }
   function render() {
     page.removeAttribute('style');
+    pageSize();
     if (fit.s && fit.s !== 1) page.style.transform = 'scale(' + fit.s + ')';
     recap() ? renderRecap() : isDc() ? renderDc() : S.template === 'gift' ? renderGift() : renderGuide();
     if (document.body.classList.contains('view')) page.querySelectorAll('[contenteditable]').forEach(el => el.setAttribute('contenteditable', 'false'));
@@ -1602,8 +1893,17 @@
   // ── Side panel ──
   const fillSelect = (sel, opts) => { const k = opts.join('|'); if (sel._k !== k) { sel._k = k; sel.innerHTML = opts.map(o => '<option>' + esc(o) + '</option>').join(''); } };
   function paintSide() {
-    if (!$('tplSel').options.length) $('tplSel').innerHTML = TPL_MENU.map(g => '<optgroup label="' + esc(g[0]) + '">' + g[1].map(t => '<option value="' + esc(t[0]) + '">' + esc(t[1]) + '</option>').join('') + '</optgroup>').join('');
-    if (document.activeElement !== $('tplSel')) $('tplSel').value = S.template;
+    const menuK = JSON.stringify(TPL_MENU), sel = $('tplSel');
+    if (sel._k !== menuK) { sel._k = menuK; sel.innerHTML = TPL_MENU.map(g => '<optgroup label="' + esc(g[0]) + '">' + g[1].map(t => '<option value="' + esc(t[0]) + '">' + esc(t[1]) + '</option>').join('') + '</optgroup>').join(''); }
+    const base = tplBase(S.template);
+    if (base && !TPL_NAME[base] && !sel.querySelector('option[data-tmp]')) sel.insertAdjacentHTML('afterbegin', '<option data-tmp value="' + esc(base) + '">' + esc(base.replace(/^dc:/, '')) + '</option>');
+    if (document.activeElement !== sel) sel.value = base;
+    // Portrait / Landscape: shown when the canvas has both versions of this template
+    const bid = String(base).replace(/^dc:/, ''), landId = LAND[bid];
+    $('orient').hidden = !(String(base).indexOf('dc:') === 0 && landId);
+    document.querySelectorAll('#orient [data-o]').forEach(b => { const on = (b.dataset.o === 'l') === (dcId() === landId && isDc()); b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
+    $('tplSync').textContent = MAN.synced ? 'Templates synced from the design project ' + new Date(MAN.synced).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + '.' : '';
+    paintRoi();
     paintDcPanel();
     $('accGrp').hidden = isDc() && !!DC[dcId()] && !DC[dcId()].loading && !('accent' in DC[dcId()].props);
     document.querySelectorAll('[data-only]').forEach(el => { el.hidden = el.dataset.only.split(' ').indexOf(kind()) < 0 || (el.id === 'logoGrp' && !S.logo); });
@@ -1752,13 +2052,58 @@
   });
 
   // ── Side panel events ──
-  $('tplSel').addEventListener('change', e => {
-    const v = e.target.value; if (!TPL_NAME[v] || v === S.template) return;
+  // Switch to a template; Tweaks carry over to its other orientation the first time it's opened.
+  function setTemplate(v) {
+    const from = isDc() ? dcId() : '';
     S.template = v;
+    if (isDc() && from && !S.dc[dcId()] && S.dc[from]) {
+      const a = TPL_INFO[from] || {}, b = TPL_INFO[dcId()] || {};
+      if ((a.landscapeOf || from) === (b.landscapeOf || dcId())) dcSt(dcId()).props = Object.assign({}, S.dc[from].props);
+    }
+  }
+  $('tplSel').addEventListener('change', e => {
+    let v = e.target.value; if (!TPL_NAME[v] || v === tplBase(S.template)) return;
+    // Keep landscape when the new template has a landscape version too.
+    const cur = isDc() ? TPL_INFO[dcId()] : null, l = LAND[v.replace(/^dc:/, '')];
+    if (cur && cur.landscapeOf && v.indexOf('dc:') === 0 && l) v = 'dc:' + l;
+    setTemplate(v);
     if (isDc() && (!DC[dcId()] || DC[dcId()].loading)) { dcLoad(dcId()); paintAll(); saveDraft(); return; }
     if (!S.accentSet && !S.brandAccent) S.accent = defAcc();
     paintAll(); saveDraft();
   });
+  $('orient').addEventListener('click', e => {
+    const b = e.target.closest('[data-o]'); if (!b) return;
+    const base = tplBase(S.template), l = LAND[String(base).replace(/^dc:/, '')]; if (!l) return;
+    const v = b.dataset.o === 'l' ? 'dc:' + l : base; if (v === S.template) return;
+    setTemplate(v);
+    if (!DC[dcId()] || DC[dcId()].loading) dcLoad(dcId());
+    paintAll(); fit(); checkFit(); saveDraft();
+  });
+  // ↻ Update: re-read the template list from GitHub (past every cache) and reload what changed. New and updated
+  // designs reach it when they're synced from the design project (onepager-templates/sync.py, then pushed).
+  async function updateTemplates(quiet) {
+    const btn = $('tplUpd'); btn.disabled = true; const was = btn.textContent; btn.textContent = '↻ Checking…';
+    try {
+      const m = await loadManifest(true);
+      const old = {}; (MAN.templates || []).forEach(t => { old[t.id] = t.hash; });
+      const had = (MAN.templates || []).length > 0;
+      const added = m.templates.filter(t => !(t.id in old)), changed = m.templates.filter(t => t.id in old && old[t.id] !== t.hash);
+      MAN = m; buildMenu();
+      changed.concat(added).forEach(t => { delete DC[t.id]; });
+      if (isDc() && !DC[dcId()]) dcLoad(dcId());
+      paintAll(); fit(); checkFit();
+      if (quiet) return;
+      const names = list => list.filter(t => !t.landscapeOf).map(t => t.label).slice(0, 3).join(', ');
+      const land = list => list.filter(t => t.landscapeOf).length;
+      const bit = (n, list, what) => n ? n + ' ' + what + (names(list) ? ' (' + names(list) + (list.length > 3 ? '…' : '') + ')' : '') : '';
+      const parts = had ? [bit(added.length, added, 'new'), bit(changed.length, changed, 'updated')].filter(Boolean) : [];
+      const lc = land(added);
+      toast(parts.length ? parts.join(' · ') + (lc ? ' · ' + lc + ' landscape' : '') : 'Templates are up to date with the last sync from the design project');
+    } catch (e) {
+      toast('Couldn’t check for new templates (' + (e.message || e) + ')');
+    } finally { btn.disabled = false; btn.textContent = was; }
+  }
+  $('tplUpd').addEventListener('click', () => updateTemplates(false));
   $('aud').addEventListener('click', e => {
     const b = e.target.closest('[data-aud]'); if (!b || b.dataset.aud === S.audience) return;
     S.audience = b.dataset.aud; paintAll(); saveDraft();
@@ -1835,14 +2180,14 @@
   // ── Fit: scale the page to the stage width; warn when copy runs past one page ──
   function fit() {
     const w = stage.clientWidth - (window.innerWidth <= 900 ? 32 : 56);
-    const s = Math.max(0.3, Math.min(1, w / 816));
-    fitEl.style.width = Math.floor(816 * s) + 'px';
-    fitEl.style.height = Math.floor(1056 * s) + 'px';
+    const s = Math.max(0.3, Math.min(1, w / PAGE.w));
+    fitEl.style.width = Math.floor(PAGE.w * s) + 'px';
+    fitEl.style.height = Math.floor(PAGE.h * s) + 'px';
     page.style.transform = s === 1 ? '' : 'scale(' + s + ')';
     fit.s = s;
   }
   function overflows() {
-    if (page.scrollWidth > 816 + 1) return true;
+    if (page.scrollWidth > PAGE.w + 1) return true;
     // Recap: either column ending closer than 8px to the page's bottom edge (it can use part of the bottom padding).
     if (recap()) { const cols = page.querySelectorAll('main > *'); return Array.prototype.some.call(cols, c => c.offsetTop + c.offsetHeight > 1056 - 8); }
     if (isDc()) return dcOverBy() > 1;
@@ -1886,7 +2231,7 @@
     });
     if (!Object.keys(items).length) { toast('No long copy to tighten: turn a section off instead'); return; }
     const total = Object.values(items).reduce((n, t) => n + t.length, 0);
-    const pct = Math.max(15, Math.min(45, Math.round(overBy() / 1056 * 160) + 12));
+    const pct = Math.max(15, Math.min(45, Math.round(overBy() / PAGE.h * 160) + 12));
     _tight.busy = true;
     const b = $('tightBtn'); b.disabled = true; b.textContent = '✂ Tightening…';
     try {
@@ -2160,12 +2505,17 @@
     if (!a || a.id !== qp.get('folder')) SIsb.setActiveFolder({ id: qp.get('folder'), name: qp.get('fname') || (a && a.id === qp.get('folder') ? a.name : '') });
   }
   startFor(window.SIsb ? SIsb.getActiveFolder() : null);
-  if (TPL_NAME[qp.get('template')]) S.template = qp.get('template');
-  else if (TPL_NAME['dc:' + qp.get('template')]) S.template = 'dc:' + qp.get('template');
+  { const t = qp.get('template') || ''; if (TPL_NAME[t]) S.template = t; else if (/^(dc:)?[\w-]+$/.test(t) && !TPL_BUILTIN.some(b => b[0] === t)) S.template = 'dc:' + t.replace(/^dc:/, ''); }
   if (AUD[qp.get('audience')]) { S.template = 'guide'; S.audience = qp.get('audience'); }
   if (LENSES[qp.get('audience')]) { S.template = 'recap'; S.r.audience = qp.get('audience'); }
   paintAll();
   fit();
+  // The template list (manifest.json); a canvas template picked before it arrived loads now, at its synced version.
+  loadManifest(false).then(m => {
+    MAN = m; buildMenu();
+    if (isDc() && DC[dcId()] && DC[dcId()].error) delete DC[dcId()];
+    paintAll(); fit(); checkFit();
+  }).catch(() => { $('tplSync').textContent = 'Couldn’t load the template list. Reload, or click ↻ Update.'; });
   const wantAsset = qp.get('asset');
   const wantCall = qp.get('fathom');
   if (wantCall) $('f-fathom').value = wantCall;
