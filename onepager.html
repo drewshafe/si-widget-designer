@@ -1967,9 +1967,32 @@
     const imgs = Array.from(page.querySelectorAll('img')).filter(i => !i.complete);
     await Promise.all(imgs.map(i => new Promise(r => { i.onload = i.onerror = r; setTimeout(r, 2500); })));
     _title = document.title; document.title = fileName();
+    stripPrintShadows();
     window.print();
   }
-  window.addEventListener('afterprint', () => { document.title = _title; });
+  // Print: Chrome's PDF output turns a soft outer box-shadow over a backdrop-filtered (glass) card into a flat,
+  // lighter rectangle, e.g. behind the call-to-action button. While printing, outer shadows on the page are dropped;
+  // inset highlights stay, so buttons and cards keep their edge light.
+  let _printShadows = null;
+  function shadowParts(v) { const out = []; let d = 0, cur = ''; for (const ch of v) { if (ch === '(') d++; if (ch === ')') d--; if (ch === ',' && !d) { out.push(cur.trim()); cur = ''; } else cur += ch; } if (cur.trim()) out.push(cur.trim()); return out; }
+  function stripPrintShadows() {
+    if (_printShadows) return;
+    _printShadows = [];
+    page.querySelectorAll('*').forEach(el => {
+      const bs = getComputedStyle(el).boxShadow; if (!bs || bs === 'none') return;
+      const parts = shadowParts(bs), keep = parts.filter(x => /\binset\b/.test(x));
+      if (keep.length === parts.length) return;
+      _printShadows.push([el, el.style.boxShadow, el.style.getPropertyPriority('box-shadow')]);
+      el.style.setProperty('box-shadow', keep.length ? keep.join(', ') : 'none', 'important');
+    });
+  }
+  function restorePrintShadows() {
+    if (!_printShadows) return;
+    _printShadows.forEach(([el, v, pr]) => { el.style.removeProperty('box-shadow'); if (v) el.style.setProperty('box-shadow', v, pr); });
+    _printShadows = null;
+  }
+  window.addEventListener('beforeprint', stripPrintShadows);
+  window.addEventListener('afterprint', () => { document.title = _title; restorePrintShadows(); });
   $('exportBtn').addEventListener('click', () => exportPdf(false));
   $('dlBtn').addEventListener('click', () => exportPdf(true));
 
